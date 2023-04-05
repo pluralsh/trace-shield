@@ -3806,9 +3806,9 @@ __metadata:
   linkType: hard
 
 "@ory/elements@npm:^0.0.1-beta.5":
-  version: 0.0.1-beta.5
-  resolution: "@ory/elements@npm:0.0.1-beta.5"
-  checksum: f370d56529be00299bb182d13fe93644fff21c02785d3f74a8c446d783efabcb0484c77e502ff614e8b08b3e9056040a36c2b4fa4cb207060438bd596f3b9471
+  version: 0.0.1-beta.6
+  resolution: "@ory/elements@npm:0.0.1-beta.6"
+  checksum: 002a43b9e7b292005737c3170992f1487de460a4e874c7991181f3819f16db66160464d915b5ebd249bc534ec395f57c8d79e745a93d282429868f9e126d10ff
   languageName: node
   linkType: hard
 
