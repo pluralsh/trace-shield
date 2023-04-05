@@ -2,7 +2,10 @@ name: docker-build
 
 on:
   push:
-    branches: [ main ]
+    branches:
+      - main
+    tags:
+      - 'v*.*.*'
 
 jobs:
   docker-build-backend:
@@ -29,9 +32,7 @@ jobs:
             ghcr.io/pluralsh/trace-shield/backend
           # generate Docker tags based on the following events/attributes
           tags: |
-            type=sha
-            type=ref,event=pr
-            type=ref,event=branch
+            type=semver,pattern={{version}}
       -
         name: Set up QEMU
         uses: docker/setup-qemu-action@v2
@@ -45,7 +46,7 @@ jobs:
           context: .
           file: ./Dockerfile
           platforms: linux/amd64,linux/arm64
-          push: ${{ github.event_name != 'pull_request' }}
+          push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
   docker-build-frontend:
@@ -72,9 +73,7 @@ jobs:
             ghcr.io/pluralsh/trace-shield/frontend
           # generate Docker tags based on the following events/attributes
           tags: |
-            type=sha
-            type=ref,event=pr
-            type=ref,event=branch
+            type=semver,pattern={{version}}
       -
         name: Set up QEMU
         uses: docker/setup-qemu-action@v2
@@ -88,6 +87,6 @@ jobs:
           context: ./frontend
           file: ./frontend/Dockerfile
           platforms: linux/amd64,linux/arm64
-          push: ${{ github.event_name != 'pull_request' }}
+          push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
