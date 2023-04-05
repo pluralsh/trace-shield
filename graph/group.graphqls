@@ -1,0 +1,33 @@
+"Representation a group of users."
+type Group {
+  "The unique name of the group."
+  name: String!
+
+  "The users that are admins of the organization."
+  members: [User!]
+
+  "The organization that the group belongs to."
+  organization: Organization!
+}
+
+extend type Query {
+  "Get a list of all users."
+  listGroups: [Group!] @checkPermissions @isAuthenticated
+}
+
+extend type Mutation {
+  "Create or update a group."
+  group(
+    "The unique name of the group."
+    name: String!
+
+    "The IDs of the users that are members of the group."
+    members: [String!]
+  ): Group! @checkPermissions @isAuthenticated
+
+  "Delete a group."
+  deleteGroup(
+    "The unique name of the group."
+    name: String!
+  ): Group! @checkPermissions @isAuthenticated
+}

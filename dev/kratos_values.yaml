@@ -1,0 +1,85 @@
+job:
+  annotations:
+    helm.sh/hook-weight: "1"
+    helm.sh/hook: "post-install, post-upgrade"
+    helm.sh/hook-delete-policy: "before-hook-creation,hook-succeeded"
+kratos:
+  automigration:
+    enabled: true
+  config:
+    dev: true
+    serve:
+      public:
+        base_url: https://localhost.pluraldev.sh:4455/.ory/kratos/public/
+        cors:
+          enabled: true
+          allowed_origins:
+          - http://localhost:3000
+          - https://localhost:3000
+          - http://localhost.pluraldev.sh:4455
+          - https://localhost.pluraldev.sh:4455
+    dsn: postgres://kratos:kratospassword@postgresql-kratos:5432/kratos
+    oauth2_provider:
+      url: http://hydra-admin.hydra:4445
+    selfservice:
+      default_browser_return_url: https://localhost.pluraldev.sh:4455/
+
+      methods:
+        password:
+          enabled: true
+        webauthn:
+          enabled: true
+          config:
+            passwordless: true
+            rp:
+              id: localhost.pluraldev.sh
+              display_name: Ory Foundation
+              icon: https://www.ory.sh/an-icon.png
+              origin: https://localhost.pluraldev.sh:4455/login
+
+      flows:
+        error:
+          ui_url: https://localhost.pluraldev.sh:4455/error
+
+        settings:
+          ui_url: https://localhost.pluraldev.sh:4455/settings
+          privileged_session_max_age: 15m
+
+        recovery:
+          enabled: true
+          ui_url: https://localhost.pluraldev.sh:4455/recovery
+
+        verification:
+          enabled: true
+          ui_url: https://localhost.pluraldev.sh:4455/verification
+          after:
+            default_browser_return_url: https://localhost.pluraldev.sh:4455/
+
+        logout:
+          after:
+            default_browser_return_url: https://localhost.pluraldev.sh:4455/login
+
+        login:
+          ui_url: https://localhost.pluraldev.sh:4455/login
+          lifespan: 10m
+
+        registration:
+          lifespan: 10m
+          ui_url: https://localhost.pluraldev.sh:4455/registration
+          after:
+            password:
+              hooks:
+                - hook: session
+            webauthn:
+              hooks:
+                - hook: session
+
+    courier:
+      smtp:
+        connection_uri: smtps://SMTP_USER:SMTP_PASSWORD@SMTP_SERVER:59867/?skip_ssl_verify=true
+        from_address: test@example.com
+    identity:
+      default_schema_id: person
+      schemas:
+        - id: person
+          url: file:///etc/config/identity.person.schema.json

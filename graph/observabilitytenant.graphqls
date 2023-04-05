@@ -1,0 +1,527 @@
+"Representation a tenant in the Grafana observability stack where metrics, logs and traces can be sent to or retrieved from."
+type ObservabilityTenant {
+  "The unique name of the tenant."
+  name: String!
+
+  "The organization that the tenant belongs to."
+  organization: Organization!
+
+  "The users that are admins of the organization."
+  viewers: ObservabilityTenantViewers
+
+  "The users and groups that can edit a tenant to add users, groups or oauth2 clients to it."
+  editors: ObservabilityTenantEditors
+
+  "The limits of the tenant."
+  limits: ObservabilityTenantLimits
+}
+
+"Representation of the limits of a tenant."
+type ObservabilityTenantLimits {
+  "The limits for Mimir for the tenant."
+  mimir: MimirLimits
+
+  # "The limits for Loki for the tenant."
+  # loki: LokiLimits
+
+  # "The limits for Tempo for the tenant."
+  # tempo: TempoLimits
+}
+
+"Inputs for the limits of a tenant."
+input ObservabilityTenantLimitsInput {
+  "The limits for Mimir for the tenant."
+  mimir: MimirLimitsInput
+
+  # "The limits for Loki for the tenant."
+  # loki: LokiLimitsInput
+
+  # "The limits for Tempo for the tenant."
+  # tempo: TempoLimitsInput
+}
+
+scalar Duration
+scalar FloatMap
+scalar ForwardingRuleMap
+
+"Representation of the limits for Mimir for a tenant."
+type MimirLimits {
+  requestRate: Float
+
+  requestBurstSize: Int
+	
+	ingestionRate: Float
+	
+	ingestionBurstSize: Int
+	
+	acceptHASamples: Boolean
+	
+	haClusterLabel: String
+	
+	haReplicaLabel: String
+	
+	haMaxClusters: Int
+	
+	dropLabels: [String]
+	
+	maxLabelNameLength: Int
+	
+	maxLabelValueLength: Int
+	
+	maxLabelNamesPerSeries: Int
+	
+	maxMetadataLength: Int
+	
+	creationGracePeriod: Duration
+	
+	enforceMetadataMetricName: Boolean
+	
+	ingestionTenantShardSize: Int
+	
+  # metricRelabelConfigs
+	
+	
+
+	
+	
+	
+	maxGlobalSeriesPerUser: Int
+	
+	maxGlobalSeriesPerMetric: Int
+	
+	
+	maxGlobalMetricsWithMetadataPerUser: Int
+	
+	maxGlobalMetadataPerMetric: Int
+	
+	
+	
+	maxGlobalExemplarsPerUser: Int
+	
+	
+	nativeHistogramsIngestionEnabled: Boolean
+	
+	# activeSeriesCustomTrackersConfig: 
+	
+	
+	outOfOrderTimeWindow: Duration
+	
+	outOfOrderBlocksExternalLabelEnabled: Boolean
+	
+
+	
+	
+	separateMetricsGroupLabel: String
+
+	
+	
+	maxChunksPerQuery: Int
+	
+	maxFetchedSeriesPerQuery: Int
+	
+	maxFetchedChunkBytesPerQuery: Int
+	
+	maxQueryLookback: Duration
+	
+	maxPartialQueryLength: Duration
+	
+	maxQueryParallelism: Int
+	
+	maxLabelsQueryLength: Duration
+	
+	maxCacheFreshness: Duration
+	
+	maxQueriersPerTenant: Int
+	
+	queryShardingTotalShards: Int
+	
+	queryShardingMaxShardedQueries: Int
+	
+	queryShardingMaxRegexpSizeBytes: Int
+	
+	splitInstantQueriesByInterval: Duration
+
+	
+	
+	maxTotalQueryLength: Duration
+	
+	resultsCacheTTL: Duration
+	
+	resultsCacheTTLForOutOfOrderTimeWindow: Duration
+	
+	maxQueryExpressionSizeBytes: Int
+
+	
+	
+	cardinalityAnalysisEnabled: Boolean
+	
+	labelNamesAndValuesResultsMaxSizeBytes: Int
+	
+	labelValuesMaxCardinalityLabelNamesPerRequest: Int
+
+	
+	
+	rulerEvaluationDelay: Duration
+	
+	rulerTenantShardSize: Int
+	
+	rulerMaxRulesPerRuleGroup: Int
+	
+	rulerMaxRuleGroupsPerTenant: Int
+	
+	rulerRecordingRulesEvaluationEnabled: Boolean
+	
+	rulerAlertingRulesEvaluationEnabled: Boolean
+
+	
+	
+	storeGatewayTenantShardSize: Int
+
+	
+	
+	compactorBlocksRetentionPeriod: Duration
+	
+	compactorSplitAndMergeShards: Int
+	
+	compactorSplitGroups: Int
+	
+	compactorTenantShardSize: Int
+	
+	compactorPartialBlockDeletionDelay: Duration
+	
+	compactorBlockUploadEnabled: Boolean
+	
+	compactorBlockUploadValidationEnabled: Boolean
+	
+	compactorBlockUploadVerifyChunks: Boolean
+
+	
+	
+	
+	s3SSEType: String
+	
+	s3SSEKMSKeyID: String
+	
+	s3SSEKMSEncryptionContext: String
+
+	
+	
+	
+	alertmanagerReceiversBlockCIDRNetworks: String
+	
+	alertmanagerReceiversBlockPrivateAddresses: Boolean
+
+	
+	notificationRateLimit: Float
+	
+	notificationRateLimitPerIntegration: FloatMap
+
+	
+	alertmanagerMaxConfigSizeBytes: Int
+	
+	alertmanagerMaxTemplatesCount: Int
+	
+	alertmanagerMaxTemplateSizeBytes: Int
+	
+	alertmanagerMaxDispatcherAggregationGroups: Int
+	
+	alertmanagerMaxAlertsCount: Int
+	
+	alertmanagerMaxAlertsSizeBytes: Int
+
+	
+	forwardingEndpoint: String
+	
+	forwardingDropOlderThan: Duration
+	
+	forwardingRules: ForwardingRuleMap
+}
+
+input MimirLimitsInput {
+  requestRate: Float
+
+  requestBurstSize: Int
+	
+	ingestionRate: Float
+	
+	ingestionBurstSize: Int
+	
+	acceptHASamples: Boolean
+	
+	haClusterLabel: String
+	
+	haReplicaLabel: String
+	
+	haMaxClusters: Int
+	
+	dropLabels: [String]
+	
+	maxLabelNameLength: Int
+	
+	maxLabelValueLength: Int
+	
+	maxLabelNamesPerSeries: Int
+	
+	maxMetadataLength: Int
+	
+	creationGracePeriod: Duration
+	
+	enforceMetadataMetricName: Boolean
+	
+	ingestionTenantShardSize: Int
+	
+  # metricRelabelConfigs
+	
+	
+
+	
+	
+	
+	maxGlobalSeriesPerUser: Int
+	
+	maxGlobalSeriesPerMetric: Int
+	
+	
+	maxGlobalMetricsWithMetadataPerUser: Int
+	
+	maxGlobalMetadataPerMetric: Int
+	
+	
+	
+	maxGlobalExemplarsPerUser: Int
+	
+	
+	nativeHistogramsIngestionEnabled: Boolean
+	
+	# activeSeriesCustomTrackersConfig: 
+	
+	
+	outOfOrderTimeWindow: Duration
+	
+	outOfOrderBlocksExternalLabelEnabled: Boolean
+	
+
+	
+	
+	separateMetricsGroupLabel: String
+
+	
+	
+	maxChunksPerQuery: Int
+	
+	maxFetchedSeriesPerQuery: Int
+	
+	maxFetchedChunkBytesPerQuery: Int
+	
+	maxQueryLookback: Duration
+	
+	maxPartialQueryLength: Duration
+	
+	maxQueryParallelism: Int
+	
+	maxLabelsQueryLength: Duration
+	
+	maxCacheFreshness: Duration
+	
+	maxQueriersPerTenant: Int
+	
+	queryShardingTotalShards: Int
+	
+	queryShardingMaxShardedQueries: Int
+	
+	queryShardingMaxRegexpSizeBytes: Int
+	
+	splitInstantQueriesByInterval: Duration
+
+	
+	
+	maxTotalQueryLength: Duration
+	
+	resultsCacheTTL: Duration
+	
+	resultsCacheTTLForOutOfOrderTimeWindow: Duration
+	
+	maxQueryExpressionSizeBytes: Int
+
+	
+	
+	cardinalityAnalysisEnabled: Boolean
+	
+	labelNamesAndValuesResultsMaxSizeBytes: Int
+	
+	labelValuesMaxCardinalityLabelNamesPerRequest: Int
+
+	
+	
+	rulerEvaluationDelay: Duration
+	
+	rulerTenantShardSize: Int
+	
+	rulerMaxRulesPerRuleGroup: Int
+	
+	rulerMaxRuleGroupsPerTenant: Int
+	
+	rulerRecordingRulesEvaluationEnabled: Boolean
+	
+	rulerAlertingRulesEvaluationEnabled: Boolean
+
+	
+	
+	storeGatewayTenantShardSize: Int
+
+	
+	
+	compactorBlocksRetentionPeriod: Duration
+	
+	compactorSplitAndMergeShards: Int
+	
+	compactorSplitGroups: Int
+	
+	compactorTenantShardSize: Int
+	
+	compactorPartialBlockDeletionDelay: Duration
+	
+	compactorBlockUploadEnabled: Boolean
+	
+	compactorBlockUploadValidationEnabled: Boolean
+	
+	compactorBlockUploadVerifyChunks: Boolean
+
+	
+	
+	
+	s3SSEType: String
+	
+	s3SSEKMSKeyID: String
+	
+	s3SSEKMSEncryptionContext: String
+
+	
+	
+	
+	alertmanagerReceiversBlockCIDRNetworks: String
+	
+	alertmanagerReceiversBlockPrivateAddresses: Boolean
+
+	
+	notificationRateLimit: Float
+	
+	notificationRateLimitPerIntegration: FloatMap
+
+	
+	alertmanagerMaxConfigSizeBytes: Int
+	
+	alertmanagerMaxTemplatesCount: Int
+	
+	alertmanagerMaxTemplateSizeBytes: Int
+	
+	alertmanagerMaxDispatcherAggregationGroups: Int
+	
+	alertmanagerMaxAlertsCount: Int
+	
+	alertmanagerMaxAlertsSizeBytes: Int
+
+	
+	forwardingEndpoint: String
+	
+	forwardingDropOlderThan: Duration
+	
+	forwardingRules: ForwardingRuleMap
+}
+
+type ForwardingRule {
+  "Ingest defines whether a metric should still be pushed to the Ingesters despite it being forwarded."
+	ingest: Boolean
+}
+
+"Representation of the limits for Loki for a tenant."
+type LokiLimits {
+  requestRate: Float
+}
+
+"Representation of the limits for Tempo for a tenant."
+type TempoLimits {
+  requestRate: Float
+}
+
+"Representation of the users, groups and oauth2 clients that can view or send data a tenant."
+type ObservabilityTenantViewers {
+  "The users that can view a tenant."
+  users: [User!]
+
+  "The groups that can view a tenant."
+  groups: [Group!]
+
+  "The oauth2 clients that can send data a tenant."
+  oauth2Clients: [OAuth2Client!] # TODO: add check so that an oauth2 client can only be added to a single tenant
+}
+
+"Representation of the users and groups that can edit a tenant."
+type ObservabilityTenantEditors {
+  "The users that can edit a tenant."
+  users: [User!]
+
+  "The groups that can edit a tenant."
+  groups: [Group!]
+}
+
+input ObservabilityTenantViewersInput {
+  "The IDs of users that can view a tenant."
+  users: [String!]
+
+  "The names of groups that can view a tenant."
+  groups: [String!]
+
+  "The clientIDs oauth2 clients that can send data a tenant."
+  oauth2Clients: [String!]
+}
+
+input ObservabilityTenantEditorsInput {
+  "The IDs of users that can edit a tenant."
+  users: [String!]
+
+  "The names of groups that can edit a tenant."
+  groups: [String!]
+}
+
+extend type Query {
+  "Get a list of all users."
+  listObservabilityTenants: [ObservabilityTenant!]! @checkPermissions @isAuthenticated
+
+  getObservabilityTenant(
+    "The name of the tenant."
+    name: String!
+  ): ObservabilityTenant! @checkPermissions @isAuthenticated
+}
+
+extend type Mutation {
+  "Create an observability tenant."
+  createObservabilityTenant(
+    "The name of the tenant."
+    name: String!
+    "The users, groups or OAuth 2.0 client that have access to the observability tenant."
+    viewers: ObservabilityTenantViewersInput
+    "The users and groups that can edit a tenant to add users, groups or oauth2 clients to it."
+    editors: ObservabilityTenantEditorsInput
+    "The limits for the tenant."
+    limits: ObservabilityTenantLimitsInput
+  ): ObservabilityTenant! @checkPermissions @isAuthenticated
+
+  "Update an observability tenant."
+  updateObservabilityTenant(
+    "The name of the tenant."
+    name: String!
+    "The users, groups or OAuth 2.0 client that have access to the observability tenant."
+    viewers: ObservabilityTenantViewersInput
+    "The users and groups that can edit a tenant to add users, groups or oauth2 clients to it."
+    editors: ObservabilityTenantEditorsInput
+    "The limits for the tenant."
+    limits: ObservabilityTenantLimitsInput
+  ): ObservabilityTenant! @checkPermissions @isAuthenticated
+
+  "Delete an observability tenant."
+  deleteObservabilityTenant(
+    "The name of the tenant."
+    name: String!
+  ): ObservabilityTenant! @checkPermissions @isAuthenticated
+}

@@ -1,0 +1,38 @@
+maester:
+  enabled: false
+hydra:
+  automigration:
+    enabled: true
+  dev: true
+  config:
+    dsn: postgres://hydra:hydrapassword@postgresql-hydra:5432/hydra
+    secrets:
+      system:
+      - OG5XbmxXa3dYeGplQXpQanYxeEFuRUFa
+      cookie: dummytest12345678901234567890
+
+    urls:
+      self:
+        issuer: https://hydra.localhost.pluraldev.sh:4455
+      login: https://localhost.pluraldev.sh:4455/login
+      consent: https://localhost.pluraldev.sh:4455/consent
+    serve:
+      admin:
+        tls:
+          enabled: false
+      public:
+        tls:
+          enabled: false
+      cookies:
+        same_site_mode: None
+        secure: true
+    ttl:
+      id_token: 12h
+      access_token: 12h
+      refresh_token: 96h
+
+pdb:
+  enabled: true
+deployment:
+  autoscaling:
+    enabled: false
