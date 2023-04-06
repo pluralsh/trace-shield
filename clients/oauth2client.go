@@ -314,33 +314,35 @@ func (c *ClientWrapper) DeleteOAuth2ClientInKeto(ctx context.Context, id string)
 
 // function that determines which users or groups to add or remove from the login bindings of an oauth2 client
 func (c *ClientWrapper) LoginBindingsChangeset(ctx context.Context, clientId string, bindings *model.LoginBindingsInput) (usersToAdd []string, usersToRemove []string, groupsToAdd []string, groupsToRemove []string, err error) {
-	currentUsers, currentGroups, err := c.GetLoginBindingsInKeto(ctx, clientId) // TODO: replace with GetOAuth2ClientLoginBindings
+	if bindings != nil {
+		currentUsers, currentGroups, err := c.GetLoginBindingsInKeto(ctx, clientId) // TODO: replace with GetOAuth2ClientLoginBindings
 
-	if err != nil {
-		return nil, nil, nil, nil, fmt.Errorf("failed to get current members: %w", err)
-	}
-
-	for _, user := range bindings.Users {
-		if !stringContains(currentUsers, user) {
-			usersToAdd = append(usersToAdd, user)
+		if err != nil {
+			return nil, nil, nil, nil, fmt.Errorf("failed to get current members: %w", err)
 		}
-	}
 
-	for _, user := range currentUsers {
-		if !stringContains(bindings.Users, user) {
-			usersToRemove = append(usersToRemove, user)
+		for _, user := range bindings.Users {
+			if !stringContains(currentUsers, user) {
+				usersToAdd = append(usersToAdd, user)
+			}
 		}
-	}
 
-	for _, group := range bindings.Groups {
-		if !stringContains(currentGroups, group) {
-			groupsToAdd = append(groupsToAdd, group)
+		for _, user := range currentUsers {
+			if !stringContains(bindings.Users, user) {
+				usersToRemove = append(usersToRemove, user)
+			}
 		}
-	}
 
-	for _, group := range currentGroups {
-		if !stringContains(bindings.Groups, group) {
-			groupsToRemove = append(groupsToRemove, group)
+		for _, group := range bindings.Groups {
+			if !stringContains(currentGroups, group) {
+				groupsToAdd = append(groupsToAdd, group)
+			}
+		}
+
+		for _, group := range currentGroups {
+			if !stringContains(bindings.Groups, group) {
+				groupsToRemove = append(groupsToRemove, group)
+			}
 		}
 	}
 
