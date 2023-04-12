@@ -3,7 +3,6 @@ package consts
 type ObservabilityTenantRelation string
 
 const (
-	ObservabilityTenantRelationAdmins               ObservabilityTenantRelation = "admins"
 	ObservabilityTenantRelationMetricsReaders       ObservabilityTenantRelation = "metrics_readers"
 	ObservabilityTenantRelationMetricsWriters       ObservabilityTenantRelation = "metrics_writers"
 	ObservabilityTenantRelationMetricsDeleters      ObservabilityTenantRelation = "metrics_deleters"
@@ -20,6 +19,31 @@ const (
 	ObservabilityTenantRelationLogsRulesDeleters    ObservabilityTenantRelation = "logs_rules_deleters"
 	ObservabilityTenantRelationTracesReaders        ObservabilityTenantRelation = "traces_readers"
 	ObservabilityTenantRelationTracesWriters        ObservabilityTenantRelation = "traces_writers"
+	ObservabilityTenantRelationAdmins               ObservabilityTenantRelation = "admins"
+)
+
+type ObservabilityTenantPermission string
+
+const (
+	ObservabilityTenantPermissionReadMetrics        ObservabilityTenantPermission = "read_metrics"
+	ObservabilityTenantPermissionWriteMetrics       ObservabilityTenantPermission = "write_metrics"
+	ObservabilityTenantPermissionDeleteMetrics      ObservabilityTenantPermission = "delete_metrics"
+	ObservabilityTenantPermissionReadMetricsRules   ObservabilityTenantPermission = "read_metrics_rules"
+	ObservabilityTenantPermissionWriteMetricsRules  ObservabilityTenantPermission = "write_metrics_rules"
+	ObservabilityTenantPermissionDeleteMetricsRules ObservabilityTenantPermission = "delete_metrics_rules"
+	ObservabilityTenantPermissionReadMetricsAlerts  ObservabilityTenantPermission = "read_metrics_alerts"
+	ObservabilityTenantPermissionWriteMetricsAlerts ObservabilityTenantPermission = "write_metrics_alerts"
+	ObservabilityTenantPermissionReadLogs           ObservabilityTenantPermission = "read_logs"
+	ObservabilityTenantPermissionWriteLogs          ObservabilityTenantPermission = "write_logs"
+	ObservabilityTenantPermissionDeleteLogs         ObservabilityTenantPermission = "delete_logs"
+	ObservabilityTenantPermissionReadLogsRules      ObservabilityTenantPermission = "read_logs_rules"
+	ObservabilityTenantPermissionWriteLogsRules     ObservabilityTenantPermission = "write_logs_rules"
+	ObservabilityTenantPermissionDeleteLogsRules    ObservabilityTenantPermission = "delete_logs_rules"
+	ObservabilityTenantPermissionReadTraces         ObservabilityTenantPermission = "read_traces"
+	ObservabilityTenantPermissionWriteTraces        ObservabilityTenantPermission = "write_traces"
+	ObservabilityTenantPermissionManage             ObservabilityTenantPermission = "manage"
+	ObservabilityTenantPermissionDelete             ObservabilityTenantPermission = "delete"
+	ObservabilityTenantPermissionCreate             ObservabilityTenantPermission = "create"
 )
 
 type Namespace string
@@ -38,6 +62,14 @@ type GroupRelation string
 
 const (
 	GroupRelationMembers GroupRelation = "members"
+)
+
+type GrouPermission string
+
+const (
+	GroupPermissionCreate GrouPermission = "create"
+	GroupPermissionEdit   GrouPermission = "edit"
+	GroupPermissionDelete GrouPermission = "delete"
 )
 
 type ObjectRelation string
@@ -67,7 +99,18 @@ const (
 type OAuth2ClientPermission string
 
 const (
-	OAuth2ClientPermissionLogin OAuth2ClientPermission = "login"
+	OAuth2ClientPermissionLogin  OAuth2ClientPermission = "login"
+	OAuth2ClientPermissionEdit   OAuth2ClientPermission = "edit"
+	OAuth2ClientPermissionCreate OAuth2ClientPermission = "create"
+	OAuth2ClientPermissionDelete OAuth2ClientPermission = "delete"
+)
+
+type UserPermission string
+
+const (
+	UserPermissionCreate UserPermission = "create"
+	UserPermissionEdit   UserPermission = "edit"
+	UserPermissionDelete UserPermission = "delete"
 )
 
 func (n Namespace) String() string {
@@ -99,5 +142,17 @@ func (r OAuth2ClientRelation) String() string {
 }
 
 func (p OAuth2ClientPermission) String() string {
+	return string(p)
+}
+
+func (p GrouPermission) String() string {
+	return string(p)
+}
+
+func (p UserPermission) String() string {
+	return string(p)
+}
+
+func (p ObservabilityTenantPermission) String() string {
 	return string(p)
 }
