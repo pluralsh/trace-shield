@@ -12,7 +12,7 @@ func (oc *OAuth2Client) GetTenantTuple(tenant string, relation consts.Observabil
 		Object:    tenant,
 		Relation:  relation.String(),
 		Subject: rts.NewSubjectSet(
-			consts.GroupNamespace.String(),
+			consts.OAuth2ClientNamespace.String(),
 			*oc.ClientID,
 			"",
 		),

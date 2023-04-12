@@ -386,9 +386,7 @@ func (c *ClientWrapper) OsTenantChangeset(ctx context.Context, id string, bindin
 	if bindings != nil {
 		for _, userId := range bindings.Users {
 			if !userIdInListOfUsers(currentUsers, userId) {
-				user := &model.User{
-					ID: userId,
-				}
+				user := model.NewUser(userId)
 				toAdd = append(toAdd, user.GetTenantTuple(id, relation))
 			}
 		}
@@ -401,9 +399,7 @@ func (c *ClientWrapper) OsTenantChangeset(ctx context.Context, id string, bindin
 
 		for _, groupName := range bindings.Groups {
 			if !groupNameInListOfGroups(currentGroups, groupName) {
-				group := &model.Group{
-					Name: groupName,
-				}
+				group := model.NewGroup(groupName)
 				toAdd = append(toAdd, group.GetTenantTuple(id, relation))
 			}
 		}
@@ -416,9 +412,7 @@ func (c *ClientWrapper) OsTenantChangeset(ctx context.Context, id string, bindin
 
 		for _, clientId := range bindings.Oauth2Clients {
 			if !ClientIDInListOfOAuth2Clients(currentClients, clientId) {
-				client := &model.OAuth2Client{
-					ClientID: &clientId,
-				}
+				client := model.NewOAuth2Client(clientId)
 				toAdd = append(toAdd, client.GetTenantTuple(id, relation))
 			}
 		}
