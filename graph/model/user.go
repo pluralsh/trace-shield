@@ -18,3 +18,24 @@ func (u *User) GetTenantTuple(tenant string, relation consts.ObservabilityTenant
 		),
 	}
 }
+
+// function that will return the relation tuple for the user on an organization
+func (u *User) GetOrganizationTuple() *rts.RelationTuple {
+	return &rts.RelationTuple{
+		Namespace: consts.UserNamespace.String(),
+		Object:    u.ID,
+		Relation:  consts.ObjectRelationOrganizations.String(),
+		Subject: rts.NewSubjectSet(
+			consts.OrganizationNamespace.String(),
+			consts.MainOrganizationName, //TODO: decide whether to hardcode this or not
+			"",
+		),
+	}
+}
+
+// function that return a *User for a given id
+func NewUser(id string) *User {
+	return &User{
+		ID: id,
+	}
+}

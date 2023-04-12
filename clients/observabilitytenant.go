@@ -5,7 +5,6 @@ import (
 	"fmt"
 
 	rts "github.com/ory/keto/proto/ory/keto/relation_tuples/v1alpha2"
-	px "github.com/ory/x/pointerx"
 	observabilityv1alpha1 "github.com/pluralsh/trace-shield-controller/api/observability/v1alpha1"
 	"github.com/pluralsh/trace-shield/consts"
 	"github.com/pluralsh/trace-shield/graph/model"
@@ -374,58 +373,6 @@ func (c *ClientWrapper) MutateObservabilityTenantInKeto(ctx context.Context, id 
 	}
 
 	return c.KetoClient.TransactTuples(ctx, toAdd, toRemove)
-}
-
-// function that checks if an observability tenant exists in keto
-func (c *ClientWrapper) ObservabilityTenantExistsInKeto(ctx context.Context, id string) (bool, error) {
-	log := c.Log.WithName("ObservabilityTenantExistsInKeto").WithValues("ID", id)
-
-	query := rts.RelationQuery{
-		Namespace: px.Ptr("ObservabilityTenant"),
-		Object:    px.Ptr(id),
-		Relation:  px.Ptr("organizations"),
-		Subject: rts.NewSubjectSet(
-			"Organization",
-			"main", //TODO: decide whether to hardcode this or not
-			"",
-		),
-	}
-
-	respTuples, err := c.KetoClient.QueryAllTuples(context.Background(), &query, 100)
-	if err != nil {
-		log.Error(err, "Failed to query tuples")
-		return false, fmt.Errorf("failed to query tuples: %w", err)
-	}
-
-	if len(respTuples) == 0 {
-		return false, nil
-	}
-
-	return true, nil
-}
-
-// function that creates an observability tenant in keto
-func (c *ClientWrapper) CreateObservabilityTenantInKeto(ctx context.Context, id string) error {
-	log := c.Log.WithName("CreateObservabilityTenantInKeto").WithValues("ID", id)
-
-	tenantTuple := &rts.RelationTuple{
-		Namespace: "ObservabilityTenant",
-		Object:    id,
-		Relation:  "organizations",
-		Subject: rts.NewSubjectSet(
-			"Organization",
-			"main", //TODO: decide whether to hardcode this or not
-			"",
-		),
-	}
-
-	err := c.KetoClient.CreateTuple(ctx, tenantTuple)
-	if err != nil {
-		return fmt.Errorf("failed to create tuple: %w", err)
-	}
-
-	log.Info("Success creating group in keto")
-	return nil
 }
 
 // function that determines which users or groups to add or remove from the observability tenant of an oauth2 client

@@ -37,7 +37,37 @@ const MainOrganizationName = "main"
 type GroupRelation string
 
 const (
-	GroupRelationMember GroupRelation = "member"
+	GroupRelationMembers GroupRelation = "members"
+)
+
+type ObjectRelation string
+
+const (
+	ObjectRelationOrganizations ObjectRelation = "organizations"
+)
+
+type OrganizationRelation string
+
+const (
+	OrganizationRelationAdmins OrganizationRelation = "admins"
+)
+
+type OrganizationPermission string
+
+const (
+	OrganizationPermissionAdmin OrganizationPermission = "admin"
+)
+
+type OAuth2ClientRelation string
+
+const (
+	OAuth2ClientRelationLoginBindings OAuth2ClientRelation = "loginBindings"
+)
+
+type OAuth2ClientPermission string
+
+const (
+	OAuth2ClientPermissionLogin OAuth2ClientPermission = "login"
 )
 
 func (n Namespace) String() string {
@@ -50,4 +80,24 @@ func (r ObservabilityTenantRelation) String() string {
 
 func (r GroupRelation) String() string {
 	return string(r)
+}
+
+func (r OrganizationRelation) String() string {
+	return string(r)
+}
+
+func (r ObjectRelation) String() string {
+	return string(r)
+}
+
+func (p OrganizationPermission) String() string {
+	return string(p)
+}
+
+func (r OAuth2ClientRelation) String() string {
+	return string(r)
+}
+
+func (p OAuth2ClientPermission) String() string {
+	return string(p)
 }
