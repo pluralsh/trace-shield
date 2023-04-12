@@ -545,3 +545,13 @@ func (c *ClientWrapper) GetLoginBindingsInKeto(ctx context.Context, clientID str
 	log.Info("Success getting users in login bindings")
 	return users, groups, nil
 }
+
+// function that checks if a client id is in a []*model.OAuth2Client
+func ClientIDInListOfOAuth2Clients(clients []*model.OAuth2Client, clientID string) bool {
+	for _, client := range clients {
+		if *client.ClientID == clientID {
+			return true
+		}
+	}
+	return false
+}

@@ -1,16 +1,64 @@
 "Representation a tenant in the Grafana observability stack where metrics, logs and traces can be sent to or retrieved from."
 type ObservabilityTenant {
-  "The unique name of the tenant."
-  name: String!
+  "The unique id of the tenant."
+  id: String!
 
-  "The organization that the tenant belongs to."
-  organization: Organization!
+  "The display name of the tenant."
+  name: String
 
-  "The users that are admins of the organization."
-  viewers: ObservabilityTenantViewers
+  # "The organization that the tenant belongs to."
+  # organization: Organization!
 
-  "The users and groups that can edit a tenant to add users, groups or oauth2 clients to it."
-  editors: ObservabilityTenantEditors
+  "The users, groups or clients that are admins of the observability tenant and can change its permissions."
+  admins: ObservabilityTenantPermissionBindings
+
+  "The users, groups or clients that can read metrics from the tenant."
+  metricsReaders: ObservabilityTenantPermissionBindings
+
+  "The users, groups or clients that can write metrics to the tenant."
+  metricsWriters: ObservabilityTenantPermissionBindings
+
+  "The users, groups or clients that can delete metrics from the tenant."
+  metricsDeleters: ObservabilityTenantPermissionBindings
+
+  "The users, groups or clients that can read metric rules from the tenant."
+  metricsRulesReaders: ObservabilityTenantPermissionBindings
+
+  "The users, groups or clients that can write metric rules to the tenant."
+  metricsRulesWriters: ObservabilityTenantPermissionBindings
+
+  "The users, groups or clients that can delete metric rules from the tenant."
+  metricsRulesDeleters: ObservabilityTenantPermissionBindings
+
+  "The users, groups or clients that can view the Alertmanager UI and get the Alertmanager configuration for a tenant."
+  metricsAlertsReaders: ObservabilityTenantPermissionBindings
+
+  "The users, groups or clients that can create silences in the Alertmanager UI and create and delete the Alertmanager configuration for a tenant."
+  metricsAlertsWriters: ObservabilityTenantPermissionBindings
+
+  "The users, groups or clients that can read logs from the tenant."
+  logsReaders: ObservabilityTenantPermissionBindings
+
+  "The users, groups or clients that can write logs to the tenant."
+  logsWriters: ObservabilityTenantPermissionBindings
+
+  "The users, groups or clients that can delete logs from the tenant."
+  logsDeleters: ObservabilityTenantPermissionBindings
+
+  "The users, groups or clients that can read log rules from the tenant."
+  logsRulesReaders: ObservabilityTenantPermissionBindings
+
+  "The users, groups or clients that can write log rules to the tenant."
+  logsRulesWriters: ObservabilityTenantPermissionBindings
+
+  "The users, groups or clients that can delete log rules from the tenant."
+  logsRulesDeleters: ObservabilityTenantPermissionBindings
+
+  "The users, groups or clients that can read traces from the tenant."
+  tracesReaders: ObservabilityTenantPermissionBindings
+
+  "The users, groups or clients that can write traces to the tenant."
+  tracesWriters: ObservabilityTenantPermissionBindings
 
   "The limits of the tenant."
   limits: ObservabilityTenantLimits
@@ -444,28 +492,19 @@ type TempoLimits {
   requestRate: Float
 }
 
-"Representation of the users, groups and oauth2 clients that can view or send data a tenant."
-type ObservabilityTenantViewers {
-  "The users that can view a tenant."
+"Representation of the users, groups and oauth2 clients that have a set of permissions on a tenant."
+type ObservabilityTenantPermissionBindings {
+  "The users that have a particular permission on a tenant."
   users: [User!]
 
-  "The groups that can view a tenant."
+  "The groups have a particular permission on a tenant."
   groups: [Group!]
 
-  "The oauth2 clients that can send data a tenant."
+  "The oauth2 clients  have a particular permission on a tenant."
   oauth2Clients: [OAuth2Client!] # TODO: add check so that an oauth2 client can only be added to a single tenant
 }
 
-"Representation of the users and groups that can edit a tenant."
-type ObservabilityTenantEditors {
-  "The users that can edit a tenant."
-  users: [User!]
-
-  "The groups that can edit a tenant."
-  groups: [Group!]
-}
-
-input ObservabilityTenantViewersInput {
+input ObservabilityTenantPermissionBindingsInput {
   "The IDs of users that can view a tenant."
   users: [String!]
 
@@ -476,52 +515,108 @@ input ObservabilityTenantViewersInput {
   oauth2Clients: [String!]
 }
 
-input ObservabilityTenantEditorsInput {
-  "The IDs of users that can edit a tenant."
-  users: [String!]
-
-  "The names of groups that can edit a tenant."
-  groups: [String!]
-}
-
 extend type Query {
   "Get a list of all users."
   listObservabilityTenants: [ObservabilityTenant!]! @checkPermissions @isAuthenticated
 
   getObservabilityTenant(
-    "The name of the tenant."
-    name: String!
+    "The unique ID of the tenant."
+    id: String!
   ): ObservabilityTenant! @checkPermissions @isAuthenticated
 }
 
 extend type Mutation {
   "Create an observability tenant."
   createObservabilityTenant(
-    "The name of the tenant."
-    name: String!
-    "The users, groups or OAuth 2.0 client that have access to the observability tenant."
-    viewers: ObservabilityTenantViewersInput
-    "The users and groups that can edit a tenant to add users, groups or oauth2 clients to it."
-    editors: ObservabilityTenantEditorsInput
+    "The unique ID of the tenant."
+    id: String!
+    "The display name of the tenant."
+    name: String
+    "The users, groups or clients that are admins of the observability tenant and can change its permissions."
+    admins: ObservabilityTenantPermissionBindingsInput
+    "The users, groups or clients that can read metrics from the tenant."
+    metricsReaders: ObservabilityTenantPermissionBindingsInput
+    "The users, groups or clients that can write metrics to the tenant."
+    metricsWriters: ObservabilityTenantPermissionBindingsInput
+    "The users, groups or clients that can delete metrics from the tenant."
+    metricsDeleters: ObservabilityTenantPermissionBindingsInput
+    "The users, groups or clients that can read metric rules from the tenant."
+    metricsRulesReaders: ObservabilityTenantPermissionBindingsInput
+    "The users, groups or clients that can write metric rules to the tenant."
+    metricsRulesWriters: ObservabilityTenantPermissionBindingsInput
+    "The users, groups or clients that can delete metric rules from the tenant."
+    metricsRulesDeleters: ObservabilityTenantPermissionBindingsInput
+    "The users, groups or clients that can view the Alertmanager UI and get the Alertmanager configuration for a tenant."
+    metricsAlertsReaders: ObservabilityTenantPermissionBindingsInput
+    "The users, groups or clients that can create silences in the Alertmanager UI and create and delete the Alertmanager configuration for a tenant."
+    metricsAlertsWriters: ObservabilityTenantPermissionBindingsInput
+    "The users, groups or clients that can read logs from the tenant."
+    logsReaders: ObservabilityTenantPermissionBindingsInput
+    "The users, groups or clients that can write logs to the tenant."
+    logsWriters: ObservabilityTenantPermissionBindingsInput
+    "The users, groups or clients that can delete logs from the tenant."
+    logsDeleters: ObservabilityTenantPermissionBindingsInput
+    "The users, groups or clients that can read log rules from the tenant."
+    logsRulesReaders: ObservabilityTenantPermissionBindingsInput
+    "The users, groups or clients that can write log rules to the tenant."
+    logsRulesWriters: ObservabilityTenantPermissionBindingsInput
+    "The users, groups or clients that can delete log rules from the tenant."
+    logsRulesDeleters: ObservabilityTenantPermissionBindingsInput
+    "The users, groups or clients that can read traces from the tenant."
+    tracesReaders: ObservabilityTenantPermissionBindingsInput
+    "The users, groups or clients that can write traces to the tenant."
+    tracesWriters: ObservabilityTenantPermissionBindingsInput
     "The limits for the tenant."
     limits: ObservabilityTenantLimitsInput
   ): ObservabilityTenant! @checkPermissions @isAuthenticated
 
   "Update an observability tenant."
   updateObservabilityTenant(
-    "The name of the tenant."
-    name: String!
-    "The users, groups or OAuth 2.0 client that have access to the observability tenant."
-    viewers: ObservabilityTenantViewersInput
-    "The users and groups that can edit a tenant to add users, groups or oauth2 clients to it."
-    editors: ObservabilityTenantEditorsInput
+    "The unique ID of the tenant."
+    id: String!
+    "The display name of the tenant."
+    name: String
+    "The users, groups or clients that are admins of the observability tenant and can change its permissions."
+    admins: ObservabilityTenantPermissionBindingsInput
+    "The users, groups or clients that can read metrics from the tenant."
+    metricsReaders: ObservabilityTenantPermissionBindingsInput
+    "The users, groups or clients that can write metrics to the tenant."
+    metricsWriters: ObservabilityTenantPermissionBindingsInput
+    "The users, groups or clients that can delete metrics from the tenant."
+    metricsDeleters: ObservabilityTenantPermissionBindingsInput
+    "The users, groups or clients that can read metric rules from the tenant."
+    metricsRulesReaders: ObservabilityTenantPermissionBindingsInput
+    "The users, groups or clients that can write metric rules to the tenant."
+    metricsRulesWriters: ObservabilityTenantPermissionBindingsInput
+    "The users, groups or clients that can delete metric rules from the tenant."
+    metricsRulesDeleters: ObservabilityTenantPermissionBindingsInput
+    "The users, groups or clients that can view the Alertmanager UI and get the Alertmanager configuration for a tenant."
+    metricsAlertsReaders: ObservabilityTenantPermissionBindingsInput
+    "The users, groups or clients that can create silences in the Alertmanager UI and create and delete the Alertmanager configuration for a tenant."
+    metricsAlertsWriters: ObservabilityTenantPermissionBindingsInput
+    "The users, groups or clients that can read logs from the tenant."
+    logsReaders: ObservabilityTenantPermissionBindingsInput
+    "The users, groups or clients that can write logs to the tenant."
+    logsWriters: ObservabilityTenantPermissionBindingsInput
+    "The users, groups or clients that can delete logs from the tenant."
+    logsDeleters: ObservabilityTenantPermissionBindingsInput
+    "The users, groups or clients that can read log rules from the tenant."
+    logsRulesReaders: ObservabilityTenantPermissionBindingsInput
+    "The users, groups or clients that can write log rules to the tenant."
+    logsRulesWriters: ObservabilityTenantPermissionBindingsInput
+    "The users, groups or clients that can delete log rules from the tenant."
+    logsRulesDeleters: ObservabilityTenantPermissionBindingsInput
+    "The users, groups or clients that can read traces from the tenant."
+    tracesReaders: ObservabilityTenantPermissionBindingsInput
+    "The users, groups or clients that can write traces to the tenant."
+    tracesWriters: ObservabilityTenantPermissionBindingsInput
     "The limits for the tenant."
     limits: ObservabilityTenantLimitsInput
   ): ObservabilityTenant! @checkPermissions @isAuthenticated
 
   "Delete an observability tenant."
   deleteObservabilityTenant(
-    "The name of the tenant."
-    name: String!
+    "The unique ID of the tenant."
+    id: String!
   ): ObservabilityTenant! @checkPermissions @isAuthenticated
 }

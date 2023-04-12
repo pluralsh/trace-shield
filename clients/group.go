@@ -97,6 +97,16 @@ func userIdInListOfUsers(users []*model.User, userId string) bool {
 	return false
 }
 
+// function that checks if a group is in a []*model.Group
+func groupNameInListOfGroups(groups []*model.Group, groupId string) bool {
+	for _, group := range groups {
+		if group.Name == groupId {
+			return true
+		}
+	}
+	return false
+}
+
 // function that checks if a string is in a []string
 func stringContains(list []string, s string) bool {
 	for _, u := range list {
@@ -331,7 +341,7 @@ func (c *ClientWrapper) ListGroupsInKeto(ctx context.Context) ([]*model.Group, e
 	return outputGroups, nil
 }
 
-// funtion that deletes a group in keto
+// function that deletes a group in keto
 func (c *ClientWrapper) DeleteGroup(ctx context.Context, groupName string) (*model.Group, error) {
 	log := c.Log.WithName("DeleteGroup").WithValues("Name", groupName)
 

@@ -7,57 +7,123 @@ package resolvers
 import (
 	"context"
 
+	"github.com/pluralsh/trace-shield/consts"
 	"github.com/pluralsh/trace-shield/graph/generated"
 	"github.com/pluralsh/trace-shield/graph/model"
 )
 
 // CreateObservabilityTenant is the resolver for the createObservabilityTenant field.
-func (r *mutationResolver) CreateObservabilityTenant(ctx context.Context, name string, viewers *model.ObservabilityTenantViewersInput, editors *model.ObservabilityTenantEditorsInput, limits *model.ObservabilityTenantLimitsInput) (*model.ObservabilityTenant, error) {
-	return r.C.CreateObservabilityTenant(ctx, name, viewers, editors, limits)
+func (r *mutationResolver) CreateObservabilityTenant(ctx context.Context, id string, name *string, admins *model.ObservabilityTenantPermissionBindingsInput, metricsReaders *model.ObservabilityTenantPermissionBindingsInput, metricsWriters *model.ObservabilityTenantPermissionBindingsInput, metricsDeleters *model.ObservabilityTenantPermissionBindingsInput, metricsRulesReaders *model.ObservabilityTenantPermissionBindingsInput, metricsRulesWriters *model.ObservabilityTenantPermissionBindingsInput, metricsRulesDeleters *model.ObservabilityTenantPermissionBindingsInput, metricsAlertsReaders *model.ObservabilityTenantPermissionBindingsInput, metricsAlertsWriters *model.ObservabilityTenantPermissionBindingsInput, logsReaders *model.ObservabilityTenantPermissionBindingsInput, logsWriters *model.ObservabilityTenantPermissionBindingsInput, logsDeleters *model.ObservabilityTenantPermissionBindingsInput, logsRulesReaders *model.ObservabilityTenantPermissionBindingsInput, logsRulesWriters *model.ObservabilityTenantPermissionBindingsInput, logsRulesDeleters *model.ObservabilityTenantPermissionBindingsInput, tracesReaders *model.ObservabilityTenantPermissionBindingsInput, tracesWriters *model.ObservabilityTenantPermissionBindingsInput, limits *model.ObservabilityTenantLimitsInput) (*model.ObservabilityTenant, error) {
+	return r.C.CreateObservabilityTenant(ctx, id, name, admins, metricsReaders, metricsWriters, metricsDeleters, metricsRulesReaders, metricsRulesWriters, metricsRulesDeleters, metricsAlertsReaders, metricsAlertsWriters, logsReaders, logsWriters, logsDeleters, logsRulesReaders, logsRulesWriters, logsRulesDeleters, tracesReaders, tracesWriters, limits)
 }
 
 // UpdateObservabilityTenant is the resolver for the updateObservabilityTenant field.
-func (r *mutationResolver) UpdateObservabilityTenant(ctx context.Context, name string, viewers *model.ObservabilityTenantViewersInput, editors *model.ObservabilityTenantEditorsInput, limits *model.ObservabilityTenantLimitsInput) (*model.ObservabilityTenant, error) {
-	return r.C.UpdateObservabilityTenant(ctx, name, viewers, editors, limits)
+func (r *mutationResolver) UpdateObservabilityTenant(ctx context.Context, id string, name *string, admins *model.ObservabilityTenantPermissionBindingsInput, metricsReaders *model.ObservabilityTenantPermissionBindingsInput, metricsWriters *model.ObservabilityTenantPermissionBindingsInput, metricsDeleters *model.ObservabilityTenantPermissionBindingsInput, metricsRulesReaders *model.ObservabilityTenantPermissionBindingsInput, metricsRulesWriters *model.ObservabilityTenantPermissionBindingsInput, metricsRulesDeleters *model.ObservabilityTenantPermissionBindingsInput, metricsAlertsReaders *model.ObservabilityTenantPermissionBindingsInput, metricsAlertsWriters *model.ObservabilityTenantPermissionBindingsInput, logsReaders *model.ObservabilityTenantPermissionBindingsInput, logsWriters *model.ObservabilityTenantPermissionBindingsInput, logsDeleters *model.ObservabilityTenantPermissionBindingsInput, logsRulesReaders *model.ObservabilityTenantPermissionBindingsInput, logsRulesWriters *model.ObservabilityTenantPermissionBindingsInput, logsRulesDeleters *model.ObservabilityTenantPermissionBindingsInput, tracesReaders *model.ObservabilityTenantPermissionBindingsInput, tracesWriters *model.ObservabilityTenantPermissionBindingsInput, limits *model.ObservabilityTenantLimitsInput) (*model.ObservabilityTenant, error) {
+	return r.C.UpdateObservabilityTenant(ctx, id, name, admins, metricsReaders, metricsWriters, metricsDeleters, metricsRulesReaders, metricsRulesWriters, metricsRulesDeleters, metricsAlertsReaders, metricsAlertsWriters, logsReaders, logsWriters, logsDeleters, logsRulesReaders, logsRulesWriters, logsRulesDeleters, tracesReaders, tracesWriters, limits)
 }
 
 // DeleteObservabilityTenant is the resolver for the deleteObservabilityTenant field.
-func (r *mutationResolver) DeleteObservabilityTenant(ctx context.Context, name string) (*model.ObservabilityTenant, error) {
-	return r.C.DeleteTenant(ctx, name)
+func (r *mutationResolver) DeleteObservabilityTenant(ctx context.Context, id string) (*model.ObservabilityTenant, error) {
+	return r.C.DeleteTenant(ctx, id)
 }
 
-// Viewers is the resolver for the viewers field.
-func (r *observabilityTenantResolver) Viewers(ctx context.Context, obj *model.ObservabilityTenant) (*model.ObservabilityTenantViewers, error) {
-	return r.C.GetViewersOfTenantFromKeto(ctx, obj.Name)
+// Admins is the resolver for the admins field.
+func (r *observabilityTenantResolver) Admins(ctx context.Context, obj *model.ObservabilityTenant) (*model.ObservabilityTenantPermissionBindings, error) {
+	return r.C.ResolveTenantBindings(ctx, obj.ID, consts.ObservabilityTenantRelationAdmins)
 }
 
-// Editors is the resolver for the editors field.
-func (r *observabilityTenantResolver) Editors(ctx context.Context, obj *model.ObservabilityTenant) (*model.ObservabilityTenantEditors, error) {
-	return r.C.GetEditorsOfTenantFromKeto(ctx, obj.Name)
+// MetricsReaders is the resolver for the metricsReaders field.
+func (r *observabilityTenantResolver) MetricsReaders(ctx context.Context, obj *model.ObservabilityTenant) (*model.ObservabilityTenantPermissionBindings, error) {
+	return r.C.ResolveTenantBindings(ctx, obj.ID, consts.ObservabilityTenantRelationMetricsReaders)
+}
+
+// MetricsWriters is the resolver for the metricsWriters field.
+func (r *observabilityTenantResolver) MetricsWriters(ctx context.Context, obj *model.ObservabilityTenant) (*model.ObservabilityTenantPermissionBindings, error) {
+	return r.C.ResolveTenantBindings(ctx, obj.ID, consts.ObservabilityTenantRelationMetricsWriters)
+}
+
+// MetricsDeleters is the resolver for the metricsDeleters field.
+func (r *observabilityTenantResolver) MetricsDeleters(ctx context.Context, obj *model.ObservabilityTenant) (*model.ObservabilityTenantPermissionBindings, error) {
+	return r.C.ResolveTenantBindings(ctx, obj.ID, consts.ObservabilityTenantRelationMetricsDeleters)
+}
+
+// MetricsRulesReaders is the resolver for the metricsRulesReaders field.
+func (r *observabilityTenantResolver) MetricsRulesReaders(ctx context.Context, obj *model.ObservabilityTenant) (*model.ObservabilityTenantPermissionBindings, error) {
+	return r.C.ResolveTenantBindings(ctx, obj.ID, consts.ObservabilityTenantRelationMetricsRulesReaders)
+}
+
+// MetricsRulesWriters is the resolver for the metricsRulesWriters field.
+func (r *observabilityTenantResolver) MetricsRulesWriters(ctx context.Context, obj *model.ObservabilityTenant) (*model.ObservabilityTenantPermissionBindings, error) {
+	return r.C.ResolveTenantBindings(ctx, obj.ID, consts.ObservabilityTenantRelationMetricsRulesWriters)
+}
+
+// MetricsRulesDeleters is the resolver for the metricsRulesDeleters field.
+func (r *observabilityTenantResolver) MetricsRulesDeleters(ctx context.Context, obj *model.ObservabilityTenant) (*model.ObservabilityTenantPermissionBindings, error) {
+	return r.C.ResolveTenantBindings(ctx, obj.ID, consts.ObservabilityTenantRelationMetricsRulesDeleters)
+}
+
+// MetricsAlertsReaders is the resolver for the metricsAlertsReaders field.
+func (r *observabilityTenantResolver) MetricsAlertsReaders(ctx context.Context, obj *model.ObservabilityTenant) (*model.ObservabilityTenantPermissionBindings, error) {
+	return r.C.ResolveTenantBindings(ctx, obj.ID, consts.ObservabilityTenantRelationMetricsAlertsReaders)
+}
+
+// MetricsAlertsWriters is the resolver for the metricsAlertsWriters field.
+func (r *observabilityTenantResolver) MetricsAlertsWriters(ctx context.Context, obj *model.ObservabilityTenant) (*model.ObservabilityTenantPermissionBindings, error) {
+	return r.C.ResolveTenantBindings(ctx, obj.ID, consts.ObservabilityTenantRelationMetricsAlertsWriters)
+}
+
+// LogsReaders is the resolver for the logsReaders field.
+func (r *observabilityTenantResolver) LogsReaders(ctx context.Context, obj *model.ObservabilityTenant) (*model.ObservabilityTenantPermissionBindings, error) {
+	return r.C.ResolveTenantBindings(ctx, obj.ID, consts.ObservabilityTenantRelationLogsReaders)
+}
+
+// LogsWriters is the resolver for the logsWriters field.
+func (r *observabilityTenantResolver) LogsWriters(ctx context.Context, obj *model.ObservabilityTenant) (*model.ObservabilityTenantPermissionBindings, error) {
+	return r.C.ResolveTenantBindings(ctx, obj.ID, consts.ObservabilityTenantRelationLogsWriters)
+}
+
+// LogsDeleters is the resolver for the logsDeleters field.
+func (r *observabilityTenantResolver) LogsDeleters(ctx context.Context, obj *model.ObservabilityTenant) (*model.ObservabilityTenantPermissionBindings, error) {
+	return r.C.ResolveTenantBindings(ctx, obj.ID, consts.ObservabilityTenantRelationLogsDeleters)
+}
+
+// LogsRulesReaders is the resolver for the logsRulesReaders field.
+func (r *observabilityTenantResolver) LogsRulesReaders(ctx context.Context, obj *model.ObservabilityTenant) (*model.ObservabilityTenantPermissionBindings, error) {
+	return r.C.ResolveTenantBindings(ctx, obj.ID, consts.ObservabilityTenantRelationLogsRulesReaders)
+}
+
+// LogsRulesWriters is the resolver for the logsRulesWriters field.
+func (r *observabilityTenantResolver) LogsRulesWriters(ctx context.Context, obj *model.ObservabilityTenant) (*model.ObservabilityTenantPermissionBindings, error) {
+	return r.C.ResolveTenantBindings(ctx, obj.ID, consts.ObservabilityTenantRelationLogsRulesWriters)
+}
+
+// LogsRulesDeleters is the resolver for the logsRulesDeleters field.
+func (r *observabilityTenantResolver) LogsRulesDeleters(ctx context.Context, obj *model.ObservabilityTenant) (*model.ObservabilityTenantPermissionBindings, error) {
+	return r.C.ResolveTenantBindings(ctx, obj.ID, consts.ObservabilityTenantRelationLogsRulesDeleters)
+}
+
+// TracesReaders is the resolver for the tracesReaders field.
+func (r *observabilityTenantResolver) TracesReaders(ctx context.Context, obj *model.ObservabilityTenant) (*model.ObservabilityTenantPermissionBindings, error) {
+	return r.C.ResolveTenantBindings(ctx, obj.ID, consts.ObservabilityTenantRelationTracesReaders)
+}
+
+// TracesWriters is the resolver for the tracesWriters field.
+func (r *observabilityTenantResolver) TracesWriters(ctx context.Context, obj *model.ObservabilityTenant) (*model.ObservabilityTenantPermissionBindings, error) {
+	return r.C.ResolveTenantBindings(ctx, obj.ID, consts.ObservabilityTenantRelationTracesWriters)
 }
 
 // Users is the resolver for the users field.
-func (r *observabilityTenantEditorsResolver) Users(ctx context.Context, obj *model.ObservabilityTenantEditors) ([]*model.User, error) {
+func (r *observabilityTenantPermissionBindingsResolver) Users(ctx context.Context, obj *model.ObservabilityTenantPermissionBindings) ([]*model.User, error) {
 	return r.C.GetObservabilityTenantUsers(ctx, obj.Users)
 }
 
 // Groups is the resolver for the groups field.
-func (r *observabilityTenantEditorsResolver) Groups(ctx context.Context, obj *model.ObservabilityTenantEditors) ([]*model.Group, error) {
-	return r.C.GetObservabilityTenantGroups(ctx, obj.Groups)
-}
-
-// Users is the resolver for the users field.
-func (r *observabilityTenantViewersResolver) Users(ctx context.Context, obj *model.ObservabilityTenantViewers) ([]*model.User, error) {
-	return r.C.GetObservabilityTenantUsers(ctx, obj.Users)
-}
-
-// Groups is the resolver for the groups field.
-func (r *observabilityTenantViewersResolver) Groups(ctx context.Context, obj *model.ObservabilityTenantViewers) ([]*model.Group, error) {
+func (r *observabilityTenantPermissionBindingsResolver) Groups(ctx context.Context, obj *model.ObservabilityTenantPermissionBindings) ([]*model.Group, error) {
 	return r.C.GetObservabilityTenantGroups(ctx, obj.Groups)
 }
 
 // Oauth2Clients is the resolver for the oauth2Clients field.
-func (r *observabilityTenantViewersResolver) Oauth2Clients(ctx context.Context, obj *model.ObservabilityTenantViewers) ([]*model.OAuth2Client, error) {
+func (r *observabilityTenantPermissionBindingsResolver) Oauth2Clients(ctx context.Context, obj *model.ObservabilityTenantPermissionBindings) ([]*model.OAuth2Client, error) {
 	return r.C.GetObservabilityTenantOauth2Clients(ctx, obj.Oauth2Clients)
 }
 
@@ -67,8 +133,8 @@ func (r *queryResolver) ListObservabilityTenants(ctx context.Context) ([]*model.
 }
 
 // GetObservabilityTenant is the resolver for the getObservabilityTenant field.
-func (r *queryResolver) GetObservabilityTenant(ctx context.Context, name string) (*model.ObservabilityTenant, error) {
-	return r.C.GetTenant(ctx, name)
+func (r *queryResolver) GetObservabilityTenant(ctx context.Context, id string) (*model.ObservabilityTenant, error) {
+	return r.C.GetTenant(ctx, id)
 }
 
 // ObservabilityTenant returns generated.ObservabilityTenantResolver implementation.
@@ -76,16 +142,10 @@ func (r *Resolver) ObservabilityTenant() generated.ObservabilityTenantResolver {
 	return &observabilityTenantResolver{r}
 }
 
-// ObservabilityTenantEditors returns generated.ObservabilityTenantEditorsResolver implementation.
-func (r *Resolver) ObservabilityTenantEditors() generated.ObservabilityTenantEditorsResolver {
-	return &observabilityTenantEditorsResolver{r}
-}
-
-// ObservabilityTenantViewers returns generated.ObservabilityTenantViewersResolver implementation.
-func (r *Resolver) ObservabilityTenantViewers() generated.ObservabilityTenantViewersResolver {
-	return &observabilityTenantViewersResolver{r}
+// ObservabilityTenantPermissionBindings returns generated.ObservabilityTenantPermissionBindingsResolver implementation.
+func (r *Resolver) ObservabilityTenantPermissionBindings() generated.ObservabilityTenantPermissionBindingsResolver {
+	return &observabilityTenantPermissionBindingsResolver{r}
 }
 
 type observabilityTenantResolver struct{ *Resolver }
-type observabilityTenantEditorsResolver struct{ *Resolver }
-type observabilityTenantViewersResolver struct{ *Resolver }
+type observabilityTenantPermissionBindingsResolver struct{ *Resolver }

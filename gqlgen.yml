@@ -101,21 +101,45 @@ models:
         resolver: true
   ObservabilityTenant:
     fields:
-      viewers:
+      admins:
         resolver: true
-      editors:
+      metricsReaders:
         resolver: true
-  ObservabilityTenantViewers:
+      metricsWriters:
+        resolver: true
+      metricsDeleters:
+        resolver: true
+      metricsRulesReaders:
+        resolver: true
+      metricsRulesWriters:
+        resolver: true
+      metricsRulesDeleters:
+        resolver: true
+      metricsAlertsReaders:
+        resolver: true
+      metricsAlertsWriters:
+        resolver: true
+      logsReaders:
+        resolver: true
+      logsWriters:
+        resolver: true
+      logsDeleters:
+        resolver: true
+      logsRulesReaders:
+        resolver: true
+      logsRulesWriters:
+        resolver: true
+      logsRulesDeleters:
+        resolver: true
+      tracesReaders:
+        resolver: true
+      tracesWriters:
+        resolver: true
+  ObservabilityTenantPermissionBindings:
     fields:
       users:
         resolver: true
       groups:
         resolver: true
       oauth2Clients:
-        resolver: true
-  ObservabilityTenantEditors:
-    fields:
-      users:
-        resolver: true
-      groups:
         resolver: true

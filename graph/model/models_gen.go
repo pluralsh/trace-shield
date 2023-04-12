@@ -188,31 +188,46 @@ type OAuth2RedirectTo struct {
 
 // Representation a tenant in the Grafana observability stack where metrics, logs and traces can be sent to or retrieved from.
 type ObservabilityTenant struct {
-	// The unique name of the tenant.
-	Name string `json:"name"`
-	// The organization that the tenant belongs to.
-	Organization *Organization `json:"organization"`
-	// The users that are admins of the organization.
-	Viewers *ObservabilityTenantViewers `json:"viewers"`
-	// The users and groups that can edit a tenant to add users, groups or oauth2 clients to it.
-	Editors *ObservabilityTenantEditors `json:"editors"`
+	// The unique id of the tenant.
+	ID string `json:"id"`
+	// The display name of the tenant.
+	Name *string `json:"name"`
+	// The users, groups or clients that are admins of the observability tenant and can change its permissions.
+	Admins *ObservabilityTenantPermissionBindings `json:"admins"`
+	// The users, groups or clients that can read metrics from the tenant.
+	MetricsReaders *ObservabilityTenantPermissionBindings `json:"metricsReaders"`
+	// The users, groups or clients that can write metrics to the tenant.
+	MetricsWriters *ObservabilityTenantPermissionBindings `json:"metricsWriters"`
+	// The users, groups or clients that can delete metrics from the tenant.
+	MetricsDeleters *ObservabilityTenantPermissionBindings `json:"metricsDeleters"`
+	// The users, groups or clients that can read metric rules from the tenant.
+	MetricsRulesReaders *ObservabilityTenantPermissionBindings `json:"metricsRulesReaders"`
+	// The users, groups or clients that can write metric rules to the tenant.
+	MetricsRulesWriters *ObservabilityTenantPermissionBindings `json:"metricsRulesWriters"`
+	// The users, groups or clients that can delete metric rules from the tenant.
+	MetricsRulesDeleters *ObservabilityTenantPermissionBindings `json:"metricsRulesDeleters"`
+	// The users, groups or clients that can view the Alertmanager UI and get the Alertmanager configuration for a tenant.
+	MetricsAlertsReaders *ObservabilityTenantPermissionBindings `json:"metricsAlertsReaders"`
+	// The users, groups or clients that can create silences in the Alertmanager UI and create and delete the Alertmanager configuration for a tenant.
+	MetricsAlertsWriters *ObservabilityTenantPermissionBindings `json:"metricsAlertsWriters"`
+	// The users, groups or clients that can read logs from the tenant.
+	LogsReaders *ObservabilityTenantPermissionBindings `json:"logsReaders"`
+	// The users, groups or clients that can write logs to the tenant.
+	LogsWriters *ObservabilityTenantPermissionBindings `json:"logsWriters"`
+	// The users, groups or clients that can delete logs from the tenant.
+	LogsDeleters *ObservabilityTenantPermissionBindings `json:"logsDeleters"`
+	// The users, groups or clients that can read log rules from the tenant.
+	LogsRulesReaders *ObservabilityTenantPermissionBindings `json:"logsRulesReaders"`
+	// The users, groups or clients that can write log rules to the tenant.
+	LogsRulesWriters *ObservabilityTenantPermissionBindings `json:"logsRulesWriters"`
+	// The users, groups or clients that can delete log rules from the tenant.
+	LogsRulesDeleters *ObservabilityTenantPermissionBindings `json:"logsRulesDeleters"`
+	// The users, groups or clients that can read traces from the tenant.
+	TracesReaders *ObservabilityTenantPermissionBindings `json:"tracesReaders"`
+	// The users, groups or clients that can write traces to the tenant.
+	TracesWriters *ObservabilityTenantPermissionBindings `json:"tracesWriters"`
 	// The limits of the tenant.
 	Limits *ObservabilityTenantLimits `json:"limits"`
-}
-
-// Representation of the users and groups that can edit a tenant.
-type ObservabilityTenantEditors struct {
-	// The users that can edit a tenant.
-	Users []*User `json:"users"`
-	// The groups that can edit a tenant.
-	Groups []*Group `json:"groups"`
-}
-
-type ObservabilityTenantEditorsInput struct {
-	// The IDs of users that can edit a tenant.
-	Users []string `json:"users"`
-	// The names of groups that can edit a tenant.
-	Groups []string `json:"groups"`
 }
 
 // Representation of the limits of a tenant.
@@ -227,17 +242,17 @@ type ObservabilityTenantLimitsInput struct {
 	Mimir *v1alpha1.MimirLimitsInput `json:"mimir"`
 }
 
-// Representation of the users, groups and oauth2 clients that can view or send data a tenant.
-type ObservabilityTenantViewers struct {
-	// The users that can view a tenant.
+// Representation of the users, groups and oauth2 clients that have a set of permissions on a tenant.
+type ObservabilityTenantPermissionBindings struct {
+	// The users that have a particular permission on a tenant.
 	Users []*User `json:"users"`
-	// The groups that can view a tenant.
+	// The groups have a particular permission on a tenant.
 	Groups []*Group `json:"groups"`
-	// The oauth2 clients that can send data a tenant.
+	// The oauth2 clients  have a particular permission on a tenant.
 	Oauth2Clients []*OAuth2Client `json:"oauth2Clients"`
 }
 
-type ObservabilityTenantViewersInput struct {
+type ObservabilityTenantPermissionBindingsInput struct {
 	// The IDs of users that can view a tenant.
 	Users []string `json:"users"`
 	// The names of groups that can view a tenant.
