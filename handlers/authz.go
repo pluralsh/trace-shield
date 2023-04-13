@@ -119,14 +119,13 @@ func (h *Handler) ObservabilityTenantPolicyCheck(w http.ResponseWriter, r *http.
 			}
 		}
 
-	} else {
-		// get all the tenants a client has permissions for
-		clientTenants, err := h.getDirectTenants(p)
-		if err != nil {
-			log.Error(err, "Failed to get client tenants")
-		}
-		tenants = append(tenants, clientTenants...)
 	}
+	// get all the tenants a client has permissions for
+	clientTenants, err := h.getDirectTenants(p)
+	if err != nil {
+		log.Error(err, "Failed to get client tenants")
+	}
+	tenants = append(tenants, clientTenants...)
 
 	if len(tenants) == 0 {
 		http.Error(w, "No tenants that can be accessed", http.StatusForbidden)
