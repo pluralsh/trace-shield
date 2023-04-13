@@ -54,7 +54,7 @@ class ObservabilityTenant implements Namespace {
     admins: (User | SubjectSet<Group, 'members'> | OAuth2Client)[]
     metrics_readers: (User | SubjectSet<Group, 'members'> | OAuth2Client)[]
     metrics_writers: (User | SubjectSet<Group, 'members'> | OAuth2Client)[]
-    metrics_deleters: (User | SubjectSet<Group, 'members'> | OAuth2Client)[]
+    metrics_deleters: (User | SubjectSet<Group, 'members'> | OAuth2Client)[] //TODO: seems like the API for this is missing
     metrics_rules_readers: (User | SubjectSet<Group, 'members'> | OAuth2Client)[]
     metrics_rules_writers: (User | SubjectSet<Group, 'members'> | OAuth2Client)[]
     metrics_rules_deleters: (User | SubjectSet<Group, 'members'> | OAuth2Client)[]
@@ -63,14 +63,14 @@ class ObservabilityTenant implements Namespace {
 
     logs_readers: (User | SubjectSet<Group, 'members'> | OAuth2Client)[]
     logs_writers: (User | SubjectSet<Group, 'members'> | OAuth2Client)[]
-    logs_deleters: (User | SubjectSet<Group, 'members'> | OAuth2Client)[]
+    logs_deleters: (User | SubjectSet<Group, 'members'> | OAuth2Client)[] //TODO: seems like the API for this is missing
     logs_rules_readers: (User | SubjectSet<Group, 'members'> | OAuth2Client)[]
     logs_rules_writers: (User | SubjectSet<Group, 'members'> | OAuth2Client)[]
     logs_rules_deleters: (User | SubjectSet<Group, 'members'> | OAuth2Client)[]
 
     traces_readers: (User | SubjectSet<Group, 'members'> | OAuth2Client)[]
     traces_writers: (User | SubjectSet<Group, 'members'> | OAuth2Client)[]
-    // traces_deleters?: (User | SubjectSet<Group, 'members'> | OAuth2Client)[]
+    // traces_deleters: (User | SubjectSet<Group, 'members'> | OAuth2Client)[] //TODO: seems like the API for this is missing
   }
   permits = {
     read_metrics: (ctx: Context) =>

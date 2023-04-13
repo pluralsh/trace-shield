@@ -122,7 +122,7 @@ func (h *Handler) getUserTenants(subject string) ([]string, error) {
 func (h *Handler) isOrgAdmin(subject string) ([]string, error) {
 	query := rts.RelationQuery{
 		Namespace: px.Ptr(consts.OrganizationNamespace.String()),
-		Relation:  px.Ptr(consts.OrganizationPermissionAdmin.String()),
+		Relation:  px.Ptr(consts.OrganizationRelationAdmins.String()),
 		Subject:   rts.NewSubjectSet(consts.UserNamespace.String(), subject, ""),
 	}
 	respTuples, err := h.C.KetoClient.QueryAllTuples(context.Background(), &query, 100)
@@ -133,7 +133,7 @@ func (h *Handler) isOrgAdmin(subject string) ([]string, error) {
 	output := []string{}
 	for _, tuple := range respTuples {
 		// likely unnecessary but just in case
-		if tuple.Namespace == consts.OrganizationNamespace.String() && tuple.Relation == consts.OrganizationPermissionAdmin.String() && tuple.Object != "" {
+		if tuple.Namespace == consts.OrganizationNamespace.String() && tuple.Relation == consts.OrganizationRelationAdmins.String() && tuple.Object != "" {
 			output = append(output, tuple.Object)
 		}
 	}

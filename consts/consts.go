@@ -1,5 +1,9 @@
 package consts
 
+import "fmt"
+
+const TenantHeader = "X-Scope-OrgID"
+
 type ObservabilityTenantRelation string
 
 const (
@@ -155,4 +159,90 @@ func (p UserPermission) String() string {
 
 func (p ObservabilityTenantPermission) String() string {
 	return string(p)
+}
+
+func (p ObservabilityTenantPermission) GetRelation() (ObservabilityTenantRelation, error) {
+	switch p {
+	case ObservabilityTenantPermissionReadMetrics:
+		return ObservabilityTenantRelationMetricsReaders, nil
+	case ObservabilityTenantPermissionWriteMetrics:
+		return ObservabilityTenantRelationMetricsWriters, nil
+	case ObservabilityTenantPermissionDeleteMetrics:
+		return ObservabilityTenantRelationMetricsDeleters, nil
+	case ObservabilityTenantPermissionReadMetricsRules:
+		return ObservabilityTenantRelationMetricsRulesReaders, nil
+	case ObservabilityTenantPermissionWriteMetricsRules:
+		return ObservabilityTenantRelationMetricsRulesWriters, nil
+	case ObservabilityTenantPermissionDeleteMetricsRules:
+		return ObservabilityTenantRelationMetricsRulesDeleters, nil
+	case ObservabilityTenantPermissionReadMetricsAlerts:
+		return ObservabilityTenantRelationMetricsAlertsReaders, nil
+	case ObservabilityTenantPermissionWriteMetricsAlerts:
+		return ObservabilityTenantRelationMetricsAlertsWriters, nil
+	case ObservabilityTenantPermissionReadLogs:
+		return ObservabilityTenantRelationLogsReaders, nil
+	case ObservabilityTenantPermissionWriteLogs:
+		return ObservabilityTenantRelationLogsWriters, nil
+	case ObservabilityTenantPermissionDeleteLogs:
+		return ObservabilityTenantRelationLogsDeleters, nil
+	case ObservabilityTenantPermissionReadLogsRules:
+		return ObservabilityTenantRelationLogsRulesReaders, nil
+	case ObservabilityTenantPermissionWriteLogsRules:
+		return ObservabilityTenantRelationLogsRulesWriters, nil
+	case ObservabilityTenantPermissionDeleteLogsRules:
+		return ObservabilityTenantRelationLogsRulesDeleters, nil
+	case ObservabilityTenantPermissionReadTraces:
+		return ObservabilityTenantRelationTracesReaders, nil
+	case ObservabilityTenantPermissionWriteTraces:
+		return ObservabilityTenantRelationTracesWriters, nil
+	case ObservabilityTenantPermissionManage:
+		return ObservabilityTenantRelationAdmins, nil
+	default:
+		return "", fmt.Errorf("unknown permission relation %s", p)
+	}
+}
+
+func ParseObservabilityTenantPermission(s string) (ObservabilityTenantPermission, error) {
+	switch s {
+	case "read_metrics":
+		return ObservabilityTenantPermissionReadMetrics, nil
+	case "write_metrics":
+		return ObservabilityTenantPermissionWriteMetrics, nil
+	case "delete_metrics":
+		return ObservabilityTenantPermissionDeleteMetrics, nil
+	case "read_metrics_rules":
+		return ObservabilityTenantPermissionReadMetricsRules, nil
+	case "write_metrics_rules":
+		return ObservabilityTenantPermissionWriteMetricsRules, nil
+	case "delete_metrics_rules":
+		return ObservabilityTenantPermissionDeleteMetricsRules, nil
+	case "read_metrics_alerts":
+		return ObservabilityTenantPermissionReadMetricsAlerts, nil
+	case "write_metrics_alerts":
+		return ObservabilityTenantPermissionWriteMetricsAlerts, nil
+	case "read_logs":
+		return ObservabilityTenantPermissionReadLogs, nil
+	case "write_logs":
+		return ObservabilityTenantPermissionWriteLogs, nil
+	case "delete_logs":
+		return ObservabilityTenantPermissionDeleteLogs, nil
+	case "read_logs_rules":
+		return ObservabilityTenantPermissionReadLogsRules, nil
+	case "write_logs_rules":
+		return ObservabilityTenantPermissionWriteLogsRules, nil
+	case "delete_logs_rules":
+		return ObservabilityTenantPermissionDeleteLogsRules, nil
+	case "read_traces":
+		return ObservabilityTenantPermissionReadTraces, nil
+	case "write_traces":
+		return ObservabilityTenantPermissionWriteTraces, nil
+	case "manage":
+		return ObservabilityTenantPermissionManage, nil
+	case "delete":
+		return ObservabilityTenantPermissionDelete, nil
+	case "create":
+		return ObservabilityTenantPermissionCreate, nil
+	default:
+		return "", fmt.Errorf("invalid permission: %s", s)
+	}
 }
