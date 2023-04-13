@@ -129,10 +129,10 @@ func (c *ClientWrapper) CreateUser(ctx context.Context, email string, name *mode
 	}
 
 	// TODO: this is giving a 404 not found error
-	// recoveryLink, err := c.CreateRecoveryLinkForIdentity(ctx, kratosUser.Id)
-	// if err != nil {
-	// 	log.Error(err, "failed to create recovery link for user")
-	// }
+	recoveryLink, err := c.CreateRecoveryLinkForIdentity(ctx, kratosUser.Id)
+	if err != nil {
+		log.Error(err, "failed to create recovery link for user")
+	}
 
 	exits, err := c.UserExistsInKeto(ctx, kratosUser.Id)
 	if err != nil {
@@ -153,6 +153,8 @@ func (c *ClientWrapper) CreateUser(ctx context.Context, email string, name *mode
 		log.Error(err, "failed to unmarshal user traits")
 		return nil, err
 	}
+
+	outUser.RecoveryLink = recoveryLink
 
 	// TODO: reenable once it is working
 	// outUser.RecoveryLink = recoveryLink
