@@ -15,6 +15,7 @@ COPY format/ format/
 COPY graph/ graph/
 COPY handlers/ handlers/
 COPY utils/ utils/
+COPY consts/ consts/
 
 # Build
 RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a -o server server.go
