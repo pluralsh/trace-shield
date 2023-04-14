@@ -111,7 +111,7 @@ func (h *Handler) ObservabilityTenantPolicyCheck(w http.ResponseWriter, r *http.
 
 			// get all the tenants a user has permissions for via group membership
 			for _, group := range groups {
-				groupTenants, err := h.getGroupTenants(group)
+				groupTenants, err := h.getGroupPolicyTenants(p, group)
 				if err != nil {
 					log.Error(err, "Failed to get group tenants", "group", group)
 				}
