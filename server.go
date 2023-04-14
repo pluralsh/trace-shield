@@ -142,7 +142,7 @@ func serve(ctx context.Context, resolver *resolvers.Resolver, directives *direct
 
 	router.Handle("/graphiql", playground.Handler("GraphQL playground", "/graphql"))
 	router.Handle("/graphql", gqlSrv)
-	router.Post("/tenant-hydrator", handlers.HydrateObservabilityTenants)
+	router.Post("/tenant-hydrator", handlers.HydrateObservabilityTenants) // TODO: remove this since we now use the check endpoint
 	router.Post("/user-webhook", handlers.BootstrapAdmin)
 	router.Post("/check", handlers.ObservabilityTenantPolicyCheck)
 

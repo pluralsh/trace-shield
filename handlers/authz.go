@@ -228,28 +228,3 @@ func (h *Handler) getGroupPolicyTenants(p *PolicyRequest, group string) ([]strin
 
 	return output, nil
 }
-
-func (p *PolicyRequest) processRequest(subject string) error {
-	// log := h.Log.WithName("getUserTenants")
-	permission, err := consts.ParseObservabilityTenantPermission(p.RequestedPermission)
-	if err != nil {
-		return err
-	}
-	p.permission = permission
-
-	relation, err := p.permission.GetRelation()
-	if err != nil {
-		return err
-	}
-	p.relation = relation
-
-	if p.IsOAuth2Client {
-	}
-
-	return nil
-}
-
-func (p *PolicyRequest) processOAuth2Client() error {
-
-	return nil
-}

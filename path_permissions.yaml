@@ -33,7 +33,7 @@ read_metrics:
     methods:
     - GET
     - POST
-  - path: prometheus/api/v1/cardinality/label_values
+  - path: /prometheus/api/v1/cardinality/label_values
     methods:
     - GET
     - POST
