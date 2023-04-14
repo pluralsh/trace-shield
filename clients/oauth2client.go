@@ -268,18 +268,9 @@ func (c *ClientWrapper) OAuth2ClientExistsInKeto(ctx context.Context, id string)
 func (c *ClientWrapper) CreateOAuth2ClientInKeto(ctx context.Context, id string) error {
 	log := c.Log.WithName("CreateOAuth2ClientInKeto").WithValues("ID", id)
 
-	clientTuple := &rts.RelationTuple{
-		Namespace: "OAuth2Client",
-		Object:    id,
-		Relation:  "organizations",
-		Subject: rts.NewSubjectSet(
-			"Organization",
-			"main", //TODO: decide whether to hardcode this or not
-			"",
-		),
-	}
+	client := model.NewOAuth2Client(id)
 
-	err := c.KetoClient.CreateTuple(ctx, clientTuple)
+	err := c.KetoClient.CreateTuple(ctx, client.GetOrganizationTuple())
 	if err != nil {
 		return fmt.Errorf("failed to create tuple: %w", err)
 	}
@@ -292,18 +283,9 @@ func (c *ClientWrapper) CreateOAuth2ClientInKeto(ctx context.Context, id string)
 func (c *ClientWrapper) DeleteOAuth2ClientInKeto(ctx context.Context, id string) error {
 	log := c.Log.WithName("DeleteOAuth2ClientInKeto").WithValues("ID", id)
 
-	clientTuple := &rts.RelationTuple{
-		Namespace: "OAuth2Client",
-		Object:    id,
-		Relation:  "organizations",
-		Subject: rts.NewSubjectSet(
-			"Organization",
-			"main", //TODO: decide whether to hardcode this or not
-			"",
-		),
-	}
+	client := model.NewOAuth2Client(id)
 
-	err := c.KetoClient.DeleteTuple(ctx, clientTuple)
+	err := c.KetoClient.DeleteTuple(ctx, client.GetOrganizationTuple())
 	if err != nil {
 		return fmt.Errorf("failed to delete tuple: %w", err)
 	}
@@ -367,21 +349,12 @@ func (c *ClientWrapper) AddUsersToLoginBindings(ctx context.Context, clientID st
 }
 
 // function that adds a user to the login bindings of an oauth2 client
-func (c *ClientWrapper) AddUserToLoginBindings(ctx context.Context, clientID string, user string) error {
-	log := c.Log.WithName("AddUserToLoginBindings").WithValues("ClientID", clientID, "User", user)
+func (c *ClientWrapper) AddUserToLoginBindings(ctx context.Context, clientID string, userId string) error {
+	log := c.Log.WithName("AddUserToLoginBindings").WithValues("ClientID", clientID, "User", userId)
 
-	clientTuple := &rts.RelationTuple{
-		Namespace: "OAuth2Client",
-		Object:    clientID,
-		Relation:  "login",
-		Subject: rts.NewSubjectSet(
-			"User",
-			user,
-			"",
-		),
-	}
+	client := model.NewOAuth2Client(clientID)
 
-	err := c.KetoClient.CreateTuple(ctx, clientTuple)
+	err := c.KetoClient.CreateTuple(ctx, client.GetUserTuple(userId))
 	if err != nil {
 		return fmt.Errorf("failed to create tuple: %w", err)
 	}
@@ -408,21 +381,12 @@ func (c *ClientWrapper) RemoveUsersFromLoginBindings(ctx context.Context, client
 }
 
 // function that removes a user from the login bindings of an oauth2 client
-func (c *ClientWrapper) RemoveUserFromLoginBindings(ctx context.Context, clientID string, user string) error {
-	log := c.Log.WithName("RemoveUserFromLoginBindings").WithValues("ClientID", clientID, "User", user)
+func (c *ClientWrapper) RemoveUserFromLoginBindings(ctx context.Context, clientID string, userId string) error {
+	log := c.Log.WithName("RemoveUserFromLoginBindings").WithValues("ClientID", clientID, "User", userId)
 
-	clientTuple := &rts.RelationTuple{
-		Namespace: "OAuth2Client",
-		Object:    clientID,
-		Relation:  "login",
-		Subject: rts.NewSubjectSet(
-			"User",
-			user,
-			"",
-		),
-	}
+	client := model.NewOAuth2Client(clientID)
 
-	err := c.KetoClient.DeleteTuple(ctx, clientTuple)
+	err := c.KetoClient.DeleteTuple(ctx, client.GetUserTuple(userId))
 	if err != nil {
 		return fmt.Errorf("failed to delete tuple: %w", err)
 	}
@@ -451,18 +415,9 @@ func (c *ClientWrapper) AddGroupsToLoginBindings(ctx context.Context, clientID s
 func (c *ClientWrapper) AddGroupToLoginBindings(ctx context.Context, clientID string, group string) error {
 	log := c.Log.WithName("AddGroupToLoginBindings").WithValues("ClientID", clientID, "Group", group)
 
-	clientTuple := &rts.RelationTuple{
-		Namespace: "OAuth2Client",
-		Object:    clientID,
-		Relation:  "login",
-		Subject: rts.NewSubjectSet(
-			"Group",
-			group,
-			"",
-		),
-	}
+	client := model.NewOAuth2Client(clientID)
 
-	err := c.KetoClient.CreateTuple(ctx, clientTuple)
+	err := c.KetoClient.CreateTuple(ctx, client.GetGroupTuple(group))
 	if err != nil {
 		return fmt.Errorf("failed to create tuple: %w", err)
 	}
@@ -491,18 +446,9 @@ func (c *ClientWrapper) RemoveGroupsFromLoginBindings(ctx context.Context, clien
 func (c *ClientWrapper) RemoveGroupFromLoginBindings(ctx context.Context, clientID string, group string) error {
 	log := c.Log.WithName("RemoveGroupFromLoginBindings").WithValues("ClientID", clientID, "Group", group)
 
-	clientTuple := &rts.RelationTuple{
-		Namespace: "OAuth2Client",
-		Object:    clientID,
-		Relation:  "login",
-		Subject: rts.NewSubjectSet(
-			"Group",
-			group,
-			"",
-		),
-	}
+	client := model.NewOAuth2Client(clientID)
 
-	err := c.KetoClient.DeleteTuple(ctx, clientTuple)
+	err := c.KetoClient.DeleteTuple(ctx, client.GetGroupTuple(group))
 	if err != nil {
 		return fmt.Errorf("failed to delete tuple: %w", err)
 	}
@@ -544,4 +490,14 @@ func (c *ClientWrapper) GetLoginBindingsInKeto(ctx context.Context, clientID str
 
 	log.Info("Success getting users in login bindings")
 	return users, groups, nil
+}
+
+// function that checks if a client id is in a []*model.OAuth2Client
+func ClientIDInListOfOAuth2Clients(clients []*model.OAuth2Client, clientID string) bool {
+	for _, client := range clients {
+		if *client.ClientID == clientID {
+			return true
+		}
+	}
+	return false
 }

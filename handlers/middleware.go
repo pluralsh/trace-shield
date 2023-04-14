@@ -7,6 +7,7 @@ import (
 
 	rts "github.com/ory/keto/proto/ory/keto/relation_tuples/v1alpha2"
 	kratosClient "github.com/ory/kratos-client-go"
+	"github.com/pluralsh/trace-shield/consts"
 )
 
 const (
@@ -109,11 +110,11 @@ func (h *Handler) Middleware() func(http.Handler) http.Handler {
 			user.IsAdmin = false
 
 			adminQuery := rts.RelationTuple{
-				Namespace: "Organization",
-				Object:    "main",
-				Relation:  "admins",
+				Namespace: consts.OrganizationNamespace.String(),
+				Object:    consts.MainOrganizationName,
+				Relation:  consts.OrganizationPermissionAdmin.String(),
 				Subject: rts.NewSubjectSet(
-					"User",
+					consts.UserNamespace.String(),
 					resp.Identity.Id,
 					"",
 				),

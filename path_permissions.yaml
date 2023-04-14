@@ -1,0 +1,216 @@
+read_metrics:
+  paths:
+  - path: /prometheus/api/v1/query
+    methods:
+    - GET
+    - POST
+  - path: /prometheus/api/v1/query_range
+    methods:
+    - GET
+    - POST
+  - path: /prometheus/api/v1/query_exemplars
+    methods:
+    - GET
+    - POST
+  - path: /prometheus/api/v1/series
+    methods:
+    - GET
+    - POST
+  - path: /prometheus/api/v1/labels
+    methods:
+    - GET
+    - POST
+  - path: /prometheus/api/v1/label/{name}/values
+    methods:
+    - GET
+  - path: /prometheus/api/v1/metadata
+    methods:
+    - GET
+  - path: /prometheus/api/v1/read
+    methods:
+    - POST
+  - path: /prometheus/api/v1/cardinality/label_names
+    methods:
+    - GET
+    - POST
+  - path: /prometheus/api/v1/cardinality/label_values
+    methods:
+    - GET
+    - POST
+
+write_metrics:
+  paths:
+  - path: /api/v1/push
+    methods:
+    - POST
+  - path: /otlp/v1/metrics
+    methods:
+    - POST
+
+# delete_metrics: # TODO: this API doesn't seem to be implemented
+
+read_metrics_rules:
+  paths:
+  - path: /ruler/rule_groups
+    methods:
+    - GET
+  - path: /prometheus/api/v1/rules
+    methods:
+    - GET
+  - path: /prometheus/api/v1/alerts #TODO: does this fall under alerts?
+    methods:
+    - GET
+  - path: /prometheus/config/v1/rules
+    methods:
+    - GET
+  - path: /prometheus/config/v1/rules/{namespace}
+    methods:
+    - GET
+  - path: /prometheus/config/v1/rules/{namespace}/{group}
+    methods:
+    - GET
+
+write_metrics_rules:
+  paths:
+  - path: /prometheus/config/v1/rules/{namespace}
+    methods:
+    - POST
+
+delete_metrics_rules:
+  paths:
+  - path: /prometheus/config/v1/rules/{namespace}/{group}
+    methods:
+    - DELETE
+  - path: /prometheus/config/v1/rules/{namespace}
+    methods:
+    - DELETE
+  # - path: /ruler/delete_tenant_config # TODO: do users need access to this or is it for Mimir admins?
+  #   methods:
+  #   - POST
+
+read_metrics_alerts:
+  paths:
+  # - path: /prometheus/api/v1/alerts # TODO: does this fall under promethes rules?
+  #   methods:
+  #   - GET
+  - path: /multitenant_alertmanager/configs
+    methods:
+    - GET
+  - path: /alertmanager # TODO: how do we limit what can be done through the UI (silence) and how do we expose it with the tenant header (since only 1 can be present)
+    methods:
+    - GET
+  - path: /api/v1/alerts
+    methods:
+    - GET
+
+write_metrics_alerts:
+  paths:
+  - path: /api/v1/alerts
+    methods:
+    - POST
+
+delete_metrics_alerts:
+  paths:
+  - path: /api/v1/alerts
+    methods:
+    - DELETE
+  # - path: /multitenant_alertmanager/delete_tenant_config # TODO: do users need access to this or is it for Mimir admins?
+  #   methods:
+  #   - POST
+
+read_logs:
+  paths:
+  - path: /loki/api/v1/query
+    methods:
+    - GET
+  - path: /loki/api/v1/query_range
+    methods:
+    - GET
+  - path: /loki/api/v1/labels
+    methods:
+    - GET
+  - path: /loki/api/v1/label/{name}/values
+    methods:
+    - GET
+  - path: /loki/api/v1/series
+    methods:
+    - GET
+  - path: /loki/api/v1/tail
+    methods:
+    - GET
+
+write_logs:
+  - path: /loki/api/v1/push
+    methods:
+    - POST
+
+# delete_logs: # TODO: this API doesn't seem to be implemented
+
+read_logs_rules:
+  paths:
+  - path: /loki/api/v1/rules
+    methods:
+    - GET
+  - path: /prometheus/config/v1/rules/{namespace}
+    methods:
+    - GET
+  - path: /prometheus/config/v1/rules/{namespace}/{group}
+    methods:
+    - GET
+  # TODO: should we add support for the /api/prom endpoints
+  - path: /prometheus/api/v1/alerts #TODO: should this be used?
+    methods:
+    - GET
+  - path: /prometheus/config/v1/rules #TODO: should this be used?
+    methods:
+    - GET
+
+write_logs_rules:
+  paths:
+  - path: /loki/api/v1/rules/{namespace}
+    methods:
+    - POST
+
+delete_logs_rules:
+  paths:
+  - path: /loki/api/v1/rules/{namespace}/{group}
+    methods:
+    - DELETE
+  - path: /loki/api/v1/rules/{namespace}
+    methods:
+    - DELETE
+  # TODO: should we add support for the /api/prom endpoints
+
+read_traces:
+  paths:
+  - path: /api/traces/{traceID}
+    methods:
+    - GET
+  - path: /api/search?{params}
+    methods:
+    - GET
+  - path: /api/search/tags
+    methods:
+    - GET
+  - path: /api/search/tag/{tag}/values
+    methods:
+    - GET
+  - path: /api/v2/search/tag/{tag}/values
+    methods:
+    - GET
+
+write_traces:
+  paths:
+  - path: /otlp/v1/traces
+    methods:
+    - POST
+  # - path: /otlp/v1/traces # TODO: left here for OTPL gRPC support. Tempo gateway does not support this (yet). Also, need to fine tune with how OAthkeeper expects gRPC traffic to be identified in a rule.
+  #   methods:
+  #   - POST
+  - path: /jaeger/api/traces # TODO: figure out if this also includes Thrift Compact and Thrift Binary
+    methods:
+    - POST
+  # TODO: figure out Jaeger gRPC support
+  - path: /zipkin/spans
+    methods:
+    - POST

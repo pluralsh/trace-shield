@@ -58,7 +58,9 @@ func (cd *KetoConnectionDetails) dialOptions() (opts []grpc.DialOption) {
 	if cd.token != "" {
 		opts = append(opts,
 			grpc.WithPerRPCCredentials(
-				oauth.NewOauthAccess(&oauth2.Token{AccessToken: cd.token})))
+				oauth.TokenSource{TokenSource: oauth2.StaticTokenSource(&oauth2.Token{AccessToken: cd.token})},
+			),
+		)
 	}
 	if cd.authority != "" {
 		opts = append(opts, grpc.WithAuthority(cd.authority))

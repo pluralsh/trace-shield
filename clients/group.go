@@ -6,6 +6,7 @@ import (
 
 	rts "github.com/ory/keto/proto/ory/keto/relation_tuples/v1alpha2"
 	px "github.com/ory/x/pointerx"
+	"github.com/pluralsh/trace-shield/consts"
 	"github.com/pluralsh/trace-shield/graph/model"
 )
 
@@ -59,7 +60,7 @@ func (c *ClientWrapper) MutateGroup(ctx context.Context, name string, members []
 	return &model.Group{
 		Name: name,
 		Organization: &model.Organization{
-			Name: "main", //TODO: decide whether to hardcode this or not
+			Name: consts.MainOrganizationName, //TODO: decide whether to hardcode this or not
 		},
 	}, nil
 }
@@ -97,6 +98,16 @@ func userIdInListOfUsers(users []*model.User, userId string) bool {
 	return false
 }
 
+// function that checks if a group is in a []*model.Group
+func groupNameInListOfGroups(groups []*model.Group, groupId string) bool {
+	for _, group := range groups {
+		if group.Name == groupId {
+			return true
+		}
+	}
+	return false
+}
+
 // function that checks if a string is in a []string
 func stringContains(list []string, s string) bool {
 	for _, u := range list {
@@ -111,18 +122,9 @@ func stringContains(list []string, s string) bool {
 func (c *ClientWrapper) IsUserInGroup(ctx context.Context, groupName string, userId string) (bool, error) {
 	log := c.Log.WithName("IsUserInGroup").WithValues("Name", groupName)
 
-	userTuple := &rts.RelationTuple{
-		Namespace: "Group",
-		Object:    groupName,
-		Relation:  "members",
-		Subject: rts.NewSubjectSet(
-			"User",
-			userId,
-			"",
-		),
-	}
+	group := model.NewGroup(groupName)
 
-	_, err := c.KetoClient.Check(ctx, userTuple)
+	_, err := c.KetoClient.Check(ctx, group.GetUserTuple(userId))
 	if err != nil {
 		return false, fmt.Errorf("failed to check tuple: %w", err)
 	}
@@ -135,18 +137,9 @@ func (c *ClientWrapper) IsUserInGroup(ctx context.Context, groupName string, use
 func (c *ClientWrapper) CreateGroupInKeto(ctx context.Context, name string) error {
 	log := c.Log.WithName("CreateGroupInKeto").WithValues("Name", name)
 
-	groupTuple := &rts.RelationTuple{
-		Namespace: "Group",
-		Object:    name,
-		Relation:  "organizations",
-		Subject: rts.NewSubjectSet(
-			"Organization",
-			"main", //TODO: decide whether to hardcode this or not
-			"",
-		),
-	}
+	group := model.NewGroup(name)
 
-	err := c.KetoClient.CreateTuple(ctx, groupTuple)
+	err := c.KetoClient.CreateTuple(ctx, group.GetOrganizationTuple())
 	if err != nil {
 		return fmt.Errorf("failed to create tuple: %w", err)
 	}
@@ -159,18 +152,9 @@ func (c *ClientWrapper) CreateGroupInKeto(ctx context.Context, name string) erro
 func (c *ClientWrapper) AddUserToGroupInKeto(ctx context.Context, groupName string, userId string) error {
 	log := c.Log.WithName("AddUserToGroupInKeto").WithValues("Name", groupName)
 
-	userTuple := &rts.RelationTuple{
-		Namespace: "Group",
-		Object:    groupName,
-		Relation:  "members",
-		Subject: rts.NewSubjectSet(
-			"User",
-			userId,
-			"",
-		),
-	}
+	group := model.NewGroup(groupName)
 
-	err := c.KetoClient.CreateTuple(ctx, userTuple)
+	err := c.KetoClient.CreateTuple(ctx, group.GetUserTuple(userId))
 	if err != nil {
 		return fmt.Errorf("failed to create tuple: %w", err)
 	}
@@ -183,18 +167,9 @@ func (c *ClientWrapper) AddUserToGroupInKeto(ctx context.Context, groupName stri
 func (c *ClientWrapper) RemoveUserFromGroupInKeto(ctx context.Context, groupName string, userId string) error {
 	log := c.Log.WithName("RemoveUserFromGroupInKeto").WithValues("Name", groupName)
 
-	userTuple := &rts.RelationTuple{
-		Namespace: "Group",
-		Object:    groupName,
-		Relation:  "members",
-		Subject: rts.NewSubjectSet(
-			"User",
-			userId,
-			"",
-		),
-	}
+	group := model.NewGroup(groupName)
 
-	err := c.KetoClient.DeleteTuple(ctx, userTuple)
+	err := c.KetoClient.DeleteTuple(ctx, group.GetUserTuple(userId))
 	if err != nil {
 		return fmt.Errorf("failed to delete tuple: %w", err)
 	}
@@ -208,9 +183,9 @@ func (c *ClientWrapper) GetGroupMembersInKeto(ctx context.Context, groupName str
 	log := c.Log.WithName("GetGroupMembersInKeto").WithValues("Name", groupName)
 
 	query := rts.RelationQuery{
-		Namespace: px.Ptr("Group"),
+		Namespace: px.Ptr(consts.GroupNamespace.String()),
 		Object:    px.Ptr(groupName),
-		Relation:  px.Ptr("members"),
+		Relation:  px.Ptr(consts.GroupRelationMembers.String()),
 		Subject:   nil,
 	}
 
@@ -260,7 +235,7 @@ func (c *ClientWrapper) GetGroupFromName(ctx context.Context, groupName string) 
 	return &model.Group{
 		Name: groupName,
 		Organization: &model.Organization{
-			Name: "main", //TODO: decide whether to hardcode this or not
+			Name: consts.MainOrganizationName, //TODO: decide whether to hardcode this or not
 		},
 	}, nil
 }
@@ -270,12 +245,12 @@ func (c *ClientWrapper) GroupExistsInKeto(ctx context.Context, groupName string)
 	log := c.Log.WithName("GroupExistsInKeto").WithValues("Name", groupName)
 
 	query := rts.RelationQuery{
-		Namespace: px.Ptr("Group"),
+		Namespace: px.Ptr(consts.GroupNamespace.String()),
 		Object:    px.Ptr(groupName),
-		Relation:  px.Ptr("organizations"),
+		Relation:  px.Ptr(consts.ObjectRelationOrganizations.String()),
 		Subject: rts.NewSubjectSet(
-			"Organization",
-			"main", //TODO: decide whether to hardcode this or not
+			consts.OrganizationNamespace.String(),
+			consts.MainOrganizationName, //TODO: decide whether to hardcode this or not
 			"",
 		),
 	}
@@ -298,12 +273,12 @@ func (c *ClientWrapper) ListGroupsInKeto(ctx context.Context) ([]*model.Group, e
 	log := c.Log.WithName("ListGroupsInKeto")
 
 	query := rts.RelationQuery{
-		Namespace: px.Ptr("Group"),
+		Namespace: px.Ptr(consts.GroupNamespace.String()),
 		Object:    nil,
-		Relation:  px.Ptr("organizations"),
+		Relation:  px.Ptr(consts.ObjectRelationOrganizations.String()),
 		Subject: rts.NewSubjectSet(
-			"Organization",
-			"main", //TODO: decide whether to hardcode this or not
+			consts.OrganizationNamespace.String(),
+			consts.MainOrganizationName, //TODO: decide whether to hardcode this or not
 			"",
 		),
 	}
@@ -331,22 +306,13 @@ func (c *ClientWrapper) ListGroupsInKeto(ctx context.Context) ([]*model.Group, e
 	return outputGroups, nil
 }
 
-// funtion that deletes a group in keto
+// function that deletes a group in keto
 func (c *ClientWrapper) DeleteGroup(ctx context.Context, groupName string) (*model.Group, error) {
 	log := c.Log.WithName("DeleteGroup").WithValues("Name", groupName)
 
-	tuple := &rts.RelationTuple{
-		Namespace: "Group",
-		Object:    groupName,
-		Relation:  "organizations",
-		Subject: rts.NewSubjectSet(
-			"Organization",
-			"main", //TODO: decide whether to hardcode this or not
-			"",
-		),
-	}
+	group := model.NewGroup(groupName)
 
-	err := c.KetoClient.DeleteTuple(ctx, tuple)
+	err := c.KetoClient.DeleteTuple(ctx, group.GetOrganizationTuple())
 	if err != nil {
 		log.Error(err, "Failed to delete tuple")
 		return nil, err
@@ -356,7 +322,7 @@ func (c *ClientWrapper) DeleteGroup(ctx context.Context, groupName string) (*mod
 	return &model.Group{
 		Name: groupName,
 		Organization: &model.Organization{
-			Name: "main", //TODO: decide whether to hardcode this or not
+			Name: consts.MainOrganizationName, //TODO: decide whether to hardcode this or not
 		},
 	}, nil
 }

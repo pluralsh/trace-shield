@@ -5,20 +5,18 @@ import (
 	"fmt"
 
 	rts "github.com/ory/keto/proto/ory/keto/relation_tuples/v1alpha2"
-	px "github.com/ory/x/pointerx"
 	observabilityv1alpha1 "github.com/pluralsh/trace-shield-controller/api/observability/v1alpha1"
+	"github.com/pluralsh/trace-shield/consts"
 	"github.com/pluralsh/trace-shield/graph/model"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
-type ObservabilityTenantPermission string
+type ObservabilityTenantRelation struct {
+	Type     consts.ObservabilityTenantRelation
+	Bindings *model.ObservabilityTenantPermissionBindingsInput
+}
 
-const (
-	ObservabilityTenantPermissionView ObservabilityTenantPermission = "viewers"
-	ObservabilityTenantPermissionEdit ObservabilityTenantPermission = "editors"
-)
-
-func (c *ClientWrapper) CreateObservabilityTenant(ctx context.Context, name string, viewers *model.ObservabilityTenantViewersInput, editors *model.ObservabilityTenantEditorsInput, limits *model.ObservabilityTenantLimitsInput) (*model.ObservabilityTenant, error) {
+func (c *ClientWrapper) CreateObservabilityTenant(ctx context.Context, id string, name *string, admins *model.ObservabilityTenantPermissionBindingsInput, metricsReaders *model.ObservabilityTenantPermissionBindingsInput, metricsWriters *model.ObservabilityTenantPermissionBindingsInput, metricsDeleters *model.ObservabilityTenantPermissionBindingsInput, metricsRulesReaders *model.ObservabilityTenantPermissionBindingsInput, metricsRulesWriters *model.ObservabilityTenantPermissionBindingsInput, metricsRulesDeleters *model.ObservabilityTenantPermissionBindingsInput, metricsAlertsReaders *model.ObservabilityTenantPermissionBindingsInput, metricsAlertsWriters *model.ObservabilityTenantPermissionBindingsInput, logsReaders *model.ObservabilityTenantPermissionBindingsInput, logsWriters *model.ObservabilityTenantPermissionBindingsInput, logsDeleters *model.ObservabilityTenantPermissionBindingsInput, logsRulesReaders *model.ObservabilityTenantPermissionBindingsInput, logsRulesWriters *model.ObservabilityTenantPermissionBindingsInput, logsRulesDeleters *model.ObservabilityTenantPermissionBindingsInput, tracesReaders *model.ObservabilityTenantPermissionBindingsInput, tracesWriters *model.ObservabilityTenantPermissionBindingsInput, limits *model.ObservabilityTenantLimitsInput) (*model.ObservabilityTenant, error) {
 	log := c.Log.WithName("CreateObservabilityTenant").WithValues("Name", name)
 
 	var mimirLimits *observabilityv1alpha1.MimirLimits
@@ -30,7 +28,7 @@ func (c *ClientWrapper) CreateObservabilityTenant(ctx context.Context, name stri
 
 	tenantStruct := &observabilityv1alpha1.Tenant{
 		ObjectMeta: metav1.ObjectMeta{
-			Name: name,
+			Name: id,
 		},
 		Spec: observabilityv1alpha1.TenantSpec{
 			Limits: &observabilityv1alpha1.LimitSpec{
@@ -39,26 +37,152 @@ func (c *ClientWrapper) CreateObservabilityTenant(ctx context.Context, name stri
 		},
 	}
 
+	if name != nil {
+		tenantStruct.Spec.DisplayName = *name
+	}
+
+	var tenantRelations []ObservabilityTenantRelation
+
+	if admins != nil {
+		relation := ObservabilityTenantRelation{
+			Type:     consts.ObservabilityTenantRelationAdmins,
+			Bindings: admins,
+		}
+		tenantRelations = append(tenantRelations, relation)
+	}
+	if metricsReaders != nil {
+		relation := ObservabilityTenantRelation{
+			Type:     consts.ObservabilityTenantRelationMetricsReaders,
+			Bindings: metricsReaders,
+		}
+		tenantRelations = append(tenantRelations, relation)
+	}
+	if metricsWriters != nil {
+		relation := ObservabilityTenantRelation{
+			Type:     consts.ObservabilityTenantRelationMetricsWriters,
+			Bindings: metricsWriters,
+		}
+		tenantRelations = append(tenantRelations, relation)
+	}
+	if metricsDeleters != nil {
+		relation := ObservabilityTenantRelation{
+			Type:     consts.ObservabilityTenantRelationMetricsDeleters,
+			Bindings: metricsDeleters,
+		}
+		tenantRelations = append(tenantRelations, relation)
+	}
+	if metricsRulesReaders != nil {
+		relation := ObservabilityTenantRelation{
+			Type:     consts.ObservabilityTenantRelationMetricsRulesReaders,
+			Bindings: metricsRulesReaders,
+		}
+		tenantRelations = append(tenantRelations, relation)
+	}
+	if metricsRulesWriters != nil {
+		relation := ObservabilityTenantRelation{
+			Type:     consts.ObservabilityTenantRelationMetricsRulesWriters,
+			Bindings: metricsRulesWriters,
+		}
+		tenantRelations = append(tenantRelations, relation)
+	}
+	if metricsRulesDeleters != nil {
+		relation := ObservabilityTenantRelation{
+			Type:     consts.ObservabilityTenantRelationMetricsRulesDeleters,
+			Bindings: metricsRulesDeleters,
+		}
+		tenantRelations = append(tenantRelations, relation)
+	}
+	if metricsAlertsReaders != nil {
+		relation := ObservabilityTenantRelation{
+			Type:     consts.ObservabilityTenantRelationMetricsAlertsReaders,
+			Bindings: metricsAlertsReaders,
+		}
+		tenantRelations = append(tenantRelations, relation)
+	}
+	if metricsAlertsWriters != nil {
+		relation := ObservabilityTenantRelation{
+			Type:     consts.ObservabilityTenantRelationMetricsAlertsWriters,
+			Bindings: metricsAlertsWriters,
+		}
+		tenantRelations = append(tenantRelations, relation)
+	}
+	if logsReaders != nil {
+		relation := ObservabilityTenantRelation{
+			Type:     consts.ObservabilityTenantRelationLogsReaders,
+			Bindings: logsReaders,
+		}
+		tenantRelations = append(tenantRelations, relation)
+	}
+	if logsWriters != nil {
+		relation := ObservabilityTenantRelation{
+			Type:     consts.ObservabilityTenantRelationLogsWriters,
+			Bindings: logsWriters,
+		}
+		tenantRelations = append(tenantRelations, relation)
+	}
+	if logsDeleters != nil {
+		relation := ObservabilityTenantRelation{
+			Type:     consts.ObservabilityTenantRelationLogsDeleters,
+			Bindings: logsDeleters,
+		}
+		tenantRelations = append(tenantRelations, relation)
+	}
+	if logsRulesReaders != nil {
+		relation := ObservabilityTenantRelation{
+			Type:     consts.ObservabilityTenantRelationLogsRulesReaders,
+			Bindings: logsRulesReaders,
+		}
+		tenantRelations = append(tenantRelations, relation)
+	}
+	if logsRulesWriters != nil {
+		relation := ObservabilityTenantRelation{
+			Type:     consts.ObservabilityTenantRelationLogsRulesWriters,
+			Bindings: logsRulesWriters,
+		}
+		tenantRelations = append(tenantRelations, relation)
+	}
+	if logsRulesDeleters != nil {
+		relation := ObservabilityTenantRelation{
+			Type:     consts.ObservabilityTenantRelationLogsRulesDeleters,
+			Bindings: logsRulesDeleters,
+		}
+		tenantRelations = append(tenantRelations, relation)
+	}
+	if tracesReaders != nil {
+		relation := ObservabilityTenantRelation{
+			Type:     consts.ObservabilityTenantRelationTracesReaders,
+			Bindings: tracesReaders,
+		}
+		tenantRelations = append(tenantRelations, relation)
+	}
+	if tracesWriters != nil {
+		relation := ObservabilityTenantRelation{
+			Type:     consts.ObservabilityTenantRelationTracesWriters,
+			Bindings: tracesWriters,
+		}
+		tenantRelations = append(tenantRelations, relation)
+	}
+
 	tenant, err := c.ControllerClient.ObservabilityV1alpha1().Tenants().Create(ctx, tenantStruct, metav1.CreateOptions{})
 	if err != nil {
 		log.Error(err, "Failed to create observability tenant")
 		return nil, err
 	}
 
-	if err := c.MutateObservabilityTenantInKeto(ctx, name, viewers, editors); err != nil {
+	if err := c.MutateObservabilityTenantInKeto(ctx, id, tenantRelations); err != nil {
 		log.Error(err, "Failed to mutate observability tenant in keto")
 		return nil, err
 	}
 
 	return &model.ObservabilityTenant{
-		Name: tenant.Name,
+		ID: tenant.Name,
 		Limits: &model.ObservabilityTenantLimits{
 			Mimir: tenant.Spec.Limits.Mimir,
 		},
 	}, nil
 }
 
-func (c *ClientWrapper) UpdateObservabilityTenant(ctx context.Context, name string, viewers *model.ObservabilityTenantViewersInput, editors *model.ObservabilityTenantEditorsInput, limits *model.ObservabilityTenantLimitsInput) (*model.ObservabilityTenant, error) {
+func (c *ClientWrapper) UpdateObservabilityTenant(ctx context.Context, id string, name *string, admins *model.ObservabilityTenantPermissionBindingsInput, metricsReaders *model.ObservabilityTenantPermissionBindingsInput, metricsWriters *model.ObservabilityTenantPermissionBindingsInput, metricsDeleters *model.ObservabilityTenantPermissionBindingsInput, metricsRulesReaders *model.ObservabilityTenantPermissionBindingsInput, metricsRulesWriters *model.ObservabilityTenantPermissionBindingsInput, metricsRulesDeleters *model.ObservabilityTenantPermissionBindingsInput, metricsAlertsReaders *model.ObservabilityTenantPermissionBindingsInput, metricsAlertsWriters *model.ObservabilityTenantPermissionBindingsInput, logsReaders *model.ObservabilityTenantPermissionBindingsInput, logsWriters *model.ObservabilityTenantPermissionBindingsInput, logsDeleters *model.ObservabilityTenantPermissionBindingsInput, logsRulesReaders *model.ObservabilityTenantPermissionBindingsInput, logsRulesWriters *model.ObservabilityTenantPermissionBindingsInput, logsRulesDeleters *model.ObservabilityTenantPermissionBindingsInput, tracesReaders *model.ObservabilityTenantPermissionBindingsInput, tracesWriters *model.ObservabilityTenantPermissionBindingsInput, limits *model.ObservabilityTenantLimitsInput) (*model.ObservabilityTenant, error) {
 	log := c.Log.WithName("UpdateObservabilityTenant").WithValues("Name", name)
 
 	var mimirLimits *observabilityv1alpha1.MimirLimits
@@ -68,7 +192,7 @@ func (c *ClientWrapper) UpdateObservabilityTenant(ctx context.Context, name stri
 		mimirLimits = &tmpMimirLimits
 	}
 
-	existingTenant, err := c.ControllerClient.ObservabilityV1alpha1().Tenants().Get(ctx, name, metav1.GetOptions{})
+	existingTenant, err := c.ControllerClient.ObservabilityV1alpha1().Tenants().Get(ctx, id, metav1.GetOptions{})
 	if err != nil {
 		log.Error(err, "Failed to get observability tenant")
 		return nil, err
@@ -76,7 +200,7 @@ func (c *ClientWrapper) UpdateObservabilityTenant(ctx context.Context, name stri
 
 	tenantStruct := &observabilityv1alpha1.Tenant{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:            name,
+			Name:            id,
 			ResourceVersion: existingTenant.GetResourceVersion(),
 		},
 		Spec: observabilityv1alpha1.TenantSpec{
@@ -86,615 +210,300 @@ func (c *ClientWrapper) UpdateObservabilityTenant(ctx context.Context, name stri
 		},
 	}
 
+	if name != nil {
+		tenantStruct.Spec.DisplayName = *name
+	}
+
+	var tenantRelations []ObservabilityTenantRelation
+
+	if admins != nil {
+		relation := ObservabilityTenantRelation{
+			Type:     consts.ObservabilityTenantRelationAdmins,
+			Bindings: admins,
+		}
+		tenantRelations = append(tenantRelations, relation)
+	}
+	if metricsReaders != nil {
+		relation := ObservabilityTenantRelation{
+			Type:     consts.ObservabilityTenantRelationMetricsReaders,
+			Bindings: metricsReaders,
+		}
+		tenantRelations = append(tenantRelations, relation)
+	}
+	if metricsWriters != nil {
+		relation := ObservabilityTenantRelation{
+			Type:     consts.ObservabilityTenantRelationMetricsWriters,
+			Bindings: metricsWriters,
+		}
+		tenantRelations = append(tenantRelations, relation)
+	}
+	if metricsDeleters != nil {
+		relation := ObservabilityTenantRelation{
+			Type:     consts.ObservabilityTenantRelationMetricsDeleters,
+			Bindings: metricsDeleters,
+		}
+		tenantRelations = append(tenantRelations, relation)
+	}
+	if metricsRulesReaders != nil {
+		relation := ObservabilityTenantRelation{
+			Type:     consts.ObservabilityTenantRelationMetricsRulesReaders,
+			Bindings: metricsRulesReaders,
+		}
+		tenantRelations = append(tenantRelations, relation)
+	}
+	if metricsRulesWriters != nil {
+		relation := ObservabilityTenantRelation{
+			Type:     consts.ObservabilityTenantRelationMetricsRulesWriters,
+			Bindings: metricsRulesWriters,
+		}
+		tenantRelations = append(tenantRelations, relation)
+	}
+	if metricsRulesDeleters != nil {
+		relation := ObservabilityTenantRelation{
+			Type:     consts.ObservabilityTenantRelationMetricsRulesDeleters,
+			Bindings: metricsRulesDeleters,
+		}
+		tenantRelations = append(tenantRelations, relation)
+	}
+	if metricsAlertsReaders != nil {
+		relation := ObservabilityTenantRelation{
+			Type:     consts.ObservabilityTenantRelationMetricsAlertsReaders,
+			Bindings: metricsAlertsReaders,
+		}
+		tenantRelations = append(tenantRelations, relation)
+	}
+	if metricsAlertsWriters != nil {
+		relation := ObservabilityTenantRelation{
+			Type:     consts.ObservabilityTenantRelationMetricsAlertsWriters,
+			Bindings: metricsAlertsWriters,
+		}
+		tenantRelations = append(tenantRelations, relation)
+	}
+	if logsReaders != nil {
+		relation := ObservabilityTenantRelation{
+			Type:     consts.ObservabilityTenantRelationLogsReaders,
+			Bindings: logsReaders,
+		}
+		tenantRelations = append(tenantRelations, relation)
+	}
+	if logsWriters != nil {
+		relation := ObservabilityTenantRelation{
+			Type:     consts.ObservabilityTenantRelationLogsWriters,
+			Bindings: logsWriters,
+		}
+		tenantRelations = append(tenantRelations, relation)
+	}
+	if logsDeleters != nil {
+		relation := ObservabilityTenantRelation{
+			Type:     consts.ObservabilityTenantRelationLogsDeleters,
+			Bindings: logsDeleters,
+		}
+		tenantRelations = append(tenantRelations, relation)
+	}
+	if logsRulesReaders != nil {
+		relation := ObservabilityTenantRelation{
+			Type:     consts.ObservabilityTenantRelationLogsRulesReaders,
+			Bindings: logsRulesReaders,
+		}
+		tenantRelations = append(tenantRelations, relation)
+	}
+	if logsRulesWriters != nil {
+		relation := ObservabilityTenantRelation{
+			Type:     consts.ObservabilityTenantRelationLogsRulesWriters,
+			Bindings: logsRulesWriters,
+		}
+		tenantRelations = append(tenantRelations, relation)
+	}
+	if logsRulesDeleters != nil {
+		relation := ObservabilityTenantRelation{
+			Type:     consts.ObservabilityTenantRelationLogsRulesDeleters,
+			Bindings: logsRulesDeleters,
+		}
+		tenantRelations = append(tenantRelations, relation)
+	}
+	if tracesReaders != nil {
+		relation := ObservabilityTenantRelation{
+			Type:     consts.ObservabilityTenantRelationTracesReaders,
+			Bindings: tracesReaders,
+		}
+		tenantRelations = append(tenantRelations, relation)
+	}
+	if tracesWriters != nil {
+		relation := ObservabilityTenantRelation{
+			Type:     consts.ObservabilityTenantRelationTracesWriters,
+			Bindings: tracesWriters,
+		}
+		tenantRelations = append(tenantRelations, relation)
+	}
+
 	tenant, err := c.ControllerClient.ObservabilityV1alpha1().Tenants().Update(ctx, tenantStruct, metav1.UpdateOptions{})
 	if err != nil {
 		log.Error(err, "Failed to update observability tenant")
 		return nil, err
 	}
 
-	if err := c.MutateObservabilityTenantInKeto(ctx, name, viewers, editors); err != nil {
+	if err := c.MutateObservabilityTenantInKeto(ctx, id, tenantRelations); err != nil {
 		log.Error(err, "Failed to mutate observability tenant in keto")
 		return nil, err
 	}
 
 	return &model.ObservabilityTenant{
-		Name: tenant.Name,
+		ID: tenant.Name,
 		Limits: &model.ObservabilityTenantLimits{
 			Mimir: tenant.Spec.Limits.Mimir,
 		},
 	}, nil
 }
 
-func (c *ClientWrapper) MutateObservabilityTenantInKeto(ctx context.Context, name string, viewers *model.ObservabilityTenantViewersInput, editors *model.ObservabilityTenantEditorsInput) error {
+func (c *ClientWrapper) MutateObservabilityTenantInKeto(ctx context.Context, id string, tenantRelations []ObservabilityTenantRelation) error {
+	log := c.Log.WithName("ObservabilityTenant").WithValues("ID", id)
 
-	// TODO: figure out which members to add or remove
-	log := c.Log.WithName("ObservabilityTenant").WithValues("Name", name)
+	toAdd := make([]*rts.RelationTuple, 0)
+	toRemove := make([]*rts.RelationTuple, 0)
 
-	// TODO: figure out how to distinguish between creating or updating a group
-	// updating a group would require that we first check if it exists and if a user is allowed to update it
-	// creating a group would require that we first check if it exists and if a user is allowed to create it
+	for _, relation := range tenantRelations {
+		add, remove, err := c.OsTenantChangeset(ctx, id, relation.Bindings, relation.Type)
+		if err != nil {
+			log.Error(err, "Failed to get observability tenant changeset")
+			return err
+		}
 
-	// tenantpExists, err := c.ObservabilityTenantExistsInKeto(ctx, name)
-	// if err != nil {
-	// 	log.Error(err, "Failed to check if observability tenant already exists in keto")
-	// 	return nil, err
-	// }
-
-	// if !tenantpExists {
-	// 	err := c.CreateObservabilityTenantInKeto(ctx, name)
-	// 	if err != nil {
-	// 		log.Error(err, "Failed to create observability tenant in keto")
-	// 		return nil, err
-	// 	}
-	// }
-
-	viewUsersToAdd, viewUsersToRemove, viewGroupsToAdd, viewGroupsToRemove, viewClientsToAdd, viewClientsToRemove, err := c.OsTenantChangeset(ctx, name, viewers, nil, ObservabilityTenantPermissionView)
-	if err != nil {
-		log.Error(err, "Failed to get observability tenant changeset")
-		return err
+		toAdd = append(toAdd, add...)
+		toRemove = append(toRemove, remove...)
 	}
 
-	if err := c.AddUsersToTenantInKeto(ctx, name, viewUsersToAdd, ObservabilityTenantPermissionView); err != nil {
-		log.Error(err, "Failed to add users as viewers to observability tenant in keto")
-		// return nil, err // TODO: add some way to wrap errors
-	}
-
-	if err := c.RemoveUsersFromTenantInKeto(ctx, name, viewUsersToRemove, ObservabilityTenantPermissionView); err != nil {
-		log.Error(err, "Failed to remove users as viewers from observability tenant in keto")
-		// return nil, err // TODO: add some way to wrap errors
-	}
-
-	if err := c.AddGroupsToTenantInKeto(ctx, name, viewGroupsToAdd, ObservabilityTenantPermissionView); err != nil {
-		log.Error(err, "Failed to add groups as viewers to observability tenant in keto")
-		// return nil, err // TODO: add some way to wrap errors
-	}
-
-	if err := c.RemoveGroupsFromTenantInKeto(ctx, name, viewGroupsToRemove, ObservabilityTenantPermissionView); err != nil {
-		log.Error(err, "Failed to remove groups as viewers from observability tenant in keto")
-		// return nil, err // TODO: add some way to wrap errors
-	}
-
-	if err := c.AddOauthClientsToTenantInKeto(ctx, name, viewClientsToAdd, ObservabilityTenantPermissionView); err != nil {
-		log.Error(err, "Failed to add clients as viewers to observability tenant in keto")
-		// return nil, err // TODO: add some way to wrap errors
-	}
-
-	if err := c.RemoveOauthClientsFromTenantInKeto(ctx, name, viewClientsToRemove, ObservabilityTenantPermissionView); err != nil {
-		log.Error(err, "Failed to remove clients as viewers from observability tenant in keto")
-		// return nil, err // TODO: add some way to wrap errors
-	}
-
-	editUsersToAdd, editUsersToRemove, editGroupsToAdd, editGroupsToRemove, _, _, err := c.OsTenantChangeset(ctx, name, nil, editors, ObservabilityTenantPermissionEdit)
-	if err != nil {
-		log.Error(err, "Failed to get observability tenant changeset")
-		return err
-	}
-
-	if err := c.AddUsersToTenantInKeto(ctx, name, editUsersToAdd, ObservabilityTenantPermissionEdit); err != nil {
-		log.Error(err, "Failed to add users as editors to observability tenant in keto")
-		// return nil, err // TODO: add some way to wrap errors
-	}
-
-	if err := c.RemoveUsersFromTenantInKeto(ctx, name, editUsersToRemove, ObservabilityTenantPermissionEdit); err != nil {
-		log.Error(err, "Failed to remove users as editors from observability tenant in keto")
-		// return nil, err // TODO: add some way to wrap errors
-	}
-
-	if err := c.AddGroupsToTenantInKeto(ctx, name, editGroupsToAdd, ObservabilityTenantPermissionEdit); err != nil {
-		log.Error(err, "Failed to add groups as editors to observability tenant in keto")
-		// return nil, err // TODO: add some way to wrap errors
-	}
-
-	if err := c.RemoveGroupsFromTenantInKeto(ctx, name, editGroupsToRemove, ObservabilityTenantPermissionEdit); err != nil {
-		log.Error(err, "Failed to remove groups as editors from observability tenant in keto")
-		// return nil, err // TODO: add some way to wrap errors
-	}
-
-	return nil
-}
-
-// function that checks if an observability tenant exists in keto
-func (c *ClientWrapper) ObservabilityTenantExistsInKeto(ctx context.Context, name string) (bool, error) {
-	log := c.Log.WithName("ObservabilityTenantExistsInKeto").WithValues("Name", name)
-
-	query := rts.RelationQuery{
-		Namespace: px.Ptr("ObservabilityTenant"),
-		Object:    px.Ptr(name),
-		Relation:  px.Ptr("organizations"),
-		Subject: rts.NewSubjectSet(
-			"Organization",
-			"main", //TODO: decide whether to hardcode this or not
-			"",
-		),
-	}
-
-	respTuples, err := c.KetoClient.QueryAllTuples(context.Background(), &query, 100)
-	if err != nil {
-		log.Error(err, "Failed to query tuples")
-		return false, fmt.Errorf("failed to query tuples: %w", err)
-	}
-
-	if len(respTuples) == 0 {
-		return false, nil
-	}
-
-	return true, nil
-}
-
-// function that creates an observability tenant in keto
-func (c *ClientWrapper) CreateObservabilityTenantInKeto(ctx context.Context, name string) error {
-	log := c.Log.WithName("CreateObservabilityTenantInKeto").WithValues("Name", name)
-
-	tenantTuple := &rts.RelationTuple{
-		Namespace: "ObservabilityTenant",
-		Object:    name,
-		Relation:  "organizations",
-		Subject: rts.NewSubjectSet(
-			"Organization",
-			"main", //TODO: decide whether to hardcode this or not
-			"",
-		),
-	}
-
-	err := c.KetoClient.CreateTuple(ctx, tenantTuple)
-	if err != nil {
-		return fmt.Errorf("failed to create tuple: %w", err)
-	}
-
-	log.Info("Success creating group in keto")
-	return nil
+	return c.KetoClient.TransactTuples(ctx, toAdd, toRemove)
 }
 
 // function that determines which users or groups to add or remove from the observability tenant of an oauth2 client
-func (c *ClientWrapper) OsTenantChangeset(ctx context.Context, name string, viewers *model.ObservabilityTenantViewersInput, editors *model.ObservabilityTenantEditorsInput, permission ObservabilityTenantPermission) (usersToAdd []string, usersToRemove []string, groupsToAdd []string, groupsToRemove []string, clientsToAdd []string, clientsToRemove []string, err error) {
-	var currentUsers []string
-	var currentGroups []string
-	var currentClients []string
+func (c *ClientWrapper) OsTenantChangeset(ctx context.Context, id string, bindings *model.ObservabilityTenantPermissionBindingsInput, relation consts.ObservabilityTenantRelation) (toAdd []*rts.RelationTuple, toRemove []*rts.RelationTuple, err error) {
 
-	if permission == ObservabilityTenantPermissionView {
-		currentUsers, currentGroups, currentClients, err = c.GetTenantViewersInKeto(ctx, name)
-	} else if permission == ObservabilityTenantPermissionEdit {
-		currentUsers, currentGroups, err = c.GetTenantEditorsInKeto(ctx, name)
-	}
-
+	currentUsers, currentGroups, currentClients, err := c.ExpandTenantRelation(ctx, id, relation)
 	if err != nil {
-		return nil, nil, nil, nil, nil, nil, fmt.Errorf("failed to get current viewers: %w", err)
+		return nil, nil, fmt.Errorf("failed to get current viewers: %w", err)
 	}
 
-	if permission == ObservabilityTenantPermissionView && viewers != nil {
-		for _, user := range viewers.Users {
-			if !stringContains(currentUsers, user) {
-				usersToAdd = append(usersToAdd, user)
+	if bindings != nil {
+		for _, userId := range bindings.Users {
+			if !userIdInListOfUsers(currentUsers, userId) {
+				user := model.NewUser(userId)
+				toAdd = append(toAdd, user.GetTenantTuple(id, relation))
 			}
 		}
 
 		for _, user := range currentUsers {
-			if !stringContains(viewers.Users, user) {
-				usersToRemove = append(usersToRemove, user)
+			if !stringContains(bindings.Users, user.ID) {
+				toRemove = append(toRemove, user.GetTenantTuple(id, relation))
 			}
 		}
 
-		for _, group := range viewers.Groups {
-			if !stringContains(currentGroups, group) {
-				groupsToAdd = append(groupsToAdd, group)
+		for _, groupName := range bindings.Groups {
+			if !groupNameInListOfGroups(currentGroups, groupName) {
+				group := model.NewGroup(groupName)
+				toAdd = append(toAdd, group.GetTenantTuple(id, relation))
 			}
 		}
 
 		for _, group := range currentGroups {
-			if !stringContains(viewers.Groups, group) {
-				groupsToRemove = append(groupsToRemove, group)
+			if !stringContains(bindings.Groups, group.Name) {
+				toRemove = append(toRemove, group.GetTenantTuple(id, relation))
 			}
 		}
 
-		for _, client := range viewers.Oauth2Clients {
-			if !stringContains(currentClients, client) {
-				clientsToAdd = append(clientsToAdd, client)
+		for _, clientId := range bindings.Oauth2Clients {
+			if !ClientIDInListOfOAuth2Clients(currentClients, clientId) {
+				client := model.NewOAuth2Client(clientId)
+				toAdd = append(toAdd, client.GetTenantTuple(id, relation))
 			}
 		}
 
 		for _, client := range currentClients {
-			if !stringContains(viewers.Oauth2Clients, client) {
-				clientsToRemove = append(clientsToRemove, client)
-			}
-		}
-	} else if permission == ObservabilityTenantPermissionEdit && editors != nil {
-		for _, user := range editors.Users {
-			if !stringContains(currentUsers, user) {
-				usersToAdd = append(usersToAdd, user)
-			}
-		}
-
-		for _, user := range currentUsers {
-			if !stringContains(editors.Users, user) {
-				usersToRemove = append(usersToRemove, user)
-			}
-		}
-
-		for _, group := range editors.Groups {
-			if !stringContains(currentGroups, group) {
-				groupsToAdd = append(groupsToAdd, group)
-			}
-		}
-
-		for _, group := range currentGroups {
-			if !stringContains(editors.Groups, group) {
-				groupsToRemove = append(groupsToRemove, group)
+			if !stringContains(bindings.Oauth2Clients, *client.ClientID) {
+				toRemove = append(toRemove, client.GetTenantTuple(id, relation))
 			}
 		}
 	}
 
-	return usersToAdd, usersToRemove, groupsToAdd, groupsToRemove, clientsToAdd, clientsToRemove, nil
+	return toAdd, toRemove, nil
 }
 
-// function that gets the current viewers of an observability tenant from keto
-func (c *ClientWrapper) GetTenantViewersInKeto(ctx context.Context, name string) (users []string, groups []string, clients []string, err error) {
-	log := c.Log.WithName("GetTenantViewersInKeto").WithValues("Name", name)
+// function that resolves an ObservabilityTenantPermissionBindings
+func (c *ClientWrapper) ResolveTenantBindings(ctx context.Context, id string, relation consts.ObservabilityTenantRelation) (bindings *model.ObservabilityTenantPermissionBindings, err error) {
+	log := c.Log.WithName("ResolveTenantBindings").WithValues("ID", id)
 
-	query := rts.RelationQuery{
-		Namespace: px.Ptr("ObservabilityTenant"),
-		Object:    px.Ptr(name),
-		Relation:  px.Ptr(string(ObservabilityTenantPermissionView)),
+	users, groups, clients, err := c.ExpandTenantRelation(ctx, id, relation)
+	if err != nil {
+		log.Error(err, "Failed to expand tenant relation")
+		return nil, fmt.Errorf("failed to expand tenant relation %s: %w", relation, err)
 	}
 
-	respTuples, err := c.KetoClient.QueryAllTuples(context.Background(), &query, 100)
+	if len(users) > 0 || len(groups) > 0 || len(clients) > 0 {
+		bindings = &model.ObservabilityTenantPermissionBindings{}
+	}
+
+	for _, user := range users {
+		bindings.Users = append(bindings.Users, user)
+	}
+
+	for _, group := range groups {
+		bindings.Groups = append(bindings.Groups, group)
+	}
+
+	for _, client := range clients {
+		bindings.Oauth2Clients = append(bindings.Oauth2Clients, client)
+	}
+	log.Info("Success resolving tenant bindings")
+	return bindings, nil
+}
+
+// function that expands everybody with permissions on a tenant
+func (c *ClientWrapper) ExpandTenantRelation(ctx context.Context, id string, relation consts.ObservabilityTenantRelation) (users []*model.User, groups []*model.Group, clients []*model.OAuth2Client, err error) {
+	log := c.Log.WithName("ExpandTenantRelation").WithValues("ID", id)
+
+	ss := rts.NewSubjectSet("ObservabilityTenant", id, relation.String())
+
+	respTuples, err := c.KetoClient.Expand(ctx, ss, 100)
 	if err != nil {
 		log.Error(err, "Failed to query tuples")
 		return nil, nil, nil, fmt.Errorf("failed to query tuples: %w", err)
 	}
 
-	for _, tuple := range respTuples {
-		subjectSet := tuple.Subject.GetSet()
-		if subjectSet.Namespace == "User" && subjectSet.Object != "" {
-			users = append(users, subjectSet.Object)
-		} else if subjectSet.Namespace == "Group" && subjectSet.Object != "" {
-			groups = append(groups, subjectSet.Object)
-		} else if subjectSet.Namespace == "OAuth2Client" && subjectSet.Object != "" {
-			clients = append(clients, subjectSet.Object)
-		} else {
-			continue
+	log.Info("Success expanding tenant relation", "relation", relation, "tuples", respTuples)
+
+	if respTuples != nil && respTuples.Children != nil {
+		for _, child := range respTuples.Children {
+
+			user, group, client := c.processRelation(child)
+			switch {
+			case user != nil:
+				users = append(users, user)
+			case group != nil:
+				groups = append(groups, group)
+			case client != nil:
+				clients = append(clients, client)
+			}
 		}
 	}
 
 	return users, groups, clients, nil
 }
 
-// function that gets the current editors of an observability tenant from keto
-func (c *ClientWrapper) GetTenantEditorsInKeto(ctx context.Context, name string) (users []string, groups []string, err error) {
-	log := c.Log.WithName("GetTenantEditorsInKeto").WithValues("Name", name)
-
-	query := rts.RelationQuery{
-		Namespace: px.Ptr("ObservabilityTenant"),
-		Object:    px.Ptr(name),
-		Relation:  px.Ptr(string(ObservabilityTenantPermissionEdit)),
-	}
-
-	respTuples, err := c.KetoClient.QueryAllTuples(context.Background(), &query, 100)
-	if err != nil {
-		log.Error(err, "Failed to query tuples")
-		return nil, nil, fmt.Errorf("failed to query tuples: %w", err)
-	}
-
-	for _, tuple := range respTuples {
-		subjectSet := tuple.Subject.GetSet()
-		if subjectSet.Namespace == "User" && subjectSet.Object != "" {
-			users = append(users, subjectSet.Object)
-		} else if subjectSet.Namespace == "Group" && subjectSet.Object != "" {
-			groups = append(groups, subjectSet.Object)
-		} else {
-			continue
+func (c *ClientWrapper) processRelation(tree *rts.SubjectTree) (user *model.User, group *model.Group, client *model.OAuth2Client) {
+	switch tree.Tuple.Subject.GetSet().Namespace {
+	case consts.UserNamespace.String():
+		user = &model.User{
+			ID: tree.Tuple.Subject.GetSet().Object,
+		}
+	case consts.GroupNamespace.String():
+		group = &model.Group{
+			Name: tree.Tuple.Subject.GetSet().Object,
+		}
+	case consts.OAuth2ClientNamespace.String():
+		client = &model.OAuth2Client{
+			ClientID: &tree.Tuple.Subject.GetSet().Object,
 		}
 	}
-
-	return users, groups, nil
-}
-
-// function that adds users to the viewers or editors of an observability tenant in keto
-func (c *ClientWrapper) AddUsersToTenantInKeto(ctx context.Context, name string, users []string, permission ObservabilityTenantPermission) error {
-	log := c.Log.WithName("AddUsersToTenantInKeto").WithValues("Name", name)
-
-	for _, user := range users {
-		err := c.AddUserToTenantInKeto(ctx, name, user, permission)
-		if err != nil {
-			log.Error(err, "Failed to add user to observability tenant")
-			// return err // TODO: add some way to wrap errors
-			continue
-		}
-	}
-
-	log.Info("Success adding users to observability tenant")
-	return nil
-}
-
-// function that adds a user to the viewers or editors of an observability tenant in keto
-func (c *ClientWrapper) AddUserToTenantInKeto(ctx context.Context, name string, user string, permission ObservabilityTenantPermission) error {
-	log := c.Log.WithName("AddUserToTenantInKeto").WithValues("Name", name, "User", user)
-
-	tuple := &rts.RelationTuple{
-		Namespace: "ObservabilityTenant",
-		Object:    name,
-		Relation:  string(permission),
-		Subject: rts.NewSubjectSet(
-			"User",
-			user,
-			"",
-		),
-	}
-
-	err := c.KetoClient.CreateTuple(ctx, tuple)
-	if err != nil {
-		return fmt.Errorf("failed to create tuple: %w", err)
-	}
-
-	log.Info("Success creating tuple in keto")
-	return nil
-}
-
-// function that removes users from the viewers or editors of an observability tenant in keto
-func (c *ClientWrapper) RemoveUsersFromTenantInKeto(ctx context.Context, name string, users []string, permission ObservabilityTenantPermission) error {
-	log := c.Log.WithName("RemoveUsersFromTenantInKeto").WithValues("Name", name)
-
-	for _, user := range users {
-		err := c.RemoveUserFromTenantInKeto(ctx, name, user, permission)
-		if err != nil {
-			log.Error(err, "Failed to remove user from observability tenant")
-			// return err // TODO: add some way to wrap errors
-			continue
-		}
-	}
-
-	log.Info("Success removing users from observability tenant")
-	return nil
-}
-
-// function that removes a user from the viewers or editors of an observability tenant in keto
-func (c *ClientWrapper) RemoveUserFromTenantInKeto(ctx context.Context, name string, user string, permission ObservabilityTenantPermission) error {
-	log := c.Log.WithName("RemoveUserFromTenantInKeto").WithValues("Name", name, "User", user)
-
-	tuple := &rts.RelationTuple{
-		Namespace: "ObservabilityTenant",
-		Object:    name,
-		Relation:  string(permission),
-		Subject: rts.NewSubjectSet(
-			"User",
-			user,
-			"",
-		),
-	}
-
-	err := c.KetoClient.DeleteTuple(ctx, tuple)
-	if err != nil {
-		return fmt.Errorf("failed to delete tuple: %w", err)
-	}
-
-	log.Info("Success deleting tuple in keto")
-	return nil
-}
-
-// function that adds groups to the viewers or editors of an observability tenant in keto
-func (c *ClientWrapper) AddGroupsToTenantInKeto(ctx context.Context, name string, groups []string, permission ObservabilityTenantPermission) error {
-	log := c.Log.WithName("AddGroupsToTenantInKeto").WithValues("Name", name)
-
-	for _, group := range groups {
-		err := c.AddGroupToTenantInKeto(ctx, name, group, permission)
-		if err != nil {
-			log.Error(err, "Failed to add group to observability tenant")
-			// return err // TODO: add some way to wrap errors
-			continue
-		}
-	}
-
-	log.Info("Success adding groups to observability tenant")
-	return nil
-}
-
-// function that adds a group to the viewers or editors of an observability tenant in keto
-func (c *ClientWrapper) AddGroupToTenantInKeto(ctx context.Context, name string, group string, permission ObservabilityTenantPermission) error {
-	log := c.Log.WithName("AddGroupToTenantInKeto").WithValues("Name", name, "Group", group)
-
-	tuple := &rts.RelationTuple{
-		Namespace: "ObservabilityTenant",
-		Object:    name,
-		Relation:  string(permission),
-		Subject: rts.NewSubjectSet(
-			"Group",
-			group,
-			"members",
-		),
-	}
-
-	err := c.KetoClient.CreateTuple(ctx, tuple)
-	if err != nil {
-		return fmt.Errorf("failed to create tuple: %w", err)
-	}
-
-	log.Info("Success creating tuple in keto")
-	return nil
-}
-
-// function that removes groups from the viewers or editors of an observability tenant in keto
-func (c *ClientWrapper) RemoveGroupsFromTenantInKeto(ctx context.Context, name string, groups []string, permission ObservabilityTenantPermission) error {
-	log := c.Log.WithName("RemoveGroupsFromTenantInKeto").WithValues("Name", name)
-
-	for _, group := range groups {
-		err := c.RemoveGroupFromTenantInKeto(ctx, name, group, permission)
-		if err != nil {
-			log.Error(err, "Failed to remove group from observability tenant")
-			// return err // TODO: add some way to wrap errors
-			continue
-		}
-	}
-
-	log.Info("Success removing groups from observability tenant")
-	return nil
-}
-
-// function that removes a group from the viewers or editors of an observability tenant in keto
-func (c *ClientWrapper) RemoveGroupFromTenantInKeto(ctx context.Context, name string, group string, permission ObservabilityTenantPermission) error {
-	log := c.Log.WithName("RemoveGroupFromTenantInKeto").WithValues("Name", name, "Group", group)
-
-	tuple := &rts.RelationTuple{
-		Namespace: "ObservabilityTenant",
-		Object:    name,
-		Relation:  string(permission),
-		Subject: rts.NewSubjectSet(
-			"Group",
-			group,
-			"members",
-		),
-	}
-
-	err := c.KetoClient.DeleteTuple(ctx, tuple)
-	if err != nil {
-		return fmt.Errorf("failed to delete tuple: %w", err)
-	}
-
-	log.Info("Success deleting tuple in keto")
-	return nil
-}
-
-// function that adds an oauth client to the viewers or editors of an observability tenant in keto
-func (c *ClientWrapper) AddOauthClientsToTenantInKeto(ctx context.Context, name string, oauthClients []string, permission ObservabilityTenantPermission) error {
-	log := c.Log.WithName("AddOauthClientsToTenantInKeto").WithValues("Name", name)
-
-	if permission == ObservabilityTenantPermissionEdit {
-		err := fmt.Errorf("oauth clients do not support edit permission")
-		log.Error(err, "Failed to add oauth clients from observability tenant")
-		return err
-	}
-
-	for _, oauthClient := range oauthClients {
-		err := c.AddOauthClientToTenantInKeto(ctx, name, oauthClient, permission)
-		if err != nil {
-			log.Error(err, "Failed to add oauth client to observability tenant")
-			// return err // TODO: add some way to wrap errors
-			continue
-		}
-	}
-
-	log.Info("Success adding oauth clients to observability tenant")
-	return nil
-}
-
-// function that adds an oauth client to the viewers or editors of an observability tenant in keto
-func (c *ClientWrapper) AddOauthClientToTenantInKeto(ctx context.Context, name string, oauthClient string, permission ObservabilityTenantPermission) error {
-	log := c.Log.WithName("AddOauthClientToTenantInKeto").WithValues("Name", name, "OAuth2Client", oauthClient)
-
-	if permission == ObservabilityTenantPermissionEdit {
-		err := fmt.Errorf("oauth clients do not support edit permission")
-		log.Error(err, "Failed to add oauth clients from observability tenant")
-		return err
-	}
-
-	tuple := &rts.RelationTuple{
-		Namespace: "ObservabilityTenant",
-		Object:    name,
-		Relation:  string(permission),
-		Subject: rts.NewSubjectSet(
-			"OAuth2Client",
-			oauthClient,
-			"",
-		),
-	}
-
-	err := c.KetoClient.CreateTuple(ctx, tuple)
-	if err != nil {
-		return fmt.Errorf("failed to create tuple: %w", err)
-	}
-
-	log.Info("Success creating tuple in keto")
-	return nil
-}
-
-// function that removes oauth clients from the viewers or editors of an observability tenant in keto
-func (c *ClientWrapper) RemoveOauthClientsFromTenantInKeto(ctx context.Context, name string, oauthClients []string, permission ObservabilityTenantPermission) error {
-	log := c.Log.WithName("RemoveOauthClientsFromTenantInKeto").WithValues("Name", name)
-
-	if permission == ObservabilityTenantPermissionEdit {
-		err := fmt.Errorf("oauth clients do not support edit permission")
-		log.Error(err, "Failed to remove oauth clients from observability tenant")
-		return err
-	}
-
-	for _, oauthClient := range oauthClients {
-		err := c.RemoveOauthClientFromTenantInKeto(ctx, name, oauthClient, permission)
-		if err != nil {
-			log.Error(err, "Failed to remove oauth client from observability tenant")
-			// return err // TODO: add some way to wrap errors
-			continue
-		}
-	}
-
-	log.Info("Success removing oauth clients from observability tenant")
-	return nil
-}
-
-// function that removes an oauth client from the viewers or editors of an observability tenant in keto
-func (c *ClientWrapper) RemoveOauthClientFromTenantInKeto(ctx context.Context, name string, oauthClient string, permission ObservabilityTenantPermission) error {
-	log := c.Log.WithName("RemoveOauthClientFromTenantInKeto").WithValues("Name", name, "OAuth2Client", oauthClient)
-
-	if permission == ObservabilityTenantPermissionEdit {
-		err := fmt.Errorf("oauth clients do not support edit permission")
-		log.Error(err, "Failed to remove oauth clients from observability tenant")
-		return err
-	}
-
-	tuple := &rts.RelationTuple{
-		Namespace: "ObservabilityTenant",
-		Object:    name,
-		Relation:  string(permission),
-		Subject: rts.NewSubjectSet(
-			"OAuth2Client",
-			oauthClient,
-			"",
-		),
-	}
-
-	err := c.KetoClient.DeleteTuple(ctx, tuple)
-	if err != nil {
-		return fmt.Errorf("failed to delete tuple: %w", err)
-	}
-
-	log.Info("Success deleting tuple in keto")
-	return nil
-}
-
-// function that lists all observability tenants in keto
-func (c *ClientWrapper) ListTenantsInKeto(ctx context.Context) ([]*model.ObservabilityTenant, error) {
-	log := c.Log.WithName("ListTenantsInKeto")
-
-	// TODO: decide if this endpoint should pre-filter groups that the user can access
-	query := rts.RelationQuery{
-		Namespace: px.Ptr("ObservabilityTenant"),
-		Object:    nil,
-		Relation:  px.Ptr("organizations"),
-		Subject: rts.NewSubjectSet(
-			"Organization",
-			"main", //TODO: decide whether to hardcode this or not
-			"",
-		),
-	}
-
-	respTuples, err := c.KetoClient.QueryAllTuples(context.Background(), &query, 100)
-	if err != nil {
-		return nil, fmt.Errorf("failed to query tuples: %w", err)
-	}
-
-	var outputTenants []*model.ObservabilityTenant
-
-	for _, tuple := range respTuples {
-		if tuple.Object != "" {
-			tenant, err := c.GetTenantFromKeto(ctx, tuple.Object)
-			if err != nil {
-				continue
-			}
-			outputTenants = append(outputTenants, tenant)
-		} else {
-			continue
-		}
-	}
-
-	log.Info("Success listing observability tenants in keto")
-	return outputTenants, nil
+	return user, group, client
 }
 
 // function that uses the controller client to list all observability tenants
@@ -711,7 +520,7 @@ func (c *ClientWrapper) ListTenants(ctx context.Context) ([]*model.Observability
 
 	for _, tenant := range tenants.Items {
 		outputTenants = append(outputTenants, &model.ObservabilityTenant{
-			Name: tenant.Name,
+			ID: tenant.Name,
 			Limits: &model.ObservabilityTenantLimits{
 				Mimir: tenant.Spec.Limits.Mimir,
 			},
@@ -739,9 +548,9 @@ func (c *ClientWrapper) GetTenant(ctx context.Context, name string) (*model.Obse
 	log.Info("Got observability tenant", "Tenant", tenant)
 
 	outputTenant := &model.ObservabilityTenant{
-		Name:   tenant.Name,
+		ID: tenant.Name,
 		Limits: &model.ObservabilityTenantLimits{
-			// Mimir: &tenant.Spec.Limits.Mimir,
+			Mimir: tenant.Spec.Limits.Mimir,
 		},
 	}
 
@@ -765,135 +574,8 @@ func (c *ClientWrapper) DeleteTenant(ctx context.Context, name string) (*model.O
 
 	log.Info("Success deleting observability tenant")
 	return &model.ObservabilityTenant{
-		Name: name,
-		Organization: &model.Organization{
-			Name: "main", //TODO: decide whether to hardcode this or not
-		},
+		ID: name,
 	}, nil
-}
-
-// function that gets an observability tenant from keto
-func (c *ClientWrapper) GetTenantFromKeto(ctx context.Context, name string) (*model.ObservabilityTenant, error) {
-	log := c.Log.WithName("GetTenantFromKeto").WithValues("Name", name)
-
-	if name == "" {
-		return nil, fmt.Errorf("observability tenant name cannot be empty")
-	}
-
-	// check if group exists in keto
-	exists, err := c.ObservabilityTenantExistsInKeto(ctx, name)
-	if err != nil {
-		log.Error(err, "Failed to check if observability tenant exists in keto")
-		return nil, err
-	}
-	if !exists {
-		return nil, fmt.Errorf("observability tenant does not exist in keto")
-	}
-
-	return &model.ObservabilityTenant{
-		Name: name,
-		Organization: &model.Organization{
-			Name: "main", //TODO: decide whether to hardcode this or not
-		},
-	}, nil
-}
-
-// function that gets the viewers of an observability tenant from keto
-func (c *ClientWrapper) GetViewersOfTenantFromKeto(ctx context.Context, name string) (*model.ObservabilityTenantViewers, error) {
-	log := c.Log.WithName("GetViewersOfTenantFromKeto").WithValues("Name", name)
-	// TODO: dedupe with GetTenantViewersInKeto since they are almost identical
-
-	if name == "" {
-		return nil, fmt.Errorf("observability tenant name cannot be empty")
-	}
-
-	query := rts.RelationQuery{
-		Namespace: px.Ptr("ObservabilityTenant"),
-		Object:    px.Ptr(name),
-		Relation:  px.Ptr(string(ObservabilityTenantPermissionView)),
-		Subject:   nil,
-	}
-
-	respTuples, err := c.KetoClient.QueryAllTuples(context.Background(), &query, 100)
-	if err != nil {
-		return nil, fmt.Errorf("failed to query tuples: %w", err)
-	}
-
-	var outputViewers *model.ObservabilityTenantViewers
-	var outputUserIds []*model.User
-	var outputGroupNames []*model.Group
-	var outputOauthClientIds []*model.OAuth2Client
-
-	for _, tuple := range respTuples {
-		subjectSet := tuple.Subject.GetSet()
-		if subjectSet.Namespace == "User" && subjectSet.Object != "" {
-			outputUserIds = append(outputUserIds, &model.User{ID: subjectSet.Object})
-		} else if subjectSet.Namespace == "Group" && subjectSet.Object != "" {
-			outputGroupNames = append(outputGroupNames, &model.Group{Name: subjectSet.Object})
-		} else if subjectSet.Namespace == "OAuth2Client" && subjectSet.Object != "" {
-			outputOauthClientIds = append(outputOauthClientIds, &model.OAuth2Client{ClientID: &subjectSet.Object})
-		} else {
-			continue
-		}
-	}
-
-	if len(outputUserIds) > 0 || len(outputGroupNames) > 0 || len(outputOauthClientIds) > 0 {
-		outputViewers = &model.ObservabilityTenantViewers{
-			Users:         outputUserIds,
-			Groups:        outputGroupNames,
-			Oauth2Clients: outputOauthClientIds,
-		}
-	}
-
-	log.Info("Success getting viewers of observability tenant from keto")
-	return outputViewers, nil
-}
-
-// function that gets the editors of an observability tenant from keto
-func (c *ClientWrapper) GetEditorsOfTenantFromKeto(ctx context.Context, name string) (*model.ObservabilityTenantEditors, error) {
-	log := c.Log.WithName("GetEditorsOfTenantFromKeto").WithValues("Name", name)
-	// TODO: dedupe with GetTenantEditorsInKeto since they are almost identical
-
-	if name == "" {
-		return nil, fmt.Errorf("observability tenant name cannot be empty")
-	}
-
-	query := rts.RelationQuery{
-		Namespace: px.Ptr("ObservabilityTenant"),
-		Object:    px.Ptr(name),
-		Relation:  px.Ptr(string(ObservabilityTenantPermissionEdit)),
-		Subject:   nil,
-	}
-
-	respTuples, err := c.KetoClient.QueryAllTuples(context.Background(), &query, 100)
-	if err != nil {
-		return nil, fmt.Errorf("failed to query tuples: %w", err)
-	}
-
-	var outputEditors *model.ObservabilityTenantEditors
-	var outputUserIds []*model.User
-	var outputGroupNames []*model.Group
-
-	for _, tuple := range respTuples {
-		subjectSet := tuple.Subject.GetSet()
-		if subjectSet.Namespace == "User" && subjectSet.Object != "" {
-			outputUserIds = append(outputUserIds, &model.User{ID: subjectSet.Object})
-		} else if subjectSet.Namespace == "Group" && subjectSet.Object != "" {
-			outputGroupNames = append(outputGroupNames, &model.Group{Name: subjectSet.Object})
-		} else {
-			continue
-		}
-	}
-
-	if len(outputUserIds) > 0 || len(outputGroupNames) > 0 {
-		outputEditors = &model.ObservabilityTenantEditors{
-			Users:  outputUserIds,
-			Groups: outputGroupNames,
-		}
-	}
-
-	log.Info("Success getting editors of observability tenant from keto")
-	return outputEditors, nil
 }
 
 // function that gets user objects from a list of user ids
@@ -948,37 +630,4 @@ func (c *ClientWrapper) GetObservabilityTenantOauth2Clients(ctx context.Context,
 		output = append(output, client)
 	}
 	return output, nil
-}
-
-// function that deletes an observability tenant from keto
-func (c *ClientWrapper) DeleteObservabilityTenantInKeto(ctx context.Context, name string) (*model.ObservabilityTenant, error) {
-	log := c.Log.WithName("DeleteObservabilityTenantInKeto").WithValues("Name", name)
-
-	if name == "" {
-		return nil, fmt.Errorf("observability tenant name cannot be empty")
-	}
-
-	// delete the relation tuple for the tenant
-	tenantTuple := &rts.RelationTuple{
-		Namespace: "ObservabilityTenant",
-		Object:    name,
-		Relation:  "organizations",
-		Subject: rts.NewSubjectSet(
-			"Organization",
-			"main", //TODO: decide whether to hardcode this or not
-			"",
-		),
-	}
-	err := c.KetoClient.DeleteTuple(ctx, tenantTuple)
-	if err != nil {
-		return nil, fmt.Errorf("failed to delete relation tuple: %w", err)
-	}
-
-	log.Info("Success deleting observability tenant in keto")
-	return &model.ObservabilityTenant{
-		Name: name,
-		Organization: &model.Organization{
-			Name: "main", //TODO: decide whether to hardcode this or not
-		},
-	}, nil
 }

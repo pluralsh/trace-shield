@@ -1,1 +1,8 @@
-Create seed for first admin user and seed organization into Keto
+Make rules more fine-grained
+Use authorizer instead of hydrator for checking tenants
+Expand what is now the hydrator to more smartly parse the method and URL so hydrate the tenants more accurately (for example: if it is a get request to mimir we will look for all tenants the user can read metrics from)
+Add policy checking for login bindings on OAuth2 Client login
+Start using https://github.com/ory/herodot for our webhook endpoints
+Add policy fine-grained checking for our API
+Allow for Bearer token and HTTP basic auth to work
+If a request already contains a tenant header, rather than hydrating all tenants a user/client has access to check if the user/tenant has access to that tenant and don't modify the headers

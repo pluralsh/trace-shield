@@ -8,6 +8,7 @@ import (
 	rts "github.com/ory/keto/proto/ory/keto/relation_tuples/v1alpha2"
 	kratos "github.com/ory/kratos-client-go"
 	px "github.com/ory/x/pointerx"
+	"github.com/pluralsh/trace-shield/consts"
 	"github.com/pluralsh/trace-shield/graph/model"
 )
 
@@ -128,10 +129,10 @@ func (c *ClientWrapper) CreateUser(ctx context.Context, email string, name *mode
 	}
 
 	// TODO: this is giving a 404 not found error
-	// recoveryLink, err := c.CreateRecoveryLinkForIdentity(ctx, kratosUser.Id)
-	// if err != nil {
-	// 	log.Error(err, "failed to create recovery link for user")
-	// }
+	recoveryLink, err := c.CreateRecoveryLinkForIdentity(ctx, kratosUser.Id)
+	if err != nil {
+		log.Error(err, "failed to create recovery link for user")
+	}
 
 	exits, err := c.UserExistsInKeto(ctx, kratosUser.Id)
 	if err != nil {
@@ -152,6 +153,8 @@ func (c *ClientWrapper) CreateUser(ctx context.Context, email string, name *mode
 		log.Error(err, "failed to unmarshal user traits")
 		return nil, err
 	}
+
+	outUser.RecoveryLink = recoveryLink
 
 	// TODO: reenable once it is working
 	// outUser.RecoveryLink = recoveryLink
@@ -189,7 +192,7 @@ func (c *ClientWrapper) DeleteUser(ctx context.Context, id string) (*model.User,
 		ID:    id,
 		Email: "deleted",
 		Organization: &model.Organization{
-			Name: "main", //TODO: decide whether to hardcode this or not
+			Name: consts.MainOrganizationName, //TODO: decide whether to hardcode this or not
 		},
 	}, nil
 }
@@ -199,17 +202,17 @@ func (c *ClientWrapper) UserExistsInKeto(ctx context.Context, id string) (bool, 
 	log := c.Log.WithName("UserExistsInKeto").WithValues("ID", id)
 
 	query := rts.RelationQuery{
-		Namespace: px.Ptr("User"),
+		Namespace: px.Ptr(consts.UserNamespace.String()),
 		Object:    px.Ptr(id),
-		Relation:  px.Ptr("organizations"),
+		Relation:  px.Ptr(consts.ObjectRelationOrganizations.String()),
 		Subject: rts.NewSubjectSet(
-			"Organization",
-			"main", //TODO: decide whether to hardcode this or not
+			consts.OrganizationNamespace.String(),
+			consts.MainOrganizationName, //TODO: decide whether to hardcode this or not
 			"",
 		),
 	}
 
-	respTuples, err := c.KetoClient.QueryAllTuples(context.Background(), &query, 100)
+	respTuples, err := c.KetoClient.QueryAllTuples(ctx, &query, 100)
 	if err != nil {
 		log.Error(err, "Failed to query tuples")
 		return false, fmt.Errorf("failed to query tuples: %w", err)
@@ -244,18 +247,9 @@ func (c *ClientWrapper) CreateRecoveryLinkForIdentity(ctx context.Context, id st
 func (c *ClientWrapper) CreateUserInKeto(ctx context.Context, id string) error {
 	log := c.Log.WithName("CreateUserInKeto").WithValues("ID", id)
 
-	userTuple := &rts.RelationTuple{
-		Namespace: "User",
-		Object:    id,
-		Relation:  "organizations",
-		Subject: rts.NewSubjectSet(
-			"Organization",
-			"main", //TODO: decide whether to hardcode this or not
-			"",
-		),
-	}
+	user := model.NewUser(id)
 
-	err := c.KetoClient.CreateTuple(ctx, userTuple)
+	err := c.KetoClient.CreateTuple(ctx, user.GetOrganizationTuple())
 	if err != nil {
 		return fmt.Errorf("failed to create tuple: %w", err)
 	}
@@ -268,18 +262,9 @@ func (c *ClientWrapper) CreateUserInKeto(ctx context.Context, id string) error {
 func (c *ClientWrapper) DeleteUserInKeto(ctx context.Context, id string) error {
 	log := c.Log.WithName("DeleteUserInKeto").WithValues("ID", id)
 
-	userTuple := &rts.RelationTuple{
-		Namespace: "User",
-		Object:    id,
-		Relation:  "organizations",
-		Subject: rts.NewSubjectSet(
-			"Organization",
-			"main", //TODO: decide whether to hardcode this or not
-			"",
-		),
-	}
+	user := model.NewUser(id)
 
-	err := c.KetoClient.DeleteTuple(ctx, userTuple)
+	err := c.KetoClient.DeleteTuple(ctx, user.GetOrganizationTuple())
 	if err != nil {
 		log.Error(err, "failed to delete tuple")
 		return fmt.Errorf("failed to delete tuple: %w", err)
@@ -294,9 +279,9 @@ func (c *ClientWrapper) GetUserGroups(ctx context.Context, id string) ([]*model.
 	log := c.Log.WithName("GetUserGroups").WithValues("ID", id)
 
 	respTuples, err := c.KetoClient.QueryAllTuples(ctx, &rts.RelationQuery{
-		Namespace: px.Ptr("Group"),
-		Relation:  px.Ptr("members"),
-		Subject:   rts.NewSubjectSet("User", id, ""),
+		Namespace: px.Ptr(consts.GroupNamespace.String()),
+		Relation:  px.Ptr(consts.GroupRelationMembers.String()),
+		Subject:   rts.NewSubjectSet(consts.UserNamespace.String(), id, ""),
 	}, 100)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get tuples: %w", err)

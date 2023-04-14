@@ -9,6 +9,7 @@ import (
 
 	"github.com/go-chi/render"
 	"github.com/ory/oathkeeper/pipeline/authn"
+	"github.com/pluralsh/trace-shield/consts"
 	"github.com/pluralsh/trace-shield/utils"
 
 	rts "github.com/ory/keto/proto/ory/keto/relation_tuples/v1alpha2"
@@ -32,7 +33,7 @@ func (a *AuthenticationSessionRequest) Bind(r *http.Request) error {
 
 	// a.User is nil if no Userpayload fields are sent in the request. In this app
 	// this won't cause a panic, but checks in this Bind method may be required if
-	// a.User or futher nested fields like a.User.Name are accessed elsewhere.
+	// a.User or further nested fields like a.User.Name are accessed elsewhere.
 
 	// just a post-process after a decode..
 	// a.ProtectedID = ""                                 // unset the protected ID
@@ -120,9 +121,9 @@ func (h *Handler) getUserTenants(subject string) ([]string, error) {
 // Check in which organizations a user is an admin
 func (h *Handler) isOrgAdmin(subject string) ([]string, error) {
 	query := rts.RelationQuery{
-		Namespace: px.Ptr("Organization"),
-		Relation:  px.Ptr("admins"),
-		Subject:   rts.NewSubjectSet("User", subject, ""),
+		Namespace: px.Ptr(consts.OrganizationNamespace.String()),
+		Relation:  px.Ptr(consts.OrganizationRelationAdmins.String()),
+		Subject:   rts.NewSubjectSet(consts.UserNamespace.String(), subject, ""),
 	}
 	respTuples, err := h.C.KetoClient.QueryAllTuples(context.Background(), &query, 100)
 	if err != nil {
@@ -132,7 +133,7 @@ func (h *Handler) isOrgAdmin(subject string) ([]string, error) {
 	output := []string{}
 	for _, tuple := range respTuples {
 		// likely unnecessary but just in case
-		if tuple.Namespace == "Organization" && tuple.Relation == "admins" && tuple.Object != "" {
+		if tuple.Namespace == consts.OrganizationNamespace.String() && tuple.Relation == consts.OrganizationRelationAdmins.String() && tuple.Object != "" {
 			output = append(output, tuple.Object)
 		}
 	}
@@ -143,7 +144,7 @@ func (h *Handler) isOrgAdmin(subject string) ([]string, error) {
 // Get all the ObservabilityTenants that belong to an organization
 func (h *Handler) getOrgTenants(org string) ([]string, error) {
 	query := rts.RelationQuery{
-		Namespace: px.Ptr("ObservabilityTenant"),
+		Namespace: px.Ptr(consts.ObservabilityTenantNamespace.String()),
 		Subject:   rts.NewSubjectSet("Organization", org, ""),
 	}
 	respTuples, err := h.C.KetoClient.QueryAllTuples(context.Background(), &query, 100)
@@ -154,7 +155,7 @@ func (h *Handler) getOrgTenants(org string) ([]string, error) {
 	output := []string{}
 	for _, tuple := range respTuples {
 		// likely unnecessary but just in case
-		if tuple.Namespace == "ObservabilityTenant" && tuple.Relation == "organizations" && tuple.Object != "" {
+		if tuple.Namespace == consts.ObservabilityTenantNamespace.String() && tuple.Relation == "organizations" && tuple.Object != "" {
 			output = append(output, tuple.Object)
 		}
 	}
@@ -188,7 +189,7 @@ func (h *Handler) getUserGroups(subject string) ([]string, error) {
 // Get the ObservabilityTenants a user has permissions for
 func (h *Handler) getUserDirectTenants(subject string) ([]string, error) {
 	query := rts.RelationQuery{
-		Namespace: px.Ptr("ObservabilityTenant"),
+		Namespace: px.Ptr(consts.ObservabilityTenantNamespace.String()),
 		Subject:   rts.NewSubjectSet("User", subject, ""),
 	}
 	respTuples, err := h.C.KetoClient.QueryAllTuples(context.Background(), &query, 100)
@@ -210,7 +211,7 @@ func (h *Handler) getUserDirectTenants(subject string) ([]string, error) {
 // Get the ObservabilityTenants a group has permissions for
 func (h *Handler) getGroupTenants(group string) ([]string, error) {
 	query := rts.RelationQuery{
-		Namespace: px.Ptr("ObservabilityTenant"),
+		Namespace: px.Ptr(consts.ObservabilityTenantNamespace.String()),
 		Subject:   rts.NewSubjectSet("Group", group, "members"),
 	}
 	respTuples, err := h.C.KetoClient.QueryAllTuples(context.Background(), &query, 100)

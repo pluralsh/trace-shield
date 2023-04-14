@@ -6,6 +6,7 @@ import (
 
 	rts "github.com/ory/keto/proto/ory/keto/relation_tuples/v1alpha2"
 	px "github.com/ory/x/pointerx"
+	"github.com/pluralsh/trace-shield/consts"
 	"github.com/pluralsh/trace-shield/graph/model"
 )
 
@@ -81,11 +82,11 @@ func (c *ClientWrapper) OrgAdminChangeset(ctx context.Context, orgName string, a
 // function that adds an admin to an organization in keto
 func (c *ClientWrapper) AddAdminToOrganization(ctx context.Context, orgName string, adminId string) error {
 	adminTuple := &rts.RelationTuple{
-		Namespace: "Organization",
+		Namespace: consts.OrganizationNamespace.String(),
 		Object:    orgName,
-		Relation:  "admins",
+		Relation:  consts.OrganizationRelationAdmins.String(),
 		Subject: rts.NewSubjectSet(
-			"User",
+			consts.UserNamespace.String(),
 			adminId,
 			"",
 		),
@@ -102,11 +103,11 @@ func (c *ClientWrapper) AddAdminToOrganization(ctx context.Context, orgName stri
 // function that removes an admin from an organization in keto
 func (c *ClientWrapper) RemoveAdminFromOrganization(ctx context.Context, orgName string, adminId string) error {
 	adminTuple := &rts.RelationTuple{
-		Namespace: "Organization",
+		Namespace: consts.OrganizationNamespace.String(),
 		Object:    orgName,
-		Relation:  "admins",
+		Relation:  consts.OrganizationRelationAdmins.String(),
 		Subject: rts.NewSubjectSet(
-			"User",
+			consts.UserNamespace.String(),
 			adminId,
 			"",
 		),
@@ -123,9 +124,9 @@ func (c *ClientWrapper) RemoveAdminFromOrganization(ctx context.Context, orgName
 // function that returns all admins for an organization
 func (c *ClientWrapper) GetOrganizationAdmins(ctx context.Context, orgName string) ([]*model.User, error) {
 	query := rts.RelationQuery{
-		Namespace: px.Ptr("Organization"),
+		Namespace: px.Ptr(consts.OrganizationNamespace.String()),
 		Object:    px.Ptr(orgName),
-		Relation:  px.Ptr("admins"),
+		Relation:  px.Ptr(consts.OrganizationRelationAdmins.String()),
 		Subject:   nil,
 	}
 
@@ -138,7 +139,7 @@ func (c *ClientWrapper) GetOrganizationAdmins(ctx context.Context, orgName strin
 
 	for _, tuple := range respTuples {
 		subjectSet := tuple.Subject.GetSet()
-		if subjectSet.Namespace == "User" {
+		if subjectSet.Namespace == consts.UserNamespace.String() {
 			user, err := c.GetUserFromId(ctx, subjectSet.Object)
 			if err != nil {
 				continue
@@ -156,7 +157,7 @@ func (c *ClientWrapper) GetOrganizationAdmins(ctx context.Context, orgName strin
 // function that checks if an organization exists in keto
 func (c *ClientWrapper) OrganizationExistsInKeto(ctx context.Context, orgName string) (bool, error) {
 	query := rts.RelationQuery{
-		Namespace: px.Ptr("Organization"),
+		Namespace: px.Ptr(consts.OrganizationNamespace.String()),
 		Object:    px.Ptr(orgName),
 		Relation:  nil,
 		Subject:   nil,
@@ -177,7 +178,7 @@ func (c *ClientWrapper) OrganizationExistsInKeto(ctx context.Context, orgName st
 // function that lists all organizations in keto
 func (c *ClientWrapper) ListOrganizations(ctx context.Context) ([]*model.Organization, error) {
 	query := rts.RelationQuery{
-		Namespace: px.Ptr("Organization"),
+		Namespace: px.Ptr(consts.OrganizationNamespace.String()),
 		Object:    nil,
 		Relation:  nil,
 		Subject:   nil,
