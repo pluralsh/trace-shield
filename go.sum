@@ -761,6 +761,8 @@ github.com/ory/kratos-client-go v0.11.1/go.mod h1:G31LzGZxgtMblK36qaTPWjG5OqnUWr
 github.com/ory/ladon v1.1.0 h1:6tgazU2J3Z3odPs1f0qn729kRXCAtlJROliuWUHedV0=
 github.com/ory/oathkeeper v0.40.2 h1:Qch1uPmqrhp/vAd8yfWAkh0hfAkNXyXVe19qXGnNjgU=
 github.com/ory/oathkeeper v0.40.2/go.mod h1:GS9py2Oj4jaMQTq2/6XBMHuCvkRnAqlV+rPyd+dN15w=
+github.com/ory/oathkeeper v0.40.3 h1:b3cEw0caFnzxMyV/tx+6n6dc5eXUprsn4nMelc7Vy+g=
+github.com/ory/oathkeeper v0.40.3/go.mod h1:bGEgWo1rrRtdGdlIUxBTb/+qVMRfq8iQBdZ/XDObTUw=
 github.com/ory/viper v1.7.5/go.mod h1:ypOuyJmEUb3oENywQZRgeAMwqgOyDqwboO1tj3DjTaM=
 github.com/ory/x v0.0.547 h1:zDuxCi8xpnhSon/2qjjXw9xeYoBwckzV6UdM4dW4sls=
 github.com/ory/x v0.0.547/go.mod h1:sjmOyekJtJrlrq6wtYAKolLruBptf/qUrZ2oMrLEZkM=
