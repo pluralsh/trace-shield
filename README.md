@@ -18,3 +18,5 @@ The helm values and other configs used for the deployment (like the oathkeeper a
 Whenever a change is made to the deployment configs tilt will automatically redeploy the component.
 If changes are made to the api server a new image will be built and tilt will update the deployment automatically.
 For the frontend, the local filesystem is kept in-sync with the container on the cluster and it is run using `yarn start`. This way a new container for the frontend only needs to be built when there are changes to `package.sjon` or `yarn.lock`.
+
+*end of file*
