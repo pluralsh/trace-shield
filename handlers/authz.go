@@ -3,6 +3,7 @@ package handlers
 import (
 	"context"
 	"encoding/json"
+	"io/ioutil"
 	"net/http"
 	"strings"
 
@@ -34,7 +35,9 @@ func (h *Handler) ObservabilityTenantPolicyCheck(w http.ResponseWriter, r *http.
 		return
 	}
 
-	json, _ := json.Marshal(p)
+	body, _ := ioutil.ReadAll(r.Body)
+
+	json, _ := json.Marshal(body)
 	log.Info("Post", "body", string(json)) // TODO: remove debug log query since it leaks tokens
 
 	permission, err := consts.ParseObservabilityTenantPermission(p.RequestedPermission)
