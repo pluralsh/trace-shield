@@ -25,6 +25,11 @@ type PolicyRequest struct {
 func (h *Handler) ObservabilityTenantPolicyCheck(w http.ResponseWriter, r *http.Request) {
 	log := h.Log.WithName("ObservabilityTenantPolicyCheck")
 
+	body, _ := ioutil.ReadAll(r.Body)
+
+	jsonBody, _ := json.Marshal(body)
+	log.Info("Post", "body", string(jsonBody)) // TODO: remove debug log query since it leaks tokens
+
 	p := &PolicyRequest{}
 
 	// Try to decode the request body into the struct. If there is an error,
@@ -34,11 +39,6 @@ func (h *Handler) ObservabilityTenantPolicyCheck(w http.ResponseWriter, r *http.
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-
-	body, _ := ioutil.ReadAll(r.Body)
-
-	json, _ := json.Marshal(body)
-	log.Info("Post", "body", string(json)) // TODO: remove debug log query since it leaks tokens
 
 	permission, err := consts.ParseObservabilityTenantPermission(p.RequestedPermission)
 	if err != nil {
