@@ -1,0 +1,227 @@
+query ListOAuth2Clients() {
+    listOAuth2Clients {
+        ...OAuth2ClientFragment
+    }
+}
+
+query GetOAuth2Client($clientId: ID!) {
+    getOAuth2Client(clientId: $clientId) {
+        ...OAuth2ClientFragment
+    }
+}
+
+mutation DeleteOAuth2Client($clientId: String!) {
+    deleteOAuth2Client(clientId: $clientId) {
+        clientId
+    }
+}
+
+mutation UpdateOAuth2Client(
+    $allowedCorsOrigins: [String!]
+    $audience:[String!]
+    $authorizationCodeGrantAccessTokenLifespan: String
+    $authorizationCodeGrantIdTokenLifespan: String
+    $authorizationCodeGrantRefreshTokenLifespan: String
+    $backChannelLogoutSessionRequired: Boolean
+    $backChannelLogoutUri: String
+    $clientCredentialsGrantAccessTokenLifespan: String
+    $clientId: String!
+    $clientName: String
+    $clientSecret: String
+    $ClientSecretExpiresAt: Int
+    $clientUri: String
+    $contacts: [String!]
+    $frontchannelLogoutSessionRequired: Boolean
+    $frontchannelLogoutUri: String
+    $grantTypes: [String!]
+    $implicitGrantAccessTokenLifespan: String
+    $implicitGrantIdTokenLifespan: String
+    $jwks: Map
+    $jwksUri: String
+    $jwtBearerGrantAccessTokenLifespan: String
+    $logoUri: String
+    $metadata: Map
+    $policyUri: String
+    $postLogoutRedirectUris: [String!]
+    $redirectUris: [String!]
+    $responseTypes: [String!]
+    $scope: String
+    $sectorIdentifierUri: String
+    $subjectType: String
+    $tokenEndpointAuthMethod: String
+    $tokenEndpointAuthSigningAlgorithm: String
+    $tosUri: String
+    $userinfoSignedResponseAlgorithm: String
+    $loginBindings: LoginBindingsInput
+  ) {
+    updateOAuth2Client(
+      allowedCorsOrigins: $allowedCorsOrigins
+      audience: $audience
+      authorizationCodeGrantAccessTokenLifespan: $authorizationCodeGrantAccessTokenLifespan
+      authorizationCodeGrantIdTokenLifespan: $authorizationCodeGrantIdTokenLifespan
+      authorizationCodeGrantRefreshTokenLifespan: $authorizationCodeGrantRefreshTokenLifespan
+      backChannelLogoutSessionRequired: $backChannelLogoutSessionRequired
+      backChannelLogoutUri: $backChannelLogoutUri
+      clientCredentialsGrantAccessTokenLifespan: $clientCredentialsGrantAccessTokenLifespan
+      clientId: $clientId
+      clientName: $clientName
+      clientSecret: $clientSecret
+      ClientSecretExpiresAt: $ClientSecretExpiresAt
+      clientUri: $clientUri
+      contacts: $contacts
+      frontchannelLogoutSessionRequired: $frontchannelLogoutSessionRequired
+      frontchannelLogoutUri: $frontchannelLogoutUri
+      grantTypes: $grantTypes
+      implicitGrantAccessTokenLifespan: $implicitGrantAccessTokenLifespan
+      implicitGrantIdTokenLifespan: $implicitGrantIdTokenLifespan
+      jwks: $jwks
+      jwksUri: $jwksUri
+      jwtBearerGrantAccessTokenLifespan: $jwtBearerGrantAccessTokenLifespan
+      logoUri: $logoUri
+      metadata: $metadata
+      policyUri: $policyUri
+      postLogoutRedirectUris: $postLogoutRedirectUris
+      redirectUris: $redirectUris
+      responseTypes: $responseTypes
+      scope: $scope
+      sectorIdentifierUri: $sectorIdentifierUri
+      subjectType: $subjectType
+      tokenEndpointAuthMethod: $tokenEndpointAuthMethod
+      tokenEndpointAuthSigningAlgorithm: $tokenEndpointAuthSigningAlgorithm
+      tosUri: $tosUri
+      userinfoSignedResponseAlgorithm: $userinfoSignedResponseAlgorithm
+      loginBindings: $loginBindings
+    ) {
+        ...OAuth2ClientFragment
+    }
+}
+
+mutation CreateOAuth2Client(
+    $allowedCorsOrigins: [String!]
+    $audience:[String!]
+    $authorizationCodeGrantAccessTokenLifespan: String
+    $authorizationCodeGrantIdTokenLifespan: String
+    $authorizationCodeGrantRefreshTokenLifespan: String
+    $backChannelLogoutSessionRequired: Boolean
+    $backChannelLogoutUri: String
+    $clientCredentialsGrantAccessTokenLifespan: String
+    $clientName: String
+    $clientSecret: String
+    $ClientSecretExpiresAt: Int
+    $clientUri: String
+    $contacts: [String!]
+    $frontchannelLogoutSessionRequired: Boolean
+    $frontchannelLogoutUri: String
+    $grantTypes: [String!]
+    $implicitGrantAccessTokenLifespan: String
+    $implicitGrantIdTokenLifespan: String
+    $jwks: Map
+    $jwksUri: String
+    $jwtBearerGrantAccessTokenLifespan: String
+    $logoUri: String
+    $metadata: Map
+    $policyUri: String
+    $postLogoutRedirectUris: [String!]
+    $redirectUris: [String!]
+    $responseTypes: [String!]
+    $scope: String
+    $sectorIdentifierUri: String
+    $subjectType: String
+    $tokenEndpointAuthMethod: String
+    $tokenEndpointAuthSigningAlgorithm: String
+    $tosUri: String
+    $userinfoSignedResponseAlgorithm: String
+    $loginBindings: LoginBindingsInput
+  ) {
+    createOAuth2Client(
+      allowedCorsOrigins: $allowedCorsOrigins
+      audience: $audience
+      authorizationCodeGrantAccessTokenLifespan: $authorizationCodeGrantAccessTokenLifespan
+      authorizationCodeGrantIdTokenLifespan: $authorizationCodeGrantIdTokenLifespan
+      authorizationCodeGrantRefreshTokenLifespan: $authorizationCodeGrantRefreshTokenLifespan
+      backChannelLogoutSessionRequired: $backChannelLogoutSessionRequired
+      backChannelLogoutUri: $backChannelLogoutUri
+      clientCredentialsGrantAccessTokenLifespan: $clientCredentialsGrantAccessTokenLifespan
+      clientName: $clientName
+      clientSecret: $clientSecret
+      ClientSecretExpiresAt: $ClientSecretExpiresAt
+      clientUri: $clientUri
+      contacts: $contacts
+      frontchannelLogoutSessionRequired: $frontchannelLogoutSessionRequired
+      frontchannelLogoutUri: $frontchannelLogoutUri
+      grantTypes: $grantTypes
+      implicitGrantAccessTokenLifespan: $implicitGrantAccessTokenLifespan
+      implicitGrantIdTokenLifespan: $implicitGrantIdTokenLifespan
+      jwks: $jwks
+      jwksUri: $jwksUri
+      jwtBearerGrantAccessTokenLifespan: $jwtBearerGrantAccessTokenLifespan
+      logoUri: $logoUri
+      metadata: $metadata
+      policyUri: $policyUri
+      postLogoutRedirectUris: $postLogoutRedirectUris
+      redirectUris: $redirectUris
+      responseTypes: $responseTypes
+      scope: $scope
+      sectorIdentifierUri: $sectorIdentifierUri
+      subjectType: $subjectType
+      tokenEndpointAuthMethod: $tokenEndpointAuthMethod
+      tokenEndpointAuthSigningAlgorithm: $tokenEndpointAuthSigningAlgorithm
+      tosUri: $tosUri
+      userinfoSignedResponseAlgorithm: $userinfoSignedResponseAlgorithm
+      loginBindings: $loginBindings
+    ) {
+        ...OAuth2ClientFragment
+    }
+}
+
+fragment OAuth2ClientFragment on OAuth2Client {
+  allowedCorsOrigins
+  audience
+  authorizationCodeGrantAccessTokenLifespan
+  authorizationCodeGrantIdTokenLifespan
+  authorizationCodeGrantRefreshTokenLifespan
+  backChannelLogoutUri
+  clientCredentialsGrantAccessTokenLifespan
+  clientId
+  clientName
+  clientSecret
+  ClientSecretExpiresAt
+  clientUri
+  contacts
+  createdAt
+  frontchannelLogoutSessionRequired
+  frontchannelLogoutUri
+  grantTypes
+  implicitGrantAccessTokenLifespan
+  implicitGrantIdTokenLifespan
+  jwks
+  jwksUri
+  jwtBearerGrantAccessTokenLifespan
+  logoUri
+  metadata
+  owner
+  policyUri
+  postLogoutRedirectUris
+  redirectUris
+  responseTypes
+  scope
+  sectorIdentifierUri
+  subjectType
+  tokenEndpointAuthMethod
+  tokenEndpointAuthSigningAlgorithm
+  tosUri
+  updatedAt
+  userinfoSignedResponseAlgorithm
+  organization{
+    name
+  }
+  loginBindings{
+    users{
+      id
+      email
+    }
+    groups{
+      name
+    }
+  }
+}

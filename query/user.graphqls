@@ -1,0 +1,44 @@
+query ListUsers {
+  listUsers {
+    ...UserFragment
+  }
+}
+
+query GetUser($id: ID!) {
+  getUser(id: $id) {
+    ...UserFragment
+  }
+}
+
+mutation CreateUser($email: String!, $name: NameInput) {
+  createUser(email: $email, name: $name) {
+    ...UserFragment
+  }
+}
+
+mutation DeleteUser($id: ID!) {
+  deleteUser(id: $id) {
+    id
+  }
+}
+
+fragment UserFragment on User {
+  id
+  name {
+    first
+    last
+  }
+  email
+  groups {
+    name
+  }
+}
+
+fragment UserFragmentNoGroups on User {
+  id
+  name {
+    first
+    last
+  }
+  email
+}
