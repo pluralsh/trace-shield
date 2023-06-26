@@ -8,6 +8,8 @@ import (
 	"time"
 
 	"github.com/Yamashou/gqlgenc/clientv2"
+	"github.com/pluralsh/trace-shield-controller/api/observability/v1alpha1"
+	"k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
 type TraceShieldGraphQLClient interface {
@@ -16,6 +18,11 @@ type TraceShieldGraphQLClient interface {
 	DeleteOAuth2Client(ctx context.Context, clientID string, interceptors ...clientv2.RequestInterceptor) (*DeleteOAuth2Client, error)
 	UpdateOAuth2Client(ctx context.Context, allowedCorsOrigins []string, audience []string, authorizationCodeGrantAccessTokenLifespan *string, authorizationCodeGrantIDTokenLifespan *string, authorizationCodeGrantRefreshTokenLifespan *string, backChannelLogoutSessionRequired *bool, backChannelLogoutURI *string, clientCredentialsGrantAccessTokenLifespan *string, clientID string, clientName *string, clientSecret *string, clientSecretExpiresAt *int64, clientURI *string, contacts []string, frontchannelLogoutSessionRequired *bool, frontchannelLogoutURI *string, grantTypes []string, implicitGrantAccessTokenLifespan *string, implicitGrantIDTokenLifespan *string, jwks map[string]interface{}, jwksURI *string, jwtBearerGrantAccessTokenLifespan *string, logoURI *string, metadata map[string]interface{}, policyURI *string, postLogoutRedirectUris []string, redirectUris []string, responseTypes []string, scope *string, sectorIdentifierURI *string, subjectType *string, tokenEndpointAuthMethod *string, tokenEndpointAuthSigningAlgorithm *string, tosURI *string, userinfoSignedResponseAlgorithm *string, loginBindings *LoginBindingsInput, interceptors ...clientv2.RequestInterceptor) (*UpdateOAuth2Client, error)
 	CreateOAuth2Client(ctx context.Context, allowedCorsOrigins []string, audience []string, authorizationCodeGrantAccessTokenLifespan *string, authorizationCodeGrantIDTokenLifespan *string, authorizationCodeGrantRefreshTokenLifespan *string, backChannelLogoutSessionRequired *bool, backChannelLogoutURI *string, clientCredentialsGrantAccessTokenLifespan *string, clientName *string, clientSecret *string, clientSecretExpiresAt *int64, clientURI *string, contacts []string, frontchannelLogoutSessionRequired *bool, frontchannelLogoutURI *string, grantTypes []string, implicitGrantAccessTokenLifespan *string, implicitGrantIDTokenLifespan *string, jwks map[string]interface{}, jwksURI *string, jwtBearerGrantAccessTokenLifespan *string, logoURI *string, metadata map[string]interface{}, policyURI *string, postLogoutRedirectUris []string, redirectUris []string, responseTypes []string, scope *string, sectorIdentifierURI *string, subjectType *string, tokenEndpointAuthMethod *string, tokenEndpointAuthSigningAlgorithm *string, tosURI *string, userinfoSignedResponseAlgorithm *string, loginBindings *LoginBindingsInput, interceptors ...clientv2.RequestInterceptor) (*CreateOAuth2Client, error)
+	ListObservabilityTenants(ctx context.Context, interceptors ...clientv2.RequestInterceptor) (*ListObservabilityTenants, error)
+	GetObservabilityTenant(ctx context.Context, id string, interceptors ...clientv2.RequestInterceptor) (*GetObservabilityTenant, error)
+	CreateObservabilityTenant(ctx context.Context, id string, name *string, admins *ObservabilityTenantPermissionBindingsInput, metricsReaders *ObservabilityTenantPermissionBindingsInput, metricsWriters *ObservabilityTenantPermissionBindingsInput, metricsRulesReaders *ObservabilityTenantPermissionBindingsInput, metricsRulesWriters *ObservabilityTenantPermissionBindingsInput, metricsRulesDeleters *ObservabilityTenantPermissionBindingsInput, metricsAlertsReaders *ObservabilityTenantPermissionBindingsInput, metricsAlertsWriters *ObservabilityTenantPermissionBindingsInput, logsReaders *ObservabilityTenantPermissionBindingsInput, logsWriters *ObservabilityTenantPermissionBindingsInput, logsRulesReaders *ObservabilityTenantPermissionBindingsInput, logsRulesWriters *ObservabilityTenantPermissionBindingsInput, logsRulesDeleters *ObservabilityTenantPermissionBindingsInput, tracesReaders *ObservabilityTenantPermissionBindingsInput, tracesWriters *ObservabilityTenantPermissionBindingsInput, limits *ObservabilityTenantLimitsInput, interceptors ...clientv2.RequestInterceptor) (*CreateObservabilityTenant, error)
+	UpdateObservabilityTenant(ctx context.Context, id string, name *string, admins *ObservabilityTenantPermissionBindingsInput, metricsReaders *ObservabilityTenantPermissionBindingsInput, metricsWriters *ObservabilityTenantPermissionBindingsInput, metricsRulesReaders *ObservabilityTenantPermissionBindingsInput, metricsRulesWriters *ObservabilityTenantPermissionBindingsInput, metricsRulesDeleters *ObservabilityTenantPermissionBindingsInput, metricsAlertsReaders *ObservabilityTenantPermissionBindingsInput, metricsAlertsWriters *ObservabilityTenantPermissionBindingsInput, logsReaders *ObservabilityTenantPermissionBindingsInput, logsWriters *ObservabilityTenantPermissionBindingsInput, logsRulesReaders *ObservabilityTenantPermissionBindingsInput, logsRulesWriters *ObservabilityTenantPermissionBindingsInput, logsRulesDeleters *ObservabilityTenantPermissionBindingsInput, tracesReaders *ObservabilityTenantPermissionBindingsInput, tracesWriters *ObservabilityTenantPermissionBindingsInput, limits *ObservabilityTenantLimitsInput, interceptors ...clientv2.RequestInterceptor) (*UpdateObservabilityTenant, error)
+	DeleteObservabilityTenant(ctx context.Context, id string, interceptors ...clientv2.RequestInterceptor) (*DeleteObservabilityTenant, error)
 }
 
 type Client struct {
@@ -53,6 +60,24 @@ type Mutation struct {
 	DeleteObservabilityTenant  ObservabilityTenant "json:\"deleteObservabilityTenant\" graphql:\"deleteObservabilityTenant\""
 	Organization               Organization        "json:\"organization\" graphql:\"organization\""
 }
+type GroupFragment struct {
+	Name    string                  "json:\"name\" graphql:\"name\""
+	Members []*UserFragmentNoGroups "json:\"members,omitempty\" graphql:\"members\""
+}
+
+func (t *GroupFragment) GetName() string {
+	if t == nil {
+		t = &GroupFragment{}
+	}
+	return t.Name
+}
+func (t *GroupFragment) GetMembers() []*UserFragmentNoGroups {
+	if t == nil {
+		t = &GroupFragment{}
+	}
+	return t.Members
+}
+
 type OAuth2ClientFragment struct {
 	AllowedCorsOrigins                         []string                            "json:\"allowedCorsOrigins,omitempty\" graphql:\"allowedCorsOrigins\""
 	Audience                                   []string                            "json:\"audience,omitempty\" graphql:\"audience\""
@@ -330,6 +355,215 @@ func (t *OAuth2ClientFragment) GetLoginBindings() *OAuth2ClientFragment_LoginBin
 	return t.LoginBindings
 }
 
+type ObservabilityTenantFragment struct {
+	ID                   string                                         "json:\"id\" graphql:\"id\""
+	Name                 *string                                        "json:\"name,omitempty\" graphql:\"name\""
+	Admins               *ObservabilityTenantPermissionBindingsFragment "json:\"admins,omitempty\" graphql:\"admins\""
+	MetricsReaders       *ObservabilityTenantPermissionBindingsFragment "json:\"metricsReaders,omitempty\" graphql:\"metricsReaders\""
+	MetricsWriters       *ObservabilityTenantPermissionBindingsFragment "json:\"metricsWriters,omitempty\" graphql:\"metricsWriters\""
+	MetricsRulesReaders  *ObservabilityTenantPermissionBindingsFragment "json:\"metricsRulesReaders,omitempty\" graphql:\"metricsRulesReaders\""
+	MetricsRulesWriters  *ObservabilityTenantPermissionBindingsFragment "json:\"metricsRulesWriters,omitempty\" graphql:\"metricsRulesWriters\""
+	MetricsRulesDeleters *ObservabilityTenantPermissionBindingsFragment "json:\"metricsRulesDeleters,omitempty\" graphql:\"metricsRulesDeleters\""
+	MetricsAlertsReaders *ObservabilityTenantPermissionBindingsFragment "json:\"metricsAlertsReaders,omitempty\" graphql:\"metricsAlertsReaders\""
+	MetricsAlertsWriters *ObservabilityTenantPermissionBindingsFragment "json:\"metricsAlertsWriters,omitempty\" graphql:\"metricsAlertsWriters\""
+	LogsReaders          *ObservabilityTenantPermissionBindingsFragment "json:\"logsReaders,omitempty\" graphql:\"logsReaders\""
+	LogsWriters          *ObservabilityTenantPermissionBindingsFragment "json:\"logsWriters,omitempty\" graphql:\"logsWriters\""
+	LogsRulesReaders     *ObservabilityTenantPermissionBindingsFragment "json:\"logsRulesReaders,omitempty\" graphql:\"logsRulesReaders\""
+	LogsRulesWriters     *ObservabilityTenantPermissionBindingsFragment "json:\"logsRulesWriters,omitempty\" graphql:\"logsRulesWriters\""
+	LogsRulesDeleters    *ObservabilityTenantPermissionBindingsFragment "json:\"logsRulesDeleters,omitempty\" graphql:\"logsRulesDeleters\""
+	TracesReaders        *ObservabilityTenantPermissionBindingsFragment "json:\"tracesReaders,omitempty\" graphql:\"tracesReaders\""
+	TracesWriters        *ObservabilityTenantPermissionBindingsFragment "json:\"tracesWriters,omitempty\" graphql:\"tracesWriters\""
+	Limits               *ObservabilityTenantLimitsFragment             "json:\"limits,omitempty\" graphql:\"limits\""
+}
+
+func (t *ObservabilityTenantFragment) GetID() string {
+	if t == nil {
+		t = &ObservabilityTenantFragment{}
+	}
+	return t.ID
+}
+func (t *ObservabilityTenantFragment) GetName() *string {
+	if t == nil {
+		t = &ObservabilityTenantFragment{}
+	}
+	return t.Name
+}
+func (t *ObservabilityTenantFragment) GetAdmins() *ObservabilityTenantPermissionBindingsFragment {
+	if t == nil {
+		t = &ObservabilityTenantFragment{}
+	}
+	return t.Admins
+}
+func (t *ObservabilityTenantFragment) GetMetricsReaders() *ObservabilityTenantPermissionBindingsFragment {
+	if t == nil {
+		t = &ObservabilityTenantFragment{}
+	}
+	return t.MetricsReaders
+}
+func (t *ObservabilityTenantFragment) GetMetricsWriters() *ObservabilityTenantPermissionBindingsFragment {
+	if t == nil {
+		t = &ObservabilityTenantFragment{}
+	}
+	return t.MetricsWriters
+}
+func (t *ObservabilityTenantFragment) GetMetricsRulesReaders() *ObservabilityTenantPermissionBindingsFragment {
+	if t == nil {
+		t = &ObservabilityTenantFragment{}
+	}
+	return t.MetricsRulesReaders
+}
+func (t *ObservabilityTenantFragment) GetMetricsRulesWriters() *ObservabilityTenantPermissionBindingsFragment {
+	if t == nil {
+		t = &ObservabilityTenantFragment{}
+	}
+	return t.MetricsRulesWriters
+}
+func (t *ObservabilityTenantFragment) GetMetricsRulesDeleters() *ObservabilityTenantPermissionBindingsFragment {
+	if t == nil {
+		t = &ObservabilityTenantFragment{}
+	}
+	return t.MetricsRulesDeleters
+}
+func (t *ObservabilityTenantFragment) GetMetricsAlertsReaders() *ObservabilityTenantPermissionBindingsFragment {
+	if t == nil {
+		t = &ObservabilityTenantFragment{}
+	}
+	return t.MetricsAlertsReaders
+}
+func (t *ObservabilityTenantFragment) GetMetricsAlertsWriters() *ObservabilityTenantPermissionBindingsFragment {
+	if t == nil {
+		t = &ObservabilityTenantFragment{}
+	}
+	return t.MetricsAlertsWriters
+}
+func (t *ObservabilityTenantFragment) GetLogsReaders() *ObservabilityTenantPermissionBindingsFragment {
+	if t == nil {
+		t = &ObservabilityTenantFragment{}
+	}
+	return t.LogsReaders
+}
+func (t *ObservabilityTenantFragment) GetLogsWriters() *ObservabilityTenantPermissionBindingsFragment {
+	if t == nil {
+		t = &ObservabilityTenantFragment{}
+	}
+	return t.LogsWriters
+}
+func (t *ObservabilityTenantFragment) GetLogsRulesReaders() *ObservabilityTenantPermissionBindingsFragment {
+	if t == nil {
+		t = &ObservabilityTenantFragment{}
+	}
+	return t.LogsRulesReaders
+}
+func (t *ObservabilityTenantFragment) GetLogsRulesWriters() *ObservabilityTenantPermissionBindingsFragment {
+	if t == nil {
+		t = &ObservabilityTenantFragment{}
+	}
+	return t.LogsRulesWriters
+}
+func (t *ObservabilityTenantFragment) GetLogsRulesDeleters() *ObservabilityTenantPermissionBindingsFragment {
+	if t == nil {
+		t = &ObservabilityTenantFragment{}
+	}
+	return t.LogsRulesDeleters
+}
+func (t *ObservabilityTenantFragment) GetTracesReaders() *ObservabilityTenantPermissionBindingsFragment {
+	if t == nil {
+		t = &ObservabilityTenantFragment{}
+	}
+	return t.TracesReaders
+}
+func (t *ObservabilityTenantFragment) GetTracesWriters() *ObservabilityTenantPermissionBindingsFragment {
+	if t == nil {
+		t = &ObservabilityTenantFragment{}
+	}
+	return t.TracesWriters
+}
+func (t *ObservabilityTenantFragment) GetLimits() *ObservabilityTenantLimitsFragment {
+	if t == nil {
+		t = &ObservabilityTenantFragment{}
+	}
+	return t.Limits
+}
+
+type ObservabilityTenantPermissionBindingsFragment struct {
+	Users         []*UserFragmentNoGroups "json:\"users,omitempty\" graphql:\"users\""
+	Groups        []*GroupFragment        "json:\"groups,omitempty\" graphql:\"groups\""
+	Oauth2Clients []*OAuth2ClientFragment "json:\"oauth2Clients,omitempty\" graphql:\"oauth2Clients\""
+}
+
+func (t *ObservabilityTenantPermissionBindingsFragment) GetUsers() []*UserFragmentNoGroups {
+	if t == nil {
+		t = &ObservabilityTenantPermissionBindingsFragment{}
+	}
+	return t.Users
+}
+func (t *ObservabilityTenantPermissionBindingsFragment) GetGroups() []*GroupFragment {
+	if t == nil {
+		t = &ObservabilityTenantPermissionBindingsFragment{}
+	}
+	return t.Groups
+}
+func (t *ObservabilityTenantPermissionBindingsFragment) GetOauth2Clients() []*OAuth2ClientFragment {
+	if t == nil {
+		t = &ObservabilityTenantPermissionBindingsFragment{}
+	}
+	return t.Oauth2Clients
+}
+
+type ObservabilityTenantLimitsFragment struct {
+	Mimir *ObservabilityTenantLimitsFragment_Mimir "json:\"mimir,omitempty\" graphql:\"mimir\""
+}
+
+func (t *ObservabilityTenantLimitsFragment) GetMimir() *ObservabilityTenantLimitsFragment_Mimir {
+	if t == nil {
+		t = &ObservabilityTenantLimitsFragment{}
+	}
+	return t.Mimir
+}
+
+type UserFragmentNoGroups struct {
+	ID    string                     "json:\"id\" graphql:\"id\""
+	Name  *UserFragmentNoGroups_Name "json:\"name,omitempty\" graphql:\"name\""
+	Email string                     "json:\"email\" graphql:\"email\""
+}
+
+func (t *UserFragmentNoGroups) GetID() string {
+	if t == nil {
+		t = &UserFragmentNoGroups{}
+	}
+	return t.ID
+}
+func (t *UserFragmentNoGroups) GetName() *UserFragmentNoGroups_Name {
+	if t == nil {
+		t = &UserFragmentNoGroups{}
+	}
+	return t.Name
+}
+func (t *UserFragmentNoGroups) GetEmail() string {
+	if t == nil {
+		t = &UserFragmentNoGroups{}
+	}
+	return t.Email
+}
+
+type GroupFragment_Members_UserFragmentNoGroups_Name struct {
+	First *string "json:\"first,omitempty\" graphql:\"first\""
+	Last  *string "json:\"last,omitempty\" graphql:\"last\""
+}
+
+func (t *GroupFragment_Members_UserFragmentNoGroups_Name) GetFirst() *string {
+	if t == nil {
+		t = &GroupFragment_Members_UserFragmentNoGroups_Name{}
+	}
+	return t.First
+}
+func (t *GroupFragment_Members_UserFragmentNoGroups_Name) GetLast() *string {
+	if t == nil {
+		t = &GroupFragment_Members_UserFragmentNoGroups_Name{}
+	}
+	return t.Last
+}
+
 type OAuth2ClientFragment_Organization struct {
 	Name string "json:\"name\" graphql:\"name\""
 }
@@ -386,6 +620,2600 @@ func (t *OAuth2ClientFragment_LoginBindings) GetGroups() []*OAuth2ClientFragment
 		t = &OAuth2ClientFragment_LoginBindings{}
 	}
 	return t.Groups
+}
+
+type ObservabilityTenantFragment_Admins_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name struct {
+	First *string "json:\"first,omitempty\" graphql:\"first\""
+	Last  *string "json:\"last,omitempty\" graphql:\"last\""
+}
+
+func (t *ObservabilityTenantFragment_Admins_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name) GetFirst() *string {
+	if t == nil {
+		t = &ObservabilityTenantFragment_Admins_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name{}
+	}
+	return t.First
+}
+func (t *ObservabilityTenantFragment_Admins_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name) GetLast() *string {
+	if t == nil {
+		t = &ObservabilityTenantFragment_Admins_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name{}
+	}
+	return t.Last
+}
+
+type ObservabilityTenantFragment_Admins_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name struct {
+	First *string "json:\"first,omitempty\" graphql:\"first\""
+	Last  *string "json:\"last,omitempty\" graphql:\"last\""
+}
+
+func (t *ObservabilityTenantFragment_Admins_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name) GetFirst() *string {
+	if t == nil {
+		t = &ObservabilityTenantFragment_Admins_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name{}
+	}
+	return t.First
+}
+func (t *ObservabilityTenantFragment_Admins_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name) GetLast() *string {
+	if t == nil {
+		t = &ObservabilityTenantFragment_Admins_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name{}
+	}
+	return t.Last
+}
+
+type ObservabilityTenantFragment_Admins_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization struct {
+	Name string "json:\"name\" graphql:\"name\""
+}
+
+func (t *ObservabilityTenantFragment_Admins_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization) GetName() string {
+	if t == nil {
+		t = &ObservabilityTenantFragment_Admins_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization{}
+	}
+	return t.Name
+}
+
+type ObservabilityTenantFragment_Admins_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users struct {
+	ID    string "json:\"id\" graphql:\"id\""
+	Email string "json:\"email\" graphql:\"email\""
+}
+
+func (t *ObservabilityTenantFragment_Admins_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users) GetID() string {
+	if t == nil {
+		t = &ObservabilityTenantFragment_Admins_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users{}
+	}
+	return t.ID
+}
+func (t *ObservabilityTenantFragment_Admins_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users) GetEmail() string {
+	if t == nil {
+		t = &ObservabilityTenantFragment_Admins_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users{}
+	}
+	return t.Email
+}
+
+type ObservabilityTenantFragment_Admins_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups struct {
+	Name string "json:\"name\" graphql:\"name\""
+}
+
+func (t *ObservabilityTenantFragment_Admins_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups) GetName() string {
+	if t == nil {
+		t = &ObservabilityTenantFragment_Admins_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups{}
+	}
+	return t.Name
+}
+
+type ObservabilityTenantFragment_Admins_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings struct {
+	Users  []*ObservabilityTenantFragment_Admins_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users  "json:\"users,omitempty\" graphql:\"users\""
+	Groups []*ObservabilityTenantFragment_Admins_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups "json:\"groups,omitempty\" graphql:\"groups\""
+}
+
+func (t *ObservabilityTenantFragment_Admins_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings) GetUsers() []*ObservabilityTenantFragment_Admins_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users {
+	if t == nil {
+		t = &ObservabilityTenantFragment_Admins_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings{}
+	}
+	return t.Users
+}
+func (t *ObservabilityTenantFragment_Admins_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings) GetGroups() []*ObservabilityTenantFragment_Admins_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups {
+	if t == nil {
+		t = &ObservabilityTenantFragment_Admins_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings{}
+	}
+	return t.Groups
+}
+
+type ObservabilityTenantFragment_MetricsReaders_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name struct {
+	First *string "json:\"first,omitempty\" graphql:\"first\""
+	Last  *string "json:\"last,omitempty\" graphql:\"last\""
+}
+
+func (t *ObservabilityTenantFragment_MetricsReaders_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name) GetFirst() *string {
+	if t == nil {
+		t = &ObservabilityTenantFragment_MetricsReaders_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name{}
+	}
+	return t.First
+}
+func (t *ObservabilityTenantFragment_MetricsReaders_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name) GetLast() *string {
+	if t == nil {
+		t = &ObservabilityTenantFragment_MetricsReaders_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name{}
+	}
+	return t.Last
+}
+
+type ObservabilityTenantFragment_MetricsReaders_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name struct {
+	First *string "json:\"first,omitempty\" graphql:\"first\""
+	Last  *string "json:\"last,omitempty\" graphql:\"last\""
+}
+
+func (t *ObservabilityTenantFragment_MetricsReaders_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name) GetFirst() *string {
+	if t == nil {
+		t = &ObservabilityTenantFragment_MetricsReaders_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name{}
+	}
+	return t.First
+}
+func (t *ObservabilityTenantFragment_MetricsReaders_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name) GetLast() *string {
+	if t == nil {
+		t = &ObservabilityTenantFragment_MetricsReaders_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name{}
+	}
+	return t.Last
+}
+
+type ObservabilityTenantFragment_MetricsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization struct {
+	Name string "json:\"name\" graphql:\"name\""
+}
+
+func (t *ObservabilityTenantFragment_MetricsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization) GetName() string {
+	if t == nil {
+		t = &ObservabilityTenantFragment_MetricsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization{}
+	}
+	return t.Name
+}
+
+type ObservabilityTenantFragment_MetricsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users struct {
+	ID    string "json:\"id\" graphql:\"id\""
+	Email string "json:\"email\" graphql:\"email\""
+}
+
+func (t *ObservabilityTenantFragment_MetricsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users) GetID() string {
+	if t == nil {
+		t = &ObservabilityTenantFragment_MetricsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users{}
+	}
+	return t.ID
+}
+func (t *ObservabilityTenantFragment_MetricsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users) GetEmail() string {
+	if t == nil {
+		t = &ObservabilityTenantFragment_MetricsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users{}
+	}
+	return t.Email
+}
+
+type ObservabilityTenantFragment_MetricsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups struct {
+	Name string "json:\"name\" graphql:\"name\""
+}
+
+func (t *ObservabilityTenantFragment_MetricsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups) GetName() string {
+	if t == nil {
+		t = &ObservabilityTenantFragment_MetricsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups{}
+	}
+	return t.Name
+}
+
+type ObservabilityTenantFragment_MetricsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings struct {
+	Users  []*ObservabilityTenantFragment_MetricsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users  "json:\"users,omitempty\" graphql:\"users\""
+	Groups []*ObservabilityTenantFragment_MetricsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups "json:\"groups,omitempty\" graphql:\"groups\""
+}
+
+func (t *ObservabilityTenantFragment_MetricsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings) GetUsers() []*ObservabilityTenantFragment_MetricsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users {
+	if t == nil {
+		t = &ObservabilityTenantFragment_MetricsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings{}
+	}
+	return t.Users
+}
+func (t *ObservabilityTenantFragment_MetricsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings) GetGroups() []*ObservabilityTenantFragment_MetricsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups {
+	if t == nil {
+		t = &ObservabilityTenantFragment_MetricsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings{}
+	}
+	return t.Groups
+}
+
+type ObservabilityTenantFragment_MetricsWriters_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name struct {
+	First *string "json:\"first,omitempty\" graphql:\"first\""
+	Last  *string "json:\"last,omitempty\" graphql:\"last\""
+}
+
+func (t *ObservabilityTenantFragment_MetricsWriters_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name) GetFirst() *string {
+	if t == nil {
+		t = &ObservabilityTenantFragment_MetricsWriters_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name{}
+	}
+	return t.First
+}
+func (t *ObservabilityTenantFragment_MetricsWriters_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name) GetLast() *string {
+	if t == nil {
+		t = &ObservabilityTenantFragment_MetricsWriters_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name{}
+	}
+	return t.Last
+}
+
+type ObservabilityTenantFragment_MetricsWriters_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name struct {
+	First *string "json:\"first,omitempty\" graphql:\"first\""
+	Last  *string "json:\"last,omitempty\" graphql:\"last\""
+}
+
+func (t *ObservabilityTenantFragment_MetricsWriters_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name) GetFirst() *string {
+	if t == nil {
+		t = &ObservabilityTenantFragment_MetricsWriters_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name{}
+	}
+	return t.First
+}
+func (t *ObservabilityTenantFragment_MetricsWriters_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name) GetLast() *string {
+	if t == nil {
+		t = &ObservabilityTenantFragment_MetricsWriters_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name{}
+	}
+	return t.Last
+}
+
+type ObservabilityTenantFragment_MetricsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization struct {
+	Name string "json:\"name\" graphql:\"name\""
+}
+
+func (t *ObservabilityTenantFragment_MetricsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization) GetName() string {
+	if t == nil {
+		t = &ObservabilityTenantFragment_MetricsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization{}
+	}
+	return t.Name
+}
+
+type ObservabilityTenantFragment_MetricsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users struct {
+	ID    string "json:\"id\" graphql:\"id\""
+	Email string "json:\"email\" graphql:\"email\""
+}
+
+func (t *ObservabilityTenantFragment_MetricsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users) GetID() string {
+	if t == nil {
+		t = &ObservabilityTenantFragment_MetricsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users{}
+	}
+	return t.ID
+}
+func (t *ObservabilityTenantFragment_MetricsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users) GetEmail() string {
+	if t == nil {
+		t = &ObservabilityTenantFragment_MetricsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users{}
+	}
+	return t.Email
+}
+
+type ObservabilityTenantFragment_MetricsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups struct {
+	Name string "json:\"name\" graphql:\"name\""
+}
+
+func (t *ObservabilityTenantFragment_MetricsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups) GetName() string {
+	if t == nil {
+		t = &ObservabilityTenantFragment_MetricsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups{}
+	}
+	return t.Name
+}
+
+type ObservabilityTenantFragment_MetricsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings struct {
+	Users  []*ObservabilityTenantFragment_MetricsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users  "json:\"users,omitempty\" graphql:\"users\""
+	Groups []*ObservabilityTenantFragment_MetricsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups "json:\"groups,omitempty\" graphql:\"groups\""
+}
+
+func (t *ObservabilityTenantFragment_MetricsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings) GetUsers() []*ObservabilityTenantFragment_MetricsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users {
+	if t == nil {
+		t = &ObservabilityTenantFragment_MetricsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings{}
+	}
+	return t.Users
+}
+func (t *ObservabilityTenantFragment_MetricsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings) GetGroups() []*ObservabilityTenantFragment_MetricsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups {
+	if t == nil {
+		t = &ObservabilityTenantFragment_MetricsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings{}
+	}
+	return t.Groups
+}
+
+type ObservabilityTenantFragment_MetricsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name struct {
+	First *string "json:\"first,omitempty\" graphql:\"first\""
+	Last  *string "json:\"last,omitempty\" graphql:\"last\""
+}
+
+func (t *ObservabilityTenantFragment_MetricsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name) GetFirst() *string {
+	if t == nil {
+		t = &ObservabilityTenantFragment_MetricsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name{}
+	}
+	return t.First
+}
+func (t *ObservabilityTenantFragment_MetricsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name) GetLast() *string {
+	if t == nil {
+		t = &ObservabilityTenantFragment_MetricsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name{}
+	}
+	return t.Last
+}
+
+type ObservabilityTenantFragment_MetricsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name struct {
+	First *string "json:\"first,omitempty\" graphql:\"first\""
+	Last  *string "json:\"last,omitempty\" graphql:\"last\""
+}
+
+func (t *ObservabilityTenantFragment_MetricsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name) GetFirst() *string {
+	if t == nil {
+		t = &ObservabilityTenantFragment_MetricsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name{}
+	}
+	return t.First
+}
+func (t *ObservabilityTenantFragment_MetricsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name) GetLast() *string {
+	if t == nil {
+		t = &ObservabilityTenantFragment_MetricsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name{}
+	}
+	return t.Last
+}
+
+type ObservabilityTenantFragment_MetricsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization struct {
+	Name string "json:\"name\" graphql:\"name\""
+}
+
+func (t *ObservabilityTenantFragment_MetricsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization) GetName() string {
+	if t == nil {
+		t = &ObservabilityTenantFragment_MetricsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization{}
+	}
+	return t.Name
+}
+
+type ObservabilityTenantFragment_MetricsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users struct {
+	ID    string "json:\"id\" graphql:\"id\""
+	Email string "json:\"email\" graphql:\"email\""
+}
+
+func (t *ObservabilityTenantFragment_MetricsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users) GetID() string {
+	if t == nil {
+		t = &ObservabilityTenantFragment_MetricsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users{}
+	}
+	return t.ID
+}
+func (t *ObservabilityTenantFragment_MetricsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users) GetEmail() string {
+	if t == nil {
+		t = &ObservabilityTenantFragment_MetricsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users{}
+	}
+	return t.Email
+}
+
+type ObservabilityTenantFragment_MetricsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups struct {
+	Name string "json:\"name\" graphql:\"name\""
+}
+
+func (t *ObservabilityTenantFragment_MetricsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups) GetName() string {
+	if t == nil {
+		t = &ObservabilityTenantFragment_MetricsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups{}
+	}
+	return t.Name
+}
+
+type ObservabilityTenantFragment_MetricsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings struct {
+	Users  []*ObservabilityTenantFragment_MetricsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users  "json:\"users,omitempty\" graphql:\"users\""
+	Groups []*ObservabilityTenantFragment_MetricsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups "json:\"groups,omitempty\" graphql:\"groups\""
+}
+
+func (t *ObservabilityTenantFragment_MetricsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings) GetUsers() []*ObservabilityTenantFragment_MetricsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users {
+	if t == nil {
+		t = &ObservabilityTenantFragment_MetricsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings{}
+	}
+	return t.Users
+}
+func (t *ObservabilityTenantFragment_MetricsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings) GetGroups() []*ObservabilityTenantFragment_MetricsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups {
+	if t == nil {
+		t = &ObservabilityTenantFragment_MetricsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings{}
+	}
+	return t.Groups
+}
+
+type ObservabilityTenantFragment_MetricsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name struct {
+	First *string "json:\"first,omitempty\" graphql:\"first\""
+	Last  *string "json:\"last,omitempty\" graphql:\"last\""
+}
+
+func (t *ObservabilityTenantFragment_MetricsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name) GetFirst() *string {
+	if t == nil {
+		t = &ObservabilityTenantFragment_MetricsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name{}
+	}
+	return t.First
+}
+func (t *ObservabilityTenantFragment_MetricsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name) GetLast() *string {
+	if t == nil {
+		t = &ObservabilityTenantFragment_MetricsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name{}
+	}
+	return t.Last
+}
+
+type ObservabilityTenantFragment_MetricsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name struct {
+	First *string "json:\"first,omitempty\" graphql:\"first\""
+	Last  *string "json:\"last,omitempty\" graphql:\"last\""
+}
+
+func (t *ObservabilityTenantFragment_MetricsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name) GetFirst() *string {
+	if t == nil {
+		t = &ObservabilityTenantFragment_MetricsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name{}
+	}
+	return t.First
+}
+func (t *ObservabilityTenantFragment_MetricsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name) GetLast() *string {
+	if t == nil {
+		t = &ObservabilityTenantFragment_MetricsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name{}
+	}
+	return t.Last
+}
+
+type ObservabilityTenantFragment_MetricsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization struct {
+	Name string "json:\"name\" graphql:\"name\""
+}
+
+func (t *ObservabilityTenantFragment_MetricsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization) GetName() string {
+	if t == nil {
+		t = &ObservabilityTenantFragment_MetricsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization{}
+	}
+	return t.Name
+}
+
+type ObservabilityTenantFragment_MetricsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users struct {
+	ID    string "json:\"id\" graphql:\"id\""
+	Email string "json:\"email\" graphql:\"email\""
+}
+
+func (t *ObservabilityTenantFragment_MetricsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users) GetID() string {
+	if t == nil {
+		t = &ObservabilityTenantFragment_MetricsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users{}
+	}
+	return t.ID
+}
+func (t *ObservabilityTenantFragment_MetricsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users) GetEmail() string {
+	if t == nil {
+		t = &ObservabilityTenantFragment_MetricsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users{}
+	}
+	return t.Email
+}
+
+type ObservabilityTenantFragment_MetricsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups struct {
+	Name string "json:\"name\" graphql:\"name\""
+}
+
+func (t *ObservabilityTenantFragment_MetricsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups) GetName() string {
+	if t == nil {
+		t = &ObservabilityTenantFragment_MetricsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups{}
+	}
+	return t.Name
+}
+
+type ObservabilityTenantFragment_MetricsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings struct {
+	Users  []*ObservabilityTenantFragment_MetricsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users  "json:\"users,omitempty\" graphql:\"users\""
+	Groups []*ObservabilityTenantFragment_MetricsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups "json:\"groups,omitempty\" graphql:\"groups\""
+}
+
+func (t *ObservabilityTenantFragment_MetricsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings) GetUsers() []*ObservabilityTenantFragment_MetricsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users {
+	if t == nil {
+		t = &ObservabilityTenantFragment_MetricsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings{}
+	}
+	return t.Users
+}
+func (t *ObservabilityTenantFragment_MetricsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings) GetGroups() []*ObservabilityTenantFragment_MetricsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups {
+	if t == nil {
+		t = &ObservabilityTenantFragment_MetricsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings{}
+	}
+	return t.Groups
+}
+
+type ObservabilityTenantFragment_MetricsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name struct {
+	First *string "json:\"first,omitempty\" graphql:\"first\""
+	Last  *string "json:\"last,omitempty\" graphql:\"last\""
+}
+
+func (t *ObservabilityTenantFragment_MetricsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name) GetFirst() *string {
+	if t == nil {
+		t = &ObservabilityTenantFragment_MetricsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name{}
+	}
+	return t.First
+}
+func (t *ObservabilityTenantFragment_MetricsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name) GetLast() *string {
+	if t == nil {
+		t = &ObservabilityTenantFragment_MetricsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name{}
+	}
+	return t.Last
+}
+
+type ObservabilityTenantFragment_MetricsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name struct {
+	First *string "json:\"first,omitempty\" graphql:\"first\""
+	Last  *string "json:\"last,omitempty\" graphql:\"last\""
+}
+
+func (t *ObservabilityTenantFragment_MetricsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name) GetFirst() *string {
+	if t == nil {
+		t = &ObservabilityTenantFragment_MetricsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name{}
+	}
+	return t.First
+}
+func (t *ObservabilityTenantFragment_MetricsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name) GetLast() *string {
+	if t == nil {
+		t = &ObservabilityTenantFragment_MetricsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name{}
+	}
+	return t.Last
+}
+
+type ObservabilityTenantFragment_MetricsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization struct {
+	Name string "json:\"name\" graphql:\"name\""
+}
+
+func (t *ObservabilityTenantFragment_MetricsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization) GetName() string {
+	if t == nil {
+		t = &ObservabilityTenantFragment_MetricsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization{}
+	}
+	return t.Name
+}
+
+type ObservabilityTenantFragment_MetricsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users struct {
+	ID    string "json:\"id\" graphql:\"id\""
+	Email string "json:\"email\" graphql:\"email\""
+}
+
+func (t *ObservabilityTenantFragment_MetricsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users) GetID() string {
+	if t == nil {
+		t = &ObservabilityTenantFragment_MetricsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users{}
+	}
+	return t.ID
+}
+func (t *ObservabilityTenantFragment_MetricsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users) GetEmail() string {
+	if t == nil {
+		t = &ObservabilityTenantFragment_MetricsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users{}
+	}
+	return t.Email
+}
+
+type ObservabilityTenantFragment_MetricsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups struct {
+	Name string "json:\"name\" graphql:\"name\""
+}
+
+func (t *ObservabilityTenantFragment_MetricsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups) GetName() string {
+	if t == nil {
+		t = &ObservabilityTenantFragment_MetricsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups{}
+	}
+	return t.Name
+}
+
+type ObservabilityTenantFragment_MetricsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings struct {
+	Users  []*ObservabilityTenantFragment_MetricsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users  "json:\"users,omitempty\" graphql:\"users\""
+	Groups []*ObservabilityTenantFragment_MetricsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups "json:\"groups,omitempty\" graphql:\"groups\""
+}
+
+func (t *ObservabilityTenantFragment_MetricsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings) GetUsers() []*ObservabilityTenantFragment_MetricsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users {
+	if t == nil {
+		t = &ObservabilityTenantFragment_MetricsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings{}
+	}
+	return t.Users
+}
+func (t *ObservabilityTenantFragment_MetricsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings) GetGroups() []*ObservabilityTenantFragment_MetricsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups {
+	if t == nil {
+		t = &ObservabilityTenantFragment_MetricsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings{}
+	}
+	return t.Groups
+}
+
+type ObservabilityTenantFragment_MetricsAlertsReaders_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name struct {
+	First *string "json:\"first,omitempty\" graphql:\"first\""
+	Last  *string "json:\"last,omitempty\" graphql:\"last\""
+}
+
+func (t *ObservabilityTenantFragment_MetricsAlertsReaders_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name) GetFirst() *string {
+	if t == nil {
+		t = &ObservabilityTenantFragment_MetricsAlertsReaders_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name{}
+	}
+	return t.First
+}
+func (t *ObservabilityTenantFragment_MetricsAlertsReaders_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name) GetLast() *string {
+	if t == nil {
+		t = &ObservabilityTenantFragment_MetricsAlertsReaders_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name{}
+	}
+	return t.Last
+}
+
+type ObservabilityTenantFragment_MetricsAlertsReaders_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name struct {
+	First *string "json:\"first,omitempty\" graphql:\"first\""
+	Last  *string "json:\"last,omitempty\" graphql:\"last\""
+}
+
+func (t *ObservabilityTenantFragment_MetricsAlertsReaders_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name) GetFirst() *string {
+	if t == nil {
+		t = &ObservabilityTenantFragment_MetricsAlertsReaders_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name{}
+	}
+	return t.First
+}
+func (t *ObservabilityTenantFragment_MetricsAlertsReaders_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name) GetLast() *string {
+	if t == nil {
+		t = &ObservabilityTenantFragment_MetricsAlertsReaders_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name{}
+	}
+	return t.Last
+}
+
+type ObservabilityTenantFragment_MetricsAlertsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization struct {
+	Name string "json:\"name\" graphql:\"name\""
+}
+
+func (t *ObservabilityTenantFragment_MetricsAlertsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization) GetName() string {
+	if t == nil {
+		t = &ObservabilityTenantFragment_MetricsAlertsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization{}
+	}
+	return t.Name
+}
+
+type ObservabilityTenantFragment_MetricsAlertsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users struct {
+	ID    string "json:\"id\" graphql:\"id\""
+	Email string "json:\"email\" graphql:\"email\""
+}
+
+func (t *ObservabilityTenantFragment_MetricsAlertsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users) GetID() string {
+	if t == nil {
+		t = &ObservabilityTenantFragment_MetricsAlertsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users{}
+	}
+	return t.ID
+}
+func (t *ObservabilityTenantFragment_MetricsAlertsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users) GetEmail() string {
+	if t == nil {
+		t = &ObservabilityTenantFragment_MetricsAlertsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users{}
+	}
+	return t.Email
+}
+
+type ObservabilityTenantFragment_MetricsAlertsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups struct {
+	Name string "json:\"name\" graphql:\"name\""
+}
+
+func (t *ObservabilityTenantFragment_MetricsAlertsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups) GetName() string {
+	if t == nil {
+		t = &ObservabilityTenantFragment_MetricsAlertsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups{}
+	}
+	return t.Name
+}
+
+type ObservabilityTenantFragment_MetricsAlertsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings struct {
+	Users  []*ObservabilityTenantFragment_MetricsAlertsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users  "json:\"users,omitempty\" graphql:\"users\""
+	Groups []*ObservabilityTenantFragment_MetricsAlertsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups "json:\"groups,omitempty\" graphql:\"groups\""
+}
+
+func (t *ObservabilityTenantFragment_MetricsAlertsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings) GetUsers() []*ObservabilityTenantFragment_MetricsAlertsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users {
+	if t == nil {
+		t = &ObservabilityTenantFragment_MetricsAlertsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings{}
+	}
+	return t.Users
+}
+func (t *ObservabilityTenantFragment_MetricsAlertsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings) GetGroups() []*ObservabilityTenantFragment_MetricsAlertsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups {
+	if t == nil {
+		t = &ObservabilityTenantFragment_MetricsAlertsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings{}
+	}
+	return t.Groups
+}
+
+type ObservabilityTenantFragment_MetricsAlertsWriters_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name struct {
+	First *string "json:\"first,omitempty\" graphql:\"first\""
+	Last  *string "json:\"last,omitempty\" graphql:\"last\""
+}
+
+func (t *ObservabilityTenantFragment_MetricsAlertsWriters_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name) GetFirst() *string {
+	if t == nil {
+		t = &ObservabilityTenantFragment_MetricsAlertsWriters_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name{}
+	}
+	return t.First
+}
+func (t *ObservabilityTenantFragment_MetricsAlertsWriters_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name) GetLast() *string {
+	if t == nil {
+		t = &ObservabilityTenantFragment_MetricsAlertsWriters_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name{}
+	}
+	return t.Last
+}
+
+type ObservabilityTenantFragment_MetricsAlertsWriters_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name struct {
+	First *string "json:\"first,omitempty\" graphql:\"first\""
+	Last  *string "json:\"last,omitempty\" graphql:\"last\""
+}
+
+func (t *ObservabilityTenantFragment_MetricsAlertsWriters_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name) GetFirst() *string {
+	if t == nil {
+		t = &ObservabilityTenantFragment_MetricsAlertsWriters_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name{}
+	}
+	return t.First
+}
+func (t *ObservabilityTenantFragment_MetricsAlertsWriters_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name) GetLast() *string {
+	if t == nil {
+		t = &ObservabilityTenantFragment_MetricsAlertsWriters_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name{}
+	}
+	return t.Last
+}
+
+type ObservabilityTenantFragment_MetricsAlertsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization struct {
+	Name string "json:\"name\" graphql:\"name\""
+}
+
+func (t *ObservabilityTenantFragment_MetricsAlertsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization) GetName() string {
+	if t == nil {
+		t = &ObservabilityTenantFragment_MetricsAlertsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization{}
+	}
+	return t.Name
+}
+
+type ObservabilityTenantFragment_MetricsAlertsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users struct {
+	ID    string "json:\"id\" graphql:\"id\""
+	Email string "json:\"email\" graphql:\"email\""
+}
+
+func (t *ObservabilityTenantFragment_MetricsAlertsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users) GetID() string {
+	if t == nil {
+		t = &ObservabilityTenantFragment_MetricsAlertsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users{}
+	}
+	return t.ID
+}
+func (t *ObservabilityTenantFragment_MetricsAlertsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users) GetEmail() string {
+	if t == nil {
+		t = &ObservabilityTenantFragment_MetricsAlertsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users{}
+	}
+	return t.Email
+}
+
+type ObservabilityTenantFragment_MetricsAlertsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups struct {
+	Name string "json:\"name\" graphql:\"name\""
+}
+
+func (t *ObservabilityTenantFragment_MetricsAlertsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups) GetName() string {
+	if t == nil {
+		t = &ObservabilityTenantFragment_MetricsAlertsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups{}
+	}
+	return t.Name
+}
+
+type ObservabilityTenantFragment_MetricsAlertsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings struct {
+	Users  []*ObservabilityTenantFragment_MetricsAlertsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users  "json:\"users,omitempty\" graphql:\"users\""
+	Groups []*ObservabilityTenantFragment_MetricsAlertsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups "json:\"groups,omitempty\" graphql:\"groups\""
+}
+
+func (t *ObservabilityTenantFragment_MetricsAlertsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings) GetUsers() []*ObservabilityTenantFragment_MetricsAlertsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users {
+	if t == nil {
+		t = &ObservabilityTenantFragment_MetricsAlertsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings{}
+	}
+	return t.Users
+}
+func (t *ObservabilityTenantFragment_MetricsAlertsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings) GetGroups() []*ObservabilityTenantFragment_MetricsAlertsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups {
+	if t == nil {
+		t = &ObservabilityTenantFragment_MetricsAlertsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings{}
+	}
+	return t.Groups
+}
+
+type ObservabilityTenantFragment_LogsReaders_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name struct {
+	First *string "json:\"first,omitempty\" graphql:\"first\""
+	Last  *string "json:\"last,omitempty\" graphql:\"last\""
+}
+
+func (t *ObservabilityTenantFragment_LogsReaders_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name) GetFirst() *string {
+	if t == nil {
+		t = &ObservabilityTenantFragment_LogsReaders_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name{}
+	}
+	return t.First
+}
+func (t *ObservabilityTenantFragment_LogsReaders_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name) GetLast() *string {
+	if t == nil {
+		t = &ObservabilityTenantFragment_LogsReaders_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name{}
+	}
+	return t.Last
+}
+
+type ObservabilityTenantFragment_LogsReaders_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name struct {
+	First *string "json:\"first,omitempty\" graphql:\"first\""
+	Last  *string "json:\"last,omitempty\" graphql:\"last\""
+}
+
+func (t *ObservabilityTenantFragment_LogsReaders_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name) GetFirst() *string {
+	if t == nil {
+		t = &ObservabilityTenantFragment_LogsReaders_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name{}
+	}
+	return t.First
+}
+func (t *ObservabilityTenantFragment_LogsReaders_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name) GetLast() *string {
+	if t == nil {
+		t = &ObservabilityTenantFragment_LogsReaders_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name{}
+	}
+	return t.Last
+}
+
+type ObservabilityTenantFragment_LogsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization struct {
+	Name string "json:\"name\" graphql:\"name\""
+}
+
+func (t *ObservabilityTenantFragment_LogsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization) GetName() string {
+	if t == nil {
+		t = &ObservabilityTenantFragment_LogsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization{}
+	}
+	return t.Name
+}
+
+type ObservabilityTenantFragment_LogsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users struct {
+	ID    string "json:\"id\" graphql:\"id\""
+	Email string "json:\"email\" graphql:\"email\""
+}
+
+func (t *ObservabilityTenantFragment_LogsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users) GetID() string {
+	if t == nil {
+		t = &ObservabilityTenantFragment_LogsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users{}
+	}
+	return t.ID
+}
+func (t *ObservabilityTenantFragment_LogsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users) GetEmail() string {
+	if t == nil {
+		t = &ObservabilityTenantFragment_LogsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users{}
+	}
+	return t.Email
+}
+
+type ObservabilityTenantFragment_LogsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups struct {
+	Name string "json:\"name\" graphql:\"name\""
+}
+
+func (t *ObservabilityTenantFragment_LogsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups) GetName() string {
+	if t == nil {
+		t = &ObservabilityTenantFragment_LogsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups{}
+	}
+	return t.Name
+}
+
+type ObservabilityTenantFragment_LogsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings struct {
+	Users  []*ObservabilityTenantFragment_LogsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users  "json:\"users,omitempty\" graphql:\"users\""
+	Groups []*ObservabilityTenantFragment_LogsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups "json:\"groups,omitempty\" graphql:\"groups\""
+}
+
+func (t *ObservabilityTenantFragment_LogsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings) GetUsers() []*ObservabilityTenantFragment_LogsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users {
+	if t == nil {
+		t = &ObservabilityTenantFragment_LogsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings{}
+	}
+	return t.Users
+}
+func (t *ObservabilityTenantFragment_LogsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings) GetGroups() []*ObservabilityTenantFragment_LogsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups {
+	if t == nil {
+		t = &ObservabilityTenantFragment_LogsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings{}
+	}
+	return t.Groups
+}
+
+type ObservabilityTenantFragment_LogsWriters_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name struct {
+	First *string "json:\"first,omitempty\" graphql:\"first\""
+	Last  *string "json:\"last,omitempty\" graphql:\"last\""
+}
+
+func (t *ObservabilityTenantFragment_LogsWriters_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name) GetFirst() *string {
+	if t == nil {
+		t = &ObservabilityTenantFragment_LogsWriters_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name{}
+	}
+	return t.First
+}
+func (t *ObservabilityTenantFragment_LogsWriters_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name) GetLast() *string {
+	if t == nil {
+		t = &ObservabilityTenantFragment_LogsWriters_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name{}
+	}
+	return t.Last
+}
+
+type ObservabilityTenantFragment_LogsWriters_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name struct {
+	First *string "json:\"first,omitempty\" graphql:\"first\""
+	Last  *string "json:\"last,omitempty\" graphql:\"last\""
+}
+
+func (t *ObservabilityTenantFragment_LogsWriters_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name) GetFirst() *string {
+	if t == nil {
+		t = &ObservabilityTenantFragment_LogsWriters_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name{}
+	}
+	return t.First
+}
+func (t *ObservabilityTenantFragment_LogsWriters_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name) GetLast() *string {
+	if t == nil {
+		t = &ObservabilityTenantFragment_LogsWriters_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name{}
+	}
+	return t.Last
+}
+
+type ObservabilityTenantFragment_LogsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization struct {
+	Name string "json:\"name\" graphql:\"name\""
+}
+
+func (t *ObservabilityTenantFragment_LogsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization) GetName() string {
+	if t == nil {
+		t = &ObservabilityTenantFragment_LogsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization{}
+	}
+	return t.Name
+}
+
+type ObservabilityTenantFragment_LogsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users struct {
+	ID    string "json:\"id\" graphql:\"id\""
+	Email string "json:\"email\" graphql:\"email\""
+}
+
+func (t *ObservabilityTenantFragment_LogsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users) GetID() string {
+	if t == nil {
+		t = &ObservabilityTenantFragment_LogsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users{}
+	}
+	return t.ID
+}
+func (t *ObservabilityTenantFragment_LogsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users) GetEmail() string {
+	if t == nil {
+		t = &ObservabilityTenantFragment_LogsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users{}
+	}
+	return t.Email
+}
+
+type ObservabilityTenantFragment_LogsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups struct {
+	Name string "json:\"name\" graphql:\"name\""
+}
+
+func (t *ObservabilityTenantFragment_LogsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups) GetName() string {
+	if t == nil {
+		t = &ObservabilityTenantFragment_LogsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups{}
+	}
+	return t.Name
+}
+
+type ObservabilityTenantFragment_LogsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings struct {
+	Users  []*ObservabilityTenantFragment_LogsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users  "json:\"users,omitempty\" graphql:\"users\""
+	Groups []*ObservabilityTenantFragment_LogsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups "json:\"groups,omitempty\" graphql:\"groups\""
+}
+
+func (t *ObservabilityTenantFragment_LogsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings) GetUsers() []*ObservabilityTenantFragment_LogsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users {
+	if t == nil {
+		t = &ObservabilityTenantFragment_LogsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings{}
+	}
+	return t.Users
+}
+func (t *ObservabilityTenantFragment_LogsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings) GetGroups() []*ObservabilityTenantFragment_LogsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups {
+	if t == nil {
+		t = &ObservabilityTenantFragment_LogsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings{}
+	}
+	return t.Groups
+}
+
+type ObservabilityTenantFragment_LogsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name struct {
+	First *string "json:\"first,omitempty\" graphql:\"first\""
+	Last  *string "json:\"last,omitempty\" graphql:\"last\""
+}
+
+func (t *ObservabilityTenantFragment_LogsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name) GetFirst() *string {
+	if t == nil {
+		t = &ObservabilityTenantFragment_LogsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name{}
+	}
+	return t.First
+}
+func (t *ObservabilityTenantFragment_LogsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name) GetLast() *string {
+	if t == nil {
+		t = &ObservabilityTenantFragment_LogsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name{}
+	}
+	return t.Last
+}
+
+type ObservabilityTenantFragment_LogsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name struct {
+	First *string "json:\"first,omitempty\" graphql:\"first\""
+	Last  *string "json:\"last,omitempty\" graphql:\"last\""
+}
+
+func (t *ObservabilityTenantFragment_LogsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name) GetFirst() *string {
+	if t == nil {
+		t = &ObservabilityTenantFragment_LogsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name{}
+	}
+	return t.First
+}
+func (t *ObservabilityTenantFragment_LogsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name) GetLast() *string {
+	if t == nil {
+		t = &ObservabilityTenantFragment_LogsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name{}
+	}
+	return t.Last
+}
+
+type ObservabilityTenantFragment_LogsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization struct {
+	Name string "json:\"name\" graphql:\"name\""
+}
+
+func (t *ObservabilityTenantFragment_LogsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization) GetName() string {
+	if t == nil {
+		t = &ObservabilityTenantFragment_LogsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization{}
+	}
+	return t.Name
+}
+
+type ObservabilityTenantFragment_LogsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users struct {
+	ID    string "json:\"id\" graphql:\"id\""
+	Email string "json:\"email\" graphql:\"email\""
+}
+
+func (t *ObservabilityTenantFragment_LogsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users) GetID() string {
+	if t == nil {
+		t = &ObservabilityTenantFragment_LogsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users{}
+	}
+	return t.ID
+}
+func (t *ObservabilityTenantFragment_LogsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users) GetEmail() string {
+	if t == nil {
+		t = &ObservabilityTenantFragment_LogsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users{}
+	}
+	return t.Email
+}
+
+type ObservabilityTenantFragment_LogsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups struct {
+	Name string "json:\"name\" graphql:\"name\""
+}
+
+func (t *ObservabilityTenantFragment_LogsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups) GetName() string {
+	if t == nil {
+		t = &ObservabilityTenantFragment_LogsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups{}
+	}
+	return t.Name
+}
+
+type ObservabilityTenantFragment_LogsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings struct {
+	Users  []*ObservabilityTenantFragment_LogsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users  "json:\"users,omitempty\" graphql:\"users\""
+	Groups []*ObservabilityTenantFragment_LogsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups "json:\"groups,omitempty\" graphql:\"groups\""
+}
+
+func (t *ObservabilityTenantFragment_LogsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings) GetUsers() []*ObservabilityTenantFragment_LogsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users {
+	if t == nil {
+		t = &ObservabilityTenantFragment_LogsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings{}
+	}
+	return t.Users
+}
+func (t *ObservabilityTenantFragment_LogsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings) GetGroups() []*ObservabilityTenantFragment_LogsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups {
+	if t == nil {
+		t = &ObservabilityTenantFragment_LogsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings{}
+	}
+	return t.Groups
+}
+
+type ObservabilityTenantFragment_LogsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name struct {
+	First *string "json:\"first,omitempty\" graphql:\"first\""
+	Last  *string "json:\"last,omitempty\" graphql:\"last\""
+}
+
+func (t *ObservabilityTenantFragment_LogsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name) GetFirst() *string {
+	if t == nil {
+		t = &ObservabilityTenantFragment_LogsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name{}
+	}
+	return t.First
+}
+func (t *ObservabilityTenantFragment_LogsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name) GetLast() *string {
+	if t == nil {
+		t = &ObservabilityTenantFragment_LogsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name{}
+	}
+	return t.Last
+}
+
+type ObservabilityTenantFragment_LogsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name struct {
+	First *string "json:\"first,omitempty\" graphql:\"first\""
+	Last  *string "json:\"last,omitempty\" graphql:\"last\""
+}
+
+func (t *ObservabilityTenantFragment_LogsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name) GetFirst() *string {
+	if t == nil {
+		t = &ObservabilityTenantFragment_LogsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name{}
+	}
+	return t.First
+}
+func (t *ObservabilityTenantFragment_LogsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name) GetLast() *string {
+	if t == nil {
+		t = &ObservabilityTenantFragment_LogsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name{}
+	}
+	return t.Last
+}
+
+type ObservabilityTenantFragment_LogsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization struct {
+	Name string "json:\"name\" graphql:\"name\""
+}
+
+func (t *ObservabilityTenantFragment_LogsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization) GetName() string {
+	if t == nil {
+		t = &ObservabilityTenantFragment_LogsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization{}
+	}
+	return t.Name
+}
+
+type ObservabilityTenantFragment_LogsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users struct {
+	ID    string "json:\"id\" graphql:\"id\""
+	Email string "json:\"email\" graphql:\"email\""
+}
+
+func (t *ObservabilityTenantFragment_LogsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users) GetID() string {
+	if t == nil {
+		t = &ObservabilityTenantFragment_LogsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users{}
+	}
+	return t.ID
+}
+func (t *ObservabilityTenantFragment_LogsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users) GetEmail() string {
+	if t == nil {
+		t = &ObservabilityTenantFragment_LogsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users{}
+	}
+	return t.Email
+}
+
+type ObservabilityTenantFragment_LogsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups struct {
+	Name string "json:\"name\" graphql:\"name\""
+}
+
+func (t *ObservabilityTenantFragment_LogsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups) GetName() string {
+	if t == nil {
+		t = &ObservabilityTenantFragment_LogsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups{}
+	}
+	return t.Name
+}
+
+type ObservabilityTenantFragment_LogsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings struct {
+	Users  []*ObservabilityTenantFragment_LogsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users  "json:\"users,omitempty\" graphql:\"users\""
+	Groups []*ObservabilityTenantFragment_LogsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups "json:\"groups,omitempty\" graphql:\"groups\""
+}
+
+func (t *ObservabilityTenantFragment_LogsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings) GetUsers() []*ObservabilityTenantFragment_LogsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users {
+	if t == nil {
+		t = &ObservabilityTenantFragment_LogsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings{}
+	}
+	return t.Users
+}
+func (t *ObservabilityTenantFragment_LogsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings) GetGroups() []*ObservabilityTenantFragment_LogsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups {
+	if t == nil {
+		t = &ObservabilityTenantFragment_LogsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings{}
+	}
+	return t.Groups
+}
+
+type ObservabilityTenantFragment_LogsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name struct {
+	First *string "json:\"first,omitempty\" graphql:\"first\""
+	Last  *string "json:\"last,omitempty\" graphql:\"last\""
+}
+
+func (t *ObservabilityTenantFragment_LogsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name) GetFirst() *string {
+	if t == nil {
+		t = &ObservabilityTenantFragment_LogsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name{}
+	}
+	return t.First
+}
+func (t *ObservabilityTenantFragment_LogsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name) GetLast() *string {
+	if t == nil {
+		t = &ObservabilityTenantFragment_LogsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name{}
+	}
+	return t.Last
+}
+
+type ObservabilityTenantFragment_LogsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name struct {
+	First *string "json:\"first,omitempty\" graphql:\"first\""
+	Last  *string "json:\"last,omitempty\" graphql:\"last\""
+}
+
+func (t *ObservabilityTenantFragment_LogsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name) GetFirst() *string {
+	if t == nil {
+		t = &ObservabilityTenantFragment_LogsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name{}
+	}
+	return t.First
+}
+func (t *ObservabilityTenantFragment_LogsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name) GetLast() *string {
+	if t == nil {
+		t = &ObservabilityTenantFragment_LogsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name{}
+	}
+	return t.Last
+}
+
+type ObservabilityTenantFragment_LogsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization struct {
+	Name string "json:\"name\" graphql:\"name\""
+}
+
+func (t *ObservabilityTenantFragment_LogsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization) GetName() string {
+	if t == nil {
+		t = &ObservabilityTenantFragment_LogsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization{}
+	}
+	return t.Name
+}
+
+type ObservabilityTenantFragment_LogsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users struct {
+	ID    string "json:\"id\" graphql:\"id\""
+	Email string "json:\"email\" graphql:\"email\""
+}
+
+func (t *ObservabilityTenantFragment_LogsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users) GetID() string {
+	if t == nil {
+		t = &ObservabilityTenantFragment_LogsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users{}
+	}
+	return t.ID
+}
+func (t *ObservabilityTenantFragment_LogsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users) GetEmail() string {
+	if t == nil {
+		t = &ObservabilityTenantFragment_LogsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users{}
+	}
+	return t.Email
+}
+
+type ObservabilityTenantFragment_LogsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups struct {
+	Name string "json:\"name\" graphql:\"name\""
+}
+
+func (t *ObservabilityTenantFragment_LogsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups) GetName() string {
+	if t == nil {
+		t = &ObservabilityTenantFragment_LogsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups{}
+	}
+	return t.Name
+}
+
+type ObservabilityTenantFragment_LogsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings struct {
+	Users  []*ObservabilityTenantFragment_LogsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users  "json:\"users,omitempty\" graphql:\"users\""
+	Groups []*ObservabilityTenantFragment_LogsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups "json:\"groups,omitempty\" graphql:\"groups\""
+}
+
+func (t *ObservabilityTenantFragment_LogsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings) GetUsers() []*ObservabilityTenantFragment_LogsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users {
+	if t == nil {
+		t = &ObservabilityTenantFragment_LogsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings{}
+	}
+	return t.Users
+}
+func (t *ObservabilityTenantFragment_LogsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings) GetGroups() []*ObservabilityTenantFragment_LogsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups {
+	if t == nil {
+		t = &ObservabilityTenantFragment_LogsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings{}
+	}
+	return t.Groups
+}
+
+type ObservabilityTenantFragment_TracesReaders_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name struct {
+	First *string "json:\"first,omitempty\" graphql:\"first\""
+	Last  *string "json:\"last,omitempty\" graphql:\"last\""
+}
+
+func (t *ObservabilityTenantFragment_TracesReaders_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name) GetFirst() *string {
+	if t == nil {
+		t = &ObservabilityTenantFragment_TracesReaders_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name{}
+	}
+	return t.First
+}
+func (t *ObservabilityTenantFragment_TracesReaders_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name) GetLast() *string {
+	if t == nil {
+		t = &ObservabilityTenantFragment_TracesReaders_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name{}
+	}
+	return t.Last
+}
+
+type ObservabilityTenantFragment_TracesReaders_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name struct {
+	First *string "json:\"first,omitempty\" graphql:\"first\""
+	Last  *string "json:\"last,omitempty\" graphql:\"last\""
+}
+
+func (t *ObservabilityTenantFragment_TracesReaders_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name) GetFirst() *string {
+	if t == nil {
+		t = &ObservabilityTenantFragment_TracesReaders_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name{}
+	}
+	return t.First
+}
+func (t *ObservabilityTenantFragment_TracesReaders_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name) GetLast() *string {
+	if t == nil {
+		t = &ObservabilityTenantFragment_TracesReaders_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name{}
+	}
+	return t.Last
+}
+
+type ObservabilityTenantFragment_TracesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization struct {
+	Name string "json:\"name\" graphql:\"name\""
+}
+
+func (t *ObservabilityTenantFragment_TracesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization) GetName() string {
+	if t == nil {
+		t = &ObservabilityTenantFragment_TracesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization{}
+	}
+	return t.Name
+}
+
+type ObservabilityTenantFragment_TracesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users struct {
+	ID    string "json:\"id\" graphql:\"id\""
+	Email string "json:\"email\" graphql:\"email\""
+}
+
+func (t *ObservabilityTenantFragment_TracesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users) GetID() string {
+	if t == nil {
+		t = &ObservabilityTenantFragment_TracesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users{}
+	}
+	return t.ID
+}
+func (t *ObservabilityTenantFragment_TracesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users) GetEmail() string {
+	if t == nil {
+		t = &ObservabilityTenantFragment_TracesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users{}
+	}
+	return t.Email
+}
+
+type ObservabilityTenantFragment_TracesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups struct {
+	Name string "json:\"name\" graphql:\"name\""
+}
+
+func (t *ObservabilityTenantFragment_TracesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups) GetName() string {
+	if t == nil {
+		t = &ObservabilityTenantFragment_TracesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups{}
+	}
+	return t.Name
+}
+
+type ObservabilityTenantFragment_TracesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings struct {
+	Users  []*ObservabilityTenantFragment_TracesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users  "json:\"users,omitempty\" graphql:\"users\""
+	Groups []*ObservabilityTenantFragment_TracesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups "json:\"groups,omitempty\" graphql:\"groups\""
+}
+
+func (t *ObservabilityTenantFragment_TracesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings) GetUsers() []*ObservabilityTenantFragment_TracesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users {
+	if t == nil {
+		t = &ObservabilityTenantFragment_TracesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings{}
+	}
+	return t.Users
+}
+func (t *ObservabilityTenantFragment_TracesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings) GetGroups() []*ObservabilityTenantFragment_TracesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups {
+	if t == nil {
+		t = &ObservabilityTenantFragment_TracesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings{}
+	}
+	return t.Groups
+}
+
+type ObservabilityTenantFragment_TracesWriters_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name struct {
+	First *string "json:\"first,omitempty\" graphql:\"first\""
+	Last  *string "json:\"last,omitempty\" graphql:\"last\""
+}
+
+func (t *ObservabilityTenantFragment_TracesWriters_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name) GetFirst() *string {
+	if t == nil {
+		t = &ObservabilityTenantFragment_TracesWriters_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name{}
+	}
+	return t.First
+}
+func (t *ObservabilityTenantFragment_TracesWriters_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name) GetLast() *string {
+	if t == nil {
+		t = &ObservabilityTenantFragment_TracesWriters_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name{}
+	}
+	return t.Last
+}
+
+type ObservabilityTenantFragment_TracesWriters_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name struct {
+	First *string "json:\"first,omitempty\" graphql:\"first\""
+	Last  *string "json:\"last,omitempty\" graphql:\"last\""
+}
+
+func (t *ObservabilityTenantFragment_TracesWriters_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name) GetFirst() *string {
+	if t == nil {
+		t = &ObservabilityTenantFragment_TracesWriters_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name{}
+	}
+	return t.First
+}
+func (t *ObservabilityTenantFragment_TracesWriters_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name) GetLast() *string {
+	if t == nil {
+		t = &ObservabilityTenantFragment_TracesWriters_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name{}
+	}
+	return t.Last
+}
+
+type ObservabilityTenantFragment_TracesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization struct {
+	Name string "json:\"name\" graphql:\"name\""
+}
+
+func (t *ObservabilityTenantFragment_TracesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization) GetName() string {
+	if t == nil {
+		t = &ObservabilityTenantFragment_TracesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization{}
+	}
+	return t.Name
+}
+
+type ObservabilityTenantFragment_TracesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users struct {
+	ID    string "json:\"id\" graphql:\"id\""
+	Email string "json:\"email\" graphql:\"email\""
+}
+
+func (t *ObservabilityTenantFragment_TracesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users) GetID() string {
+	if t == nil {
+		t = &ObservabilityTenantFragment_TracesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users{}
+	}
+	return t.ID
+}
+func (t *ObservabilityTenantFragment_TracesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users) GetEmail() string {
+	if t == nil {
+		t = &ObservabilityTenantFragment_TracesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users{}
+	}
+	return t.Email
+}
+
+type ObservabilityTenantFragment_TracesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups struct {
+	Name string "json:\"name\" graphql:\"name\""
+}
+
+func (t *ObservabilityTenantFragment_TracesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups) GetName() string {
+	if t == nil {
+		t = &ObservabilityTenantFragment_TracesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups{}
+	}
+	return t.Name
+}
+
+type ObservabilityTenantFragment_TracesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings struct {
+	Users  []*ObservabilityTenantFragment_TracesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users  "json:\"users,omitempty\" graphql:\"users\""
+	Groups []*ObservabilityTenantFragment_TracesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups "json:\"groups,omitempty\" graphql:\"groups\""
+}
+
+func (t *ObservabilityTenantFragment_TracesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings) GetUsers() []*ObservabilityTenantFragment_TracesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users {
+	if t == nil {
+		t = &ObservabilityTenantFragment_TracesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings{}
+	}
+	return t.Users
+}
+func (t *ObservabilityTenantFragment_TracesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings) GetGroups() []*ObservabilityTenantFragment_TracesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups {
+	if t == nil {
+		t = &ObservabilityTenantFragment_TracesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings{}
+	}
+	return t.Groups
+}
+
+type ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir struct {
+	RequestRate                                   *float64                            "json:\"requestRate,omitempty\" graphql:\"requestRate\""
+	RequestBurstSize                              *int64                              "json:\"requestBurstSize,omitempty\" graphql:\"requestBurstSize\""
+	IngestionRate                                 *float64                            "json:\"ingestionRate,omitempty\" graphql:\"ingestionRate\""
+	IngestionBurstSize                            *int64                              "json:\"ingestionBurstSize,omitempty\" graphql:\"ingestionBurstSize\""
+	AcceptHASamples                               *bool                               "json:\"acceptHASamples,omitempty\" graphql:\"acceptHASamples\""
+	HaClusterLabel                                *string                             "json:\"haClusterLabel,omitempty\" graphql:\"haClusterLabel\""
+	HaReplicaLabel                                *string                             "json:\"haReplicaLabel,omitempty\" graphql:\"haReplicaLabel\""
+	HaMaxClusters                                 *int64                              "json:\"haMaxClusters,omitempty\" graphql:\"haMaxClusters\""
+	DropLabels                                    []*string                           "json:\"dropLabels,omitempty\" graphql:\"dropLabels\""
+	MaxLabelNameLength                            *int64                              "json:\"maxLabelNameLength,omitempty\" graphql:\"maxLabelNameLength\""
+	MaxLabelValueLength                           *int64                              "json:\"maxLabelValueLength,omitempty\" graphql:\"maxLabelValueLength\""
+	MaxLabelNamesPerSeries                        *int64                              "json:\"maxLabelNamesPerSeries,omitempty\" graphql:\"maxLabelNamesPerSeries\""
+	MaxMetadataLength                             *int64                              "json:\"maxMetadataLength,omitempty\" graphql:\"maxMetadataLength\""
+	CreationGracePeriod                           *v1.Duration                        "json:\"creationGracePeriod,omitempty\" graphql:\"creationGracePeriod\""
+	EnforceMetadataMetricName                     *bool                               "json:\"enforceMetadataMetricName,omitempty\" graphql:\"enforceMetadataMetricName\""
+	IngestionTenantShardSize                      *int64                              "json:\"ingestionTenantShardSize,omitempty\" graphql:\"ingestionTenantShardSize\""
+	MaxGlobalSeriesPerUser                        *int64                              "json:\"maxGlobalSeriesPerUser,omitempty\" graphql:\"maxGlobalSeriesPerUser\""
+	MaxGlobalSeriesPerMetric                      *int64                              "json:\"maxGlobalSeriesPerMetric,omitempty\" graphql:\"maxGlobalSeriesPerMetric\""
+	MaxGlobalMetricsWithMetadataPerUser           *int64                              "json:\"maxGlobalMetricsWithMetadataPerUser,omitempty\" graphql:\"maxGlobalMetricsWithMetadataPerUser\""
+	MaxGlobalMetadataPerMetric                    *int64                              "json:\"maxGlobalMetadataPerMetric,omitempty\" graphql:\"maxGlobalMetadataPerMetric\""
+	MaxGlobalExemplarsPerUser                     *int64                              "json:\"maxGlobalExemplarsPerUser,omitempty\" graphql:\"maxGlobalExemplarsPerUser\""
+	NativeHistogramsIngestionEnabled              *bool                               "json:\"nativeHistogramsIngestionEnabled,omitempty\" graphql:\"nativeHistogramsIngestionEnabled\""
+	OutOfOrderTimeWindow                          *v1.Duration                        "json:\"outOfOrderTimeWindow,omitempty\" graphql:\"outOfOrderTimeWindow\""
+	OutOfOrderBlocksExternalLabelEnabled          *bool                               "json:\"outOfOrderBlocksExternalLabelEnabled,omitempty\" graphql:\"outOfOrderBlocksExternalLabelEnabled\""
+	SeparateMetricsGroupLabel                     *string                             "json:\"separateMetricsGroupLabel,omitempty\" graphql:\"separateMetricsGroupLabel\""
+	MaxChunksPerQuery                             *int64                              "json:\"maxChunksPerQuery,omitempty\" graphql:\"maxChunksPerQuery\""
+	MaxFetchedSeriesPerQuery                      *int64                              "json:\"maxFetchedSeriesPerQuery,omitempty\" graphql:\"maxFetchedSeriesPerQuery\""
+	MaxFetchedChunkBytesPerQuery                  *int64                              "json:\"maxFetchedChunkBytesPerQuery,omitempty\" graphql:\"maxFetchedChunkBytesPerQuery\""
+	MaxQueryLookback                              *v1.Duration                        "json:\"maxQueryLookback,omitempty\" graphql:\"maxQueryLookback\""
+	MaxPartialQueryLength                         *v1.Duration                        "json:\"maxPartialQueryLength,omitempty\" graphql:\"maxPartialQueryLength\""
+	MaxQueryParallelism                           *int64                              "json:\"maxQueryParallelism,omitempty\" graphql:\"maxQueryParallelism\""
+	MaxLabelsQueryLength                          *v1.Duration                        "json:\"maxLabelsQueryLength,omitempty\" graphql:\"maxLabelsQueryLength\""
+	MaxCacheFreshness                             *v1.Duration                        "json:\"maxCacheFreshness,omitempty\" graphql:\"maxCacheFreshness\""
+	MaxQueriersPerTenant                          *int64                              "json:\"maxQueriersPerTenant,omitempty\" graphql:\"maxQueriersPerTenant\""
+	QueryShardingTotalShards                      *int64                              "json:\"queryShardingTotalShards,omitempty\" graphql:\"queryShardingTotalShards\""
+	QueryShardingMaxShardedQueries                *int64                              "json:\"queryShardingMaxShardedQueries,omitempty\" graphql:\"queryShardingMaxShardedQueries\""
+	QueryShardingMaxRegexpSizeBytes               *int64                              "json:\"queryShardingMaxRegexpSizeBytes,omitempty\" graphql:\"queryShardingMaxRegexpSizeBytes\""
+	SplitInstantQueriesByInterval                 *v1.Duration                        "json:\"splitInstantQueriesByInterval,omitempty\" graphql:\"splitInstantQueriesByInterval\""
+	MaxTotalQueryLength                           *v1.Duration                        "json:\"maxTotalQueryLength,omitempty\" graphql:\"maxTotalQueryLength\""
+	ResultsCacheTTL                               *v1.Duration                        "json:\"resultsCacheTTL,omitempty\" graphql:\"resultsCacheTTL\""
+	ResultsCacheTTLForOutOfOrderTimeWindow        *v1.Duration                        "json:\"resultsCacheTTLForOutOfOrderTimeWindow,omitempty\" graphql:\"resultsCacheTTLForOutOfOrderTimeWindow\""
+	MaxQueryExpressionSizeBytes                   *int64                              "json:\"maxQueryExpressionSizeBytes,omitempty\" graphql:\"maxQueryExpressionSizeBytes\""
+	CardinalityAnalysisEnabled                    *bool                               "json:\"cardinalityAnalysisEnabled,omitempty\" graphql:\"cardinalityAnalysisEnabled\""
+	LabelNamesAndValuesResultsMaxSizeBytes        *int64                              "json:\"labelNamesAndValuesResultsMaxSizeBytes,omitempty\" graphql:\"labelNamesAndValuesResultsMaxSizeBytes\""
+	LabelValuesMaxCardinalityLabelNamesPerRequest *int64                              "json:\"labelValuesMaxCardinalityLabelNamesPerRequest,omitempty\" graphql:\"labelValuesMaxCardinalityLabelNamesPerRequest\""
+	RulerEvaluationDelay                          *v1.Duration                        "json:\"rulerEvaluationDelay,omitempty\" graphql:\"rulerEvaluationDelay\""
+	RulerTenantShardSize                          *int64                              "json:\"rulerTenantShardSize,omitempty\" graphql:\"rulerTenantShardSize\""
+	RulerMaxRulesPerRuleGroup                     *int64                              "json:\"rulerMaxRulesPerRuleGroup,omitempty\" graphql:\"rulerMaxRulesPerRuleGroup\""
+	RulerMaxRuleGroupsPerTenant                   *int64                              "json:\"rulerMaxRuleGroupsPerTenant,omitempty\" graphql:\"rulerMaxRuleGroupsPerTenant\""
+	RulerRecordingRulesEvaluationEnabled          *bool                               "json:\"rulerRecordingRulesEvaluationEnabled,omitempty\" graphql:\"rulerRecordingRulesEvaluationEnabled\""
+	RulerAlertingRulesEvaluationEnabled           *bool                               "json:\"rulerAlertingRulesEvaluationEnabled,omitempty\" graphql:\"rulerAlertingRulesEvaluationEnabled\""
+	StoreGatewayTenantShardSize                   *int64                              "json:\"storeGatewayTenantShardSize,omitempty\" graphql:\"storeGatewayTenantShardSize\""
+	CompactorBlocksRetentionPeriod                *v1.Duration                        "json:\"compactorBlocksRetentionPeriod,omitempty\" graphql:\"compactorBlocksRetentionPeriod\""
+	CompactorSplitAndMergeShards                  *int64                              "json:\"compactorSplitAndMergeShards,omitempty\" graphql:\"compactorSplitAndMergeShards\""
+	CompactorSplitGroups                          *int64                              "json:\"compactorSplitGroups,omitempty\" graphql:\"compactorSplitGroups\""
+	CompactorTenantShardSize                      *int64                              "json:\"compactorTenantShardSize,omitempty\" graphql:\"compactorTenantShardSize\""
+	CompactorPartialBlockDeletionDelay            *v1.Duration                        "json:\"compactorPartialBlockDeletionDelay,omitempty\" graphql:\"compactorPartialBlockDeletionDelay\""
+	CompactorBlockUploadEnabled                   *bool                               "json:\"compactorBlockUploadEnabled,omitempty\" graphql:\"compactorBlockUploadEnabled\""
+	CompactorBlockUploadValidationEnabled         *bool                               "json:\"compactorBlockUploadValidationEnabled,omitempty\" graphql:\"compactorBlockUploadValidationEnabled\""
+	CompactorBlockUploadVerifyChunks              *bool                               "json:\"compactorBlockUploadVerifyChunks,omitempty\" graphql:\"compactorBlockUploadVerifyChunks\""
+	S3SSEType                                     *string                             "json:\"s3SSEType,omitempty\" graphql:\"s3SSEType\""
+	S3SSEKMSKeyID                                 *string                             "json:\"s3SSEKMSKeyID,omitempty\" graphql:\"s3SSEKMSKeyID\""
+	S3SSEKMSEncryptionContext                     *string                             "json:\"s3SSEKMSEncryptionContext,omitempty\" graphql:\"s3SSEKMSEncryptionContext\""
+	AlertmanagerReceiversBlockCIDRNetworks        *string                             "json:\"alertmanagerReceiversBlockCIDRNetworks,omitempty\" graphql:\"alertmanagerReceiversBlockCIDRNetworks\""
+	AlertmanagerReceiversBlockPrivateAddresses    *bool                               "json:\"alertmanagerReceiversBlockPrivateAddresses,omitempty\" graphql:\"alertmanagerReceiversBlockPrivateAddresses\""
+	NotificationRateLimit                         *float64                            "json:\"notificationRateLimit,omitempty\" graphql:\"notificationRateLimit\""
+	NotificationRateLimitPerIntegration           map[string]*float64                 "json:\"notificationRateLimitPerIntegration,omitempty\" graphql:\"notificationRateLimitPerIntegration\""
+	AlertmanagerMaxConfigSizeBytes                *int64                              "json:\"alertmanagerMaxConfigSizeBytes,omitempty\" graphql:\"alertmanagerMaxConfigSizeBytes\""
+	AlertmanagerMaxTemplatesCount                 *int64                              "json:\"alertmanagerMaxTemplatesCount,omitempty\" graphql:\"alertmanagerMaxTemplatesCount\""
+	AlertmanagerMaxTemplateSizeBytes              *int64                              "json:\"alertmanagerMaxTemplateSizeBytes,omitempty\" graphql:\"alertmanagerMaxTemplateSizeBytes\""
+	AlertmanagerMaxDispatcherAggregationGroups    *int64                              "json:\"alertmanagerMaxDispatcherAggregationGroups,omitempty\" graphql:\"alertmanagerMaxDispatcherAggregationGroups\""
+	AlertmanagerMaxAlertsCount                    *int64                              "json:\"alertmanagerMaxAlertsCount,omitempty\" graphql:\"alertmanagerMaxAlertsCount\""
+	AlertmanagerMaxAlertsSizeBytes                *int64                              "json:\"alertmanagerMaxAlertsSizeBytes,omitempty\" graphql:\"alertmanagerMaxAlertsSizeBytes\""
+	ForwardingEndpoint                            *string                             "json:\"forwardingEndpoint,omitempty\" graphql:\"forwardingEndpoint\""
+	ForwardingDropOlderThan                       *v1.Duration                        "json:\"forwardingDropOlderThan,omitempty\" graphql:\"forwardingDropOlderThan\""
+	ForwardingRules                               map[string]*v1alpha1.ForwardingRule "json:\"forwardingRules,omitempty\" graphql:\"forwardingRules\""
+}
+
+func (t *ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetRequestRate() *float64 {
+	if t == nil {
+		t = &ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.RequestRate
+}
+func (t *ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetRequestBurstSize() *int64 {
+	if t == nil {
+		t = &ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.RequestBurstSize
+}
+func (t *ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetIngestionRate() *float64 {
+	if t == nil {
+		t = &ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.IngestionRate
+}
+func (t *ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetIngestionBurstSize() *int64 {
+	if t == nil {
+		t = &ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.IngestionBurstSize
+}
+func (t *ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetAcceptHASamples() *bool {
+	if t == nil {
+		t = &ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.AcceptHASamples
+}
+func (t *ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetHaClusterLabel() *string {
+	if t == nil {
+		t = &ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.HaClusterLabel
+}
+func (t *ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetHaReplicaLabel() *string {
+	if t == nil {
+		t = &ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.HaReplicaLabel
+}
+func (t *ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetHaMaxClusters() *int64 {
+	if t == nil {
+		t = &ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.HaMaxClusters
+}
+func (t *ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetDropLabels() []*string {
+	if t == nil {
+		t = &ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.DropLabels
+}
+func (t *ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetMaxLabelNameLength() *int64 {
+	if t == nil {
+		t = &ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.MaxLabelNameLength
+}
+func (t *ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetMaxLabelValueLength() *int64 {
+	if t == nil {
+		t = &ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.MaxLabelValueLength
+}
+func (t *ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetMaxLabelNamesPerSeries() *int64 {
+	if t == nil {
+		t = &ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.MaxLabelNamesPerSeries
+}
+func (t *ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetMaxMetadataLength() *int64 {
+	if t == nil {
+		t = &ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.MaxMetadataLength
+}
+func (t *ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetCreationGracePeriod() *v1.Duration {
+	if t == nil {
+		t = &ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.CreationGracePeriod
+}
+func (t *ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetEnforceMetadataMetricName() *bool {
+	if t == nil {
+		t = &ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.EnforceMetadataMetricName
+}
+func (t *ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetIngestionTenantShardSize() *int64 {
+	if t == nil {
+		t = &ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.IngestionTenantShardSize
+}
+func (t *ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetMaxGlobalSeriesPerUser() *int64 {
+	if t == nil {
+		t = &ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.MaxGlobalSeriesPerUser
+}
+func (t *ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetMaxGlobalSeriesPerMetric() *int64 {
+	if t == nil {
+		t = &ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.MaxGlobalSeriesPerMetric
+}
+func (t *ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetMaxGlobalMetricsWithMetadataPerUser() *int64 {
+	if t == nil {
+		t = &ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.MaxGlobalMetricsWithMetadataPerUser
+}
+func (t *ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetMaxGlobalMetadataPerMetric() *int64 {
+	if t == nil {
+		t = &ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.MaxGlobalMetadataPerMetric
+}
+func (t *ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetMaxGlobalExemplarsPerUser() *int64 {
+	if t == nil {
+		t = &ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.MaxGlobalExemplarsPerUser
+}
+func (t *ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetNativeHistogramsIngestionEnabled() *bool {
+	if t == nil {
+		t = &ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.NativeHistogramsIngestionEnabled
+}
+func (t *ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetOutOfOrderTimeWindow() *v1.Duration {
+	if t == nil {
+		t = &ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.OutOfOrderTimeWindow
+}
+func (t *ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetOutOfOrderBlocksExternalLabelEnabled() *bool {
+	if t == nil {
+		t = &ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.OutOfOrderBlocksExternalLabelEnabled
+}
+func (t *ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetSeparateMetricsGroupLabel() *string {
+	if t == nil {
+		t = &ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.SeparateMetricsGroupLabel
+}
+func (t *ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetMaxChunksPerQuery() *int64 {
+	if t == nil {
+		t = &ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.MaxChunksPerQuery
+}
+func (t *ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetMaxFetchedSeriesPerQuery() *int64 {
+	if t == nil {
+		t = &ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.MaxFetchedSeriesPerQuery
+}
+func (t *ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetMaxFetchedChunkBytesPerQuery() *int64 {
+	if t == nil {
+		t = &ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.MaxFetchedChunkBytesPerQuery
+}
+func (t *ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetMaxQueryLookback() *v1.Duration {
+	if t == nil {
+		t = &ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.MaxQueryLookback
+}
+func (t *ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetMaxPartialQueryLength() *v1.Duration {
+	if t == nil {
+		t = &ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.MaxPartialQueryLength
+}
+func (t *ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetMaxQueryParallelism() *int64 {
+	if t == nil {
+		t = &ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.MaxQueryParallelism
+}
+func (t *ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetMaxLabelsQueryLength() *v1.Duration {
+	if t == nil {
+		t = &ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.MaxLabelsQueryLength
+}
+func (t *ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetMaxCacheFreshness() *v1.Duration {
+	if t == nil {
+		t = &ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.MaxCacheFreshness
+}
+func (t *ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetMaxQueriersPerTenant() *int64 {
+	if t == nil {
+		t = &ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.MaxQueriersPerTenant
+}
+func (t *ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetQueryShardingTotalShards() *int64 {
+	if t == nil {
+		t = &ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.QueryShardingTotalShards
+}
+func (t *ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetQueryShardingMaxShardedQueries() *int64 {
+	if t == nil {
+		t = &ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.QueryShardingMaxShardedQueries
+}
+func (t *ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetQueryShardingMaxRegexpSizeBytes() *int64 {
+	if t == nil {
+		t = &ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.QueryShardingMaxRegexpSizeBytes
+}
+func (t *ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetSplitInstantQueriesByInterval() *v1.Duration {
+	if t == nil {
+		t = &ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.SplitInstantQueriesByInterval
+}
+func (t *ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetMaxTotalQueryLength() *v1.Duration {
+	if t == nil {
+		t = &ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.MaxTotalQueryLength
+}
+func (t *ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetResultsCacheTTL() *v1.Duration {
+	if t == nil {
+		t = &ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.ResultsCacheTTL
+}
+func (t *ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetResultsCacheTTLForOutOfOrderTimeWindow() *v1.Duration {
+	if t == nil {
+		t = &ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.ResultsCacheTTLForOutOfOrderTimeWindow
+}
+func (t *ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetMaxQueryExpressionSizeBytes() *int64 {
+	if t == nil {
+		t = &ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.MaxQueryExpressionSizeBytes
+}
+func (t *ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetCardinalityAnalysisEnabled() *bool {
+	if t == nil {
+		t = &ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.CardinalityAnalysisEnabled
+}
+func (t *ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetLabelNamesAndValuesResultsMaxSizeBytes() *int64 {
+	if t == nil {
+		t = &ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.LabelNamesAndValuesResultsMaxSizeBytes
+}
+func (t *ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetLabelValuesMaxCardinalityLabelNamesPerRequest() *int64 {
+	if t == nil {
+		t = &ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.LabelValuesMaxCardinalityLabelNamesPerRequest
+}
+func (t *ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetRulerEvaluationDelay() *v1.Duration {
+	if t == nil {
+		t = &ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.RulerEvaluationDelay
+}
+func (t *ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetRulerTenantShardSize() *int64 {
+	if t == nil {
+		t = &ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.RulerTenantShardSize
+}
+func (t *ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetRulerMaxRulesPerRuleGroup() *int64 {
+	if t == nil {
+		t = &ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.RulerMaxRulesPerRuleGroup
+}
+func (t *ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetRulerMaxRuleGroupsPerTenant() *int64 {
+	if t == nil {
+		t = &ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.RulerMaxRuleGroupsPerTenant
+}
+func (t *ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetRulerRecordingRulesEvaluationEnabled() *bool {
+	if t == nil {
+		t = &ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.RulerRecordingRulesEvaluationEnabled
+}
+func (t *ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetRulerAlertingRulesEvaluationEnabled() *bool {
+	if t == nil {
+		t = &ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.RulerAlertingRulesEvaluationEnabled
+}
+func (t *ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetStoreGatewayTenantShardSize() *int64 {
+	if t == nil {
+		t = &ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.StoreGatewayTenantShardSize
+}
+func (t *ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetCompactorBlocksRetentionPeriod() *v1.Duration {
+	if t == nil {
+		t = &ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.CompactorBlocksRetentionPeriod
+}
+func (t *ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetCompactorSplitAndMergeShards() *int64 {
+	if t == nil {
+		t = &ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.CompactorSplitAndMergeShards
+}
+func (t *ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetCompactorSplitGroups() *int64 {
+	if t == nil {
+		t = &ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.CompactorSplitGroups
+}
+func (t *ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetCompactorTenantShardSize() *int64 {
+	if t == nil {
+		t = &ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.CompactorTenantShardSize
+}
+func (t *ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetCompactorPartialBlockDeletionDelay() *v1.Duration {
+	if t == nil {
+		t = &ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.CompactorPartialBlockDeletionDelay
+}
+func (t *ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetCompactorBlockUploadEnabled() *bool {
+	if t == nil {
+		t = &ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.CompactorBlockUploadEnabled
+}
+func (t *ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetCompactorBlockUploadValidationEnabled() *bool {
+	if t == nil {
+		t = &ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.CompactorBlockUploadValidationEnabled
+}
+func (t *ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetCompactorBlockUploadVerifyChunks() *bool {
+	if t == nil {
+		t = &ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.CompactorBlockUploadVerifyChunks
+}
+func (t *ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetS3SSEType() *string {
+	if t == nil {
+		t = &ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.S3SSEType
+}
+func (t *ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetS3SSEKMSKeyID() *string {
+	if t == nil {
+		t = &ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.S3SSEKMSKeyID
+}
+func (t *ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetS3SSEKMSEncryptionContext() *string {
+	if t == nil {
+		t = &ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.S3SSEKMSEncryptionContext
+}
+func (t *ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetAlertmanagerReceiversBlockCIDRNetworks() *string {
+	if t == nil {
+		t = &ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.AlertmanagerReceiversBlockCIDRNetworks
+}
+func (t *ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetAlertmanagerReceiversBlockPrivateAddresses() *bool {
+	if t == nil {
+		t = &ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.AlertmanagerReceiversBlockPrivateAddresses
+}
+func (t *ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetNotificationRateLimit() *float64 {
+	if t == nil {
+		t = &ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.NotificationRateLimit
+}
+func (t *ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetNotificationRateLimitPerIntegration() map[string]*float64 {
+	if t == nil {
+		t = &ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.NotificationRateLimitPerIntegration
+}
+func (t *ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetAlertmanagerMaxConfigSizeBytes() *int64 {
+	if t == nil {
+		t = &ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.AlertmanagerMaxConfigSizeBytes
+}
+func (t *ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetAlertmanagerMaxTemplatesCount() *int64 {
+	if t == nil {
+		t = &ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.AlertmanagerMaxTemplatesCount
+}
+func (t *ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetAlertmanagerMaxTemplateSizeBytes() *int64 {
+	if t == nil {
+		t = &ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.AlertmanagerMaxTemplateSizeBytes
+}
+func (t *ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetAlertmanagerMaxDispatcherAggregationGroups() *int64 {
+	if t == nil {
+		t = &ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.AlertmanagerMaxDispatcherAggregationGroups
+}
+func (t *ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetAlertmanagerMaxAlertsCount() *int64 {
+	if t == nil {
+		t = &ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.AlertmanagerMaxAlertsCount
+}
+func (t *ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetAlertmanagerMaxAlertsSizeBytes() *int64 {
+	if t == nil {
+		t = &ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.AlertmanagerMaxAlertsSizeBytes
+}
+func (t *ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetForwardingEndpoint() *string {
+	if t == nil {
+		t = &ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.ForwardingEndpoint
+}
+func (t *ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetForwardingDropOlderThan() *v1.Duration {
+	if t == nil {
+		t = &ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.ForwardingDropOlderThan
+}
+func (t *ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetForwardingRules() map[string]*v1alpha1.ForwardingRule {
+	if t == nil {
+		t = &ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.ForwardingRules
+}
+
+type ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name struct {
+	First *string "json:\"first,omitempty\" graphql:\"first\""
+	Last  *string "json:\"last,omitempty\" graphql:\"last\""
+}
+
+func (t *ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name) GetFirst() *string {
+	if t == nil {
+		t = &ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name{}
+	}
+	return t.First
+}
+func (t *ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name) GetLast() *string {
+	if t == nil {
+		t = &ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name{}
+	}
+	return t.Last
+}
+
+type ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name struct {
+	First *string "json:\"first,omitempty\" graphql:\"first\""
+	Last  *string "json:\"last,omitempty\" graphql:\"last\""
+}
+
+func (t *ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name) GetFirst() *string {
+	if t == nil {
+		t = &ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name{}
+	}
+	return t.First
+}
+func (t *ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name) GetLast() *string {
+	if t == nil {
+		t = &ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name{}
+	}
+	return t.Last
+}
+
+type ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization struct {
+	Name string "json:\"name\" graphql:\"name\""
+}
+
+func (t *ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization) GetName() string {
+	if t == nil {
+		t = &ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization{}
+	}
+	return t.Name
+}
+
+type ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users struct {
+	ID    string "json:\"id\" graphql:\"id\""
+	Email string "json:\"email\" graphql:\"email\""
+}
+
+func (t *ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users) GetID() string {
+	if t == nil {
+		t = &ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users{}
+	}
+	return t.ID
+}
+func (t *ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users) GetEmail() string {
+	if t == nil {
+		t = &ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users{}
+	}
+	return t.Email
+}
+
+type ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups struct {
+	Name string "json:\"name\" graphql:\"name\""
+}
+
+func (t *ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups) GetName() string {
+	if t == nil {
+		t = &ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups{}
+	}
+	return t.Name
+}
+
+type ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings struct {
+	Users  []*ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users  "json:\"users,omitempty\" graphql:\"users\""
+	Groups []*ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups "json:\"groups,omitempty\" graphql:\"groups\""
+}
+
+func (t *ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings) GetUsers() []*ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users {
+	if t == nil {
+		t = &ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings{}
+	}
+	return t.Users
+}
+func (t *ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings) GetGroups() []*ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups {
+	if t == nil {
+		t = &ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings{}
+	}
+	return t.Groups
+}
+
+type ObservabilityTenantLimitsFragment_Mimir struct {
+	RequestRate                                   *float64                            "json:\"requestRate,omitempty\" graphql:\"requestRate\""
+	RequestBurstSize                              *int64                              "json:\"requestBurstSize,omitempty\" graphql:\"requestBurstSize\""
+	IngestionRate                                 *float64                            "json:\"ingestionRate,omitempty\" graphql:\"ingestionRate\""
+	IngestionBurstSize                            *int64                              "json:\"ingestionBurstSize,omitempty\" graphql:\"ingestionBurstSize\""
+	AcceptHASamples                               *bool                               "json:\"acceptHASamples,omitempty\" graphql:\"acceptHASamples\""
+	HaClusterLabel                                *string                             "json:\"haClusterLabel,omitempty\" graphql:\"haClusterLabel\""
+	HaReplicaLabel                                *string                             "json:\"haReplicaLabel,omitempty\" graphql:\"haReplicaLabel\""
+	HaMaxClusters                                 *int64                              "json:\"haMaxClusters,omitempty\" graphql:\"haMaxClusters\""
+	DropLabels                                    []*string                           "json:\"dropLabels,omitempty\" graphql:\"dropLabels\""
+	MaxLabelNameLength                            *int64                              "json:\"maxLabelNameLength,omitempty\" graphql:\"maxLabelNameLength\""
+	MaxLabelValueLength                           *int64                              "json:\"maxLabelValueLength,omitempty\" graphql:\"maxLabelValueLength\""
+	MaxLabelNamesPerSeries                        *int64                              "json:\"maxLabelNamesPerSeries,omitempty\" graphql:\"maxLabelNamesPerSeries\""
+	MaxMetadataLength                             *int64                              "json:\"maxMetadataLength,omitempty\" graphql:\"maxMetadataLength\""
+	CreationGracePeriod                           *v1.Duration                        "json:\"creationGracePeriod,omitempty\" graphql:\"creationGracePeriod\""
+	EnforceMetadataMetricName                     *bool                               "json:\"enforceMetadataMetricName,omitempty\" graphql:\"enforceMetadataMetricName\""
+	IngestionTenantShardSize                      *int64                              "json:\"ingestionTenantShardSize,omitempty\" graphql:\"ingestionTenantShardSize\""
+	MaxGlobalSeriesPerUser                        *int64                              "json:\"maxGlobalSeriesPerUser,omitempty\" graphql:\"maxGlobalSeriesPerUser\""
+	MaxGlobalSeriesPerMetric                      *int64                              "json:\"maxGlobalSeriesPerMetric,omitempty\" graphql:\"maxGlobalSeriesPerMetric\""
+	MaxGlobalMetricsWithMetadataPerUser           *int64                              "json:\"maxGlobalMetricsWithMetadataPerUser,omitempty\" graphql:\"maxGlobalMetricsWithMetadataPerUser\""
+	MaxGlobalMetadataPerMetric                    *int64                              "json:\"maxGlobalMetadataPerMetric,omitempty\" graphql:\"maxGlobalMetadataPerMetric\""
+	MaxGlobalExemplarsPerUser                     *int64                              "json:\"maxGlobalExemplarsPerUser,omitempty\" graphql:\"maxGlobalExemplarsPerUser\""
+	NativeHistogramsIngestionEnabled              *bool                               "json:\"nativeHistogramsIngestionEnabled,omitempty\" graphql:\"nativeHistogramsIngestionEnabled\""
+	OutOfOrderTimeWindow                          *v1.Duration                        "json:\"outOfOrderTimeWindow,omitempty\" graphql:\"outOfOrderTimeWindow\""
+	OutOfOrderBlocksExternalLabelEnabled          *bool                               "json:\"outOfOrderBlocksExternalLabelEnabled,omitempty\" graphql:\"outOfOrderBlocksExternalLabelEnabled\""
+	SeparateMetricsGroupLabel                     *string                             "json:\"separateMetricsGroupLabel,omitempty\" graphql:\"separateMetricsGroupLabel\""
+	MaxChunksPerQuery                             *int64                              "json:\"maxChunksPerQuery,omitempty\" graphql:\"maxChunksPerQuery\""
+	MaxFetchedSeriesPerQuery                      *int64                              "json:\"maxFetchedSeriesPerQuery,omitempty\" graphql:\"maxFetchedSeriesPerQuery\""
+	MaxFetchedChunkBytesPerQuery                  *int64                              "json:\"maxFetchedChunkBytesPerQuery,omitempty\" graphql:\"maxFetchedChunkBytesPerQuery\""
+	MaxQueryLookback                              *v1.Duration                        "json:\"maxQueryLookback,omitempty\" graphql:\"maxQueryLookback\""
+	MaxPartialQueryLength                         *v1.Duration                        "json:\"maxPartialQueryLength,omitempty\" graphql:\"maxPartialQueryLength\""
+	MaxQueryParallelism                           *int64                              "json:\"maxQueryParallelism,omitempty\" graphql:\"maxQueryParallelism\""
+	MaxLabelsQueryLength                          *v1.Duration                        "json:\"maxLabelsQueryLength,omitempty\" graphql:\"maxLabelsQueryLength\""
+	MaxCacheFreshness                             *v1.Duration                        "json:\"maxCacheFreshness,omitempty\" graphql:\"maxCacheFreshness\""
+	MaxQueriersPerTenant                          *int64                              "json:\"maxQueriersPerTenant,omitempty\" graphql:\"maxQueriersPerTenant\""
+	QueryShardingTotalShards                      *int64                              "json:\"queryShardingTotalShards,omitempty\" graphql:\"queryShardingTotalShards\""
+	QueryShardingMaxShardedQueries                *int64                              "json:\"queryShardingMaxShardedQueries,omitempty\" graphql:\"queryShardingMaxShardedQueries\""
+	QueryShardingMaxRegexpSizeBytes               *int64                              "json:\"queryShardingMaxRegexpSizeBytes,omitempty\" graphql:\"queryShardingMaxRegexpSizeBytes\""
+	SplitInstantQueriesByInterval                 *v1.Duration                        "json:\"splitInstantQueriesByInterval,omitempty\" graphql:\"splitInstantQueriesByInterval\""
+	MaxTotalQueryLength                           *v1.Duration                        "json:\"maxTotalQueryLength,omitempty\" graphql:\"maxTotalQueryLength\""
+	ResultsCacheTTL                               *v1.Duration                        "json:\"resultsCacheTTL,omitempty\" graphql:\"resultsCacheTTL\""
+	ResultsCacheTTLForOutOfOrderTimeWindow        *v1.Duration                        "json:\"resultsCacheTTLForOutOfOrderTimeWindow,omitempty\" graphql:\"resultsCacheTTLForOutOfOrderTimeWindow\""
+	MaxQueryExpressionSizeBytes                   *int64                              "json:\"maxQueryExpressionSizeBytes,omitempty\" graphql:\"maxQueryExpressionSizeBytes\""
+	CardinalityAnalysisEnabled                    *bool                               "json:\"cardinalityAnalysisEnabled,omitempty\" graphql:\"cardinalityAnalysisEnabled\""
+	LabelNamesAndValuesResultsMaxSizeBytes        *int64                              "json:\"labelNamesAndValuesResultsMaxSizeBytes,omitempty\" graphql:\"labelNamesAndValuesResultsMaxSizeBytes\""
+	LabelValuesMaxCardinalityLabelNamesPerRequest *int64                              "json:\"labelValuesMaxCardinalityLabelNamesPerRequest,omitempty\" graphql:\"labelValuesMaxCardinalityLabelNamesPerRequest\""
+	RulerEvaluationDelay                          *v1.Duration                        "json:\"rulerEvaluationDelay,omitempty\" graphql:\"rulerEvaluationDelay\""
+	RulerTenantShardSize                          *int64                              "json:\"rulerTenantShardSize,omitempty\" graphql:\"rulerTenantShardSize\""
+	RulerMaxRulesPerRuleGroup                     *int64                              "json:\"rulerMaxRulesPerRuleGroup,omitempty\" graphql:\"rulerMaxRulesPerRuleGroup\""
+	RulerMaxRuleGroupsPerTenant                   *int64                              "json:\"rulerMaxRuleGroupsPerTenant,omitempty\" graphql:\"rulerMaxRuleGroupsPerTenant\""
+	RulerRecordingRulesEvaluationEnabled          *bool                               "json:\"rulerRecordingRulesEvaluationEnabled,omitempty\" graphql:\"rulerRecordingRulesEvaluationEnabled\""
+	RulerAlertingRulesEvaluationEnabled           *bool                               "json:\"rulerAlertingRulesEvaluationEnabled,omitempty\" graphql:\"rulerAlertingRulesEvaluationEnabled\""
+	StoreGatewayTenantShardSize                   *int64                              "json:\"storeGatewayTenantShardSize,omitempty\" graphql:\"storeGatewayTenantShardSize\""
+	CompactorBlocksRetentionPeriod                *v1.Duration                        "json:\"compactorBlocksRetentionPeriod,omitempty\" graphql:\"compactorBlocksRetentionPeriod\""
+	CompactorSplitAndMergeShards                  *int64                              "json:\"compactorSplitAndMergeShards,omitempty\" graphql:\"compactorSplitAndMergeShards\""
+	CompactorSplitGroups                          *int64                              "json:\"compactorSplitGroups,omitempty\" graphql:\"compactorSplitGroups\""
+	CompactorTenantShardSize                      *int64                              "json:\"compactorTenantShardSize,omitempty\" graphql:\"compactorTenantShardSize\""
+	CompactorPartialBlockDeletionDelay            *v1.Duration                        "json:\"compactorPartialBlockDeletionDelay,omitempty\" graphql:\"compactorPartialBlockDeletionDelay\""
+	CompactorBlockUploadEnabled                   *bool                               "json:\"compactorBlockUploadEnabled,omitempty\" graphql:\"compactorBlockUploadEnabled\""
+	CompactorBlockUploadValidationEnabled         *bool                               "json:\"compactorBlockUploadValidationEnabled,omitempty\" graphql:\"compactorBlockUploadValidationEnabled\""
+	CompactorBlockUploadVerifyChunks              *bool                               "json:\"compactorBlockUploadVerifyChunks,omitempty\" graphql:\"compactorBlockUploadVerifyChunks\""
+	S3SSEType                                     *string                             "json:\"s3SSEType,omitempty\" graphql:\"s3SSEType\""
+	S3SSEKMSKeyID                                 *string                             "json:\"s3SSEKMSKeyID,omitempty\" graphql:\"s3SSEKMSKeyID\""
+	S3SSEKMSEncryptionContext                     *string                             "json:\"s3SSEKMSEncryptionContext,omitempty\" graphql:\"s3SSEKMSEncryptionContext\""
+	AlertmanagerReceiversBlockCIDRNetworks        *string                             "json:\"alertmanagerReceiversBlockCIDRNetworks,omitempty\" graphql:\"alertmanagerReceiversBlockCIDRNetworks\""
+	AlertmanagerReceiversBlockPrivateAddresses    *bool                               "json:\"alertmanagerReceiversBlockPrivateAddresses,omitempty\" graphql:\"alertmanagerReceiversBlockPrivateAddresses\""
+	NotificationRateLimit                         *float64                            "json:\"notificationRateLimit,omitempty\" graphql:\"notificationRateLimit\""
+	NotificationRateLimitPerIntegration           map[string]*float64                 "json:\"notificationRateLimitPerIntegration,omitempty\" graphql:\"notificationRateLimitPerIntegration\""
+	AlertmanagerMaxConfigSizeBytes                *int64                              "json:\"alertmanagerMaxConfigSizeBytes,omitempty\" graphql:\"alertmanagerMaxConfigSizeBytes\""
+	AlertmanagerMaxTemplatesCount                 *int64                              "json:\"alertmanagerMaxTemplatesCount,omitempty\" graphql:\"alertmanagerMaxTemplatesCount\""
+	AlertmanagerMaxTemplateSizeBytes              *int64                              "json:\"alertmanagerMaxTemplateSizeBytes,omitempty\" graphql:\"alertmanagerMaxTemplateSizeBytes\""
+	AlertmanagerMaxDispatcherAggregationGroups    *int64                              "json:\"alertmanagerMaxDispatcherAggregationGroups,omitempty\" graphql:\"alertmanagerMaxDispatcherAggregationGroups\""
+	AlertmanagerMaxAlertsCount                    *int64                              "json:\"alertmanagerMaxAlertsCount,omitempty\" graphql:\"alertmanagerMaxAlertsCount\""
+	AlertmanagerMaxAlertsSizeBytes                *int64                              "json:\"alertmanagerMaxAlertsSizeBytes,omitempty\" graphql:\"alertmanagerMaxAlertsSizeBytes\""
+	ForwardingEndpoint                            *string                             "json:\"forwardingEndpoint,omitempty\" graphql:\"forwardingEndpoint\""
+	ForwardingDropOlderThan                       *v1.Duration                        "json:\"forwardingDropOlderThan,omitempty\" graphql:\"forwardingDropOlderThan\""
+	ForwardingRules                               map[string]*v1alpha1.ForwardingRule "json:\"forwardingRules,omitempty\" graphql:\"forwardingRules\""
+}
+
+func (t *ObservabilityTenantLimitsFragment_Mimir) GetRequestRate() *float64 {
+	if t == nil {
+		t = &ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.RequestRate
+}
+func (t *ObservabilityTenantLimitsFragment_Mimir) GetRequestBurstSize() *int64 {
+	if t == nil {
+		t = &ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.RequestBurstSize
+}
+func (t *ObservabilityTenantLimitsFragment_Mimir) GetIngestionRate() *float64 {
+	if t == nil {
+		t = &ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.IngestionRate
+}
+func (t *ObservabilityTenantLimitsFragment_Mimir) GetIngestionBurstSize() *int64 {
+	if t == nil {
+		t = &ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.IngestionBurstSize
+}
+func (t *ObservabilityTenantLimitsFragment_Mimir) GetAcceptHASamples() *bool {
+	if t == nil {
+		t = &ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.AcceptHASamples
+}
+func (t *ObservabilityTenantLimitsFragment_Mimir) GetHaClusterLabel() *string {
+	if t == nil {
+		t = &ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.HaClusterLabel
+}
+func (t *ObservabilityTenantLimitsFragment_Mimir) GetHaReplicaLabel() *string {
+	if t == nil {
+		t = &ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.HaReplicaLabel
+}
+func (t *ObservabilityTenantLimitsFragment_Mimir) GetHaMaxClusters() *int64 {
+	if t == nil {
+		t = &ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.HaMaxClusters
+}
+func (t *ObservabilityTenantLimitsFragment_Mimir) GetDropLabels() []*string {
+	if t == nil {
+		t = &ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.DropLabels
+}
+func (t *ObservabilityTenantLimitsFragment_Mimir) GetMaxLabelNameLength() *int64 {
+	if t == nil {
+		t = &ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.MaxLabelNameLength
+}
+func (t *ObservabilityTenantLimitsFragment_Mimir) GetMaxLabelValueLength() *int64 {
+	if t == nil {
+		t = &ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.MaxLabelValueLength
+}
+func (t *ObservabilityTenantLimitsFragment_Mimir) GetMaxLabelNamesPerSeries() *int64 {
+	if t == nil {
+		t = &ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.MaxLabelNamesPerSeries
+}
+func (t *ObservabilityTenantLimitsFragment_Mimir) GetMaxMetadataLength() *int64 {
+	if t == nil {
+		t = &ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.MaxMetadataLength
+}
+func (t *ObservabilityTenantLimitsFragment_Mimir) GetCreationGracePeriod() *v1.Duration {
+	if t == nil {
+		t = &ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.CreationGracePeriod
+}
+func (t *ObservabilityTenantLimitsFragment_Mimir) GetEnforceMetadataMetricName() *bool {
+	if t == nil {
+		t = &ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.EnforceMetadataMetricName
+}
+func (t *ObservabilityTenantLimitsFragment_Mimir) GetIngestionTenantShardSize() *int64 {
+	if t == nil {
+		t = &ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.IngestionTenantShardSize
+}
+func (t *ObservabilityTenantLimitsFragment_Mimir) GetMaxGlobalSeriesPerUser() *int64 {
+	if t == nil {
+		t = &ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.MaxGlobalSeriesPerUser
+}
+func (t *ObservabilityTenantLimitsFragment_Mimir) GetMaxGlobalSeriesPerMetric() *int64 {
+	if t == nil {
+		t = &ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.MaxGlobalSeriesPerMetric
+}
+func (t *ObservabilityTenantLimitsFragment_Mimir) GetMaxGlobalMetricsWithMetadataPerUser() *int64 {
+	if t == nil {
+		t = &ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.MaxGlobalMetricsWithMetadataPerUser
+}
+func (t *ObservabilityTenantLimitsFragment_Mimir) GetMaxGlobalMetadataPerMetric() *int64 {
+	if t == nil {
+		t = &ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.MaxGlobalMetadataPerMetric
+}
+func (t *ObservabilityTenantLimitsFragment_Mimir) GetMaxGlobalExemplarsPerUser() *int64 {
+	if t == nil {
+		t = &ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.MaxGlobalExemplarsPerUser
+}
+func (t *ObservabilityTenantLimitsFragment_Mimir) GetNativeHistogramsIngestionEnabled() *bool {
+	if t == nil {
+		t = &ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.NativeHistogramsIngestionEnabled
+}
+func (t *ObservabilityTenantLimitsFragment_Mimir) GetOutOfOrderTimeWindow() *v1.Duration {
+	if t == nil {
+		t = &ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.OutOfOrderTimeWindow
+}
+func (t *ObservabilityTenantLimitsFragment_Mimir) GetOutOfOrderBlocksExternalLabelEnabled() *bool {
+	if t == nil {
+		t = &ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.OutOfOrderBlocksExternalLabelEnabled
+}
+func (t *ObservabilityTenantLimitsFragment_Mimir) GetSeparateMetricsGroupLabel() *string {
+	if t == nil {
+		t = &ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.SeparateMetricsGroupLabel
+}
+func (t *ObservabilityTenantLimitsFragment_Mimir) GetMaxChunksPerQuery() *int64 {
+	if t == nil {
+		t = &ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.MaxChunksPerQuery
+}
+func (t *ObservabilityTenantLimitsFragment_Mimir) GetMaxFetchedSeriesPerQuery() *int64 {
+	if t == nil {
+		t = &ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.MaxFetchedSeriesPerQuery
+}
+func (t *ObservabilityTenantLimitsFragment_Mimir) GetMaxFetchedChunkBytesPerQuery() *int64 {
+	if t == nil {
+		t = &ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.MaxFetchedChunkBytesPerQuery
+}
+func (t *ObservabilityTenantLimitsFragment_Mimir) GetMaxQueryLookback() *v1.Duration {
+	if t == nil {
+		t = &ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.MaxQueryLookback
+}
+func (t *ObservabilityTenantLimitsFragment_Mimir) GetMaxPartialQueryLength() *v1.Duration {
+	if t == nil {
+		t = &ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.MaxPartialQueryLength
+}
+func (t *ObservabilityTenantLimitsFragment_Mimir) GetMaxQueryParallelism() *int64 {
+	if t == nil {
+		t = &ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.MaxQueryParallelism
+}
+func (t *ObservabilityTenantLimitsFragment_Mimir) GetMaxLabelsQueryLength() *v1.Duration {
+	if t == nil {
+		t = &ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.MaxLabelsQueryLength
+}
+func (t *ObservabilityTenantLimitsFragment_Mimir) GetMaxCacheFreshness() *v1.Duration {
+	if t == nil {
+		t = &ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.MaxCacheFreshness
+}
+func (t *ObservabilityTenantLimitsFragment_Mimir) GetMaxQueriersPerTenant() *int64 {
+	if t == nil {
+		t = &ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.MaxQueriersPerTenant
+}
+func (t *ObservabilityTenantLimitsFragment_Mimir) GetQueryShardingTotalShards() *int64 {
+	if t == nil {
+		t = &ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.QueryShardingTotalShards
+}
+func (t *ObservabilityTenantLimitsFragment_Mimir) GetQueryShardingMaxShardedQueries() *int64 {
+	if t == nil {
+		t = &ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.QueryShardingMaxShardedQueries
+}
+func (t *ObservabilityTenantLimitsFragment_Mimir) GetQueryShardingMaxRegexpSizeBytes() *int64 {
+	if t == nil {
+		t = &ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.QueryShardingMaxRegexpSizeBytes
+}
+func (t *ObservabilityTenantLimitsFragment_Mimir) GetSplitInstantQueriesByInterval() *v1.Duration {
+	if t == nil {
+		t = &ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.SplitInstantQueriesByInterval
+}
+func (t *ObservabilityTenantLimitsFragment_Mimir) GetMaxTotalQueryLength() *v1.Duration {
+	if t == nil {
+		t = &ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.MaxTotalQueryLength
+}
+func (t *ObservabilityTenantLimitsFragment_Mimir) GetResultsCacheTTL() *v1.Duration {
+	if t == nil {
+		t = &ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.ResultsCacheTTL
+}
+func (t *ObservabilityTenantLimitsFragment_Mimir) GetResultsCacheTTLForOutOfOrderTimeWindow() *v1.Duration {
+	if t == nil {
+		t = &ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.ResultsCacheTTLForOutOfOrderTimeWindow
+}
+func (t *ObservabilityTenantLimitsFragment_Mimir) GetMaxQueryExpressionSizeBytes() *int64 {
+	if t == nil {
+		t = &ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.MaxQueryExpressionSizeBytes
+}
+func (t *ObservabilityTenantLimitsFragment_Mimir) GetCardinalityAnalysisEnabled() *bool {
+	if t == nil {
+		t = &ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.CardinalityAnalysisEnabled
+}
+func (t *ObservabilityTenantLimitsFragment_Mimir) GetLabelNamesAndValuesResultsMaxSizeBytes() *int64 {
+	if t == nil {
+		t = &ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.LabelNamesAndValuesResultsMaxSizeBytes
+}
+func (t *ObservabilityTenantLimitsFragment_Mimir) GetLabelValuesMaxCardinalityLabelNamesPerRequest() *int64 {
+	if t == nil {
+		t = &ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.LabelValuesMaxCardinalityLabelNamesPerRequest
+}
+func (t *ObservabilityTenantLimitsFragment_Mimir) GetRulerEvaluationDelay() *v1.Duration {
+	if t == nil {
+		t = &ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.RulerEvaluationDelay
+}
+func (t *ObservabilityTenantLimitsFragment_Mimir) GetRulerTenantShardSize() *int64 {
+	if t == nil {
+		t = &ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.RulerTenantShardSize
+}
+func (t *ObservabilityTenantLimitsFragment_Mimir) GetRulerMaxRulesPerRuleGroup() *int64 {
+	if t == nil {
+		t = &ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.RulerMaxRulesPerRuleGroup
+}
+func (t *ObservabilityTenantLimitsFragment_Mimir) GetRulerMaxRuleGroupsPerTenant() *int64 {
+	if t == nil {
+		t = &ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.RulerMaxRuleGroupsPerTenant
+}
+func (t *ObservabilityTenantLimitsFragment_Mimir) GetRulerRecordingRulesEvaluationEnabled() *bool {
+	if t == nil {
+		t = &ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.RulerRecordingRulesEvaluationEnabled
+}
+func (t *ObservabilityTenantLimitsFragment_Mimir) GetRulerAlertingRulesEvaluationEnabled() *bool {
+	if t == nil {
+		t = &ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.RulerAlertingRulesEvaluationEnabled
+}
+func (t *ObservabilityTenantLimitsFragment_Mimir) GetStoreGatewayTenantShardSize() *int64 {
+	if t == nil {
+		t = &ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.StoreGatewayTenantShardSize
+}
+func (t *ObservabilityTenantLimitsFragment_Mimir) GetCompactorBlocksRetentionPeriod() *v1.Duration {
+	if t == nil {
+		t = &ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.CompactorBlocksRetentionPeriod
+}
+func (t *ObservabilityTenantLimitsFragment_Mimir) GetCompactorSplitAndMergeShards() *int64 {
+	if t == nil {
+		t = &ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.CompactorSplitAndMergeShards
+}
+func (t *ObservabilityTenantLimitsFragment_Mimir) GetCompactorSplitGroups() *int64 {
+	if t == nil {
+		t = &ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.CompactorSplitGroups
+}
+func (t *ObservabilityTenantLimitsFragment_Mimir) GetCompactorTenantShardSize() *int64 {
+	if t == nil {
+		t = &ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.CompactorTenantShardSize
+}
+func (t *ObservabilityTenantLimitsFragment_Mimir) GetCompactorPartialBlockDeletionDelay() *v1.Duration {
+	if t == nil {
+		t = &ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.CompactorPartialBlockDeletionDelay
+}
+func (t *ObservabilityTenantLimitsFragment_Mimir) GetCompactorBlockUploadEnabled() *bool {
+	if t == nil {
+		t = &ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.CompactorBlockUploadEnabled
+}
+func (t *ObservabilityTenantLimitsFragment_Mimir) GetCompactorBlockUploadValidationEnabled() *bool {
+	if t == nil {
+		t = &ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.CompactorBlockUploadValidationEnabled
+}
+func (t *ObservabilityTenantLimitsFragment_Mimir) GetCompactorBlockUploadVerifyChunks() *bool {
+	if t == nil {
+		t = &ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.CompactorBlockUploadVerifyChunks
+}
+func (t *ObservabilityTenantLimitsFragment_Mimir) GetS3SSEType() *string {
+	if t == nil {
+		t = &ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.S3SSEType
+}
+func (t *ObservabilityTenantLimitsFragment_Mimir) GetS3SSEKMSKeyID() *string {
+	if t == nil {
+		t = &ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.S3SSEKMSKeyID
+}
+func (t *ObservabilityTenantLimitsFragment_Mimir) GetS3SSEKMSEncryptionContext() *string {
+	if t == nil {
+		t = &ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.S3SSEKMSEncryptionContext
+}
+func (t *ObservabilityTenantLimitsFragment_Mimir) GetAlertmanagerReceiversBlockCIDRNetworks() *string {
+	if t == nil {
+		t = &ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.AlertmanagerReceiversBlockCIDRNetworks
+}
+func (t *ObservabilityTenantLimitsFragment_Mimir) GetAlertmanagerReceiversBlockPrivateAddresses() *bool {
+	if t == nil {
+		t = &ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.AlertmanagerReceiversBlockPrivateAddresses
+}
+func (t *ObservabilityTenantLimitsFragment_Mimir) GetNotificationRateLimit() *float64 {
+	if t == nil {
+		t = &ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.NotificationRateLimit
+}
+func (t *ObservabilityTenantLimitsFragment_Mimir) GetNotificationRateLimitPerIntegration() map[string]*float64 {
+	if t == nil {
+		t = &ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.NotificationRateLimitPerIntegration
+}
+func (t *ObservabilityTenantLimitsFragment_Mimir) GetAlertmanagerMaxConfigSizeBytes() *int64 {
+	if t == nil {
+		t = &ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.AlertmanagerMaxConfigSizeBytes
+}
+func (t *ObservabilityTenantLimitsFragment_Mimir) GetAlertmanagerMaxTemplatesCount() *int64 {
+	if t == nil {
+		t = &ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.AlertmanagerMaxTemplatesCount
+}
+func (t *ObservabilityTenantLimitsFragment_Mimir) GetAlertmanagerMaxTemplateSizeBytes() *int64 {
+	if t == nil {
+		t = &ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.AlertmanagerMaxTemplateSizeBytes
+}
+func (t *ObservabilityTenantLimitsFragment_Mimir) GetAlertmanagerMaxDispatcherAggregationGroups() *int64 {
+	if t == nil {
+		t = &ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.AlertmanagerMaxDispatcherAggregationGroups
+}
+func (t *ObservabilityTenantLimitsFragment_Mimir) GetAlertmanagerMaxAlertsCount() *int64 {
+	if t == nil {
+		t = &ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.AlertmanagerMaxAlertsCount
+}
+func (t *ObservabilityTenantLimitsFragment_Mimir) GetAlertmanagerMaxAlertsSizeBytes() *int64 {
+	if t == nil {
+		t = &ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.AlertmanagerMaxAlertsSizeBytes
+}
+func (t *ObservabilityTenantLimitsFragment_Mimir) GetForwardingEndpoint() *string {
+	if t == nil {
+		t = &ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.ForwardingEndpoint
+}
+func (t *ObservabilityTenantLimitsFragment_Mimir) GetForwardingDropOlderThan() *v1.Duration {
+	if t == nil {
+		t = &ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.ForwardingDropOlderThan
+}
+func (t *ObservabilityTenantLimitsFragment_Mimir) GetForwardingRules() map[string]*v1alpha1.ForwardingRule {
+	if t == nil {
+		t = &ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.ForwardingRules
+}
+
+type UserFragmentNoGroups_Name struct {
+	First *string "json:\"first,omitempty\" graphql:\"first\""
+	Last  *string "json:\"last,omitempty\" graphql:\"last\""
+}
+
+func (t *UserFragmentNoGroups_Name) GetFirst() *string {
+	if t == nil {
+		t = &UserFragmentNoGroups_Name{}
+	}
+	return t.First
+}
+func (t *UserFragmentNoGroups_Name) GetLast() *string {
+	if t == nil {
+		t = &UserFragmentNoGroups_Name{}
+	}
+	return t.Last
 }
 
 type ListOAuth2Clients_ListOAuth2Clients_OAuth2ClientFragment_Organization struct {
@@ -504,62 +3332,15 @@ func (t *GetOAuth2Client_GetOAuth2Client_OAuth2ClientFragment_LoginBindings) Get
 	return t.Groups
 }
 
-type DeleteOAuth2Client_DeleteOAuth2Client_OAuth2ClientFragment_Organization struct {
-	Name string "json:\"name\" graphql:\"name\""
+type DeleteOAuth2Client_DeleteOAuth2Client struct {
+	ClientID *string "json:\"clientId,omitempty\" graphql:\"clientId\""
 }
 
-func (t *DeleteOAuth2Client_DeleteOAuth2Client_OAuth2ClientFragment_Organization) GetName() string {
+func (t *DeleteOAuth2Client_DeleteOAuth2Client) GetClientID() *string {
 	if t == nil {
-		t = &DeleteOAuth2Client_DeleteOAuth2Client_OAuth2ClientFragment_Organization{}
+		t = &DeleteOAuth2Client_DeleteOAuth2Client{}
 	}
-	return t.Name
-}
-
-type DeleteOAuth2Client_DeleteOAuth2Client_OAuth2ClientFragment_LoginBindings_Users struct {
-	ID    string "json:\"id\" graphql:\"id\""
-	Email string "json:\"email\" graphql:\"email\""
-}
-
-func (t *DeleteOAuth2Client_DeleteOAuth2Client_OAuth2ClientFragment_LoginBindings_Users) GetID() string {
-	if t == nil {
-		t = &DeleteOAuth2Client_DeleteOAuth2Client_OAuth2ClientFragment_LoginBindings_Users{}
-	}
-	return t.ID
-}
-func (t *DeleteOAuth2Client_DeleteOAuth2Client_OAuth2ClientFragment_LoginBindings_Users) GetEmail() string {
-	if t == nil {
-		t = &DeleteOAuth2Client_DeleteOAuth2Client_OAuth2ClientFragment_LoginBindings_Users{}
-	}
-	return t.Email
-}
-
-type DeleteOAuth2Client_DeleteOAuth2Client_OAuth2ClientFragment_LoginBindings_Groups struct {
-	Name string "json:\"name\" graphql:\"name\""
-}
-
-func (t *DeleteOAuth2Client_DeleteOAuth2Client_OAuth2ClientFragment_LoginBindings_Groups) GetName() string {
-	if t == nil {
-		t = &DeleteOAuth2Client_DeleteOAuth2Client_OAuth2ClientFragment_LoginBindings_Groups{}
-	}
-	return t.Name
-}
-
-type DeleteOAuth2Client_DeleteOAuth2Client_OAuth2ClientFragment_LoginBindings struct {
-	Users  []*DeleteOAuth2Client_DeleteOAuth2Client_OAuth2ClientFragment_LoginBindings_Users  "json:\"users,omitempty\" graphql:\"users\""
-	Groups []*DeleteOAuth2Client_DeleteOAuth2Client_OAuth2ClientFragment_LoginBindings_Groups "json:\"groups,omitempty\" graphql:\"groups\""
-}
-
-func (t *DeleteOAuth2Client_DeleteOAuth2Client_OAuth2ClientFragment_LoginBindings) GetUsers() []*DeleteOAuth2Client_DeleteOAuth2Client_OAuth2ClientFragment_LoginBindings_Users {
-	if t == nil {
-		t = &DeleteOAuth2Client_DeleteOAuth2Client_OAuth2ClientFragment_LoginBindings{}
-	}
-	return t.Users
-}
-func (t *DeleteOAuth2Client_DeleteOAuth2Client_OAuth2ClientFragment_LoginBindings) GetGroups() []*DeleteOAuth2Client_DeleteOAuth2Client_OAuth2ClientFragment_LoginBindings_Groups {
-	if t == nil {
-		t = &DeleteOAuth2Client_DeleteOAuth2Client_OAuth2ClientFragment_LoginBindings{}
-	}
-	return t.Groups
+	return t.ClientID
 }
 
 type UpdateOAuth2Client_UpdateOAuth2Client_OAuth2ClientFragment_Organization struct {
@@ -678,6 +3459,7801 @@ func (t *CreateOAuth2Client_CreateOAuth2Client_OAuth2ClientFragment_LoginBinding
 	return t.Groups
 }
 
+type ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Admins_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name struct {
+	First *string "json:\"first,omitempty\" graphql:\"first\""
+	Last  *string "json:\"last,omitempty\" graphql:\"last\""
+}
+
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Admins_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name) GetFirst() *string {
+	if t == nil {
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Admins_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name{}
+	}
+	return t.First
+}
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Admins_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name) GetLast() *string {
+	if t == nil {
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Admins_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name{}
+	}
+	return t.Last
+}
+
+type ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Admins_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name struct {
+	First *string "json:\"first,omitempty\" graphql:\"first\""
+	Last  *string "json:\"last,omitempty\" graphql:\"last\""
+}
+
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Admins_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name) GetFirst() *string {
+	if t == nil {
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Admins_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name{}
+	}
+	return t.First
+}
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Admins_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name) GetLast() *string {
+	if t == nil {
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Admins_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name{}
+	}
+	return t.Last
+}
+
+type ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Admins_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization struct {
+	Name string "json:\"name\" graphql:\"name\""
+}
+
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Admins_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization) GetName() string {
+	if t == nil {
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Admins_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization{}
+	}
+	return t.Name
+}
+
+type ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Admins_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users struct {
+	ID    string "json:\"id\" graphql:\"id\""
+	Email string "json:\"email\" graphql:\"email\""
+}
+
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Admins_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users) GetID() string {
+	if t == nil {
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Admins_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users{}
+	}
+	return t.ID
+}
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Admins_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users) GetEmail() string {
+	if t == nil {
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Admins_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users{}
+	}
+	return t.Email
+}
+
+type ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Admins_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups struct {
+	Name string "json:\"name\" graphql:\"name\""
+}
+
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Admins_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups) GetName() string {
+	if t == nil {
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Admins_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups{}
+	}
+	return t.Name
+}
+
+type ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Admins_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings struct {
+	Users  []*ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Admins_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users  "json:\"users,omitempty\" graphql:\"users\""
+	Groups []*ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Admins_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups "json:\"groups,omitempty\" graphql:\"groups\""
+}
+
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Admins_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings) GetUsers() []*ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Admins_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users {
+	if t == nil {
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Admins_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings{}
+	}
+	return t.Users
+}
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Admins_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings) GetGroups() []*ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Admins_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups {
+	if t == nil {
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Admins_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings{}
+	}
+	return t.Groups
+}
+
+type ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsReaders_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name struct {
+	First *string "json:\"first,omitempty\" graphql:\"first\""
+	Last  *string "json:\"last,omitempty\" graphql:\"last\""
+}
+
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsReaders_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name) GetFirst() *string {
+	if t == nil {
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsReaders_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name{}
+	}
+	return t.First
+}
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsReaders_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name) GetLast() *string {
+	if t == nil {
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsReaders_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name{}
+	}
+	return t.Last
+}
+
+type ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsReaders_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name struct {
+	First *string "json:\"first,omitempty\" graphql:\"first\""
+	Last  *string "json:\"last,omitempty\" graphql:\"last\""
+}
+
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsReaders_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name) GetFirst() *string {
+	if t == nil {
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsReaders_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name{}
+	}
+	return t.First
+}
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsReaders_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name) GetLast() *string {
+	if t == nil {
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsReaders_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name{}
+	}
+	return t.Last
+}
+
+type ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization struct {
+	Name string "json:\"name\" graphql:\"name\""
+}
+
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization) GetName() string {
+	if t == nil {
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization{}
+	}
+	return t.Name
+}
+
+type ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users struct {
+	ID    string "json:\"id\" graphql:\"id\""
+	Email string "json:\"email\" graphql:\"email\""
+}
+
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users) GetID() string {
+	if t == nil {
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users{}
+	}
+	return t.ID
+}
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users) GetEmail() string {
+	if t == nil {
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users{}
+	}
+	return t.Email
+}
+
+type ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups struct {
+	Name string "json:\"name\" graphql:\"name\""
+}
+
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups) GetName() string {
+	if t == nil {
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups{}
+	}
+	return t.Name
+}
+
+type ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings struct {
+	Users  []*ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users  "json:\"users,omitempty\" graphql:\"users\""
+	Groups []*ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups "json:\"groups,omitempty\" graphql:\"groups\""
+}
+
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings) GetUsers() []*ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users {
+	if t == nil {
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings{}
+	}
+	return t.Users
+}
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings) GetGroups() []*ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups {
+	if t == nil {
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings{}
+	}
+	return t.Groups
+}
+
+type ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsWriters_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name struct {
+	First *string "json:\"first,omitempty\" graphql:\"first\""
+	Last  *string "json:\"last,omitempty\" graphql:\"last\""
+}
+
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsWriters_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name) GetFirst() *string {
+	if t == nil {
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsWriters_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name{}
+	}
+	return t.First
+}
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsWriters_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name) GetLast() *string {
+	if t == nil {
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsWriters_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name{}
+	}
+	return t.Last
+}
+
+type ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsWriters_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name struct {
+	First *string "json:\"first,omitempty\" graphql:\"first\""
+	Last  *string "json:\"last,omitempty\" graphql:\"last\""
+}
+
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsWriters_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name) GetFirst() *string {
+	if t == nil {
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsWriters_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name{}
+	}
+	return t.First
+}
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsWriters_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name) GetLast() *string {
+	if t == nil {
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsWriters_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name{}
+	}
+	return t.Last
+}
+
+type ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization struct {
+	Name string "json:\"name\" graphql:\"name\""
+}
+
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization) GetName() string {
+	if t == nil {
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization{}
+	}
+	return t.Name
+}
+
+type ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users struct {
+	ID    string "json:\"id\" graphql:\"id\""
+	Email string "json:\"email\" graphql:\"email\""
+}
+
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users) GetID() string {
+	if t == nil {
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users{}
+	}
+	return t.ID
+}
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users) GetEmail() string {
+	if t == nil {
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users{}
+	}
+	return t.Email
+}
+
+type ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups struct {
+	Name string "json:\"name\" graphql:\"name\""
+}
+
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups) GetName() string {
+	if t == nil {
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups{}
+	}
+	return t.Name
+}
+
+type ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings struct {
+	Users  []*ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users  "json:\"users,omitempty\" graphql:\"users\""
+	Groups []*ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups "json:\"groups,omitempty\" graphql:\"groups\""
+}
+
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings) GetUsers() []*ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users {
+	if t == nil {
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings{}
+	}
+	return t.Users
+}
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings) GetGroups() []*ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups {
+	if t == nil {
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings{}
+	}
+	return t.Groups
+}
+
+type ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name struct {
+	First *string "json:\"first,omitempty\" graphql:\"first\""
+	Last  *string "json:\"last,omitempty\" graphql:\"last\""
+}
+
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name) GetFirst() *string {
+	if t == nil {
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name{}
+	}
+	return t.First
+}
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name) GetLast() *string {
+	if t == nil {
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name{}
+	}
+	return t.Last
+}
+
+type ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name struct {
+	First *string "json:\"first,omitempty\" graphql:\"first\""
+	Last  *string "json:\"last,omitempty\" graphql:\"last\""
+}
+
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name) GetFirst() *string {
+	if t == nil {
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name{}
+	}
+	return t.First
+}
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name) GetLast() *string {
+	if t == nil {
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name{}
+	}
+	return t.Last
+}
+
+type ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization struct {
+	Name string "json:\"name\" graphql:\"name\""
+}
+
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization) GetName() string {
+	if t == nil {
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization{}
+	}
+	return t.Name
+}
+
+type ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users struct {
+	ID    string "json:\"id\" graphql:\"id\""
+	Email string "json:\"email\" graphql:\"email\""
+}
+
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users) GetID() string {
+	if t == nil {
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users{}
+	}
+	return t.ID
+}
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users) GetEmail() string {
+	if t == nil {
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users{}
+	}
+	return t.Email
+}
+
+type ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups struct {
+	Name string "json:\"name\" graphql:\"name\""
+}
+
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups) GetName() string {
+	if t == nil {
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups{}
+	}
+	return t.Name
+}
+
+type ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings struct {
+	Users  []*ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users  "json:\"users,omitempty\" graphql:\"users\""
+	Groups []*ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups "json:\"groups,omitempty\" graphql:\"groups\""
+}
+
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings) GetUsers() []*ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users {
+	if t == nil {
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings{}
+	}
+	return t.Users
+}
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings) GetGroups() []*ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups {
+	if t == nil {
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings{}
+	}
+	return t.Groups
+}
+
+type ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name struct {
+	First *string "json:\"first,omitempty\" graphql:\"first\""
+	Last  *string "json:\"last,omitempty\" graphql:\"last\""
+}
+
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name) GetFirst() *string {
+	if t == nil {
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name{}
+	}
+	return t.First
+}
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name) GetLast() *string {
+	if t == nil {
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name{}
+	}
+	return t.Last
+}
+
+type ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name struct {
+	First *string "json:\"first,omitempty\" graphql:\"first\""
+	Last  *string "json:\"last,omitempty\" graphql:\"last\""
+}
+
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name) GetFirst() *string {
+	if t == nil {
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name{}
+	}
+	return t.First
+}
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name) GetLast() *string {
+	if t == nil {
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name{}
+	}
+	return t.Last
+}
+
+type ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization struct {
+	Name string "json:\"name\" graphql:\"name\""
+}
+
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization) GetName() string {
+	if t == nil {
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization{}
+	}
+	return t.Name
+}
+
+type ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users struct {
+	ID    string "json:\"id\" graphql:\"id\""
+	Email string "json:\"email\" graphql:\"email\""
+}
+
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users) GetID() string {
+	if t == nil {
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users{}
+	}
+	return t.ID
+}
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users) GetEmail() string {
+	if t == nil {
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users{}
+	}
+	return t.Email
+}
+
+type ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups struct {
+	Name string "json:\"name\" graphql:\"name\""
+}
+
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups) GetName() string {
+	if t == nil {
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups{}
+	}
+	return t.Name
+}
+
+type ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings struct {
+	Users  []*ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users  "json:\"users,omitempty\" graphql:\"users\""
+	Groups []*ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups "json:\"groups,omitempty\" graphql:\"groups\""
+}
+
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings) GetUsers() []*ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users {
+	if t == nil {
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings{}
+	}
+	return t.Users
+}
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings) GetGroups() []*ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups {
+	if t == nil {
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings{}
+	}
+	return t.Groups
+}
+
+type ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name struct {
+	First *string "json:\"first,omitempty\" graphql:\"first\""
+	Last  *string "json:\"last,omitempty\" graphql:\"last\""
+}
+
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name) GetFirst() *string {
+	if t == nil {
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name{}
+	}
+	return t.First
+}
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name) GetLast() *string {
+	if t == nil {
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name{}
+	}
+	return t.Last
+}
+
+type ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name struct {
+	First *string "json:\"first,omitempty\" graphql:\"first\""
+	Last  *string "json:\"last,omitempty\" graphql:\"last\""
+}
+
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name) GetFirst() *string {
+	if t == nil {
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name{}
+	}
+	return t.First
+}
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name) GetLast() *string {
+	if t == nil {
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name{}
+	}
+	return t.Last
+}
+
+type ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization struct {
+	Name string "json:\"name\" graphql:\"name\""
+}
+
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization) GetName() string {
+	if t == nil {
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization{}
+	}
+	return t.Name
+}
+
+type ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users struct {
+	ID    string "json:\"id\" graphql:\"id\""
+	Email string "json:\"email\" graphql:\"email\""
+}
+
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users) GetID() string {
+	if t == nil {
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users{}
+	}
+	return t.ID
+}
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users) GetEmail() string {
+	if t == nil {
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users{}
+	}
+	return t.Email
+}
+
+type ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups struct {
+	Name string "json:\"name\" graphql:\"name\""
+}
+
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups) GetName() string {
+	if t == nil {
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups{}
+	}
+	return t.Name
+}
+
+type ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings struct {
+	Users  []*ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users  "json:\"users,omitempty\" graphql:\"users\""
+	Groups []*ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups "json:\"groups,omitempty\" graphql:\"groups\""
+}
+
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings) GetUsers() []*ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users {
+	if t == nil {
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings{}
+	}
+	return t.Users
+}
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings) GetGroups() []*ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups {
+	if t == nil {
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings{}
+	}
+	return t.Groups
+}
+
+type ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsAlertsReaders_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name struct {
+	First *string "json:\"first,omitempty\" graphql:\"first\""
+	Last  *string "json:\"last,omitempty\" graphql:\"last\""
+}
+
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsAlertsReaders_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name) GetFirst() *string {
+	if t == nil {
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsAlertsReaders_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name{}
+	}
+	return t.First
+}
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsAlertsReaders_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name) GetLast() *string {
+	if t == nil {
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsAlertsReaders_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name{}
+	}
+	return t.Last
+}
+
+type ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsAlertsReaders_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name struct {
+	First *string "json:\"first,omitempty\" graphql:\"first\""
+	Last  *string "json:\"last,omitempty\" graphql:\"last\""
+}
+
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsAlertsReaders_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name) GetFirst() *string {
+	if t == nil {
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsAlertsReaders_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name{}
+	}
+	return t.First
+}
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsAlertsReaders_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name) GetLast() *string {
+	if t == nil {
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsAlertsReaders_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name{}
+	}
+	return t.Last
+}
+
+type ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsAlertsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization struct {
+	Name string "json:\"name\" graphql:\"name\""
+}
+
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsAlertsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization) GetName() string {
+	if t == nil {
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsAlertsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization{}
+	}
+	return t.Name
+}
+
+type ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsAlertsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users struct {
+	ID    string "json:\"id\" graphql:\"id\""
+	Email string "json:\"email\" graphql:\"email\""
+}
+
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsAlertsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users) GetID() string {
+	if t == nil {
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsAlertsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users{}
+	}
+	return t.ID
+}
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsAlertsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users) GetEmail() string {
+	if t == nil {
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsAlertsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users{}
+	}
+	return t.Email
+}
+
+type ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsAlertsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups struct {
+	Name string "json:\"name\" graphql:\"name\""
+}
+
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsAlertsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups) GetName() string {
+	if t == nil {
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsAlertsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups{}
+	}
+	return t.Name
+}
+
+type ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsAlertsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings struct {
+	Users  []*ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsAlertsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users  "json:\"users,omitempty\" graphql:\"users\""
+	Groups []*ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsAlertsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups "json:\"groups,omitempty\" graphql:\"groups\""
+}
+
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsAlertsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings) GetUsers() []*ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsAlertsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users {
+	if t == nil {
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsAlertsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings{}
+	}
+	return t.Users
+}
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsAlertsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings) GetGroups() []*ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsAlertsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups {
+	if t == nil {
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsAlertsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings{}
+	}
+	return t.Groups
+}
+
+type ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsAlertsWriters_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name struct {
+	First *string "json:\"first,omitempty\" graphql:\"first\""
+	Last  *string "json:\"last,omitempty\" graphql:\"last\""
+}
+
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsAlertsWriters_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name) GetFirst() *string {
+	if t == nil {
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsAlertsWriters_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name{}
+	}
+	return t.First
+}
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsAlertsWriters_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name) GetLast() *string {
+	if t == nil {
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsAlertsWriters_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name{}
+	}
+	return t.Last
+}
+
+type ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsAlertsWriters_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name struct {
+	First *string "json:\"first,omitempty\" graphql:\"first\""
+	Last  *string "json:\"last,omitempty\" graphql:\"last\""
+}
+
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsAlertsWriters_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name) GetFirst() *string {
+	if t == nil {
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsAlertsWriters_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name{}
+	}
+	return t.First
+}
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsAlertsWriters_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name) GetLast() *string {
+	if t == nil {
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsAlertsWriters_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name{}
+	}
+	return t.Last
+}
+
+type ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsAlertsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization struct {
+	Name string "json:\"name\" graphql:\"name\""
+}
+
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsAlertsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization) GetName() string {
+	if t == nil {
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsAlertsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization{}
+	}
+	return t.Name
+}
+
+type ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsAlertsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users struct {
+	ID    string "json:\"id\" graphql:\"id\""
+	Email string "json:\"email\" graphql:\"email\""
+}
+
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsAlertsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users) GetID() string {
+	if t == nil {
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsAlertsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users{}
+	}
+	return t.ID
+}
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsAlertsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users) GetEmail() string {
+	if t == nil {
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsAlertsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users{}
+	}
+	return t.Email
+}
+
+type ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsAlertsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups struct {
+	Name string "json:\"name\" graphql:\"name\""
+}
+
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsAlertsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups) GetName() string {
+	if t == nil {
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsAlertsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups{}
+	}
+	return t.Name
+}
+
+type ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsAlertsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings struct {
+	Users  []*ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsAlertsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users  "json:\"users,omitempty\" graphql:\"users\""
+	Groups []*ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsAlertsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups "json:\"groups,omitempty\" graphql:\"groups\""
+}
+
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsAlertsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings) GetUsers() []*ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsAlertsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users {
+	if t == nil {
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsAlertsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings{}
+	}
+	return t.Users
+}
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsAlertsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings) GetGroups() []*ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsAlertsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups {
+	if t == nil {
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsAlertsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings{}
+	}
+	return t.Groups
+}
+
+type ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_LogsReaders_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name struct {
+	First *string "json:\"first,omitempty\" graphql:\"first\""
+	Last  *string "json:\"last,omitempty\" graphql:\"last\""
+}
+
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_LogsReaders_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name) GetFirst() *string {
+	if t == nil {
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_LogsReaders_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name{}
+	}
+	return t.First
+}
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_LogsReaders_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name) GetLast() *string {
+	if t == nil {
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_LogsReaders_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name{}
+	}
+	return t.Last
+}
+
+type ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_LogsReaders_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name struct {
+	First *string "json:\"first,omitempty\" graphql:\"first\""
+	Last  *string "json:\"last,omitempty\" graphql:\"last\""
+}
+
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_LogsReaders_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name) GetFirst() *string {
+	if t == nil {
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_LogsReaders_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name{}
+	}
+	return t.First
+}
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_LogsReaders_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name) GetLast() *string {
+	if t == nil {
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_LogsReaders_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name{}
+	}
+	return t.Last
+}
+
+type ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_LogsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization struct {
+	Name string "json:\"name\" graphql:\"name\""
+}
+
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_LogsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization) GetName() string {
+	if t == nil {
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_LogsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization{}
+	}
+	return t.Name
+}
+
+type ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_LogsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users struct {
+	ID    string "json:\"id\" graphql:\"id\""
+	Email string "json:\"email\" graphql:\"email\""
+}
+
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_LogsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users) GetID() string {
+	if t == nil {
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_LogsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users{}
+	}
+	return t.ID
+}
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_LogsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users) GetEmail() string {
+	if t == nil {
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_LogsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users{}
+	}
+	return t.Email
+}
+
+type ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_LogsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups struct {
+	Name string "json:\"name\" graphql:\"name\""
+}
+
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_LogsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups) GetName() string {
+	if t == nil {
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_LogsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups{}
+	}
+	return t.Name
+}
+
+type ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_LogsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings struct {
+	Users  []*ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_LogsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users  "json:\"users,omitempty\" graphql:\"users\""
+	Groups []*ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_LogsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups "json:\"groups,omitempty\" graphql:\"groups\""
+}
+
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_LogsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings) GetUsers() []*ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_LogsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users {
+	if t == nil {
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_LogsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings{}
+	}
+	return t.Users
+}
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_LogsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings) GetGroups() []*ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_LogsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups {
+	if t == nil {
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_LogsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings{}
+	}
+	return t.Groups
+}
+
+type ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_LogsWriters_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name struct {
+	First *string "json:\"first,omitempty\" graphql:\"first\""
+	Last  *string "json:\"last,omitempty\" graphql:\"last\""
+}
+
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_LogsWriters_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name) GetFirst() *string {
+	if t == nil {
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_LogsWriters_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name{}
+	}
+	return t.First
+}
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_LogsWriters_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name) GetLast() *string {
+	if t == nil {
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_LogsWriters_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name{}
+	}
+	return t.Last
+}
+
+type ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_LogsWriters_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name struct {
+	First *string "json:\"first,omitempty\" graphql:\"first\""
+	Last  *string "json:\"last,omitempty\" graphql:\"last\""
+}
+
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_LogsWriters_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name) GetFirst() *string {
+	if t == nil {
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_LogsWriters_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name{}
+	}
+	return t.First
+}
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_LogsWriters_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name) GetLast() *string {
+	if t == nil {
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_LogsWriters_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name{}
+	}
+	return t.Last
+}
+
+type ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_LogsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization struct {
+	Name string "json:\"name\" graphql:\"name\""
+}
+
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_LogsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization) GetName() string {
+	if t == nil {
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_LogsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization{}
+	}
+	return t.Name
+}
+
+type ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_LogsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users struct {
+	ID    string "json:\"id\" graphql:\"id\""
+	Email string "json:\"email\" graphql:\"email\""
+}
+
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_LogsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users) GetID() string {
+	if t == nil {
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_LogsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users{}
+	}
+	return t.ID
+}
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_LogsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users) GetEmail() string {
+	if t == nil {
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_LogsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users{}
+	}
+	return t.Email
+}
+
+type ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_LogsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups struct {
+	Name string "json:\"name\" graphql:\"name\""
+}
+
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_LogsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups) GetName() string {
+	if t == nil {
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_LogsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups{}
+	}
+	return t.Name
+}
+
+type ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_LogsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings struct {
+	Users  []*ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_LogsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users  "json:\"users,omitempty\" graphql:\"users\""
+	Groups []*ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_LogsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups "json:\"groups,omitempty\" graphql:\"groups\""
+}
+
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_LogsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings) GetUsers() []*ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_LogsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users {
+	if t == nil {
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_LogsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings{}
+	}
+	return t.Users
+}
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_LogsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings) GetGroups() []*ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_LogsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups {
+	if t == nil {
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_LogsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings{}
+	}
+	return t.Groups
+}
+
+type ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_LogsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name struct {
+	First *string "json:\"first,omitempty\" graphql:\"first\""
+	Last  *string "json:\"last,omitempty\" graphql:\"last\""
+}
+
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_LogsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name) GetFirst() *string {
+	if t == nil {
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_LogsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name{}
+	}
+	return t.First
+}
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_LogsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name) GetLast() *string {
+	if t == nil {
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_LogsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name{}
+	}
+	return t.Last
+}
+
+type ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_LogsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name struct {
+	First *string "json:\"first,omitempty\" graphql:\"first\""
+	Last  *string "json:\"last,omitempty\" graphql:\"last\""
+}
+
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_LogsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name) GetFirst() *string {
+	if t == nil {
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_LogsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name{}
+	}
+	return t.First
+}
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_LogsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name) GetLast() *string {
+	if t == nil {
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_LogsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name{}
+	}
+	return t.Last
+}
+
+type ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_LogsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization struct {
+	Name string "json:\"name\" graphql:\"name\""
+}
+
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_LogsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization) GetName() string {
+	if t == nil {
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_LogsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization{}
+	}
+	return t.Name
+}
+
+type ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_LogsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users struct {
+	ID    string "json:\"id\" graphql:\"id\""
+	Email string "json:\"email\" graphql:\"email\""
+}
+
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_LogsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users) GetID() string {
+	if t == nil {
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_LogsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users{}
+	}
+	return t.ID
+}
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_LogsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users) GetEmail() string {
+	if t == nil {
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_LogsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users{}
+	}
+	return t.Email
+}
+
+type ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_LogsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups struct {
+	Name string "json:\"name\" graphql:\"name\""
+}
+
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_LogsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups) GetName() string {
+	if t == nil {
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_LogsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups{}
+	}
+	return t.Name
+}
+
+type ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_LogsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings struct {
+	Users  []*ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_LogsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users  "json:\"users,omitempty\" graphql:\"users\""
+	Groups []*ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_LogsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups "json:\"groups,omitempty\" graphql:\"groups\""
+}
+
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_LogsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings) GetUsers() []*ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_LogsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users {
+	if t == nil {
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_LogsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings{}
+	}
+	return t.Users
+}
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_LogsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings) GetGroups() []*ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_LogsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups {
+	if t == nil {
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_LogsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings{}
+	}
+	return t.Groups
+}
+
+type ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_LogsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name struct {
+	First *string "json:\"first,omitempty\" graphql:\"first\""
+	Last  *string "json:\"last,omitempty\" graphql:\"last\""
+}
+
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_LogsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name) GetFirst() *string {
+	if t == nil {
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_LogsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name{}
+	}
+	return t.First
+}
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_LogsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name) GetLast() *string {
+	if t == nil {
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_LogsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name{}
+	}
+	return t.Last
+}
+
+type ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_LogsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name struct {
+	First *string "json:\"first,omitempty\" graphql:\"first\""
+	Last  *string "json:\"last,omitempty\" graphql:\"last\""
+}
+
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_LogsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name) GetFirst() *string {
+	if t == nil {
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_LogsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name{}
+	}
+	return t.First
+}
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_LogsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name) GetLast() *string {
+	if t == nil {
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_LogsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name{}
+	}
+	return t.Last
+}
+
+type ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_LogsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization struct {
+	Name string "json:\"name\" graphql:\"name\""
+}
+
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_LogsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization) GetName() string {
+	if t == nil {
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_LogsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization{}
+	}
+	return t.Name
+}
+
+type ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_LogsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users struct {
+	ID    string "json:\"id\" graphql:\"id\""
+	Email string "json:\"email\" graphql:\"email\""
+}
+
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_LogsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users) GetID() string {
+	if t == nil {
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_LogsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users{}
+	}
+	return t.ID
+}
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_LogsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users) GetEmail() string {
+	if t == nil {
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_LogsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users{}
+	}
+	return t.Email
+}
+
+type ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_LogsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups struct {
+	Name string "json:\"name\" graphql:\"name\""
+}
+
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_LogsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups) GetName() string {
+	if t == nil {
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_LogsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups{}
+	}
+	return t.Name
+}
+
+type ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_LogsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings struct {
+	Users  []*ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_LogsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users  "json:\"users,omitempty\" graphql:\"users\""
+	Groups []*ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_LogsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups "json:\"groups,omitempty\" graphql:\"groups\""
+}
+
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_LogsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings) GetUsers() []*ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_LogsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users {
+	if t == nil {
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_LogsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings{}
+	}
+	return t.Users
+}
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_LogsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings) GetGroups() []*ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_LogsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups {
+	if t == nil {
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_LogsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings{}
+	}
+	return t.Groups
+}
+
+type ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_LogsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name struct {
+	First *string "json:\"first,omitempty\" graphql:\"first\""
+	Last  *string "json:\"last,omitempty\" graphql:\"last\""
+}
+
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_LogsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name) GetFirst() *string {
+	if t == nil {
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_LogsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name{}
+	}
+	return t.First
+}
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_LogsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name) GetLast() *string {
+	if t == nil {
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_LogsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name{}
+	}
+	return t.Last
+}
+
+type ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_LogsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name struct {
+	First *string "json:\"first,omitempty\" graphql:\"first\""
+	Last  *string "json:\"last,omitempty\" graphql:\"last\""
+}
+
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_LogsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name) GetFirst() *string {
+	if t == nil {
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_LogsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name{}
+	}
+	return t.First
+}
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_LogsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name) GetLast() *string {
+	if t == nil {
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_LogsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name{}
+	}
+	return t.Last
+}
+
+type ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_LogsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization struct {
+	Name string "json:\"name\" graphql:\"name\""
+}
+
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_LogsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization) GetName() string {
+	if t == nil {
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_LogsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization{}
+	}
+	return t.Name
+}
+
+type ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_LogsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users struct {
+	ID    string "json:\"id\" graphql:\"id\""
+	Email string "json:\"email\" graphql:\"email\""
+}
+
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_LogsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users) GetID() string {
+	if t == nil {
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_LogsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users{}
+	}
+	return t.ID
+}
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_LogsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users) GetEmail() string {
+	if t == nil {
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_LogsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users{}
+	}
+	return t.Email
+}
+
+type ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_LogsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups struct {
+	Name string "json:\"name\" graphql:\"name\""
+}
+
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_LogsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups) GetName() string {
+	if t == nil {
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_LogsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups{}
+	}
+	return t.Name
+}
+
+type ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_LogsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings struct {
+	Users  []*ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_LogsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users  "json:\"users,omitempty\" graphql:\"users\""
+	Groups []*ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_LogsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups "json:\"groups,omitempty\" graphql:\"groups\""
+}
+
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_LogsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings) GetUsers() []*ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_LogsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users {
+	if t == nil {
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_LogsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings{}
+	}
+	return t.Users
+}
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_LogsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings) GetGroups() []*ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_LogsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups {
+	if t == nil {
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_LogsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings{}
+	}
+	return t.Groups
+}
+
+type ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_TracesReaders_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name struct {
+	First *string "json:\"first,omitempty\" graphql:\"first\""
+	Last  *string "json:\"last,omitempty\" graphql:\"last\""
+}
+
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_TracesReaders_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name) GetFirst() *string {
+	if t == nil {
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_TracesReaders_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name{}
+	}
+	return t.First
+}
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_TracesReaders_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name) GetLast() *string {
+	if t == nil {
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_TracesReaders_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name{}
+	}
+	return t.Last
+}
+
+type ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_TracesReaders_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name struct {
+	First *string "json:\"first,omitempty\" graphql:\"first\""
+	Last  *string "json:\"last,omitempty\" graphql:\"last\""
+}
+
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_TracesReaders_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name) GetFirst() *string {
+	if t == nil {
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_TracesReaders_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name{}
+	}
+	return t.First
+}
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_TracesReaders_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name) GetLast() *string {
+	if t == nil {
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_TracesReaders_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name{}
+	}
+	return t.Last
+}
+
+type ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_TracesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization struct {
+	Name string "json:\"name\" graphql:\"name\""
+}
+
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_TracesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization) GetName() string {
+	if t == nil {
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_TracesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization{}
+	}
+	return t.Name
+}
+
+type ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_TracesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users struct {
+	ID    string "json:\"id\" graphql:\"id\""
+	Email string "json:\"email\" graphql:\"email\""
+}
+
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_TracesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users) GetID() string {
+	if t == nil {
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_TracesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users{}
+	}
+	return t.ID
+}
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_TracesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users) GetEmail() string {
+	if t == nil {
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_TracesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users{}
+	}
+	return t.Email
+}
+
+type ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_TracesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups struct {
+	Name string "json:\"name\" graphql:\"name\""
+}
+
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_TracesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups) GetName() string {
+	if t == nil {
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_TracesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups{}
+	}
+	return t.Name
+}
+
+type ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_TracesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings struct {
+	Users  []*ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_TracesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users  "json:\"users,omitempty\" graphql:\"users\""
+	Groups []*ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_TracesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups "json:\"groups,omitempty\" graphql:\"groups\""
+}
+
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_TracesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings) GetUsers() []*ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_TracesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users {
+	if t == nil {
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_TracesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings{}
+	}
+	return t.Users
+}
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_TracesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings) GetGroups() []*ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_TracesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups {
+	if t == nil {
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_TracesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings{}
+	}
+	return t.Groups
+}
+
+type ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_TracesWriters_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name struct {
+	First *string "json:\"first,omitempty\" graphql:\"first\""
+	Last  *string "json:\"last,omitempty\" graphql:\"last\""
+}
+
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_TracesWriters_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name) GetFirst() *string {
+	if t == nil {
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_TracesWriters_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name{}
+	}
+	return t.First
+}
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_TracesWriters_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name) GetLast() *string {
+	if t == nil {
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_TracesWriters_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name{}
+	}
+	return t.Last
+}
+
+type ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_TracesWriters_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name struct {
+	First *string "json:\"first,omitempty\" graphql:\"first\""
+	Last  *string "json:\"last,omitempty\" graphql:\"last\""
+}
+
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_TracesWriters_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name) GetFirst() *string {
+	if t == nil {
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_TracesWriters_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name{}
+	}
+	return t.First
+}
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_TracesWriters_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name) GetLast() *string {
+	if t == nil {
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_TracesWriters_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name{}
+	}
+	return t.Last
+}
+
+type ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_TracesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization struct {
+	Name string "json:\"name\" graphql:\"name\""
+}
+
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_TracesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization) GetName() string {
+	if t == nil {
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_TracesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization{}
+	}
+	return t.Name
+}
+
+type ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_TracesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users struct {
+	ID    string "json:\"id\" graphql:\"id\""
+	Email string "json:\"email\" graphql:\"email\""
+}
+
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_TracesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users) GetID() string {
+	if t == nil {
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_TracesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users{}
+	}
+	return t.ID
+}
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_TracesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users) GetEmail() string {
+	if t == nil {
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_TracesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users{}
+	}
+	return t.Email
+}
+
+type ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_TracesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups struct {
+	Name string "json:\"name\" graphql:\"name\""
+}
+
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_TracesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups) GetName() string {
+	if t == nil {
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_TracesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups{}
+	}
+	return t.Name
+}
+
+type ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_TracesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings struct {
+	Users  []*ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_TracesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users  "json:\"users,omitempty\" graphql:\"users\""
+	Groups []*ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_TracesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups "json:\"groups,omitempty\" graphql:\"groups\""
+}
+
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_TracesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings) GetUsers() []*ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_TracesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users {
+	if t == nil {
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_TracesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings{}
+	}
+	return t.Users
+}
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_TracesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings) GetGroups() []*ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_TracesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups {
+	if t == nil {
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_TracesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings{}
+	}
+	return t.Groups
+}
+
+type ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir struct {
+	RequestRate                                   *float64                            "json:\"requestRate,omitempty\" graphql:\"requestRate\""
+	RequestBurstSize                              *int64                              "json:\"requestBurstSize,omitempty\" graphql:\"requestBurstSize\""
+	IngestionRate                                 *float64                            "json:\"ingestionRate,omitempty\" graphql:\"ingestionRate\""
+	IngestionBurstSize                            *int64                              "json:\"ingestionBurstSize,omitempty\" graphql:\"ingestionBurstSize\""
+	AcceptHASamples                               *bool                               "json:\"acceptHASamples,omitempty\" graphql:\"acceptHASamples\""
+	HaClusterLabel                                *string                             "json:\"haClusterLabel,omitempty\" graphql:\"haClusterLabel\""
+	HaReplicaLabel                                *string                             "json:\"haReplicaLabel,omitempty\" graphql:\"haReplicaLabel\""
+	HaMaxClusters                                 *int64                              "json:\"haMaxClusters,omitempty\" graphql:\"haMaxClusters\""
+	DropLabels                                    []*string                           "json:\"dropLabels,omitempty\" graphql:\"dropLabels\""
+	MaxLabelNameLength                            *int64                              "json:\"maxLabelNameLength,omitempty\" graphql:\"maxLabelNameLength\""
+	MaxLabelValueLength                           *int64                              "json:\"maxLabelValueLength,omitempty\" graphql:\"maxLabelValueLength\""
+	MaxLabelNamesPerSeries                        *int64                              "json:\"maxLabelNamesPerSeries,omitempty\" graphql:\"maxLabelNamesPerSeries\""
+	MaxMetadataLength                             *int64                              "json:\"maxMetadataLength,omitempty\" graphql:\"maxMetadataLength\""
+	CreationGracePeriod                           *v1.Duration                        "json:\"creationGracePeriod,omitempty\" graphql:\"creationGracePeriod\""
+	EnforceMetadataMetricName                     *bool                               "json:\"enforceMetadataMetricName,omitempty\" graphql:\"enforceMetadataMetricName\""
+	IngestionTenantShardSize                      *int64                              "json:\"ingestionTenantShardSize,omitempty\" graphql:\"ingestionTenantShardSize\""
+	MaxGlobalSeriesPerUser                        *int64                              "json:\"maxGlobalSeriesPerUser,omitempty\" graphql:\"maxGlobalSeriesPerUser\""
+	MaxGlobalSeriesPerMetric                      *int64                              "json:\"maxGlobalSeriesPerMetric,omitempty\" graphql:\"maxGlobalSeriesPerMetric\""
+	MaxGlobalMetricsWithMetadataPerUser           *int64                              "json:\"maxGlobalMetricsWithMetadataPerUser,omitempty\" graphql:\"maxGlobalMetricsWithMetadataPerUser\""
+	MaxGlobalMetadataPerMetric                    *int64                              "json:\"maxGlobalMetadataPerMetric,omitempty\" graphql:\"maxGlobalMetadataPerMetric\""
+	MaxGlobalExemplarsPerUser                     *int64                              "json:\"maxGlobalExemplarsPerUser,omitempty\" graphql:\"maxGlobalExemplarsPerUser\""
+	NativeHistogramsIngestionEnabled              *bool                               "json:\"nativeHistogramsIngestionEnabled,omitempty\" graphql:\"nativeHistogramsIngestionEnabled\""
+	OutOfOrderTimeWindow                          *v1.Duration                        "json:\"outOfOrderTimeWindow,omitempty\" graphql:\"outOfOrderTimeWindow\""
+	OutOfOrderBlocksExternalLabelEnabled          *bool                               "json:\"outOfOrderBlocksExternalLabelEnabled,omitempty\" graphql:\"outOfOrderBlocksExternalLabelEnabled\""
+	SeparateMetricsGroupLabel                     *string                             "json:\"separateMetricsGroupLabel,omitempty\" graphql:\"separateMetricsGroupLabel\""
+	MaxChunksPerQuery                             *int64                              "json:\"maxChunksPerQuery,omitempty\" graphql:\"maxChunksPerQuery\""
+	MaxFetchedSeriesPerQuery                      *int64                              "json:\"maxFetchedSeriesPerQuery,omitempty\" graphql:\"maxFetchedSeriesPerQuery\""
+	MaxFetchedChunkBytesPerQuery                  *int64                              "json:\"maxFetchedChunkBytesPerQuery,omitempty\" graphql:\"maxFetchedChunkBytesPerQuery\""
+	MaxQueryLookback                              *v1.Duration                        "json:\"maxQueryLookback,omitempty\" graphql:\"maxQueryLookback\""
+	MaxPartialQueryLength                         *v1.Duration                        "json:\"maxPartialQueryLength,omitempty\" graphql:\"maxPartialQueryLength\""
+	MaxQueryParallelism                           *int64                              "json:\"maxQueryParallelism,omitempty\" graphql:\"maxQueryParallelism\""
+	MaxLabelsQueryLength                          *v1.Duration                        "json:\"maxLabelsQueryLength,omitempty\" graphql:\"maxLabelsQueryLength\""
+	MaxCacheFreshness                             *v1.Duration                        "json:\"maxCacheFreshness,omitempty\" graphql:\"maxCacheFreshness\""
+	MaxQueriersPerTenant                          *int64                              "json:\"maxQueriersPerTenant,omitempty\" graphql:\"maxQueriersPerTenant\""
+	QueryShardingTotalShards                      *int64                              "json:\"queryShardingTotalShards,omitempty\" graphql:\"queryShardingTotalShards\""
+	QueryShardingMaxShardedQueries                *int64                              "json:\"queryShardingMaxShardedQueries,omitempty\" graphql:\"queryShardingMaxShardedQueries\""
+	QueryShardingMaxRegexpSizeBytes               *int64                              "json:\"queryShardingMaxRegexpSizeBytes,omitempty\" graphql:\"queryShardingMaxRegexpSizeBytes\""
+	SplitInstantQueriesByInterval                 *v1.Duration                        "json:\"splitInstantQueriesByInterval,omitempty\" graphql:\"splitInstantQueriesByInterval\""
+	MaxTotalQueryLength                           *v1.Duration                        "json:\"maxTotalQueryLength,omitempty\" graphql:\"maxTotalQueryLength\""
+	ResultsCacheTTL                               *v1.Duration                        "json:\"resultsCacheTTL,omitempty\" graphql:\"resultsCacheTTL\""
+	ResultsCacheTTLForOutOfOrderTimeWindow        *v1.Duration                        "json:\"resultsCacheTTLForOutOfOrderTimeWindow,omitempty\" graphql:\"resultsCacheTTLForOutOfOrderTimeWindow\""
+	MaxQueryExpressionSizeBytes                   *int64                              "json:\"maxQueryExpressionSizeBytes,omitempty\" graphql:\"maxQueryExpressionSizeBytes\""
+	CardinalityAnalysisEnabled                    *bool                               "json:\"cardinalityAnalysisEnabled,omitempty\" graphql:\"cardinalityAnalysisEnabled\""
+	LabelNamesAndValuesResultsMaxSizeBytes        *int64                              "json:\"labelNamesAndValuesResultsMaxSizeBytes,omitempty\" graphql:\"labelNamesAndValuesResultsMaxSizeBytes\""
+	LabelValuesMaxCardinalityLabelNamesPerRequest *int64                              "json:\"labelValuesMaxCardinalityLabelNamesPerRequest,omitempty\" graphql:\"labelValuesMaxCardinalityLabelNamesPerRequest\""
+	RulerEvaluationDelay                          *v1.Duration                        "json:\"rulerEvaluationDelay,omitempty\" graphql:\"rulerEvaluationDelay\""
+	RulerTenantShardSize                          *int64                              "json:\"rulerTenantShardSize,omitempty\" graphql:\"rulerTenantShardSize\""
+	RulerMaxRulesPerRuleGroup                     *int64                              "json:\"rulerMaxRulesPerRuleGroup,omitempty\" graphql:\"rulerMaxRulesPerRuleGroup\""
+	RulerMaxRuleGroupsPerTenant                   *int64                              "json:\"rulerMaxRuleGroupsPerTenant,omitempty\" graphql:\"rulerMaxRuleGroupsPerTenant\""
+	RulerRecordingRulesEvaluationEnabled          *bool                               "json:\"rulerRecordingRulesEvaluationEnabled,omitempty\" graphql:\"rulerRecordingRulesEvaluationEnabled\""
+	RulerAlertingRulesEvaluationEnabled           *bool                               "json:\"rulerAlertingRulesEvaluationEnabled,omitempty\" graphql:\"rulerAlertingRulesEvaluationEnabled\""
+	StoreGatewayTenantShardSize                   *int64                              "json:\"storeGatewayTenantShardSize,omitempty\" graphql:\"storeGatewayTenantShardSize\""
+	CompactorBlocksRetentionPeriod                *v1.Duration                        "json:\"compactorBlocksRetentionPeriod,omitempty\" graphql:\"compactorBlocksRetentionPeriod\""
+	CompactorSplitAndMergeShards                  *int64                              "json:\"compactorSplitAndMergeShards,omitempty\" graphql:\"compactorSplitAndMergeShards\""
+	CompactorSplitGroups                          *int64                              "json:\"compactorSplitGroups,omitempty\" graphql:\"compactorSplitGroups\""
+	CompactorTenantShardSize                      *int64                              "json:\"compactorTenantShardSize,omitempty\" graphql:\"compactorTenantShardSize\""
+	CompactorPartialBlockDeletionDelay            *v1.Duration                        "json:\"compactorPartialBlockDeletionDelay,omitempty\" graphql:\"compactorPartialBlockDeletionDelay\""
+	CompactorBlockUploadEnabled                   *bool                               "json:\"compactorBlockUploadEnabled,omitempty\" graphql:\"compactorBlockUploadEnabled\""
+	CompactorBlockUploadValidationEnabled         *bool                               "json:\"compactorBlockUploadValidationEnabled,omitempty\" graphql:\"compactorBlockUploadValidationEnabled\""
+	CompactorBlockUploadVerifyChunks              *bool                               "json:\"compactorBlockUploadVerifyChunks,omitempty\" graphql:\"compactorBlockUploadVerifyChunks\""
+	S3SSEType                                     *string                             "json:\"s3SSEType,omitempty\" graphql:\"s3SSEType\""
+	S3SSEKMSKeyID                                 *string                             "json:\"s3SSEKMSKeyID,omitempty\" graphql:\"s3SSEKMSKeyID\""
+	S3SSEKMSEncryptionContext                     *string                             "json:\"s3SSEKMSEncryptionContext,omitempty\" graphql:\"s3SSEKMSEncryptionContext\""
+	AlertmanagerReceiversBlockCIDRNetworks        *string                             "json:\"alertmanagerReceiversBlockCIDRNetworks,omitempty\" graphql:\"alertmanagerReceiversBlockCIDRNetworks\""
+	AlertmanagerReceiversBlockPrivateAddresses    *bool                               "json:\"alertmanagerReceiversBlockPrivateAddresses,omitempty\" graphql:\"alertmanagerReceiversBlockPrivateAddresses\""
+	NotificationRateLimit                         *float64                            "json:\"notificationRateLimit,omitempty\" graphql:\"notificationRateLimit\""
+	NotificationRateLimitPerIntegration           map[string]*float64                 "json:\"notificationRateLimitPerIntegration,omitempty\" graphql:\"notificationRateLimitPerIntegration\""
+	AlertmanagerMaxConfigSizeBytes                *int64                              "json:\"alertmanagerMaxConfigSizeBytes,omitempty\" graphql:\"alertmanagerMaxConfigSizeBytes\""
+	AlertmanagerMaxTemplatesCount                 *int64                              "json:\"alertmanagerMaxTemplatesCount,omitempty\" graphql:\"alertmanagerMaxTemplatesCount\""
+	AlertmanagerMaxTemplateSizeBytes              *int64                              "json:\"alertmanagerMaxTemplateSizeBytes,omitempty\" graphql:\"alertmanagerMaxTemplateSizeBytes\""
+	AlertmanagerMaxDispatcherAggregationGroups    *int64                              "json:\"alertmanagerMaxDispatcherAggregationGroups,omitempty\" graphql:\"alertmanagerMaxDispatcherAggregationGroups\""
+	AlertmanagerMaxAlertsCount                    *int64                              "json:\"alertmanagerMaxAlertsCount,omitempty\" graphql:\"alertmanagerMaxAlertsCount\""
+	AlertmanagerMaxAlertsSizeBytes                *int64                              "json:\"alertmanagerMaxAlertsSizeBytes,omitempty\" graphql:\"alertmanagerMaxAlertsSizeBytes\""
+	ForwardingEndpoint                            *string                             "json:\"forwardingEndpoint,omitempty\" graphql:\"forwardingEndpoint\""
+	ForwardingDropOlderThan                       *v1.Duration                        "json:\"forwardingDropOlderThan,omitempty\" graphql:\"forwardingDropOlderThan\""
+	ForwardingRules                               map[string]*v1alpha1.ForwardingRule "json:\"forwardingRules,omitempty\" graphql:\"forwardingRules\""
+}
+
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetRequestRate() *float64 {
+	if t == nil {
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.RequestRate
+}
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetRequestBurstSize() *int64 {
+	if t == nil {
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.RequestBurstSize
+}
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetIngestionRate() *float64 {
+	if t == nil {
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.IngestionRate
+}
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetIngestionBurstSize() *int64 {
+	if t == nil {
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.IngestionBurstSize
+}
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetAcceptHASamples() *bool {
+	if t == nil {
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.AcceptHASamples
+}
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetHaClusterLabel() *string {
+	if t == nil {
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.HaClusterLabel
+}
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetHaReplicaLabel() *string {
+	if t == nil {
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.HaReplicaLabel
+}
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetHaMaxClusters() *int64 {
+	if t == nil {
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.HaMaxClusters
+}
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetDropLabels() []*string {
+	if t == nil {
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.DropLabels
+}
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetMaxLabelNameLength() *int64 {
+	if t == nil {
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.MaxLabelNameLength
+}
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetMaxLabelValueLength() *int64 {
+	if t == nil {
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.MaxLabelValueLength
+}
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetMaxLabelNamesPerSeries() *int64 {
+	if t == nil {
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.MaxLabelNamesPerSeries
+}
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetMaxMetadataLength() *int64 {
+	if t == nil {
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.MaxMetadataLength
+}
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetCreationGracePeriod() *v1.Duration {
+	if t == nil {
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.CreationGracePeriod
+}
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetEnforceMetadataMetricName() *bool {
+	if t == nil {
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.EnforceMetadataMetricName
+}
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetIngestionTenantShardSize() *int64 {
+	if t == nil {
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.IngestionTenantShardSize
+}
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetMaxGlobalSeriesPerUser() *int64 {
+	if t == nil {
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.MaxGlobalSeriesPerUser
+}
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetMaxGlobalSeriesPerMetric() *int64 {
+	if t == nil {
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.MaxGlobalSeriesPerMetric
+}
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetMaxGlobalMetricsWithMetadataPerUser() *int64 {
+	if t == nil {
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.MaxGlobalMetricsWithMetadataPerUser
+}
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetMaxGlobalMetadataPerMetric() *int64 {
+	if t == nil {
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.MaxGlobalMetadataPerMetric
+}
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetMaxGlobalExemplarsPerUser() *int64 {
+	if t == nil {
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.MaxGlobalExemplarsPerUser
+}
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetNativeHistogramsIngestionEnabled() *bool {
+	if t == nil {
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.NativeHistogramsIngestionEnabled
+}
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetOutOfOrderTimeWindow() *v1.Duration {
+	if t == nil {
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.OutOfOrderTimeWindow
+}
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetOutOfOrderBlocksExternalLabelEnabled() *bool {
+	if t == nil {
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.OutOfOrderBlocksExternalLabelEnabled
+}
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetSeparateMetricsGroupLabel() *string {
+	if t == nil {
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.SeparateMetricsGroupLabel
+}
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetMaxChunksPerQuery() *int64 {
+	if t == nil {
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.MaxChunksPerQuery
+}
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetMaxFetchedSeriesPerQuery() *int64 {
+	if t == nil {
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.MaxFetchedSeriesPerQuery
+}
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetMaxFetchedChunkBytesPerQuery() *int64 {
+	if t == nil {
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.MaxFetchedChunkBytesPerQuery
+}
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetMaxQueryLookback() *v1.Duration {
+	if t == nil {
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.MaxQueryLookback
+}
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetMaxPartialQueryLength() *v1.Duration {
+	if t == nil {
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.MaxPartialQueryLength
+}
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetMaxQueryParallelism() *int64 {
+	if t == nil {
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.MaxQueryParallelism
+}
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetMaxLabelsQueryLength() *v1.Duration {
+	if t == nil {
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.MaxLabelsQueryLength
+}
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetMaxCacheFreshness() *v1.Duration {
+	if t == nil {
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.MaxCacheFreshness
+}
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetMaxQueriersPerTenant() *int64 {
+	if t == nil {
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.MaxQueriersPerTenant
+}
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetQueryShardingTotalShards() *int64 {
+	if t == nil {
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.QueryShardingTotalShards
+}
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetQueryShardingMaxShardedQueries() *int64 {
+	if t == nil {
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.QueryShardingMaxShardedQueries
+}
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetQueryShardingMaxRegexpSizeBytes() *int64 {
+	if t == nil {
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.QueryShardingMaxRegexpSizeBytes
+}
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetSplitInstantQueriesByInterval() *v1.Duration {
+	if t == nil {
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.SplitInstantQueriesByInterval
+}
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetMaxTotalQueryLength() *v1.Duration {
+	if t == nil {
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.MaxTotalQueryLength
+}
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetResultsCacheTTL() *v1.Duration {
+	if t == nil {
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.ResultsCacheTTL
+}
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetResultsCacheTTLForOutOfOrderTimeWindow() *v1.Duration {
+	if t == nil {
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.ResultsCacheTTLForOutOfOrderTimeWindow
+}
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetMaxQueryExpressionSizeBytes() *int64 {
+	if t == nil {
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.MaxQueryExpressionSizeBytes
+}
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetCardinalityAnalysisEnabled() *bool {
+	if t == nil {
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.CardinalityAnalysisEnabled
+}
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetLabelNamesAndValuesResultsMaxSizeBytes() *int64 {
+	if t == nil {
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.LabelNamesAndValuesResultsMaxSizeBytes
+}
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetLabelValuesMaxCardinalityLabelNamesPerRequest() *int64 {
+	if t == nil {
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.LabelValuesMaxCardinalityLabelNamesPerRequest
+}
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetRulerEvaluationDelay() *v1.Duration {
+	if t == nil {
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.RulerEvaluationDelay
+}
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetRulerTenantShardSize() *int64 {
+	if t == nil {
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.RulerTenantShardSize
+}
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetRulerMaxRulesPerRuleGroup() *int64 {
+	if t == nil {
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.RulerMaxRulesPerRuleGroup
+}
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetRulerMaxRuleGroupsPerTenant() *int64 {
+	if t == nil {
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.RulerMaxRuleGroupsPerTenant
+}
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetRulerRecordingRulesEvaluationEnabled() *bool {
+	if t == nil {
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.RulerRecordingRulesEvaluationEnabled
+}
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetRulerAlertingRulesEvaluationEnabled() *bool {
+	if t == nil {
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.RulerAlertingRulesEvaluationEnabled
+}
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetStoreGatewayTenantShardSize() *int64 {
+	if t == nil {
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.StoreGatewayTenantShardSize
+}
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetCompactorBlocksRetentionPeriod() *v1.Duration {
+	if t == nil {
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.CompactorBlocksRetentionPeriod
+}
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetCompactorSplitAndMergeShards() *int64 {
+	if t == nil {
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.CompactorSplitAndMergeShards
+}
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetCompactorSplitGroups() *int64 {
+	if t == nil {
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.CompactorSplitGroups
+}
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetCompactorTenantShardSize() *int64 {
+	if t == nil {
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.CompactorTenantShardSize
+}
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetCompactorPartialBlockDeletionDelay() *v1.Duration {
+	if t == nil {
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.CompactorPartialBlockDeletionDelay
+}
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetCompactorBlockUploadEnabled() *bool {
+	if t == nil {
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.CompactorBlockUploadEnabled
+}
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetCompactorBlockUploadValidationEnabled() *bool {
+	if t == nil {
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.CompactorBlockUploadValidationEnabled
+}
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetCompactorBlockUploadVerifyChunks() *bool {
+	if t == nil {
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.CompactorBlockUploadVerifyChunks
+}
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetS3SSEType() *string {
+	if t == nil {
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.S3SSEType
+}
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetS3SSEKMSKeyID() *string {
+	if t == nil {
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.S3SSEKMSKeyID
+}
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetS3SSEKMSEncryptionContext() *string {
+	if t == nil {
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.S3SSEKMSEncryptionContext
+}
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetAlertmanagerReceiversBlockCIDRNetworks() *string {
+	if t == nil {
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.AlertmanagerReceiversBlockCIDRNetworks
+}
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetAlertmanagerReceiversBlockPrivateAddresses() *bool {
+	if t == nil {
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.AlertmanagerReceiversBlockPrivateAddresses
+}
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetNotificationRateLimit() *float64 {
+	if t == nil {
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.NotificationRateLimit
+}
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetNotificationRateLimitPerIntegration() map[string]*float64 {
+	if t == nil {
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.NotificationRateLimitPerIntegration
+}
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetAlertmanagerMaxConfigSizeBytes() *int64 {
+	if t == nil {
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.AlertmanagerMaxConfigSizeBytes
+}
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetAlertmanagerMaxTemplatesCount() *int64 {
+	if t == nil {
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.AlertmanagerMaxTemplatesCount
+}
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetAlertmanagerMaxTemplateSizeBytes() *int64 {
+	if t == nil {
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.AlertmanagerMaxTemplateSizeBytes
+}
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetAlertmanagerMaxDispatcherAggregationGroups() *int64 {
+	if t == nil {
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.AlertmanagerMaxDispatcherAggregationGroups
+}
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetAlertmanagerMaxAlertsCount() *int64 {
+	if t == nil {
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.AlertmanagerMaxAlertsCount
+}
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetAlertmanagerMaxAlertsSizeBytes() *int64 {
+	if t == nil {
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.AlertmanagerMaxAlertsSizeBytes
+}
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetForwardingEndpoint() *string {
+	if t == nil {
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.ForwardingEndpoint
+}
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetForwardingDropOlderThan() *v1.Duration {
+	if t == nil {
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.ForwardingDropOlderThan
+}
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetForwardingRules() map[string]*v1alpha1.ForwardingRule {
+	if t == nil {
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.ForwardingRules
+}
+
+type GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Admins_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name struct {
+	First *string "json:\"first,omitempty\" graphql:\"first\""
+	Last  *string "json:\"last,omitempty\" graphql:\"last\""
+}
+
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Admins_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name) GetFirst() *string {
+	if t == nil {
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Admins_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name{}
+	}
+	return t.First
+}
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Admins_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name) GetLast() *string {
+	if t == nil {
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Admins_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name{}
+	}
+	return t.Last
+}
+
+type GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Admins_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name struct {
+	First *string "json:\"first,omitempty\" graphql:\"first\""
+	Last  *string "json:\"last,omitempty\" graphql:\"last\""
+}
+
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Admins_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name) GetFirst() *string {
+	if t == nil {
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Admins_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name{}
+	}
+	return t.First
+}
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Admins_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name) GetLast() *string {
+	if t == nil {
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Admins_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name{}
+	}
+	return t.Last
+}
+
+type GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Admins_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization struct {
+	Name string "json:\"name\" graphql:\"name\""
+}
+
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Admins_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization) GetName() string {
+	if t == nil {
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Admins_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization{}
+	}
+	return t.Name
+}
+
+type GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Admins_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users struct {
+	ID    string "json:\"id\" graphql:\"id\""
+	Email string "json:\"email\" graphql:\"email\""
+}
+
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Admins_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users) GetID() string {
+	if t == nil {
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Admins_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users{}
+	}
+	return t.ID
+}
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Admins_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users) GetEmail() string {
+	if t == nil {
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Admins_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users{}
+	}
+	return t.Email
+}
+
+type GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Admins_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups struct {
+	Name string "json:\"name\" graphql:\"name\""
+}
+
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Admins_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups) GetName() string {
+	if t == nil {
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Admins_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups{}
+	}
+	return t.Name
+}
+
+type GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Admins_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings struct {
+	Users  []*GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Admins_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users  "json:\"users,omitempty\" graphql:\"users\""
+	Groups []*GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Admins_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups "json:\"groups,omitempty\" graphql:\"groups\""
+}
+
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Admins_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings) GetUsers() []*GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Admins_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users {
+	if t == nil {
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Admins_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings{}
+	}
+	return t.Users
+}
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Admins_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings) GetGroups() []*GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Admins_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups {
+	if t == nil {
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Admins_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings{}
+	}
+	return t.Groups
+}
+
+type GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsReaders_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name struct {
+	First *string "json:\"first,omitempty\" graphql:\"first\""
+	Last  *string "json:\"last,omitempty\" graphql:\"last\""
+}
+
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsReaders_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name) GetFirst() *string {
+	if t == nil {
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsReaders_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name{}
+	}
+	return t.First
+}
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsReaders_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name) GetLast() *string {
+	if t == nil {
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsReaders_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name{}
+	}
+	return t.Last
+}
+
+type GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsReaders_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name struct {
+	First *string "json:\"first,omitempty\" graphql:\"first\""
+	Last  *string "json:\"last,omitempty\" graphql:\"last\""
+}
+
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsReaders_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name) GetFirst() *string {
+	if t == nil {
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsReaders_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name{}
+	}
+	return t.First
+}
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsReaders_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name) GetLast() *string {
+	if t == nil {
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsReaders_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name{}
+	}
+	return t.Last
+}
+
+type GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization struct {
+	Name string "json:\"name\" graphql:\"name\""
+}
+
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization) GetName() string {
+	if t == nil {
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization{}
+	}
+	return t.Name
+}
+
+type GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users struct {
+	ID    string "json:\"id\" graphql:\"id\""
+	Email string "json:\"email\" graphql:\"email\""
+}
+
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users) GetID() string {
+	if t == nil {
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users{}
+	}
+	return t.ID
+}
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users) GetEmail() string {
+	if t == nil {
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users{}
+	}
+	return t.Email
+}
+
+type GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups struct {
+	Name string "json:\"name\" graphql:\"name\""
+}
+
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups) GetName() string {
+	if t == nil {
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups{}
+	}
+	return t.Name
+}
+
+type GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings struct {
+	Users  []*GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users  "json:\"users,omitempty\" graphql:\"users\""
+	Groups []*GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups "json:\"groups,omitempty\" graphql:\"groups\""
+}
+
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings) GetUsers() []*GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users {
+	if t == nil {
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings{}
+	}
+	return t.Users
+}
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings) GetGroups() []*GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups {
+	if t == nil {
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings{}
+	}
+	return t.Groups
+}
+
+type GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsWriters_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name struct {
+	First *string "json:\"first,omitempty\" graphql:\"first\""
+	Last  *string "json:\"last,omitempty\" graphql:\"last\""
+}
+
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsWriters_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name) GetFirst() *string {
+	if t == nil {
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsWriters_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name{}
+	}
+	return t.First
+}
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsWriters_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name) GetLast() *string {
+	if t == nil {
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsWriters_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name{}
+	}
+	return t.Last
+}
+
+type GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsWriters_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name struct {
+	First *string "json:\"first,omitempty\" graphql:\"first\""
+	Last  *string "json:\"last,omitempty\" graphql:\"last\""
+}
+
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsWriters_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name) GetFirst() *string {
+	if t == nil {
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsWriters_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name{}
+	}
+	return t.First
+}
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsWriters_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name) GetLast() *string {
+	if t == nil {
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsWriters_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name{}
+	}
+	return t.Last
+}
+
+type GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization struct {
+	Name string "json:\"name\" graphql:\"name\""
+}
+
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization) GetName() string {
+	if t == nil {
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization{}
+	}
+	return t.Name
+}
+
+type GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users struct {
+	ID    string "json:\"id\" graphql:\"id\""
+	Email string "json:\"email\" graphql:\"email\""
+}
+
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users) GetID() string {
+	if t == nil {
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users{}
+	}
+	return t.ID
+}
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users) GetEmail() string {
+	if t == nil {
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users{}
+	}
+	return t.Email
+}
+
+type GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups struct {
+	Name string "json:\"name\" graphql:\"name\""
+}
+
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups) GetName() string {
+	if t == nil {
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups{}
+	}
+	return t.Name
+}
+
+type GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings struct {
+	Users  []*GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users  "json:\"users,omitempty\" graphql:\"users\""
+	Groups []*GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups "json:\"groups,omitempty\" graphql:\"groups\""
+}
+
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings) GetUsers() []*GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users {
+	if t == nil {
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings{}
+	}
+	return t.Users
+}
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings) GetGroups() []*GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups {
+	if t == nil {
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings{}
+	}
+	return t.Groups
+}
+
+type GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name struct {
+	First *string "json:\"first,omitempty\" graphql:\"first\""
+	Last  *string "json:\"last,omitempty\" graphql:\"last\""
+}
+
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name) GetFirst() *string {
+	if t == nil {
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name{}
+	}
+	return t.First
+}
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name) GetLast() *string {
+	if t == nil {
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name{}
+	}
+	return t.Last
+}
+
+type GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name struct {
+	First *string "json:\"first,omitempty\" graphql:\"first\""
+	Last  *string "json:\"last,omitempty\" graphql:\"last\""
+}
+
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name) GetFirst() *string {
+	if t == nil {
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name{}
+	}
+	return t.First
+}
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name) GetLast() *string {
+	if t == nil {
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name{}
+	}
+	return t.Last
+}
+
+type GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization struct {
+	Name string "json:\"name\" graphql:\"name\""
+}
+
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization) GetName() string {
+	if t == nil {
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization{}
+	}
+	return t.Name
+}
+
+type GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users struct {
+	ID    string "json:\"id\" graphql:\"id\""
+	Email string "json:\"email\" graphql:\"email\""
+}
+
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users) GetID() string {
+	if t == nil {
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users{}
+	}
+	return t.ID
+}
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users) GetEmail() string {
+	if t == nil {
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users{}
+	}
+	return t.Email
+}
+
+type GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups struct {
+	Name string "json:\"name\" graphql:\"name\""
+}
+
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups) GetName() string {
+	if t == nil {
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups{}
+	}
+	return t.Name
+}
+
+type GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings struct {
+	Users  []*GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users  "json:\"users,omitempty\" graphql:\"users\""
+	Groups []*GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups "json:\"groups,omitempty\" graphql:\"groups\""
+}
+
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings) GetUsers() []*GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users {
+	if t == nil {
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings{}
+	}
+	return t.Users
+}
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings) GetGroups() []*GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups {
+	if t == nil {
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings{}
+	}
+	return t.Groups
+}
+
+type GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name struct {
+	First *string "json:\"first,omitempty\" graphql:\"first\""
+	Last  *string "json:\"last,omitempty\" graphql:\"last\""
+}
+
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name) GetFirst() *string {
+	if t == nil {
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name{}
+	}
+	return t.First
+}
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name) GetLast() *string {
+	if t == nil {
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name{}
+	}
+	return t.Last
+}
+
+type GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name struct {
+	First *string "json:\"first,omitempty\" graphql:\"first\""
+	Last  *string "json:\"last,omitempty\" graphql:\"last\""
+}
+
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name) GetFirst() *string {
+	if t == nil {
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name{}
+	}
+	return t.First
+}
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name) GetLast() *string {
+	if t == nil {
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name{}
+	}
+	return t.Last
+}
+
+type GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization struct {
+	Name string "json:\"name\" graphql:\"name\""
+}
+
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization) GetName() string {
+	if t == nil {
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization{}
+	}
+	return t.Name
+}
+
+type GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users struct {
+	ID    string "json:\"id\" graphql:\"id\""
+	Email string "json:\"email\" graphql:\"email\""
+}
+
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users) GetID() string {
+	if t == nil {
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users{}
+	}
+	return t.ID
+}
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users) GetEmail() string {
+	if t == nil {
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users{}
+	}
+	return t.Email
+}
+
+type GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups struct {
+	Name string "json:\"name\" graphql:\"name\""
+}
+
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups) GetName() string {
+	if t == nil {
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups{}
+	}
+	return t.Name
+}
+
+type GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings struct {
+	Users  []*GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users  "json:\"users,omitempty\" graphql:\"users\""
+	Groups []*GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups "json:\"groups,omitempty\" graphql:\"groups\""
+}
+
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings) GetUsers() []*GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users {
+	if t == nil {
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings{}
+	}
+	return t.Users
+}
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings) GetGroups() []*GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups {
+	if t == nil {
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings{}
+	}
+	return t.Groups
+}
+
+type GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name struct {
+	First *string "json:\"first,omitempty\" graphql:\"first\""
+	Last  *string "json:\"last,omitempty\" graphql:\"last\""
+}
+
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name) GetFirst() *string {
+	if t == nil {
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name{}
+	}
+	return t.First
+}
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name) GetLast() *string {
+	if t == nil {
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name{}
+	}
+	return t.Last
+}
+
+type GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name struct {
+	First *string "json:\"first,omitempty\" graphql:\"first\""
+	Last  *string "json:\"last,omitempty\" graphql:\"last\""
+}
+
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name) GetFirst() *string {
+	if t == nil {
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name{}
+	}
+	return t.First
+}
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name) GetLast() *string {
+	if t == nil {
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name{}
+	}
+	return t.Last
+}
+
+type GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization struct {
+	Name string "json:\"name\" graphql:\"name\""
+}
+
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization) GetName() string {
+	if t == nil {
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization{}
+	}
+	return t.Name
+}
+
+type GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users struct {
+	ID    string "json:\"id\" graphql:\"id\""
+	Email string "json:\"email\" graphql:\"email\""
+}
+
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users) GetID() string {
+	if t == nil {
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users{}
+	}
+	return t.ID
+}
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users) GetEmail() string {
+	if t == nil {
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users{}
+	}
+	return t.Email
+}
+
+type GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups struct {
+	Name string "json:\"name\" graphql:\"name\""
+}
+
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups) GetName() string {
+	if t == nil {
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups{}
+	}
+	return t.Name
+}
+
+type GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings struct {
+	Users  []*GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users  "json:\"users,omitempty\" graphql:\"users\""
+	Groups []*GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups "json:\"groups,omitempty\" graphql:\"groups\""
+}
+
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings) GetUsers() []*GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users {
+	if t == nil {
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings{}
+	}
+	return t.Users
+}
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings) GetGroups() []*GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups {
+	if t == nil {
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings{}
+	}
+	return t.Groups
+}
+
+type GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsAlertsReaders_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name struct {
+	First *string "json:\"first,omitempty\" graphql:\"first\""
+	Last  *string "json:\"last,omitempty\" graphql:\"last\""
+}
+
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsAlertsReaders_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name) GetFirst() *string {
+	if t == nil {
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsAlertsReaders_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name{}
+	}
+	return t.First
+}
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsAlertsReaders_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name) GetLast() *string {
+	if t == nil {
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsAlertsReaders_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name{}
+	}
+	return t.Last
+}
+
+type GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsAlertsReaders_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name struct {
+	First *string "json:\"first,omitempty\" graphql:\"first\""
+	Last  *string "json:\"last,omitempty\" graphql:\"last\""
+}
+
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsAlertsReaders_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name) GetFirst() *string {
+	if t == nil {
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsAlertsReaders_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name{}
+	}
+	return t.First
+}
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsAlertsReaders_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name) GetLast() *string {
+	if t == nil {
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsAlertsReaders_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name{}
+	}
+	return t.Last
+}
+
+type GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsAlertsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization struct {
+	Name string "json:\"name\" graphql:\"name\""
+}
+
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsAlertsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization) GetName() string {
+	if t == nil {
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsAlertsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization{}
+	}
+	return t.Name
+}
+
+type GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsAlertsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users struct {
+	ID    string "json:\"id\" graphql:\"id\""
+	Email string "json:\"email\" graphql:\"email\""
+}
+
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsAlertsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users) GetID() string {
+	if t == nil {
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsAlertsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users{}
+	}
+	return t.ID
+}
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsAlertsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users) GetEmail() string {
+	if t == nil {
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsAlertsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users{}
+	}
+	return t.Email
+}
+
+type GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsAlertsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups struct {
+	Name string "json:\"name\" graphql:\"name\""
+}
+
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsAlertsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups) GetName() string {
+	if t == nil {
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsAlertsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups{}
+	}
+	return t.Name
+}
+
+type GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsAlertsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings struct {
+	Users  []*GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsAlertsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users  "json:\"users,omitempty\" graphql:\"users\""
+	Groups []*GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsAlertsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups "json:\"groups,omitempty\" graphql:\"groups\""
+}
+
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsAlertsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings) GetUsers() []*GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsAlertsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users {
+	if t == nil {
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsAlertsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings{}
+	}
+	return t.Users
+}
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsAlertsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings) GetGroups() []*GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsAlertsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups {
+	if t == nil {
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsAlertsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings{}
+	}
+	return t.Groups
+}
+
+type GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsAlertsWriters_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name struct {
+	First *string "json:\"first,omitempty\" graphql:\"first\""
+	Last  *string "json:\"last,omitempty\" graphql:\"last\""
+}
+
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsAlertsWriters_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name) GetFirst() *string {
+	if t == nil {
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsAlertsWriters_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name{}
+	}
+	return t.First
+}
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsAlertsWriters_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name) GetLast() *string {
+	if t == nil {
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsAlertsWriters_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name{}
+	}
+	return t.Last
+}
+
+type GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsAlertsWriters_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name struct {
+	First *string "json:\"first,omitempty\" graphql:\"first\""
+	Last  *string "json:\"last,omitempty\" graphql:\"last\""
+}
+
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsAlertsWriters_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name) GetFirst() *string {
+	if t == nil {
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsAlertsWriters_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name{}
+	}
+	return t.First
+}
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsAlertsWriters_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name) GetLast() *string {
+	if t == nil {
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsAlertsWriters_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name{}
+	}
+	return t.Last
+}
+
+type GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsAlertsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization struct {
+	Name string "json:\"name\" graphql:\"name\""
+}
+
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsAlertsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization) GetName() string {
+	if t == nil {
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsAlertsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization{}
+	}
+	return t.Name
+}
+
+type GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsAlertsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users struct {
+	ID    string "json:\"id\" graphql:\"id\""
+	Email string "json:\"email\" graphql:\"email\""
+}
+
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsAlertsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users) GetID() string {
+	if t == nil {
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsAlertsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users{}
+	}
+	return t.ID
+}
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsAlertsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users) GetEmail() string {
+	if t == nil {
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsAlertsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users{}
+	}
+	return t.Email
+}
+
+type GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsAlertsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups struct {
+	Name string "json:\"name\" graphql:\"name\""
+}
+
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsAlertsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups) GetName() string {
+	if t == nil {
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsAlertsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups{}
+	}
+	return t.Name
+}
+
+type GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsAlertsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings struct {
+	Users  []*GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsAlertsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users  "json:\"users,omitempty\" graphql:\"users\""
+	Groups []*GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsAlertsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups "json:\"groups,omitempty\" graphql:\"groups\""
+}
+
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsAlertsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings) GetUsers() []*GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsAlertsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users {
+	if t == nil {
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsAlertsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings{}
+	}
+	return t.Users
+}
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsAlertsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings) GetGroups() []*GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsAlertsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups {
+	if t == nil {
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsAlertsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings{}
+	}
+	return t.Groups
+}
+
+type GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_LogsReaders_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name struct {
+	First *string "json:\"first,omitempty\" graphql:\"first\""
+	Last  *string "json:\"last,omitempty\" graphql:\"last\""
+}
+
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_LogsReaders_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name) GetFirst() *string {
+	if t == nil {
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_LogsReaders_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name{}
+	}
+	return t.First
+}
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_LogsReaders_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name) GetLast() *string {
+	if t == nil {
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_LogsReaders_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name{}
+	}
+	return t.Last
+}
+
+type GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_LogsReaders_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name struct {
+	First *string "json:\"first,omitempty\" graphql:\"first\""
+	Last  *string "json:\"last,omitempty\" graphql:\"last\""
+}
+
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_LogsReaders_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name) GetFirst() *string {
+	if t == nil {
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_LogsReaders_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name{}
+	}
+	return t.First
+}
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_LogsReaders_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name) GetLast() *string {
+	if t == nil {
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_LogsReaders_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name{}
+	}
+	return t.Last
+}
+
+type GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_LogsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization struct {
+	Name string "json:\"name\" graphql:\"name\""
+}
+
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_LogsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization) GetName() string {
+	if t == nil {
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_LogsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization{}
+	}
+	return t.Name
+}
+
+type GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_LogsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users struct {
+	ID    string "json:\"id\" graphql:\"id\""
+	Email string "json:\"email\" graphql:\"email\""
+}
+
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_LogsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users) GetID() string {
+	if t == nil {
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_LogsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users{}
+	}
+	return t.ID
+}
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_LogsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users) GetEmail() string {
+	if t == nil {
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_LogsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users{}
+	}
+	return t.Email
+}
+
+type GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_LogsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups struct {
+	Name string "json:\"name\" graphql:\"name\""
+}
+
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_LogsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups) GetName() string {
+	if t == nil {
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_LogsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups{}
+	}
+	return t.Name
+}
+
+type GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_LogsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings struct {
+	Users  []*GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_LogsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users  "json:\"users,omitempty\" graphql:\"users\""
+	Groups []*GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_LogsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups "json:\"groups,omitempty\" graphql:\"groups\""
+}
+
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_LogsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings) GetUsers() []*GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_LogsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users {
+	if t == nil {
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_LogsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings{}
+	}
+	return t.Users
+}
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_LogsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings) GetGroups() []*GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_LogsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups {
+	if t == nil {
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_LogsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings{}
+	}
+	return t.Groups
+}
+
+type GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_LogsWriters_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name struct {
+	First *string "json:\"first,omitempty\" graphql:\"first\""
+	Last  *string "json:\"last,omitempty\" graphql:\"last\""
+}
+
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_LogsWriters_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name) GetFirst() *string {
+	if t == nil {
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_LogsWriters_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name{}
+	}
+	return t.First
+}
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_LogsWriters_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name) GetLast() *string {
+	if t == nil {
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_LogsWriters_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name{}
+	}
+	return t.Last
+}
+
+type GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_LogsWriters_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name struct {
+	First *string "json:\"first,omitempty\" graphql:\"first\""
+	Last  *string "json:\"last,omitempty\" graphql:\"last\""
+}
+
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_LogsWriters_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name) GetFirst() *string {
+	if t == nil {
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_LogsWriters_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name{}
+	}
+	return t.First
+}
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_LogsWriters_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name) GetLast() *string {
+	if t == nil {
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_LogsWriters_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name{}
+	}
+	return t.Last
+}
+
+type GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_LogsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization struct {
+	Name string "json:\"name\" graphql:\"name\""
+}
+
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_LogsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization) GetName() string {
+	if t == nil {
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_LogsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization{}
+	}
+	return t.Name
+}
+
+type GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_LogsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users struct {
+	ID    string "json:\"id\" graphql:\"id\""
+	Email string "json:\"email\" graphql:\"email\""
+}
+
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_LogsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users) GetID() string {
+	if t == nil {
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_LogsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users{}
+	}
+	return t.ID
+}
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_LogsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users) GetEmail() string {
+	if t == nil {
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_LogsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users{}
+	}
+	return t.Email
+}
+
+type GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_LogsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups struct {
+	Name string "json:\"name\" graphql:\"name\""
+}
+
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_LogsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups) GetName() string {
+	if t == nil {
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_LogsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups{}
+	}
+	return t.Name
+}
+
+type GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_LogsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings struct {
+	Users  []*GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_LogsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users  "json:\"users,omitempty\" graphql:\"users\""
+	Groups []*GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_LogsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups "json:\"groups,omitempty\" graphql:\"groups\""
+}
+
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_LogsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings) GetUsers() []*GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_LogsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users {
+	if t == nil {
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_LogsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings{}
+	}
+	return t.Users
+}
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_LogsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings) GetGroups() []*GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_LogsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups {
+	if t == nil {
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_LogsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings{}
+	}
+	return t.Groups
+}
+
+type GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_LogsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name struct {
+	First *string "json:\"first,omitempty\" graphql:\"first\""
+	Last  *string "json:\"last,omitempty\" graphql:\"last\""
+}
+
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_LogsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name) GetFirst() *string {
+	if t == nil {
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_LogsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name{}
+	}
+	return t.First
+}
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_LogsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name) GetLast() *string {
+	if t == nil {
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_LogsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name{}
+	}
+	return t.Last
+}
+
+type GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_LogsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name struct {
+	First *string "json:\"first,omitempty\" graphql:\"first\""
+	Last  *string "json:\"last,omitempty\" graphql:\"last\""
+}
+
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_LogsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name) GetFirst() *string {
+	if t == nil {
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_LogsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name{}
+	}
+	return t.First
+}
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_LogsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name) GetLast() *string {
+	if t == nil {
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_LogsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name{}
+	}
+	return t.Last
+}
+
+type GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_LogsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization struct {
+	Name string "json:\"name\" graphql:\"name\""
+}
+
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_LogsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization) GetName() string {
+	if t == nil {
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_LogsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization{}
+	}
+	return t.Name
+}
+
+type GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_LogsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users struct {
+	ID    string "json:\"id\" graphql:\"id\""
+	Email string "json:\"email\" graphql:\"email\""
+}
+
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_LogsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users) GetID() string {
+	if t == nil {
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_LogsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users{}
+	}
+	return t.ID
+}
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_LogsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users) GetEmail() string {
+	if t == nil {
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_LogsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users{}
+	}
+	return t.Email
+}
+
+type GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_LogsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups struct {
+	Name string "json:\"name\" graphql:\"name\""
+}
+
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_LogsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups) GetName() string {
+	if t == nil {
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_LogsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups{}
+	}
+	return t.Name
+}
+
+type GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_LogsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings struct {
+	Users  []*GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_LogsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users  "json:\"users,omitempty\" graphql:\"users\""
+	Groups []*GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_LogsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups "json:\"groups,omitempty\" graphql:\"groups\""
+}
+
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_LogsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings) GetUsers() []*GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_LogsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users {
+	if t == nil {
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_LogsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings{}
+	}
+	return t.Users
+}
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_LogsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings) GetGroups() []*GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_LogsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups {
+	if t == nil {
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_LogsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings{}
+	}
+	return t.Groups
+}
+
+type GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_LogsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name struct {
+	First *string "json:\"first,omitempty\" graphql:\"first\""
+	Last  *string "json:\"last,omitempty\" graphql:\"last\""
+}
+
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_LogsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name) GetFirst() *string {
+	if t == nil {
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_LogsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name{}
+	}
+	return t.First
+}
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_LogsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name) GetLast() *string {
+	if t == nil {
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_LogsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name{}
+	}
+	return t.Last
+}
+
+type GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_LogsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name struct {
+	First *string "json:\"first,omitempty\" graphql:\"first\""
+	Last  *string "json:\"last,omitempty\" graphql:\"last\""
+}
+
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_LogsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name) GetFirst() *string {
+	if t == nil {
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_LogsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name{}
+	}
+	return t.First
+}
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_LogsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name) GetLast() *string {
+	if t == nil {
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_LogsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name{}
+	}
+	return t.Last
+}
+
+type GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_LogsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization struct {
+	Name string "json:\"name\" graphql:\"name\""
+}
+
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_LogsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization) GetName() string {
+	if t == nil {
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_LogsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization{}
+	}
+	return t.Name
+}
+
+type GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_LogsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users struct {
+	ID    string "json:\"id\" graphql:\"id\""
+	Email string "json:\"email\" graphql:\"email\""
+}
+
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_LogsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users) GetID() string {
+	if t == nil {
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_LogsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users{}
+	}
+	return t.ID
+}
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_LogsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users) GetEmail() string {
+	if t == nil {
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_LogsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users{}
+	}
+	return t.Email
+}
+
+type GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_LogsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups struct {
+	Name string "json:\"name\" graphql:\"name\""
+}
+
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_LogsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups) GetName() string {
+	if t == nil {
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_LogsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups{}
+	}
+	return t.Name
+}
+
+type GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_LogsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings struct {
+	Users  []*GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_LogsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users  "json:\"users,omitempty\" graphql:\"users\""
+	Groups []*GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_LogsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups "json:\"groups,omitempty\" graphql:\"groups\""
+}
+
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_LogsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings) GetUsers() []*GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_LogsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users {
+	if t == nil {
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_LogsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings{}
+	}
+	return t.Users
+}
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_LogsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings) GetGroups() []*GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_LogsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups {
+	if t == nil {
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_LogsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings{}
+	}
+	return t.Groups
+}
+
+type GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_LogsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name struct {
+	First *string "json:\"first,omitempty\" graphql:\"first\""
+	Last  *string "json:\"last,omitempty\" graphql:\"last\""
+}
+
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_LogsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name) GetFirst() *string {
+	if t == nil {
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_LogsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name{}
+	}
+	return t.First
+}
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_LogsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name) GetLast() *string {
+	if t == nil {
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_LogsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name{}
+	}
+	return t.Last
+}
+
+type GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_LogsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name struct {
+	First *string "json:\"first,omitempty\" graphql:\"first\""
+	Last  *string "json:\"last,omitempty\" graphql:\"last\""
+}
+
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_LogsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name) GetFirst() *string {
+	if t == nil {
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_LogsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name{}
+	}
+	return t.First
+}
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_LogsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name) GetLast() *string {
+	if t == nil {
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_LogsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name{}
+	}
+	return t.Last
+}
+
+type GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_LogsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization struct {
+	Name string "json:\"name\" graphql:\"name\""
+}
+
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_LogsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization) GetName() string {
+	if t == nil {
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_LogsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization{}
+	}
+	return t.Name
+}
+
+type GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_LogsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users struct {
+	ID    string "json:\"id\" graphql:\"id\""
+	Email string "json:\"email\" graphql:\"email\""
+}
+
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_LogsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users) GetID() string {
+	if t == nil {
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_LogsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users{}
+	}
+	return t.ID
+}
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_LogsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users) GetEmail() string {
+	if t == nil {
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_LogsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users{}
+	}
+	return t.Email
+}
+
+type GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_LogsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups struct {
+	Name string "json:\"name\" graphql:\"name\""
+}
+
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_LogsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups) GetName() string {
+	if t == nil {
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_LogsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups{}
+	}
+	return t.Name
+}
+
+type GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_LogsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings struct {
+	Users  []*GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_LogsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users  "json:\"users,omitempty\" graphql:\"users\""
+	Groups []*GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_LogsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups "json:\"groups,omitempty\" graphql:\"groups\""
+}
+
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_LogsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings) GetUsers() []*GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_LogsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users {
+	if t == nil {
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_LogsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings{}
+	}
+	return t.Users
+}
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_LogsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings) GetGroups() []*GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_LogsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups {
+	if t == nil {
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_LogsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings{}
+	}
+	return t.Groups
+}
+
+type GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_TracesReaders_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name struct {
+	First *string "json:\"first,omitempty\" graphql:\"first\""
+	Last  *string "json:\"last,omitempty\" graphql:\"last\""
+}
+
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_TracesReaders_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name) GetFirst() *string {
+	if t == nil {
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_TracesReaders_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name{}
+	}
+	return t.First
+}
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_TracesReaders_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name) GetLast() *string {
+	if t == nil {
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_TracesReaders_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name{}
+	}
+	return t.Last
+}
+
+type GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_TracesReaders_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name struct {
+	First *string "json:\"first,omitempty\" graphql:\"first\""
+	Last  *string "json:\"last,omitempty\" graphql:\"last\""
+}
+
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_TracesReaders_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name) GetFirst() *string {
+	if t == nil {
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_TracesReaders_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name{}
+	}
+	return t.First
+}
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_TracesReaders_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name) GetLast() *string {
+	if t == nil {
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_TracesReaders_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name{}
+	}
+	return t.Last
+}
+
+type GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_TracesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization struct {
+	Name string "json:\"name\" graphql:\"name\""
+}
+
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_TracesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization) GetName() string {
+	if t == nil {
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_TracesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization{}
+	}
+	return t.Name
+}
+
+type GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_TracesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users struct {
+	ID    string "json:\"id\" graphql:\"id\""
+	Email string "json:\"email\" graphql:\"email\""
+}
+
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_TracesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users) GetID() string {
+	if t == nil {
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_TracesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users{}
+	}
+	return t.ID
+}
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_TracesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users) GetEmail() string {
+	if t == nil {
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_TracesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users{}
+	}
+	return t.Email
+}
+
+type GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_TracesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups struct {
+	Name string "json:\"name\" graphql:\"name\""
+}
+
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_TracesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups) GetName() string {
+	if t == nil {
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_TracesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups{}
+	}
+	return t.Name
+}
+
+type GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_TracesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings struct {
+	Users  []*GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_TracesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users  "json:\"users,omitempty\" graphql:\"users\""
+	Groups []*GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_TracesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups "json:\"groups,omitempty\" graphql:\"groups\""
+}
+
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_TracesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings) GetUsers() []*GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_TracesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users {
+	if t == nil {
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_TracesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings{}
+	}
+	return t.Users
+}
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_TracesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings) GetGroups() []*GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_TracesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups {
+	if t == nil {
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_TracesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings{}
+	}
+	return t.Groups
+}
+
+type GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_TracesWriters_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name struct {
+	First *string "json:\"first,omitempty\" graphql:\"first\""
+	Last  *string "json:\"last,omitempty\" graphql:\"last\""
+}
+
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_TracesWriters_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name) GetFirst() *string {
+	if t == nil {
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_TracesWriters_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name{}
+	}
+	return t.First
+}
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_TracesWriters_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name) GetLast() *string {
+	if t == nil {
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_TracesWriters_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name{}
+	}
+	return t.Last
+}
+
+type GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_TracesWriters_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name struct {
+	First *string "json:\"first,omitempty\" graphql:\"first\""
+	Last  *string "json:\"last,omitempty\" graphql:\"last\""
+}
+
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_TracesWriters_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name) GetFirst() *string {
+	if t == nil {
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_TracesWriters_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name{}
+	}
+	return t.First
+}
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_TracesWriters_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name) GetLast() *string {
+	if t == nil {
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_TracesWriters_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name{}
+	}
+	return t.Last
+}
+
+type GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_TracesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization struct {
+	Name string "json:\"name\" graphql:\"name\""
+}
+
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_TracesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization) GetName() string {
+	if t == nil {
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_TracesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization{}
+	}
+	return t.Name
+}
+
+type GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_TracesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users struct {
+	ID    string "json:\"id\" graphql:\"id\""
+	Email string "json:\"email\" graphql:\"email\""
+}
+
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_TracesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users) GetID() string {
+	if t == nil {
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_TracesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users{}
+	}
+	return t.ID
+}
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_TracesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users) GetEmail() string {
+	if t == nil {
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_TracesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users{}
+	}
+	return t.Email
+}
+
+type GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_TracesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups struct {
+	Name string "json:\"name\" graphql:\"name\""
+}
+
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_TracesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups) GetName() string {
+	if t == nil {
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_TracesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups{}
+	}
+	return t.Name
+}
+
+type GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_TracesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings struct {
+	Users  []*GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_TracesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users  "json:\"users,omitempty\" graphql:\"users\""
+	Groups []*GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_TracesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups "json:\"groups,omitempty\" graphql:\"groups\""
+}
+
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_TracesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings) GetUsers() []*GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_TracesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users {
+	if t == nil {
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_TracesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings{}
+	}
+	return t.Users
+}
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_TracesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings) GetGroups() []*GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_TracesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups {
+	if t == nil {
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_TracesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings{}
+	}
+	return t.Groups
+}
+
+type GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir struct {
+	RequestRate                                   *float64                            "json:\"requestRate,omitempty\" graphql:\"requestRate\""
+	RequestBurstSize                              *int64                              "json:\"requestBurstSize,omitempty\" graphql:\"requestBurstSize\""
+	IngestionRate                                 *float64                            "json:\"ingestionRate,omitempty\" graphql:\"ingestionRate\""
+	IngestionBurstSize                            *int64                              "json:\"ingestionBurstSize,omitempty\" graphql:\"ingestionBurstSize\""
+	AcceptHASamples                               *bool                               "json:\"acceptHASamples,omitempty\" graphql:\"acceptHASamples\""
+	HaClusterLabel                                *string                             "json:\"haClusterLabel,omitempty\" graphql:\"haClusterLabel\""
+	HaReplicaLabel                                *string                             "json:\"haReplicaLabel,omitempty\" graphql:\"haReplicaLabel\""
+	HaMaxClusters                                 *int64                              "json:\"haMaxClusters,omitempty\" graphql:\"haMaxClusters\""
+	DropLabels                                    []*string                           "json:\"dropLabels,omitempty\" graphql:\"dropLabels\""
+	MaxLabelNameLength                            *int64                              "json:\"maxLabelNameLength,omitempty\" graphql:\"maxLabelNameLength\""
+	MaxLabelValueLength                           *int64                              "json:\"maxLabelValueLength,omitempty\" graphql:\"maxLabelValueLength\""
+	MaxLabelNamesPerSeries                        *int64                              "json:\"maxLabelNamesPerSeries,omitempty\" graphql:\"maxLabelNamesPerSeries\""
+	MaxMetadataLength                             *int64                              "json:\"maxMetadataLength,omitempty\" graphql:\"maxMetadataLength\""
+	CreationGracePeriod                           *v1.Duration                        "json:\"creationGracePeriod,omitempty\" graphql:\"creationGracePeriod\""
+	EnforceMetadataMetricName                     *bool                               "json:\"enforceMetadataMetricName,omitempty\" graphql:\"enforceMetadataMetricName\""
+	IngestionTenantShardSize                      *int64                              "json:\"ingestionTenantShardSize,omitempty\" graphql:\"ingestionTenantShardSize\""
+	MaxGlobalSeriesPerUser                        *int64                              "json:\"maxGlobalSeriesPerUser,omitempty\" graphql:\"maxGlobalSeriesPerUser\""
+	MaxGlobalSeriesPerMetric                      *int64                              "json:\"maxGlobalSeriesPerMetric,omitempty\" graphql:\"maxGlobalSeriesPerMetric\""
+	MaxGlobalMetricsWithMetadataPerUser           *int64                              "json:\"maxGlobalMetricsWithMetadataPerUser,omitempty\" graphql:\"maxGlobalMetricsWithMetadataPerUser\""
+	MaxGlobalMetadataPerMetric                    *int64                              "json:\"maxGlobalMetadataPerMetric,omitempty\" graphql:\"maxGlobalMetadataPerMetric\""
+	MaxGlobalExemplarsPerUser                     *int64                              "json:\"maxGlobalExemplarsPerUser,omitempty\" graphql:\"maxGlobalExemplarsPerUser\""
+	NativeHistogramsIngestionEnabled              *bool                               "json:\"nativeHistogramsIngestionEnabled,omitempty\" graphql:\"nativeHistogramsIngestionEnabled\""
+	OutOfOrderTimeWindow                          *v1.Duration                        "json:\"outOfOrderTimeWindow,omitempty\" graphql:\"outOfOrderTimeWindow\""
+	OutOfOrderBlocksExternalLabelEnabled          *bool                               "json:\"outOfOrderBlocksExternalLabelEnabled,omitempty\" graphql:\"outOfOrderBlocksExternalLabelEnabled\""
+	SeparateMetricsGroupLabel                     *string                             "json:\"separateMetricsGroupLabel,omitempty\" graphql:\"separateMetricsGroupLabel\""
+	MaxChunksPerQuery                             *int64                              "json:\"maxChunksPerQuery,omitempty\" graphql:\"maxChunksPerQuery\""
+	MaxFetchedSeriesPerQuery                      *int64                              "json:\"maxFetchedSeriesPerQuery,omitempty\" graphql:\"maxFetchedSeriesPerQuery\""
+	MaxFetchedChunkBytesPerQuery                  *int64                              "json:\"maxFetchedChunkBytesPerQuery,omitempty\" graphql:\"maxFetchedChunkBytesPerQuery\""
+	MaxQueryLookback                              *v1.Duration                        "json:\"maxQueryLookback,omitempty\" graphql:\"maxQueryLookback\""
+	MaxPartialQueryLength                         *v1.Duration                        "json:\"maxPartialQueryLength,omitempty\" graphql:\"maxPartialQueryLength\""
+	MaxQueryParallelism                           *int64                              "json:\"maxQueryParallelism,omitempty\" graphql:\"maxQueryParallelism\""
+	MaxLabelsQueryLength                          *v1.Duration                        "json:\"maxLabelsQueryLength,omitempty\" graphql:\"maxLabelsQueryLength\""
+	MaxCacheFreshness                             *v1.Duration                        "json:\"maxCacheFreshness,omitempty\" graphql:\"maxCacheFreshness\""
+	MaxQueriersPerTenant                          *int64                              "json:\"maxQueriersPerTenant,omitempty\" graphql:\"maxQueriersPerTenant\""
+	QueryShardingTotalShards                      *int64                              "json:\"queryShardingTotalShards,omitempty\" graphql:\"queryShardingTotalShards\""
+	QueryShardingMaxShardedQueries                *int64                              "json:\"queryShardingMaxShardedQueries,omitempty\" graphql:\"queryShardingMaxShardedQueries\""
+	QueryShardingMaxRegexpSizeBytes               *int64                              "json:\"queryShardingMaxRegexpSizeBytes,omitempty\" graphql:\"queryShardingMaxRegexpSizeBytes\""
+	SplitInstantQueriesByInterval                 *v1.Duration                        "json:\"splitInstantQueriesByInterval,omitempty\" graphql:\"splitInstantQueriesByInterval\""
+	MaxTotalQueryLength                           *v1.Duration                        "json:\"maxTotalQueryLength,omitempty\" graphql:\"maxTotalQueryLength\""
+	ResultsCacheTTL                               *v1.Duration                        "json:\"resultsCacheTTL,omitempty\" graphql:\"resultsCacheTTL\""
+	ResultsCacheTTLForOutOfOrderTimeWindow        *v1.Duration                        "json:\"resultsCacheTTLForOutOfOrderTimeWindow,omitempty\" graphql:\"resultsCacheTTLForOutOfOrderTimeWindow\""
+	MaxQueryExpressionSizeBytes                   *int64                              "json:\"maxQueryExpressionSizeBytes,omitempty\" graphql:\"maxQueryExpressionSizeBytes\""
+	CardinalityAnalysisEnabled                    *bool                               "json:\"cardinalityAnalysisEnabled,omitempty\" graphql:\"cardinalityAnalysisEnabled\""
+	LabelNamesAndValuesResultsMaxSizeBytes        *int64                              "json:\"labelNamesAndValuesResultsMaxSizeBytes,omitempty\" graphql:\"labelNamesAndValuesResultsMaxSizeBytes\""
+	LabelValuesMaxCardinalityLabelNamesPerRequest *int64                              "json:\"labelValuesMaxCardinalityLabelNamesPerRequest,omitempty\" graphql:\"labelValuesMaxCardinalityLabelNamesPerRequest\""
+	RulerEvaluationDelay                          *v1.Duration                        "json:\"rulerEvaluationDelay,omitempty\" graphql:\"rulerEvaluationDelay\""
+	RulerTenantShardSize                          *int64                              "json:\"rulerTenantShardSize,omitempty\" graphql:\"rulerTenantShardSize\""
+	RulerMaxRulesPerRuleGroup                     *int64                              "json:\"rulerMaxRulesPerRuleGroup,omitempty\" graphql:\"rulerMaxRulesPerRuleGroup\""
+	RulerMaxRuleGroupsPerTenant                   *int64                              "json:\"rulerMaxRuleGroupsPerTenant,omitempty\" graphql:\"rulerMaxRuleGroupsPerTenant\""
+	RulerRecordingRulesEvaluationEnabled          *bool                               "json:\"rulerRecordingRulesEvaluationEnabled,omitempty\" graphql:\"rulerRecordingRulesEvaluationEnabled\""
+	RulerAlertingRulesEvaluationEnabled           *bool                               "json:\"rulerAlertingRulesEvaluationEnabled,omitempty\" graphql:\"rulerAlertingRulesEvaluationEnabled\""
+	StoreGatewayTenantShardSize                   *int64                              "json:\"storeGatewayTenantShardSize,omitempty\" graphql:\"storeGatewayTenantShardSize\""
+	CompactorBlocksRetentionPeriod                *v1.Duration                        "json:\"compactorBlocksRetentionPeriod,omitempty\" graphql:\"compactorBlocksRetentionPeriod\""
+	CompactorSplitAndMergeShards                  *int64                              "json:\"compactorSplitAndMergeShards,omitempty\" graphql:\"compactorSplitAndMergeShards\""
+	CompactorSplitGroups                          *int64                              "json:\"compactorSplitGroups,omitempty\" graphql:\"compactorSplitGroups\""
+	CompactorTenantShardSize                      *int64                              "json:\"compactorTenantShardSize,omitempty\" graphql:\"compactorTenantShardSize\""
+	CompactorPartialBlockDeletionDelay            *v1.Duration                        "json:\"compactorPartialBlockDeletionDelay,omitempty\" graphql:\"compactorPartialBlockDeletionDelay\""
+	CompactorBlockUploadEnabled                   *bool                               "json:\"compactorBlockUploadEnabled,omitempty\" graphql:\"compactorBlockUploadEnabled\""
+	CompactorBlockUploadValidationEnabled         *bool                               "json:\"compactorBlockUploadValidationEnabled,omitempty\" graphql:\"compactorBlockUploadValidationEnabled\""
+	CompactorBlockUploadVerifyChunks              *bool                               "json:\"compactorBlockUploadVerifyChunks,omitempty\" graphql:\"compactorBlockUploadVerifyChunks\""
+	S3SSEType                                     *string                             "json:\"s3SSEType,omitempty\" graphql:\"s3SSEType\""
+	S3SSEKMSKeyID                                 *string                             "json:\"s3SSEKMSKeyID,omitempty\" graphql:\"s3SSEKMSKeyID\""
+	S3SSEKMSEncryptionContext                     *string                             "json:\"s3SSEKMSEncryptionContext,omitempty\" graphql:\"s3SSEKMSEncryptionContext\""
+	AlertmanagerReceiversBlockCIDRNetworks        *string                             "json:\"alertmanagerReceiversBlockCIDRNetworks,omitempty\" graphql:\"alertmanagerReceiversBlockCIDRNetworks\""
+	AlertmanagerReceiversBlockPrivateAddresses    *bool                               "json:\"alertmanagerReceiversBlockPrivateAddresses,omitempty\" graphql:\"alertmanagerReceiversBlockPrivateAddresses\""
+	NotificationRateLimit                         *float64                            "json:\"notificationRateLimit,omitempty\" graphql:\"notificationRateLimit\""
+	NotificationRateLimitPerIntegration           map[string]*float64                 "json:\"notificationRateLimitPerIntegration,omitempty\" graphql:\"notificationRateLimitPerIntegration\""
+	AlertmanagerMaxConfigSizeBytes                *int64                              "json:\"alertmanagerMaxConfigSizeBytes,omitempty\" graphql:\"alertmanagerMaxConfigSizeBytes\""
+	AlertmanagerMaxTemplatesCount                 *int64                              "json:\"alertmanagerMaxTemplatesCount,omitempty\" graphql:\"alertmanagerMaxTemplatesCount\""
+	AlertmanagerMaxTemplateSizeBytes              *int64                              "json:\"alertmanagerMaxTemplateSizeBytes,omitempty\" graphql:\"alertmanagerMaxTemplateSizeBytes\""
+	AlertmanagerMaxDispatcherAggregationGroups    *int64                              "json:\"alertmanagerMaxDispatcherAggregationGroups,omitempty\" graphql:\"alertmanagerMaxDispatcherAggregationGroups\""
+	AlertmanagerMaxAlertsCount                    *int64                              "json:\"alertmanagerMaxAlertsCount,omitempty\" graphql:\"alertmanagerMaxAlertsCount\""
+	AlertmanagerMaxAlertsSizeBytes                *int64                              "json:\"alertmanagerMaxAlertsSizeBytes,omitempty\" graphql:\"alertmanagerMaxAlertsSizeBytes\""
+	ForwardingEndpoint                            *string                             "json:\"forwardingEndpoint,omitempty\" graphql:\"forwardingEndpoint\""
+	ForwardingDropOlderThan                       *v1.Duration                        "json:\"forwardingDropOlderThan,omitempty\" graphql:\"forwardingDropOlderThan\""
+	ForwardingRules                               map[string]*v1alpha1.ForwardingRule "json:\"forwardingRules,omitempty\" graphql:\"forwardingRules\""
+}
+
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetRequestRate() *float64 {
+	if t == nil {
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.RequestRate
+}
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetRequestBurstSize() *int64 {
+	if t == nil {
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.RequestBurstSize
+}
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetIngestionRate() *float64 {
+	if t == nil {
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.IngestionRate
+}
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetIngestionBurstSize() *int64 {
+	if t == nil {
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.IngestionBurstSize
+}
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetAcceptHASamples() *bool {
+	if t == nil {
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.AcceptHASamples
+}
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetHaClusterLabel() *string {
+	if t == nil {
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.HaClusterLabel
+}
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetHaReplicaLabel() *string {
+	if t == nil {
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.HaReplicaLabel
+}
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetHaMaxClusters() *int64 {
+	if t == nil {
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.HaMaxClusters
+}
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetDropLabels() []*string {
+	if t == nil {
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.DropLabels
+}
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetMaxLabelNameLength() *int64 {
+	if t == nil {
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.MaxLabelNameLength
+}
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetMaxLabelValueLength() *int64 {
+	if t == nil {
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.MaxLabelValueLength
+}
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetMaxLabelNamesPerSeries() *int64 {
+	if t == nil {
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.MaxLabelNamesPerSeries
+}
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetMaxMetadataLength() *int64 {
+	if t == nil {
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.MaxMetadataLength
+}
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetCreationGracePeriod() *v1.Duration {
+	if t == nil {
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.CreationGracePeriod
+}
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetEnforceMetadataMetricName() *bool {
+	if t == nil {
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.EnforceMetadataMetricName
+}
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetIngestionTenantShardSize() *int64 {
+	if t == nil {
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.IngestionTenantShardSize
+}
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetMaxGlobalSeriesPerUser() *int64 {
+	if t == nil {
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.MaxGlobalSeriesPerUser
+}
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetMaxGlobalSeriesPerMetric() *int64 {
+	if t == nil {
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.MaxGlobalSeriesPerMetric
+}
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetMaxGlobalMetricsWithMetadataPerUser() *int64 {
+	if t == nil {
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.MaxGlobalMetricsWithMetadataPerUser
+}
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetMaxGlobalMetadataPerMetric() *int64 {
+	if t == nil {
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.MaxGlobalMetadataPerMetric
+}
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetMaxGlobalExemplarsPerUser() *int64 {
+	if t == nil {
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.MaxGlobalExemplarsPerUser
+}
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetNativeHistogramsIngestionEnabled() *bool {
+	if t == nil {
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.NativeHistogramsIngestionEnabled
+}
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetOutOfOrderTimeWindow() *v1.Duration {
+	if t == nil {
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.OutOfOrderTimeWindow
+}
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetOutOfOrderBlocksExternalLabelEnabled() *bool {
+	if t == nil {
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.OutOfOrderBlocksExternalLabelEnabled
+}
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetSeparateMetricsGroupLabel() *string {
+	if t == nil {
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.SeparateMetricsGroupLabel
+}
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetMaxChunksPerQuery() *int64 {
+	if t == nil {
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.MaxChunksPerQuery
+}
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetMaxFetchedSeriesPerQuery() *int64 {
+	if t == nil {
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.MaxFetchedSeriesPerQuery
+}
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetMaxFetchedChunkBytesPerQuery() *int64 {
+	if t == nil {
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.MaxFetchedChunkBytesPerQuery
+}
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetMaxQueryLookback() *v1.Duration {
+	if t == nil {
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.MaxQueryLookback
+}
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetMaxPartialQueryLength() *v1.Duration {
+	if t == nil {
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.MaxPartialQueryLength
+}
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetMaxQueryParallelism() *int64 {
+	if t == nil {
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.MaxQueryParallelism
+}
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetMaxLabelsQueryLength() *v1.Duration {
+	if t == nil {
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.MaxLabelsQueryLength
+}
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetMaxCacheFreshness() *v1.Duration {
+	if t == nil {
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.MaxCacheFreshness
+}
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetMaxQueriersPerTenant() *int64 {
+	if t == nil {
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.MaxQueriersPerTenant
+}
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetQueryShardingTotalShards() *int64 {
+	if t == nil {
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.QueryShardingTotalShards
+}
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetQueryShardingMaxShardedQueries() *int64 {
+	if t == nil {
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.QueryShardingMaxShardedQueries
+}
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetQueryShardingMaxRegexpSizeBytes() *int64 {
+	if t == nil {
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.QueryShardingMaxRegexpSizeBytes
+}
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetSplitInstantQueriesByInterval() *v1.Duration {
+	if t == nil {
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.SplitInstantQueriesByInterval
+}
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetMaxTotalQueryLength() *v1.Duration {
+	if t == nil {
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.MaxTotalQueryLength
+}
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetResultsCacheTTL() *v1.Duration {
+	if t == nil {
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.ResultsCacheTTL
+}
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetResultsCacheTTLForOutOfOrderTimeWindow() *v1.Duration {
+	if t == nil {
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.ResultsCacheTTLForOutOfOrderTimeWindow
+}
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetMaxQueryExpressionSizeBytes() *int64 {
+	if t == nil {
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.MaxQueryExpressionSizeBytes
+}
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetCardinalityAnalysisEnabled() *bool {
+	if t == nil {
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.CardinalityAnalysisEnabled
+}
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetLabelNamesAndValuesResultsMaxSizeBytes() *int64 {
+	if t == nil {
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.LabelNamesAndValuesResultsMaxSizeBytes
+}
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetLabelValuesMaxCardinalityLabelNamesPerRequest() *int64 {
+	if t == nil {
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.LabelValuesMaxCardinalityLabelNamesPerRequest
+}
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetRulerEvaluationDelay() *v1.Duration {
+	if t == nil {
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.RulerEvaluationDelay
+}
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetRulerTenantShardSize() *int64 {
+	if t == nil {
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.RulerTenantShardSize
+}
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetRulerMaxRulesPerRuleGroup() *int64 {
+	if t == nil {
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.RulerMaxRulesPerRuleGroup
+}
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetRulerMaxRuleGroupsPerTenant() *int64 {
+	if t == nil {
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.RulerMaxRuleGroupsPerTenant
+}
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetRulerRecordingRulesEvaluationEnabled() *bool {
+	if t == nil {
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.RulerRecordingRulesEvaluationEnabled
+}
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetRulerAlertingRulesEvaluationEnabled() *bool {
+	if t == nil {
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.RulerAlertingRulesEvaluationEnabled
+}
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetStoreGatewayTenantShardSize() *int64 {
+	if t == nil {
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.StoreGatewayTenantShardSize
+}
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetCompactorBlocksRetentionPeriod() *v1.Duration {
+	if t == nil {
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.CompactorBlocksRetentionPeriod
+}
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetCompactorSplitAndMergeShards() *int64 {
+	if t == nil {
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.CompactorSplitAndMergeShards
+}
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetCompactorSplitGroups() *int64 {
+	if t == nil {
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.CompactorSplitGroups
+}
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetCompactorTenantShardSize() *int64 {
+	if t == nil {
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.CompactorTenantShardSize
+}
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetCompactorPartialBlockDeletionDelay() *v1.Duration {
+	if t == nil {
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.CompactorPartialBlockDeletionDelay
+}
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetCompactorBlockUploadEnabled() *bool {
+	if t == nil {
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.CompactorBlockUploadEnabled
+}
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetCompactorBlockUploadValidationEnabled() *bool {
+	if t == nil {
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.CompactorBlockUploadValidationEnabled
+}
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetCompactorBlockUploadVerifyChunks() *bool {
+	if t == nil {
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.CompactorBlockUploadVerifyChunks
+}
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetS3SSEType() *string {
+	if t == nil {
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.S3SSEType
+}
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetS3SSEKMSKeyID() *string {
+	if t == nil {
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.S3SSEKMSKeyID
+}
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetS3SSEKMSEncryptionContext() *string {
+	if t == nil {
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.S3SSEKMSEncryptionContext
+}
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetAlertmanagerReceiversBlockCIDRNetworks() *string {
+	if t == nil {
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.AlertmanagerReceiversBlockCIDRNetworks
+}
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetAlertmanagerReceiversBlockPrivateAddresses() *bool {
+	if t == nil {
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.AlertmanagerReceiversBlockPrivateAddresses
+}
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetNotificationRateLimit() *float64 {
+	if t == nil {
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.NotificationRateLimit
+}
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetNotificationRateLimitPerIntegration() map[string]*float64 {
+	if t == nil {
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.NotificationRateLimitPerIntegration
+}
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetAlertmanagerMaxConfigSizeBytes() *int64 {
+	if t == nil {
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.AlertmanagerMaxConfigSizeBytes
+}
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetAlertmanagerMaxTemplatesCount() *int64 {
+	if t == nil {
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.AlertmanagerMaxTemplatesCount
+}
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetAlertmanagerMaxTemplateSizeBytes() *int64 {
+	if t == nil {
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.AlertmanagerMaxTemplateSizeBytes
+}
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetAlertmanagerMaxDispatcherAggregationGroups() *int64 {
+	if t == nil {
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.AlertmanagerMaxDispatcherAggregationGroups
+}
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetAlertmanagerMaxAlertsCount() *int64 {
+	if t == nil {
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.AlertmanagerMaxAlertsCount
+}
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetAlertmanagerMaxAlertsSizeBytes() *int64 {
+	if t == nil {
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.AlertmanagerMaxAlertsSizeBytes
+}
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetForwardingEndpoint() *string {
+	if t == nil {
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.ForwardingEndpoint
+}
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetForwardingDropOlderThan() *v1.Duration {
+	if t == nil {
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.ForwardingDropOlderThan
+}
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetForwardingRules() map[string]*v1alpha1.ForwardingRule {
+	if t == nil {
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.ForwardingRules
+}
+
+type CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Admins_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name struct {
+	First *string "json:\"first,omitempty\" graphql:\"first\""
+	Last  *string "json:\"last,omitempty\" graphql:\"last\""
+}
+
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Admins_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name) GetFirst() *string {
+	if t == nil {
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Admins_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name{}
+	}
+	return t.First
+}
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Admins_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name) GetLast() *string {
+	if t == nil {
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Admins_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name{}
+	}
+	return t.Last
+}
+
+type CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Admins_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name struct {
+	First *string "json:\"first,omitempty\" graphql:\"first\""
+	Last  *string "json:\"last,omitempty\" graphql:\"last\""
+}
+
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Admins_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name) GetFirst() *string {
+	if t == nil {
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Admins_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name{}
+	}
+	return t.First
+}
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Admins_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name) GetLast() *string {
+	if t == nil {
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Admins_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name{}
+	}
+	return t.Last
+}
+
+type CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Admins_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization struct {
+	Name string "json:\"name\" graphql:\"name\""
+}
+
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Admins_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization) GetName() string {
+	if t == nil {
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Admins_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization{}
+	}
+	return t.Name
+}
+
+type CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Admins_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users struct {
+	ID    string "json:\"id\" graphql:\"id\""
+	Email string "json:\"email\" graphql:\"email\""
+}
+
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Admins_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users) GetID() string {
+	if t == nil {
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Admins_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users{}
+	}
+	return t.ID
+}
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Admins_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users) GetEmail() string {
+	if t == nil {
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Admins_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users{}
+	}
+	return t.Email
+}
+
+type CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Admins_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups struct {
+	Name string "json:\"name\" graphql:\"name\""
+}
+
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Admins_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups) GetName() string {
+	if t == nil {
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Admins_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups{}
+	}
+	return t.Name
+}
+
+type CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Admins_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings struct {
+	Users  []*CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Admins_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users  "json:\"users,omitempty\" graphql:\"users\""
+	Groups []*CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Admins_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups "json:\"groups,omitempty\" graphql:\"groups\""
+}
+
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Admins_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings) GetUsers() []*CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Admins_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users {
+	if t == nil {
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Admins_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings{}
+	}
+	return t.Users
+}
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Admins_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings) GetGroups() []*CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Admins_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups {
+	if t == nil {
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Admins_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings{}
+	}
+	return t.Groups
+}
+
+type CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsReaders_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name struct {
+	First *string "json:\"first,omitempty\" graphql:\"first\""
+	Last  *string "json:\"last,omitempty\" graphql:\"last\""
+}
+
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsReaders_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name) GetFirst() *string {
+	if t == nil {
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsReaders_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name{}
+	}
+	return t.First
+}
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsReaders_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name) GetLast() *string {
+	if t == nil {
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsReaders_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name{}
+	}
+	return t.Last
+}
+
+type CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsReaders_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name struct {
+	First *string "json:\"first,omitempty\" graphql:\"first\""
+	Last  *string "json:\"last,omitempty\" graphql:\"last\""
+}
+
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsReaders_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name) GetFirst() *string {
+	if t == nil {
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsReaders_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name{}
+	}
+	return t.First
+}
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsReaders_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name) GetLast() *string {
+	if t == nil {
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsReaders_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name{}
+	}
+	return t.Last
+}
+
+type CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization struct {
+	Name string "json:\"name\" graphql:\"name\""
+}
+
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization) GetName() string {
+	if t == nil {
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization{}
+	}
+	return t.Name
+}
+
+type CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users struct {
+	ID    string "json:\"id\" graphql:\"id\""
+	Email string "json:\"email\" graphql:\"email\""
+}
+
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users) GetID() string {
+	if t == nil {
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users{}
+	}
+	return t.ID
+}
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users) GetEmail() string {
+	if t == nil {
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users{}
+	}
+	return t.Email
+}
+
+type CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups struct {
+	Name string "json:\"name\" graphql:\"name\""
+}
+
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups) GetName() string {
+	if t == nil {
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups{}
+	}
+	return t.Name
+}
+
+type CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings struct {
+	Users  []*CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users  "json:\"users,omitempty\" graphql:\"users\""
+	Groups []*CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups "json:\"groups,omitempty\" graphql:\"groups\""
+}
+
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings) GetUsers() []*CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users {
+	if t == nil {
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings{}
+	}
+	return t.Users
+}
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings) GetGroups() []*CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups {
+	if t == nil {
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings{}
+	}
+	return t.Groups
+}
+
+type CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsWriters_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name struct {
+	First *string "json:\"first,omitempty\" graphql:\"first\""
+	Last  *string "json:\"last,omitempty\" graphql:\"last\""
+}
+
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsWriters_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name) GetFirst() *string {
+	if t == nil {
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsWriters_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name{}
+	}
+	return t.First
+}
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsWriters_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name) GetLast() *string {
+	if t == nil {
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsWriters_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name{}
+	}
+	return t.Last
+}
+
+type CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsWriters_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name struct {
+	First *string "json:\"first,omitempty\" graphql:\"first\""
+	Last  *string "json:\"last,omitempty\" graphql:\"last\""
+}
+
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsWriters_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name) GetFirst() *string {
+	if t == nil {
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsWriters_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name{}
+	}
+	return t.First
+}
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsWriters_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name) GetLast() *string {
+	if t == nil {
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsWriters_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name{}
+	}
+	return t.Last
+}
+
+type CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization struct {
+	Name string "json:\"name\" graphql:\"name\""
+}
+
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization) GetName() string {
+	if t == nil {
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization{}
+	}
+	return t.Name
+}
+
+type CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users struct {
+	ID    string "json:\"id\" graphql:\"id\""
+	Email string "json:\"email\" graphql:\"email\""
+}
+
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users) GetID() string {
+	if t == nil {
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users{}
+	}
+	return t.ID
+}
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users) GetEmail() string {
+	if t == nil {
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users{}
+	}
+	return t.Email
+}
+
+type CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups struct {
+	Name string "json:\"name\" graphql:\"name\""
+}
+
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups) GetName() string {
+	if t == nil {
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups{}
+	}
+	return t.Name
+}
+
+type CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings struct {
+	Users  []*CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users  "json:\"users,omitempty\" graphql:\"users\""
+	Groups []*CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups "json:\"groups,omitempty\" graphql:\"groups\""
+}
+
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings) GetUsers() []*CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users {
+	if t == nil {
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings{}
+	}
+	return t.Users
+}
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings) GetGroups() []*CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups {
+	if t == nil {
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings{}
+	}
+	return t.Groups
+}
+
+type CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name struct {
+	First *string "json:\"first,omitempty\" graphql:\"first\""
+	Last  *string "json:\"last,omitempty\" graphql:\"last\""
+}
+
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name) GetFirst() *string {
+	if t == nil {
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name{}
+	}
+	return t.First
+}
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name) GetLast() *string {
+	if t == nil {
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name{}
+	}
+	return t.Last
+}
+
+type CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name struct {
+	First *string "json:\"first,omitempty\" graphql:\"first\""
+	Last  *string "json:\"last,omitempty\" graphql:\"last\""
+}
+
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name) GetFirst() *string {
+	if t == nil {
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name{}
+	}
+	return t.First
+}
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name) GetLast() *string {
+	if t == nil {
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name{}
+	}
+	return t.Last
+}
+
+type CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization struct {
+	Name string "json:\"name\" graphql:\"name\""
+}
+
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization) GetName() string {
+	if t == nil {
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization{}
+	}
+	return t.Name
+}
+
+type CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users struct {
+	ID    string "json:\"id\" graphql:\"id\""
+	Email string "json:\"email\" graphql:\"email\""
+}
+
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users) GetID() string {
+	if t == nil {
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users{}
+	}
+	return t.ID
+}
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users) GetEmail() string {
+	if t == nil {
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users{}
+	}
+	return t.Email
+}
+
+type CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups struct {
+	Name string "json:\"name\" graphql:\"name\""
+}
+
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups) GetName() string {
+	if t == nil {
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups{}
+	}
+	return t.Name
+}
+
+type CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings struct {
+	Users  []*CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users  "json:\"users,omitempty\" graphql:\"users\""
+	Groups []*CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups "json:\"groups,omitempty\" graphql:\"groups\""
+}
+
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings) GetUsers() []*CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users {
+	if t == nil {
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings{}
+	}
+	return t.Users
+}
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings) GetGroups() []*CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups {
+	if t == nil {
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings{}
+	}
+	return t.Groups
+}
+
+type CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name struct {
+	First *string "json:\"first,omitempty\" graphql:\"first\""
+	Last  *string "json:\"last,omitempty\" graphql:\"last\""
+}
+
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name) GetFirst() *string {
+	if t == nil {
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name{}
+	}
+	return t.First
+}
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name) GetLast() *string {
+	if t == nil {
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name{}
+	}
+	return t.Last
+}
+
+type CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name struct {
+	First *string "json:\"first,omitempty\" graphql:\"first\""
+	Last  *string "json:\"last,omitempty\" graphql:\"last\""
+}
+
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name) GetFirst() *string {
+	if t == nil {
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name{}
+	}
+	return t.First
+}
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name) GetLast() *string {
+	if t == nil {
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name{}
+	}
+	return t.Last
+}
+
+type CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization struct {
+	Name string "json:\"name\" graphql:\"name\""
+}
+
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization) GetName() string {
+	if t == nil {
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization{}
+	}
+	return t.Name
+}
+
+type CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users struct {
+	ID    string "json:\"id\" graphql:\"id\""
+	Email string "json:\"email\" graphql:\"email\""
+}
+
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users) GetID() string {
+	if t == nil {
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users{}
+	}
+	return t.ID
+}
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users) GetEmail() string {
+	if t == nil {
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users{}
+	}
+	return t.Email
+}
+
+type CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups struct {
+	Name string "json:\"name\" graphql:\"name\""
+}
+
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups) GetName() string {
+	if t == nil {
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups{}
+	}
+	return t.Name
+}
+
+type CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings struct {
+	Users  []*CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users  "json:\"users,omitempty\" graphql:\"users\""
+	Groups []*CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups "json:\"groups,omitempty\" graphql:\"groups\""
+}
+
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings) GetUsers() []*CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users {
+	if t == nil {
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings{}
+	}
+	return t.Users
+}
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings) GetGroups() []*CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups {
+	if t == nil {
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings{}
+	}
+	return t.Groups
+}
+
+type CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name struct {
+	First *string "json:\"first,omitempty\" graphql:\"first\""
+	Last  *string "json:\"last,omitempty\" graphql:\"last\""
+}
+
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name) GetFirst() *string {
+	if t == nil {
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name{}
+	}
+	return t.First
+}
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name) GetLast() *string {
+	if t == nil {
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name{}
+	}
+	return t.Last
+}
+
+type CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name struct {
+	First *string "json:\"first,omitempty\" graphql:\"first\""
+	Last  *string "json:\"last,omitempty\" graphql:\"last\""
+}
+
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name) GetFirst() *string {
+	if t == nil {
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name{}
+	}
+	return t.First
+}
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name) GetLast() *string {
+	if t == nil {
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name{}
+	}
+	return t.Last
+}
+
+type CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization struct {
+	Name string "json:\"name\" graphql:\"name\""
+}
+
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization) GetName() string {
+	if t == nil {
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization{}
+	}
+	return t.Name
+}
+
+type CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users struct {
+	ID    string "json:\"id\" graphql:\"id\""
+	Email string "json:\"email\" graphql:\"email\""
+}
+
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users) GetID() string {
+	if t == nil {
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users{}
+	}
+	return t.ID
+}
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users) GetEmail() string {
+	if t == nil {
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users{}
+	}
+	return t.Email
+}
+
+type CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups struct {
+	Name string "json:\"name\" graphql:\"name\""
+}
+
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups) GetName() string {
+	if t == nil {
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups{}
+	}
+	return t.Name
+}
+
+type CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings struct {
+	Users  []*CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users  "json:\"users,omitempty\" graphql:\"users\""
+	Groups []*CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups "json:\"groups,omitempty\" graphql:\"groups\""
+}
+
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings) GetUsers() []*CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users {
+	if t == nil {
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings{}
+	}
+	return t.Users
+}
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings) GetGroups() []*CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups {
+	if t == nil {
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings{}
+	}
+	return t.Groups
+}
+
+type CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsAlertsReaders_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name struct {
+	First *string "json:\"first,omitempty\" graphql:\"first\""
+	Last  *string "json:\"last,omitempty\" graphql:\"last\""
+}
+
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsAlertsReaders_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name) GetFirst() *string {
+	if t == nil {
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsAlertsReaders_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name{}
+	}
+	return t.First
+}
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsAlertsReaders_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name) GetLast() *string {
+	if t == nil {
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsAlertsReaders_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name{}
+	}
+	return t.Last
+}
+
+type CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsAlertsReaders_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name struct {
+	First *string "json:\"first,omitempty\" graphql:\"first\""
+	Last  *string "json:\"last,omitempty\" graphql:\"last\""
+}
+
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsAlertsReaders_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name) GetFirst() *string {
+	if t == nil {
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsAlertsReaders_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name{}
+	}
+	return t.First
+}
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsAlertsReaders_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name) GetLast() *string {
+	if t == nil {
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsAlertsReaders_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name{}
+	}
+	return t.Last
+}
+
+type CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsAlertsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization struct {
+	Name string "json:\"name\" graphql:\"name\""
+}
+
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsAlertsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization) GetName() string {
+	if t == nil {
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsAlertsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization{}
+	}
+	return t.Name
+}
+
+type CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsAlertsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users struct {
+	ID    string "json:\"id\" graphql:\"id\""
+	Email string "json:\"email\" graphql:\"email\""
+}
+
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsAlertsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users) GetID() string {
+	if t == nil {
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsAlertsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users{}
+	}
+	return t.ID
+}
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsAlertsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users) GetEmail() string {
+	if t == nil {
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsAlertsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users{}
+	}
+	return t.Email
+}
+
+type CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsAlertsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups struct {
+	Name string "json:\"name\" graphql:\"name\""
+}
+
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsAlertsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups) GetName() string {
+	if t == nil {
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsAlertsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups{}
+	}
+	return t.Name
+}
+
+type CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsAlertsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings struct {
+	Users  []*CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsAlertsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users  "json:\"users,omitempty\" graphql:\"users\""
+	Groups []*CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsAlertsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups "json:\"groups,omitempty\" graphql:\"groups\""
+}
+
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsAlertsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings) GetUsers() []*CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsAlertsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users {
+	if t == nil {
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsAlertsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings{}
+	}
+	return t.Users
+}
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsAlertsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings) GetGroups() []*CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsAlertsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups {
+	if t == nil {
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsAlertsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings{}
+	}
+	return t.Groups
+}
+
+type CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsAlertsWriters_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name struct {
+	First *string "json:\"first,omitempty\" graphql:\"first\""
+	Last  *string "json:\"last,omitempty\" graphql:\"last\""
+}
+
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsAlertsWriters_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name) GetFirst() *string {
+	if t == nil {
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsAlertsWriters_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name{}
+	}
+	return t.First
+}
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsAlertsWriters_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name) GetLast() *string {
+	if t == nil {
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsAlertsWriters_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name{}
+	}
+	return t.Last
+}
+
+type CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsAlertsWriters_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name struct {
+	First *string "json:\"first,omitempty\" graphql:\"first\""
+	Last  *string "json:\"last,omitempty\" graphql:\"last\""
+}
+
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsAlertsWriters_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name) GetFirst() *string {
+	if t == nil {
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsAlertsWriters_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name{}
+	}
+	return t.First
+}
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsAlertsWriters_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name) GetLast() *string {
+	if t == nil {
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsAlertsWriters_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name{}
+	}
+	return t.Last
+}
+
+type CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsAlertsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization struct {
+	Name string "json:\"name\" graphql:\"name\""
+}
+
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsAlertsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization) GetName() string {
+	if t == nil {
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsAlertsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization{}
+	}
+	return t.Name
+}
+
+type CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsAlertsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users struct {
+	ID    string "json:\"id\" graphql:\"id\""
+	Email string "json:\"email\" graphql:\"email\""
+}
+
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsAlertsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users) GetID() string {
+	if t == nil {
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsAlertsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users{}
+	}
+	return t.ID
+}
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsAlertsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users) GetEmail() string {
+	if t == nil {
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsAlertsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users{}
+	}
+	return t.Email
+}
+
+type CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsAlertsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups struct {
+	Name string "json:\"name\" graphql:\"name\""
+}
+
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsAlertsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups) GetName() string {
+	if t == nil {
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsAlertsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups{}
+	}
+	return t.Name
+}
+
+type CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsAlertsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings struct {
+	Users  []*CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsAlertsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users  "json:\"users,omitempty\" graphql:\"users\""
+	Groups []*CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsAlertsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups "json:\"groups,omitempty\" graphql:\"groups\""
+}
+
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsAlertsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings) GetUsers() []*CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsAlertsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users {
+	if t == nil {
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsAlertsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings{}
+	}
+	return t.Users
+}
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsAlertsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings) GetGroups() []*CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsAlertsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups {
+	if t == nil {
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsAlertsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings{}
+	}
+	return t.Groups
+}
+
+type CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_LogsReaders_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name struct {
+	First *string "json:\"first,omitempty\" graphql:\"first\""
+	Last  *string "json:\"last,omitempty\" graphql:\"last\""
+}
+
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_LogsReaders_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name) GetFirst() *string {
+	if t == nil {
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_LogsReaders_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name{}
+	}
+	return t.First
+}
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_LogsReaders_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name) GetLast() *string {
+	if t == nil {
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_LogsReaders_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name{}
+	}
+	return t.Last
+}
+
+type CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_LogsReaders_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name struct {
+	First *string "json:\"first,omitempty\" graphql:\"first\""
+	Last  *string "json:\"last,omitempty\" graphql:\"last\""
+}
+
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_LogsReaders_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name) GetFirst() *string {
+	if t == nil {
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_LogsReaders_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name{}
+	}
+	return t.First
+}
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_LogsReaders_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name) GetLast() *string {
+	if t == nil {
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_LogsReaders_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name{}
+	}
+	return t.Last
+}
+
+type CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_LogsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization struct {
+	Name string "json:\"name\" graphql:\"name\""
+}
+
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_LogsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization) GetName() string {
+	if t == nil {
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_LogsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization{}
+	}
+	return t.Name
+}
+
+type CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_LogsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users struct {
+	ID    string "json:\"id\" graphql:\"id\""
+	Email string "json:\"email\" graphql:\"email\""
+}
+
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_LogsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users) GetID() string {
+	if t == nil {
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_LogsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users{}
+	}
+	return t.ID
+}
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_LogsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users) GetEmail() string {
+	if t == nil {
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_LogsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users{}
+	}
+	return t.Email
+}
+
+type CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_LogsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups struct {
+	Name string "json:\"name\" graphql:\"name\""
+}
+
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_LogsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups) GetName() string {
+	if t == nil {
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_LogsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups{}
+	}
+	return t.Name
+}
+
+type CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_LogsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings struct {
+	Users  []*CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_LogsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users  "json:\"users,omitempty\" graphql:\"users\""
+	Groups []*CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_LogsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups "json:\"groups,omitempty\" graphql:\"groups\""
+}
+
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_LogsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings) GetUsers() []*CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_LogsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users {
+	if t == nil {
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_LogsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings{}
+	}
+	return t.Users
+}
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_LogsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings) GetGroups() []*CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_LogsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups {
+	if t == nil {
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_LogsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings{}
+	}
+	return t.Groups
+}
+
+type CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_LogsWriters_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name struct {
+	First *string "json:\"first,omitempty\" graphql:\"first\""
+	Last  *string "json:\"last,omitempty\" graphql:\"last\""
+}
+
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_LogsWriters_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name) GetFirst() *string {
+	if t == nil {
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_LogsWriters_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name{}
+	}
+	return t.First
+}
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_LogsWriters_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name) GetLast() *string {
+	if t == nil {
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_LogsWriters_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name{}
+	}
+	return t.Last
+}
+
+type CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_LogsWriters_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name struct {
+	First *string "json:\"first,omitempty\" graphql:\"first\""
+	Last  *string "json:\"last,omitempty\" graphql:\"last\""
+}
+
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_LogsWriters_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name) GetFirst() *string {
+	if t == nil {
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_LogsWriters_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name{}
+	}
+	return t.First
+}
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_LogsWriters_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name) GetLast() *string {
+	if t == nil {
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_LogsWriters_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name{}
+	}
+	return t.Last
+}
+
+type CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_LogsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization struct {
+	Name string "json:\"name\" graphql:\"name\""
+}
+
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_LogsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization) GetName() string {
+	if t == nil {
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_LogsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization{}
+	}
+	return t.Name
+}
+
+type CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_LogsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users struct {
+	ID    string "json:\"id\" graphql:\"id\""
+	Email string "json:\"email\" graphql:\"email\""
+}
+
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_LogsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users) GetID() string {
+	if t == nil {
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_LogsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users{}
+	}
+	return t.ID
+}
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_LogsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users) GetEmail() string {
+	if t == nil {
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_LogsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users{}
+	}
+	return t.Email
+}
+
+type CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_LogsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups struct {
+	Name string "json:\"name\" graphql:\"name\""
+}
+
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_LogsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups) GetName() string {
+	if t == nil {
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_LogsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups{}
+	}
+	return t.Name
+}
+
+type CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_LogsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings struct {
+	Users  []*CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_LogsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users  "json:\"users,omitempty\" graphql:\"users\""
+	Groups []*CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_LogsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups "json:\"groups,omitempty\" graphql:\"groups\""
+}
+
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_LogsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings) GetUsers() []*CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_LogsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users {
+	if t == nil {
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_LogsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings{}
+	}
+	return t.Users
+}
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_LogsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings) GetGroups() []*CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_LogsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups {
+	if t == nil {
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_LogsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings{}
+	}
+	return t.Groups
+}
+
+type CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_LogsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name struct {
+	First *string "json:\"first,omitempty\" graphql:\"first\""
+	Last  *string "json:\"last,omitempty\" graphql:\"last\""
+}
+
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_LogsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name) GetFirst() *string {
+	if t == nil {
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_LogsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name{}
+	}
+	return t.First
+}
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_LogsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name) GetLast() *string {
+	if t == nil {
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_LogsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name{}
+	}
+	return t.Last
+}
+
+type CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_LogsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name struct {
+	First *string "json:\"first,omitempty\" graphql:\"first\""
+	Last  *string "json:\"last,omitempty\" graphql:\"last\""
+}
+
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_LogsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name) GetFirst() *string {
+	if t == nil {
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_LogsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name{}
+	}
+	return t.First
+}
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_LogsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name) GetLast() *string {
+	if t == nil {
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_LogsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name{}
+	}
+	return t.Last
+}
+
+type CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_LogsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization struct {
+	Name string "json:\"name\" graphql:\"name\""
+}
+
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_LogsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization) GetName() string {
+	if t == nil {
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_LogsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization{}
+	}
+	return t.Name
+}
+
+type CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_LogsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users struct {
+	ID    string "json:\"id\" graphql:\"id\""
+	Email string "json:\"email\" graphql:\"email\""
+}
+
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_LogsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users) GetID() string {
+	if t == nil {
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_LogsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users{}
+	}
+	return t.ID
+}
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_LogsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users) GetEmail() string {
+	if t == nil {
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_LogsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users{}
+	}
+	return t.Email
+}
+
+type CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_LogsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups struct {
+	Name string "json:\"name\" graphql:\"name\""
+}
+
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_LogsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups) GetName() string {
+	if t == nil {
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_LogsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups{}
+	}
+	return t.Name
+}
+
+type CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_LogsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings struct {
+	Users  []*CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_LogsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users  "json:\"users,omitempty\" graphql:\"users\""
+	Groups []*CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_LogsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups "json:\"groups,omitempty\" graphql:\"groups\""
+}
+
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_LogsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings) GetUsers() []*CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_LogsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users {
+	if t == nil {
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_LogsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings{}
+	}
+	return t.Users
+}
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_LogsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings) GetGroups() []*CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_LogsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups {
+	if t == nil {
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_LogsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings{}
+	}
+	return t.Groups
+}
+
+type CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_LogsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name struct {
+	First *string "json:\"first,omitempty\" graphql:\"first\""
+	Last  *string "json:\"last,omitempty\" graphql:\"last\""
+}
+
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_LogsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name) GetFirst() *string {
+	if t == nil {
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_LogsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name{}
+	}
+	return t.First
+}
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_LogsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name) GetLast() *string {
+	if t == nil {
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_LogsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name{}
+	}
+	return t.Last
+}
+
+type CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_LogsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name struct {
+	First *string "json:\"first,omitempty\" graphql:\"first\""
+	Last  *string "json:\"last,omitempty\" graphql:\"last\""
+}
+
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_LogsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name) GetFirst() *string {
+	if t == nil {
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_LogsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name{}
+	}
+	return t.First
+}
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_LogsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name) GetLast() *string {
+	if t == nil {
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_LogsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name{}
+	}
+	return t.Last
+}
+
+type CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_LogsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization struct {
+	Name string "json:\"name\" graphql:\"name\""
+}
+
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_LogsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization) GetName() string {
+	if t == nil {
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_LogsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization{}
+	}
+	return t.Name
+}
+
+type CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_LogsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users struct {
+	ID    string "json:\"id\" graphql:\"id\""
+	Email string "json:\"email\" graphql:\"email\""
+}
+
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_LogsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users) GetID() string {
+	if t == nil {
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_LogsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users{}
+	}
+	return t.ID
+}
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_LogsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users) GetEmail() string {
+	if t == nil {
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_LogsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users{}
+	}
+	return t.Email
+}
+
+type CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_LogsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups struct {
+	Name string "json:\"name\" graphql:\"name\""
+}
+
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_LogsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups) GetName() string {
+	if t == nil {
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_LogsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups{}
+	}
+	return t.Name
+}
+
+type CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_LogsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings struct {
+	Users  []*CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_LogsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users  "json:\"users,omitempty\" graphql:\"users\""
+	Groups []*CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_LogsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups "json:\"groups,omitempty\" graphql:\"groups\""
+}
+
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_LogsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings) GetUsers() []*CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_LogsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users {
+	if t == nil {
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_LogsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings{}
+	}
+	return t.Users
+}
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_LogsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings) GetGroups() []*CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_LogsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups {
+	if t == nil {
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_LogsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings{}
+	}
+	return t.Groups
+}
+
+type CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_LogsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name struct {
+	First *string "json:\"first,omitempty\" graphql:\"first\""
+	Last  *string "json:\"last,omitempty\" graphql:\"last\""
+}
+
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_LogsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name) GetFirst() *string {
+	if t == nil {
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_LogsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name{}
+	}
+	return t.First
+}
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_LogsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name) GetLast() *string {
+	if t == nil {
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_LogsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name{}
+	}
+	return t.Last
+}
+
+type CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_LogsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name struct {
+	First *string "json:\"first,omitempty\" graphql:\"first\""
+	Last  *string "json:\"last,omitempty\" graphql:\"last\""
+}
+
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_LogsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name) GetFirst() *string {
+	if t == nil {
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_LogsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name{}
+	}
+	return t.First
+}
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_LogsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name) GetLast() *string {
+	if t == nil {
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_LogsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name{}
+	}
+	return t.Last
+}
+
+type CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_LogsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization struct {
+	Name string "json:\"name\" graphql:\"name\""
+}
+
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_LogsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization) GetName() string {
+	if t == nil {
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_LogsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization{}
+	}
+	return t.Name
+}
+
+type CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_LogsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users struct {
+	ID    string "json:\"id\" graphql:\"id\""
+	Email string "json:\"email\" graphql:\"email\""
+}
+
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_LogsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users) GetID() string {
+	if t == nil {
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_LogsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users{}
+	}
+	return t.ID
+}
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_LogsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users) GetEmail() string {
+	if t == nil {
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_LogsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users{}
+	}
+	return t.Email
+}
+
+type CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_LogsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups struct {
+	Name string "json:\"name\" graphql:\"name\""
+}
+
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_LogsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups) GetName() string {
+	if t == nil {
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_LogsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups{}
+	}
+	return t.Name
+}
+
+type CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_LogsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings struct {
+	Users  []*CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_LogsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users  "json:\"users,omitempty\" graphql:\"users\""
+	Groups []*CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_LogsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups "json:\"groups,omitempty\" graphql:\"groups\""
+}
+
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_LogsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings) GetUsers() []*CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_LogsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users {
+	if t == nil {
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_LogsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings{}
+	}
+	return t.Users
+}
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_LogsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings) GetGroups() []*CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_LogsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups {
+	if t == nil {
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_LogsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings{}
+	}
+	return t.Groups
+}
+
+type CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_TracesReaders_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name struct {
+	First *string "json:\"first,omitempty\" graphql:\"first\""
+	Last  *string "json:\"last,omitempty\" graphql:\"last\""
+}
+
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_TracesReaders_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name) GetFirst() *string {
+	if t == nil {
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_TracesReaders_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name{}
+	}
+	return t.First
+}
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_TracesReaders_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name) GetLast() *string {
+	if t == nil {
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_TracesReaders_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name{}
+	}
+	return t.Last
+}
+
+type CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_TracesReaders_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name struct {
+	First *string "json:\"first,omitempty\" graphql:\"first\""
+	Last  *string "json:\"last,omitempty\" graphql:\"last\""
+}
+
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_TracesReaders_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name) GetFirst() *string {
+	if t == nil {
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_TracesReaders_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name{}
+	}
+	return t.First
+}
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_TracesReaders_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name) GetLast() *string {
+	if t == nil {
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_TracesReaders_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name{}
+	}
+	return t.Last
+}
+
+type CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_TracesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization struct {
+	Name string "json:\"name\" graphql:\"name\""
+}
+
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_TracesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization) GetName() string {
+	if t == nil {
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_TracesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization{}
+	}
+	return t.Name
+}
+
+type CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_TracesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users struct {
+	ID    string "json:\"id\" graphql:\"id\""
+	Email string "json:\"email\" graphql:\"email\""
+}
+
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_TracesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users) GetID() string {
+	if t == nil {
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_TracesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users{}
+	}
+	return t.ID
+}
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_TracesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users) GetEmail() string {
+	if t == nil {
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_TracesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users{}
+	}
+	return t.Email
+}
+
+type CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_TracesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups struct {
+	Name string "json:\"name\" graphql:\"name\""
+}
+
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_TracesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups) GetName() string {
+	if t == nil {
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_TracesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups{}
+	}
+	return t.Name
+}
+
+type CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_TracesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings struct {
+	Users  []*CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_TracesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users  "json:\"users,omitempty\" graphql:\"users\""
+	Groups []*CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_TracesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups "json:\"groups,omitempty\" graphql:\"groups\""
+}
+
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_TracesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings) GetUsers() []*CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_TracesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users {
+	if t == nil {
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_TracesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings{}
+	}
+	return t.Users
+}
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_TracesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings) GetGroups() []*CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_TracesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups {
+	if t == nil {
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_TracesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings{}
+	}
+	return t.Groups
+}
+
+type CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_TracesWriters_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name struct {
+	First *string "json:\"first,omitempty\" graphql:\"first\""
+	Last  *string "json:\"last,omitempty\" graphql:\"last\""
+}
+
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_TracesWriters_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name) GetFirst() *string {
+	if t == nil {
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_TracesWriters_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name{}
+	}
+	return t.First
+}
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_TracesWriters_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name) GetLast() *string {
+	if t == nil {
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_TracesWriters_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name{}
+	}
+	return t.Last
+}
+
+type CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_TracesWriters_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name struct {
+	First *string "json:\"first,omitempty\" graphql:\"first\""
+	Last  *string "json:\"last,omitempty\" graphql:\"last\""
+}
+
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_TracesWriters_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name) GetFirst() *string {
+	if t == nil {
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_TracesWriters_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name{}
+	}
+	return t.First
+}
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_TracesWriters_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name) GetLast() *string {
+	if t == nil {
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_TracesWriters_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name{}
+	}
+	return t.Last
+}
+
+type CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_TracesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization struct {
+	Name string "json:\"name\" graphql:\"name\""
+}
+
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_TracesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization) GetName() string {
+	if t == nil {
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_TracesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization{}
+	}
+	return t.Name
+}
+
+type CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_TracesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users struct {
+	ID    string "json:\"id\" graphql:\"id\""
+	Email string "json:\"email\" graphql:\"email\""
+}
+
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_TracesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users) GetID() string {
+	if t == nil {
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_TracesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users{}
+	}
+	return t.ID
+}
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_TracesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users) GetEmail() string {
+	if t == nil {
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_TracesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users{}
+	}
+	return t.Email
+}
+
+type CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_TracesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups struct {
+	Name string "json:\"name\" graphql:\"name\""
+}
+
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_TracesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups) GetName() string {
+	if t == nil {
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_TracesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups{}
+	}
+	return t.Name
+}
+
+type CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_TracesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings struct {
+	Users  []*CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_TracesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users  "json:\"users,omitempty\" graphql:\"users\""
+	Groups []*CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_TracesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups "json:\"groups,omitempty\" graphql:\"groups\""
+}
+
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_TracesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings) GetUsers() []*CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_TracesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users {
+	if t == nil {
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_TracesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings{}
+	}
+	return t.Users
+}
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_TracesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings) GetGroups() []*CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_TracesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups {
+	if t == nil {
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_TracesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings{}
+	}
+	return t.Groups
+}
+
+type CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir struct {
+	RequestRate                                   *float64                            "json:\"requestRate,omitempty\" graphql:\"requestRate\""
+	RequestBurstSize                              *int64                              "json:\"requestBurstSize,omitempty\" graphql:\"requestBurstSize\""
+	IngestionRate                                 *float64                            "json:\"ingestionRate,omitempty\" graphql:\"ingestionRate\""
+	IngestionBurstSize                            *int64                              "json:\"ingestionBurstSize,omitempty\" graphql:\"ingestionBurstSize\""
+	AcceptHASamples                               *bool                               "json:\"acceptHASamples,omitempty\" graphql:\"acceptHASamples\""
+	HaClusterLabel                                *string                             "json:\"haClusterLabel,omitempty\" graphql:\"haClusterLabel\""
+	HaReplicaLabel                                *string                             "json:\"haReplicaLabel,omitempty\" graphql:\"haReplicaLabel\""
+	HaMaxClusters                                 *int64                              "json:\"haMaxClusters,omitempty\" graphql:\"haMaxClusters\""
+	DropLabels                                    []*string                           "json:\"dropLabels,omitempty\" graphql:\"dropLabels\""
+	MaxLabelNameLength                            *int64                              "json:\"maxLabelNameLength,omitempty\" graphql:\"maxLabelNameLength\""
+	MaxLabelValueLength                           *int64                              "json:\"maxLabelValueLength,omitempty\" graphql:\"maxLabelValueLength\""
+	MaxLabelNamesPerSeries                        *int64                              "json:\"maxLabelNamesPerSeries,omitempty\" graphql:\"maxLabelNamesPerSeries\""
+	MaxMetadataLength                             *int64                              "json:\"maxMetadataLength,omitempty\" graphql:\"maxMetadataLength\""
+	CreationGracePeriod                           *v1.Duration                        "json:\"creationGracePeriod,omitempty\" graphql:\"creationGracePeriod\""
+	EnforceMetadataMetricName                     *bool                               "json:\"enforceMetadataMetricName,omitempty\" graphql:\"enforceMetadataMetricName\""
+	IngestionTenantShardSize                      *int64                              "json:\"ingestionTenantShardSize,omitempty\" graphql:\"ingestionTenantShardSize\""
+	MaxGlobalSeriesPerUser                        *int64                              "json:\"maxGlobalSeriesPerUser,omitempty\" graphql:\"maxGlobalSeriesPerUser\""
+	MaxGlobalSeriesPerMetric                      *int64                              "json:\"maxGlobalSeriesPerMetric,omitempty\" graphql:\"maxGlobalSeriesPerMetric\""
+	MaxGlobalMetricsWithMetadataPerUser           *int64                              "json:\"maxGlobalMetricsWithMetadataPerUser,omitempty\" graphql:\"maxGlobalMetricsWithMetadataPerUser\""
+	MaxGlobalMetadataPerMetric                    *int64                              "json:\"maxGlobalMetadataPerMetric,omitempty\" graphql:\"maxGlobalMetadataPerMetric\""
+	MaxGlobalExemplarsPerUser                     *int64                              "json:\"maxGlobalExemplarsPerUser,omitempty\" graphql:\"maxGlobalExemplarsPerUser\""
+	NativeHistogramsIngestionEnabled              *bool                               "json:\"nativeHistogramsIngestionEnabled,omitempty\" graphql:\"nativeHistogramsIngestionEnabled\""
+	OutOfOrderTimeWindow                          *v1.Duration                        "json:\"outOfOrderTimeWindow,omitempty\" graphql:\"outOfOrderTimeWindow\""
+	OutOfOrderBlocksExternalLabelEnabled          *bool                               "json:\"outOfOrderBlocksExternalLabelEnabled,omitempty\" graphql:\"outOfOrderBlocksExternalLabelEnabled\""
+	SeparateMetricsGroupLabel                     *string                             "json:\"separateMetricsGroupLabel,omitempty\" graphql:\"separateMetricsGroupLabel\""
+	MaxChunksPerQuery                             *int64                              "json:\"maxChunksPerQuery,omitempty\" graphql:\"maxChunksPerQuery\""
+	MaxFetchedSeriesPerQuery                      *int64                              "json:\"maxFetchedSeriesPerQuery,omitempty\" graphql:\"maxFetchedSeriesPerQuery\""
+	MaxFetchedChunkBytesPerQuery                  *int64                              "json:\"maxFetchedChunkBytesPerQuery,omitempty\" graphql:\"maxFetchedChunkBytesPerQuery\""
+	MaxQueryLookback                              *v1.Duration                        "json:\"maxQueryLookback,omitempty\" graphql:\"maxQueryLookback\""
+	MaxPartialQueryLength                         *v1.Duration                        "json:\"maxPartialQueryLength,omitempty\" graphql:\"maxPartialQueryLength\""
+	MaxQueryParallelism                           *int64                              "json:\"maxQueryParallelism,omitempty\" graphql:\"maxQueryParallelism\""
+	MaxLabelsQueryLength                          *v1.Duration                        "json:\"maxLabelsQueryLength,omitempty\" graphql:\"maxLabelsQueryLength\""
+	MaxCacheFreshness                             *v1.Duration                        "json:\"maxCacheFreshness,omitempty\" graphql:\"maxCacheFreshness\""
+	MaxQueriersPerTenant                          *int64                              "json:\"maxQueriersPerTenant,omitempty\" graphql:\"maxQueriersPerTenant\""
+	QueryShardingTotalShards                      *int64                              "json:\"queryShardingTotalShards,omitempty\" graphql:\"queryShardingTotalShards\""
+	QueryShardingMaxShardedQueries                *int64                              "json:\"queryShardingMaxShardedQueries,omitempty\" graphql:\"queryShardingMaxShardedQueries\""
+	QueryShardingMaxRegexpSizeBytes               *int64                              "json:\"queryShardingMaxRegexpSizeBytes,omitempty\" graphql:\"queryShardingMaxRegexpSizeBytes\""
+	SplitInstantQueriesByInterval                 *v1.Duration                        "json:\"splitInstantQueriesByInterval,omitempty\" graphql:\"splitInstantQueriesByInterval\""
+	MaxTotalQueryLength                           *v1.Duration                        "json:\"maxTotalQueryLength,omitempty\" graphql:\"maxTotalQueryLength\""
+	ResultsCacheTTL                               *v1.Duration                        "json:\"resultsCacheTTL,omitempty\" graphql:\"resultsCacheTTL\""
+	ResultsCacheTTLForOutOfOrderTimeWindow        *v1.Duration                        "json:\"resultsCacheTTLForOutOfOrderTimeWindow,omitempty\" graphql:\"resultsCacheTTLForOutOfOrderTimeWindow\""
+	MaxQueryExpressionSizeBytes                   *int64                              "json:\"maxQueryExpressionSizeBytes,omitempty\" graphql:\"maxQueryExpressionSizeBytes\""
+	CardinalityAnalysisEnabled                    *bool                               "json:\"cardinalityAnalysisEnabled,omitempty\" graphql:\"cardinalityAnalysisEnabled\""
+	LabelNamesAndValuesResultsMaxSizeBytes        *int64                              "json:\"labelNamesAndValuesResultsMaxSizeBytes,omitempty\" graphql:\"labelNamesAndValuesResultsMaxSizeBytes\""
+	LabelValuesMaxCardinalityLabelNamesPerRequest *int64                              "json:\"labelValuesMaxCardinalityLabelNamesPerRequest,omitempty\" graphql:\"labelValuesMaxCardinalityLabelNamesPerRequest\""
+	RulerEvaluationDelay                          *v1.Duration                        "json:\"rulerEvaluationDelay,omitempty\" graphql:\"rulerEvaluationDelay\""
+	RulerTenantShardSize                          *int64                              "json:\"rulerTenantShardSize,omitempty\" graphql:\"rulerTenantShardSize\""
+	RulerMaxRulesPerRuleGroup                     *int64                              "json:\"rulerMaxRulesPerRuleGroup,omitempty\" graphql:\"rulerMaxRulesPerRuleGroup\""
+	RulerMaxRuleGroupsPerTenant                   *int64                              "json:\"rulerMaxRuleGroupsPerTenant,omitempty\" graphql:\"rulerMaxRuleGroupsPerTenant\""
+	RulerRecordingRulesEvaluationEnabled          *bool                               "json:\"rulerRecordingRulesEvaluationEnabled,omitempty\" graphql:\"rulerRecordingRulesEvaluationEnabled\""
+	RulerAlertingRulesEvaluationEnabled           *bool                               "json:\"rulerAlertingRulesEvaluationEnabled,omitempty\" graphql:\"rulerAlertingRulesEvaluationEnabled\""
+	StoreGatewayTenantShardSize                   *int64                              "json:\"storeGatewayTenantShardSize,omitempty\" graphql:\"storeGatewayTenantShardSize\""
+	CompactorBlocksRetentionPeriod                *v1.Duration                        "json:\"compactorBlocksRetentionPeriod,omitempty\" graphql:\"compactorBlocksRetentionPeriod\""
+	CompactorSplitAndMergeShards                  *int64                              "json:\"compactorSplitAndMergeShards,omitempty\" graphql:\"compactorSplitAndMergeShards\""
+	CompactorSplitGroups                          *int64                              "json:\"compactorSplitGroups,omitempty\" graphql:\"compactorSplitGroups\""
+	CompactorTenantShardSize                      *int64                              "json:\"compactorTenantShardSize,omitempty\" graphql:\"compactorTenantShardSize\""
+	CompactorPartialBlockDeletionDelay            *v1.Duration                        "json:\"compactorPartialBlockDeletionDelay,omitempty\" graphql:\"compactorPartialBlockDeletionDelay\""
+	CompactorBlockUploadEnabled                   *bool                               "json:\"compactorBlockUploadEnabled,omitempty\" graphql:\"compactorBlockUploadEnabled\""
+	CompactorBlockUploadValidationEnabled         *bool                               "json:\"compactorBlockUploadValidationEnabled,omitempty\" graphql:\"compactorBlockUploadValidationEnabled\""
+	CompactorBlockUploadVerifyChunks              *bool                               "json:\"compactorBlockUploadVerifyChunks,omitempty\" graphql:\"compactorBlockUploadVerifyChunks\""
+	S3SSEType                                     *string                             "json:\"s3SSEType,omitempty\" graphql:\"s3SSEType\""
+	S3SSEKMSKeyID                                 *string                             "json:\"s3SSEKMSKeyID,omitempty\" graphql:\"s3SSEKMSKeyID\""
+	S3SSEKMSEncryptionContext                     *string                             "json:\"s3SSEKMSEncryptionContext,omitempty\" graphql:\"s3SSEKMSEncryptionContext\""
+	AlertmanagerReceiversBlockCIDRNetworks        *string                             "json:\"alertmanagerReceiversBlockCIDRNetworks,omitempty\" graphql:\"alertmanagerReceiversBlockCIDRNetworks\""
+	AlertmanagerReceiversBlockPrivateAddresses    *bool                               "json:\"alertmanagerReceiversBlockPrivateAddresses,omitempty\" graphql:\"alertmanagerReceiversBlockPrivateAddresses\""
+	NotificationRateLimit                         *float64                            "json:\"notificationRateLimit,omitempty\" graphql:\"notificationRateLimit\""
+	NotificationRateLimitPerIntegration           map[string]*float64                 "json:\"notificationRateLimitPerIntegration,omitempty\" graphql:\"notificationRateLimitPerIntegration\""
+	AlertmanagerMaxConfigSizeBytes                *int64                              "json:\"alertmanagerMaxConfigSizeBytes,omitempty\" graphql:\"alertmanagerMaxConfigSizeBytes\""
+	AlertmanagerMaxTemplatesCount                 *int64                              "json:\"alertmanagerMaxTemplatesCount,omitempty\" graphql:\"alertmanagerMaxTemplatesCount\""
+	AlertmanagerMaxTemplateSizeBytes              *int64                              "json:\"alertmanagerMaxTemplateSizeBytes,omitempty\" graphql:\"alertmanagerMaxTemplateSizeBytes\""
+	AlertmanagerMaxDispatcherAggregationGroups    *int64                              "json:\"alertmanagerMaxDispatcherAggregationGroups,omitempty\" graphql:\"alertmanagerMaxDispatcherAggregationGroups\""
+	AlertmanagerMaxAlertsCount                    *int64                              "json:\"alertmanagerMaxAlertsCount,omitempty\" graphql:\"alertmanagerMaxAlertsCount\""
+	AlertmanagerMaxAlertsSizeBytes                *int64                              "json:\"alertmanagerMaxAlertsSizeBytes,omitempty\" graphql:\"alertmanagerMaxAlertsSizeBytes\""
+	ForwardingEndpoint                            *string                             "json:\"forwardingEndpoint,omitempty\" graphql:\"forwardingEndpoint\""
+	ForwardingDropOlderThan                       *v1.Duration                        "json:\"forwardingDropOlderThan,omitempty\" graphql:\"forwardingDropOlderThan\""
+	ForwardingRules                               map[string]*v1alpha1.ForwardingRule "json:\"forwardingRules,omitempty\" graphql:\"forwardingRules\""
+}
+
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetRequestRate() *float64 {
+	if t == nil {
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.RequestRate
+}
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetRequestBurstSize() *int64 {
+	if t == nil {
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.RequestBurstSize
+}
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetIngestionRate() *float64 {
+	if t == nil {
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.IngestionRate
+}
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetIngestionBurstSize() *int64 {
+	if t == nil {
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.IngestionBurstSize
+}
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetAcceptHASamples() *bool {
+	if t == nil {
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.AcceptHASamples
+}
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetHaClusterLabel() *string {
+	if t == nil {
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.HaClusterLabel
+}
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetHaReplicaLabel() *string {
+	if t == nil {
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.HaReplicaLabel
+}
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetHaMaxClusters() *int64 {
+	if t == nil {
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.HaMaxClusters
+}
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetDropLabels() []*string {
+	if t == nil {
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.DropLabels
+}
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetMaxLabelNameLength() *int64 {
+	if t == nil {
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.MaxLabelNameLength
+}
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetMaxLabelValueLength() *int64 {
+	if t == nil {
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.MaxLabelValueLength
+}
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetMaxLabelNamesPerSeries() *int64 {
+	if t == nil {
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.MaxLabelNamesPerSeries
+}
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetMaxMetadataLength() *int64 {
+	if t == nil {
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.MaxMetadataLength
+}
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetCreationGracePeriod() *v1.Duration {
+	if t == nil {
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.CreationGracePeriod
+}
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetEnforceMetadataMetricName() *bool {
+	if t == nil {
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.EnforceMetadataMetricName
+}
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetIngestionTenantShardSize() *int64 {
+	if t == nil {
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.IngestionTenantShardSize
+}
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetMaxGlobalSeriesPerUser() *int64 {
+	if t == nil {
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.MaxGlobalSeriesPerUser
+}
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetMaxGlobalSeriesPerMetric() *int64 {
+	if t == nil {
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.MaxGlobalSeriesPerMetric
+}
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetMaxGlobalMetricsWithMetadataPerUser() *int64 {
+	if t == nil {
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.MaxGlobalMetricsWithMetadataPerUser
+}
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetMaxGlobalMetadataPerMetric() *int64 {
+	if t == nil {
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.MaxGlobalMetadataPerMetric
+}
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetMaxGlobalExemplarsPerUser() *int64 {
+	if t == nil {
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.MaxGlobalExemplarsPerUser
+}
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetNativeHistogramsIngestionEnabled() *bool {
+	if t == nil {
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.NativeHistogramsIngestionEnabled
+}
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetOutOfOrderTimeWindow() *v1.Duration {
+	if t == nil {
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.OutOfOrderTimeWindow
+}
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetOutOfOrderBlocksExternalLabelEnabled() *bool {
+	if t == nil {
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.OutOfOrderBlocksExternalLabelEnabled
+}
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetSeparateMetricsGroupLabel() *string {
+	if t == nil {
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.SeparateMetricsGroupLabel
+}
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetMaxChunksPerQuery() *int64 {
+	if t == nil {
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.MaxChunksPerQuery
+}
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetMaxFetchedSeriesPerQuery() *int64 {
+	if t == nil {
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.MaxFetchedSeriesPerQuery
+}
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetMaxFetchedChunkBytesPerQuery() *int64 {
+	if t == nil {
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.MaxFetchedChunkBytesPerQuery
+}
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetMaxQueryLookback() *v1.Duration {
+	if t == nil {
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.MaxQueryLookback
+}
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetMaxPartialQueryLength() *v1.Duration {
+	if t == nil {
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.MaxPartialQueryLength
+}
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetMaxQueryParallelism() *int64 {
+	if t == nil {
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.MaxQueryParallelism
+}
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetMaxLabelsQueryLength() *v1.Duration {
+	if t == nil {
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.MaxLabelsQueryLength
+}
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetMaxCacheFreshness() *v1.Duration {
+	if t == nil {
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.MaxCacheFreshness
+}
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetMaxQueriersPerTenant() *int64 {
+	if t == nil {
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.MaxQueriersPerTenant
+}
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetQueryShardingTotalShards() *int64 {
+	if t == nil {
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.QueryShardingTotalShards
+}
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetQueryShardingMaxShardedQueries() *int64 {
+	if t == nil {
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.QueryShardingMaxShardedQueries
+}
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetQueryShardingMaxRegexpSizeBytes() *int64 {
+	if t == nil {
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.QueryShardingMaxRegexpSizeBytes
+}
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetSplitInstantQueriesByInterval() *v1.Duration {
+	if t == nil {
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.SplitInstantQueriesByInterval
+}
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetMaxTotalQueryLength() *v1.Duration {
+	if t == nil {
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.MaxTotalQueryLength
+}
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetResultsCacheTTL() *v1.Duration {
+	if t == nil {
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.ResultsCacheTTL
+}
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetResultsCacheTTLForOutOfOrderTimeWindow() *v1.Duration {
+	if t == nil {
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.ResultsCacheTTLForOutOfOrderTimeWindow
+}
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetMaxQueryExpressionSizeBytes() *int64 {
+	if t == nil {
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.MaxQueryExpressionSizeBytes
+}
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetCardinalityAnalysisEnabled() *bool {
+	if t == nil {
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.CardinalityAnalysisEnabled
+}
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetLabelNamesAndValuesResultsMaxSizeBytes() *int64 {
+	if t == nil {
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.LabelNamesAndValuesResultsMaxSizeBytes
+}
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetLabelValuesMaxCardinalityLabelNamesPerRequest() *int64 {
+	if t == nil {
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.LabelValuesMaxCardinalityLabelNamesPerRequest
+}
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetRulerEvaluationDelay() *v1.Duration {
+	if t == nil {
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.RulerEvaluationDelay
+}
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetRulerTenantShardSize() *int64 {
+	if t == nil {
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.RulerTenantShardSize
+}
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetRulerMaxRulesPerRuleGroup() *int64 {
+	if t == nil {
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.RulerMaxRulesPerRuleGroup
+}
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetRulerMaxRuleGroupsPerTenant() *int64 {
+	if t == nil {
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.RulerMaxRuleGroupsPerTenant
+}
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetRulerRecordingRulesEvaluationEnabled() *bool {
+	if t == nil {
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.RulerRecordingRulesEvaluationEnabled
+}
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetRulerAlertingRulesEvaluationEnabled() *bool {
+	if t == nil {
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.RulerAlertingRulesEvaluationEnabled
+}
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetStoreGatewayTenantShardSize() *int64 {
+	if t == nil {
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.StoreGatewayTenantShardSize
+}
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetCompactorBlocksRetentionPeriod() *v1.Duration {
+	if t == nil {
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.CompactorBlocksRetentionPeriod
+}
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetCompactorSplitAndMergeShards() *int64 {
+	if t == nil {
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.CompactorSplitAndMergeShards
+}
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetCompactorSplitGroups() *int64 {
+	if t == nil {
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.CompactorSplitGroups
+}
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetCompactorTenantShardSize() *int64 {
+	if t == nil {
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.CompactorTenantShardSize
+}
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetCompactorPartialBlockDeletionDelay() *v1.Duration {
+	if t == nil {
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.CompactorPartialBlockDeletionDelay
+}
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetCompactorBlockUploadEnabled() *bool {
+	if t == nil {
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.CompactorBlockUploadEnabled
+}
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetCompactorBlockUploadValidationEnabled() *bool {
+	if t == nil {
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.CompactorBlockUploadValidationEnabled
+}
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetCompactorBlockUploadVerifyChunks() *bool {
+	if t == nil {
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.CompactorBlockUploadVerifyChunks
+}
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetS3SSEType() *string {
+	if t == nil {
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.S3SSEType
+}
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetS3SSEKMSKeyID() *string {
+	if t == nil {
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.S3SSEKMSKeyID
+}
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetS3SSEKMSEncryptionContext() *string {
+	if t == nil {
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.S3SSEKMSEncryptionContext
+}
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetAlertmanagerReceiversBlockCIDRNetworks() *string {
+	if t == nil {
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.AlertmanagerReceiversBlockCIDRNetworks
+}
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetAlertmanagerReceiversBlockPrivateAddresses() *bool {
+	if t == nil {
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.AlertmanagerReceiversBlockPrivateAddresses
+}
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetNotificationRateLimit() *float64 {
+	if t == nil {
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.NotificationRateLimit
+}
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetNotificationRateLimitPerIntegration() map[string]*float64 {
+	if t == nil {
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.NotificationRateLimitPerIntegration
+}
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetAlertmanagerMaxConfigSizeBytes() *int64 {
+	if t == nil {
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.AlertmanagerMaxConfigSizeBytes
+}
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetAlertmanagerMaxTemplatesCount() *int64 {
+	if t == nil {
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.AlertmanagerMaxTemplatesCount
+}
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetAlertmanagerMaxTemplateSizeBytes() *int64 {
+	if t == nil {
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.AlertmanagerMaxTemplateSizeBytes
+}
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetAlertmanagerMaxDispatcherAggregationGroups() *int64 {
+	if t == nil {
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.AlertmanagerMaxDispatcherAggregationGroups
+}
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetAlertmanagerMaxAlertsCount() *int64 {
+	if t == nil {
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.AlertmanagerMaxAlertsCount
+}
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetAlertmanagerMaxAlertsSizeBytes() *int64 {
+	if t == nil {
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.AlertmanagerMaxAlertsSizeBytes
+}
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetForwardingEndpoint() *string {
+	if t == nil {
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.ForwardingEndpoint
+}
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetForwardingDropOlderThan() *v1.Duration {
+	if t == nil {
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.ForwardingDropOlderThan
+}
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetForwardingRules() map[string]*v1alpha1.ForwardingRule {
+	if t == nil {
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.ForwardingRules
+}
+
+type UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Admins_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name struct {
+	First *string "json:\"first,omitempty\" graphql:\"first\""
+	Last  *string "json:\"last,omitempty\" graphql:\"last\""
+}
+
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Admins_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name) GetFirst() *string {
+	if t == nil {
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Admins_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name{}
+	}
+	return t.First
+}
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Admins_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name) GetLast() *string {
+	if t == nil {
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Admins_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name{}
+	}
+	return t.Last
+}
+
+type UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Admins_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name struct {
+	First *string "json:\"first,omitempty\" graphql:\"first\""
+	Last  *string "json:\"last,omitempty\" graphql:\"last\""
+}
+
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Admins_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name) GetFirst() *string {
+	if t == nil {
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Admins_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name{}
+	}
+	return t.First
+}
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Admins_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name) GetLast() *string {
+	if t == nil {
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Admins_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name{}
+	}
+	return t.Last
+}
+
+type UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Admins_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization struct {
+	Name string "json:\"name\" graphql:\"name\""
+}
+
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Admins_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization) GetName() string {
+	if t == nil {
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Admins_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization{}
+	}
+	return t.Name
+}
+
+type UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Admins_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users struct {
+	ID    string "json:\"id\" graphql:\"id\""
+	Email string "json:\"email\" graphql:\"email\""
+}
+
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Admins_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users) GetID() string {
+	if t == nil {
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Admins_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users{}
+	}
+	return t.ID
+}
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Admins_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users) GetEmail() string {
+	if t == nil {
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Admins_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users{}
+	}
+	return t.Email
+}
+
+type UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Admins_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups struct {
+	Name string "json:\"name\" graphql:\"name\""
+}
+
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Admins_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups) GetName() string {
+	if t == nil {
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Admins_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups{}
+	}
+	return t.Name
+}
+
+type UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Admins_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings struct {
+	Users  []*UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Admins_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users  "json:\"users,omitempty\" graphql:\"users\""
+	Groups []*UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Admins_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups "json:\"groups,omitempty\" graphql:\"groups\""
+}
+
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Admins_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings) GetUsers() []*UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Admins_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users {
+	if t == nil {
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Admins_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings{}
+	}
+	return t.Users
+}
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Admins_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings) GetGroups() []*UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Admins_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups {
+	if t == nil {
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Admins_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings{}
+	}
+	return t.Groups
+}
+
+type UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsReaders_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name struct {
+	First *string "json:\"first,omitempty\" graphql:\"first\""
+	Last  *string "json:\"last,omitempty\" graphql:\"last\""
+}
+
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsReaders_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name) GetFirst() *string {
+	if t == nil {
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsReaders_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name{}
+	}
+	return t.First
+}
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsReaders_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name) GetLast() *string {
+	if t == nil {
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsReaders_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name{}
+	}
+	return t.Last
+}
+
+type UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsReaders_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name struct {
+	First *string "json:\"first,omitempty\" graphql:\"first\""
+	Last  *string "json:\"last,omitempty\" graphql:\"last\""
+}
+
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsReaders_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name) GetFirst() *string {
+	if t == nil {
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsReaders_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name{}
+	}
+	return t.First
+}
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsReaders_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name) GetLast() *string {
+	if t == nil {
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsReaders_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name{}
+	}
+	return t.Last
+}
+
+type UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization struct {
+	Name string "json:\"name\" graphql:\"name\""
+}
+
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization) GetName() string {
+	if t == nil {
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization{}
+	}
+	return t.Name
+}
+
+type UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users struct {
+	ID    string "json:\"id\" graphql:\"id\""
+	Email string "json:\"email\" graphql:\"email\""
+}
+
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users) GetID() string {
+	if t == nil {
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users{}
+	}
+	return t.ID
+}
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users) GetEmail() string {
+	if t == nil {
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users{}
+	}
+	return t.Email
+}
+
+type UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups struct {
+	Name string "json:\"name\" graphql:\"name\""
+}
+
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups) GetName() string {
+	if t == nil {
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups{}
+	}
+	return t.Name
+}
+
+type UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings struct {
+	Users  []*UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users  "json:\"users,omitempty\" graphql:\"users\""
+	Groups []*UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups "json:\"groups,omitempty\" graphql:\"groups\""
+}
+
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings) GetUsers() []*UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users {
+	if t == nil {
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings{}
+	}
+	return t.Users
+}
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings) GetGroups() []*UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups {
+	if t == nil {
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings{}
+	}
+	return t.Groups
+}
+
+type UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsWriters_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name struct {
+	First *string "json:\"first,omitempty\" graphql:\"first\""
+	Last  *string "json:\"last,omitempty\" graphql:\"last\""
+}
+
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsWriters_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name) GetFirst() *string {
+	if t == nil {
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsWriters_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name{}
+	}
+	return t.First
+}
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsWriters_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name) GetLast() *string {
+	if t == nil {
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsWriters_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name{}
+	}
+	return t.Last
+}
+
+type UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsWriters_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name struct {
+	First *string "json:\"first,omitempty\" graphql:\"first\""
+	Last  *string "json:\"last,omitempty\" graphql:\"last\""
+}
+
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsWriters_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name) GetFirst() *string {
+	if t == nil {
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsWriters_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name{}
+	}
+	return t.First
+}
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsWriters_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name) GetLast() *string {
+	if t == nil {
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsWriters_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name{}
+	}
+	return t.Last
+}
+
+type UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization struct {
+	Name string "json:\"name\" graphql:\"name\""
+}
+
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization) GetName() string {
+	if t == nil {
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization{}
+	}
+	return t.Name
+}
+
+type UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users struct {
+	ID    string "json:\"id\" graphql:\"id\""
+	Email string "json:\"email\" graphql:\"email\""
+}
+
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users) GetID() string {
+	if t == nil {
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users{}
+	}
+	return t.ID
+}
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users) GetEmail() string {
+	if t == nil {
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users{}
+	}
+	return t.Email
+}
+
+type UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups struct {
+	Name string "json:\"name\" graphql:\"name\""
+}
+
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups) GetName() string {
+	if t == nil {
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups{}
+	}
+	return t.Name
+}
+
+type UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings struct {
+	Users  []*UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users  "json:\"users,omitempty\" graphql:\"users\""
+	Groups []*UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups "json:\"groups,omitempty\" graphql:\"groups\""
+}
+
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings) GetUsers() []*UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users {
+	if t == nil {
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings{}
+	}
+	return t.Users
+}
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings) GetGroups() []*UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups {
+	if t == nil {
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings{}
+	}
+	return t.Groups
+}
+
+type UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name struct {
+	First *string "json:\"first,omitempty\" graphql:\"first\""
+	Last  *string "json:\"last,omitempty\" graphql:\"last\""
+}
+
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name) GetFirst() *string {
+	if t == nil {
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name{}
+	}
+	return t.First
+}
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name) GetLast() *string {
+	if t == nil {
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name{}
+	}
+	return t.Last
+}
+
+type UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name struct {
+	First *string "json:\"first,omitempty\" graphql:\"first\""
+	Last  *string "json:\"last,omitempty\" graphql:\"last\""
+}
+
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name) GetFirst() *string {
+	if t == nil {
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name{}
+	}
+	return t.First
+}
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name) GetLast() *string {
+	if t == nil {
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name{}
+	}
+	return t.Last
+}
+
+type UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization struct {
+	Name string "json:\"name\" graphql:\"name\""
+}
+
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization) GetName() string {
+	if t == nil {
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization{}
+	}
+	return t.Name
+}
+
+type UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users struct {
+	ID    string "json:\"id\" graphql:\"id\""
+	Email string "json:\"email\" graphql:\"email\""
+}
+
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users) GetID() string {
+	if t == nil {
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users{}
+	}
+	return t.ID
+}
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users) GetEmail() string {
+	if t == nil {
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users{}
+	}
+	return t.Email
+}
+
+type UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups struct {
+	Name string "json:\"name\" graphql:\"name\""
+}
+
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups) GetName() string {
+	if t == nil {
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups{}
+	}
+	return t.Name
+}
+
+type UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings struct {
+	Users  []*UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users  "json:\"users,omitempty\" graphql:\"users\""
+	Groups []*UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups "json:\"groups,omitempty\" graphql:\"groups\""
+}
+
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings) GetUsers() []*UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users {
+	if t == nil {
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings{}
+	}
+	return t.Users
+}
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings) GetGroups() []*UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups {
+	if t == nil {
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings{}
+	}
+	return t.Groups
+}
+
+type UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name struct {
+	First *string "json:\"first,omitempty\" graphql:\"first\""
+	Last  *string "json:\"last,omitempty\" graphql:\"last\""
+}
+
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name) GetFirst() *string {
+	if t == nil {
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name{}
+	}
+	return t.First
+}
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name) GetLast() *string {
+	if t == nil {
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name{}
+	}
+	return t.Last
+}
+
+type UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name struct {
+	First *string "json:\"first,omitempty\" graphql:\"first\""
+	Last  *string "json:\"last,omitempty\" graphql:\"last\""
+}
+
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name) GetFirst() *string {
+	if t == nil {
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name{}
+	}
+	return t.First
+}
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name) GetLast() *string {
+	if t == nil {
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name{}
+	}
+	return t.Last
+}
+
+type UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization struct {
+	Name string "json:\"name\" graphql:\"name\""
+}
+
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization) GetName() string {
+	if t == nil {
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization{}
+	}
+	return t.Name
+}
+
+type UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users struct {
+	ID    string "json:\"id\" graphql:\"id\""
+	Email string "json:\"email\" graphql:\"email\""
+}
+
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users) GetID() string {
+	if t == nil {
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users{}
+	}
+	return t.ID
+}
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users) GetEmail() string {
+	if t == nil {
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users{}
+	}
+	return t.Email
+}
+
+type UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups struct {
+	Name string "json:\"name\" graphql:\"name\""
+}
+
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups) GetName() string {
+	if t == nil {
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups{}
+	}
+	return t.Name
+}
+
+type UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings struct {
+	Users  []*UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users  "json:\"users,omitempty\" graphql:\"users\""
+	Groups []*UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups "json:\"groups,omitempty\" graphql:\"groups\""
+}
+
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings) GetUsers() []*UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users {
+	if t == nil {
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings{}
+	}
+	return t.Users
+}
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings) GetGroups() []*UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups {
+	if t == nil {
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings{}
+	}
+	return t.Groups
+}
+
+type UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name struct {
+	First *string "json:\"first,omitempty\" graphql:\"first\""
+	Last  *string "json:\"last,omitempty\" graphql:\"last\""
+}
+
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name) GetFirst() *string {
+	if t == nil {
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name{}
+	}
+	return t.First
+}
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name) GetLast() *string {
+	if t == nil {
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name{}
+	}
+	return t.Last
+}
+
+type UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name struct {
+	First *string "json:\"first,omitempty\" graphql:\"first\""
+	Last  *string "json:\"last,omitempty\" graphql:\"last\""
+}
+
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name) GetFirst() *string {
+	if t == nil {
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name{}
+	}
+	return t.First
+}
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name) GetLast() *string {
+	if t == nil {
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name{}
+	}
+	return t.Last
+}
+
+type UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization struct {
+	Name string "json:\"name\" graphql:\"name\""
+}
+
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization) GetName() string {
+	if t == nil {
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization{}
+	}
+	return t.Name
+}
+
+type UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users struct {
+	ID    string "json:\"id\" graphql:\"id\""
+	Email string "json:\"email\" graphql:\"email\""
+}
+
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users) GetID() string {
+	if t == nil {
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users{}
+	}
+	return t.ID
+}
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users) GetEmail() string {
+	if t == nil {
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users{}
+	}
+	return t.Email
+}
+
+type UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups struct {
+	Name string "json:\"name\" graphql:\"name\""
+}
+
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups) GetName() string {
+	if t == nil {
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups{}
+	}
+	return t.Name
+}
+
+type UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings struct {
+	Users  []*UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users  "json:\"users,omitempty\" graphql:\"users\""
+	Groups []*UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups "json:\"groups,omitempty\" graphql:\"groups\""
+}
+
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings) GetUsers() []*UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users {
+	if t == nil {
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings{}
+	}
+	return t.Users
+}
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings) GetGroups() []*UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups {
+	if t == nil {
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings{}
+	}
+	return t.Groups
+}
+
+type UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsAlertsReaders_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name struct {
+	First *string "json:\"first,omitempty\" graphql:\"first\""
+	Last  *string "json:\"last,omitempty\" graphql:\"last\""
+}
+
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsAlertsReaders_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name) GetFirst() *string {
+	if t == nil {
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsAlertsReaders_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name{}
+	}
+	return t.First
+}
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsAlertsReaders_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name) GetLast() *string {
+	if t == nil {
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsAlertsReaders_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name{}
+	}
+	return t.Last
+}
+
+type UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsAlertsReaders_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name struct {
+	First *string "json:\"first,omitempty\" graphql:\"first\""
+	Last  *string "json:\"last,omitempty\" graphql:\"last\""
+}
+
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsAlertsReaders_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name) GetFirst() *string {
+	if t == nil {
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsAlertsReaders_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name{}
+	}
+	return t.First
+}
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsAlertsReaders_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name) GetLast() *string {
+	if t == nil {
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsAlertsReaders_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name{}
+	}
+	return t.Last
+}
+
+type UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsAlertsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization struct {
+	Name string "json:\"name\" graphql:\"name\""
+}
+
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsAlertsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization) GetName() string {
+	if t == nil {
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsAlertsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization{}
+	}
+	return t.Name
+}
+
+type UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsAlertsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users struct {
+	ID    string "json:\"id\" graphql:\"id\""
+	Email string "json:\"email\" graphql:\"email\""
+}
+
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsAlertsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users) GetID() string {
+	if t == nil {
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsAlertsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users{}
+	}
+	return t.ID
+}
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsAlertsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users) GetEmail() string {
+	if t == nil {
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsAlertsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users{}
+	}
+	return t.Email
+}
+
+type UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsAlertsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups struct {
+	Name string "json:\"name\" graphql:\"name\""
+}
+
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsAlertsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups) GetName() string {
+	if t == nil {
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsAlertsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups{}
+	}
+	return t.Name
+}
+
+type UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsAlertsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings struct {
+	Users  []*UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsAlertsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users  "json:\"users,omitempty\" graphql:\"users\""
+	Groups []*UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsAlertsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups "json:\"groups,omitempty\" graphql:\"groups\""
+}
+
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsAlertsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings) GetUsers() []*UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsAlertsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users {
+	if t == nil {
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsAlertsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings{}
+	}
+	return t.Users
+}
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsAlertsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings) GetGroups() []*UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsAlertsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups {
+	if t == nil {
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsAlertsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings{}
+	}
+	return t.Groups
+}
+
+type UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsAlertsWriters_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name struct {
+	First *string "json:\"first,omitempty\" graphql:\"first\""
+	Last  *string "json:\"last,omitempty\" graphql:\"last\""
+}
+
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsAlertsWriters_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name) GetFirst() *string {
+	if t == nil {
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsAlertsWriters_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name{}
+	}
+	return t.First
+}
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsAlertsWriters_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name) GetLast() *string {
+	if t == nil {
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsAlertsWriters_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name{}
+	}
+	return t.Last
+}
+
+type UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsAlertsWriters_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name struct {
+	First *string "json:\"first,omitempty\" graphql:\"first\""
+	Last  *string "json:\"last,omitempty\" graphql:\"last\""
+}
+
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsAlertsWriters_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name) GetFirst() *string {
+	if t == nil {
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsAlertsWriters_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name{}
+	}
+	return t.First
+}
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsAlertsWriters_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name) GetLast() *string {
+	if t == nil {
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsAlertsWriters_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name{}
+	}
+	return t.Last
+}
+
+type UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsAlertsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization struct {
+	Name string "json:\"name\" graphql:\"name\""
+}
+
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsAlertsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization) GetName() string {
+	if t == nil {
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsAlertsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization{}
+	}
+	return t.Name
+}
+
+type UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsAlertsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users struct {
+	ID    string "json:\"id\" graphql:\"id\""
+	Email string "json:\"email\" graphql:\"email\""
+}
+
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsAlertsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users) GetID() string {
+	if t == nil {
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsAlertsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users{}
+	}
+	return t.ID
+}
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsAlertsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users) GetEmail() string {
+	if t == nil {
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsAlertsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users{}
+	}
+	return t.Email
+}
+
+type UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsAlertsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups struct {
+	Name string "json:\"name\" graphql:\"name\""
+}
+
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsAlertsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups) GetName() string {
+	if t == nil {
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsAlertsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups{}
+	}
+	return t.Name
+}
+
+type UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsAlertsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings struct {
+	Users  []*UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsAlertsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users  "json:\"users,omitempty\" graphql:\"users\""
+	Groups []*UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsAlertsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups "json:\"groups,omitempty\" graphql:\"groups\""
+}
+
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsAlertsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings) GetUsers() []*UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsAlertsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users {
+	if t == nil {
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsAlertsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings{}
+	}
+	return t.Users
+}
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsAlertsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings) GetGroups() []*UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsAlertsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups {
+	if t == nil {
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsAlertsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings{}
+	}
+	return t.Groups
+}
+
+type UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_LogsReaders_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name struct {
+	First *string "json:\"first,omitempty\" graphql:\"first\""
+	Last  *string "json:\"last,omitempty\" graphql:\"last\""
+}
+
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_LogsReaders_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name) GetFirst() *string {
+	if t == nil {
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_LogsReaders_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name{}
+	}
+	return t.First
+}
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_LogsReaders_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name) GetLast() *string {
+	if t == nil {
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_LogsReaders_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name{}
+	}
+	return t.Last
+}
+
+type UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_LogsReaders_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name struct {
+	First *string "json:\"first,omitempty\" graphql:\"first\""
+	Last  *string "json:\"last,omitempty\" graphql:\"last\""
+}
+
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_LogsReaders_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name) GetFirst() *string {
+	if t == nil {
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_LogsReaders_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name{}
+	}
+	return t.First
+}
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_LogsReaders_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name) GetLast() *string {
+	if t == nil {
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_LogsReaders_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name{}
+	}
+	return t.Last
+}
+
+type UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_LogsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization struct {
+	Name string "json:\"name\" graphql:\"name\""
+}
+
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_LogsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization) GetName() string {
+	if t == nil {
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_LogsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization{}
+	}
+	return t.Name
+}
+
+type UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_LogsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users struct {
+	ID    string "json:\"id\" graphql:\"id\""
+	Email string "json:\"email\" graphql:\"email\""
+}
+
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_LogsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users) GetID() string {
+	if t == nil {
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_LogsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users{}
+	}
+	return t.ID
+}
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_LogsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users) GetEmail() string {
+	if t == nil {
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_LogsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users{}
+	}
+	return t.Email
+}
+
+type UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_LogsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups struct {
+	Name string "json:\"name\" graphql:\"name\""
+}
+
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_LogsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups) GetName() string {
+	if t == nil {
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_LogsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups{}
+	}
+	return t.Name
+}
+
+type UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_LogsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings struct {
+	Users  []*UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_LogsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users  "json:\"users,omitempty\" graphql:\"users\""
+	Groups []*UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_LogsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups "json:\"groups,omitempty\" graphql:\"groups\""
+}
+
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_LogsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings) GetUsers() []*UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_LogsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users {
+	if t == nil {
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_LogsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings{}
+	}
+	return t.Users
+}
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_LogsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings) GetGroups() []*UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_LogsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups {
+	if t == nil {
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_LogsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings{}
+	}
+	return t.Groups
+}
+
+type UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_LogsWriters_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name struct {
+	First *string "json:\"first,omitempty\" graphql:\"first\""
+	Last  *string "json:\"last,omitempty\" graphql:\"last\""
+}
+
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_LogsWriters_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name) GetFirst() *string {
+	if t == nil {
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_LogsWriters_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name{}
+	}
+	return t.First
+}
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_LogsWriters_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name) GetLast() *string {
+	if t == nil {
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_LogsWriters_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name{}
+	}
+	return t.Last
+}
+
+type UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_LogsWriters_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name struct {
+	First *string "json:\"first,omitempty\" graphql:\"first\""
+	Last  *string "json:\"last,omitempty\" graphql:\"last\""
+}
+
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_LogsWriters_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name) GetFirst() *string {
+	if t == nil {
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_LogsWriters_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name{}
+	}
+	return t.First
+}
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_LogsWriters_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name) GetLast() *string {
+	if t == nil {
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_LogsWriters_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name{}
+	}
+	return t.Last
+}
+
+type UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_LogsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization struct {
+	Name string "json:\"name\" graphql:\"name\""
+}
+
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_LogsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization) GetName() string {
+	if t == nil {
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_LogsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization{}
+	}
+	return t.Name
+}
+
+type UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_LogsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users struct {
+	ID    string "json:\"id\" graphql:\"id\""
+	Email string "json:\"email\" graphql:\"email\""
+}
+
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_LogsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users) GetID() string {
+	if t == nil {
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_LogsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users{}
+	}
+	return t.ID
+}
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_LogsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users) GetEmail() string {
+	if t == nil {
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_LogsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users{}
+	}
+	return t.Email
+}
+
+type UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_LogsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups struct {
+	Name string "json:\"name\" graphql:\"name\""
+}
+
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_LogsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups) GetName() string {
+	if t == nil {
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_LogsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups{}
+	}
+	return t.Name
+}
+
+type UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_LogsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings struct {
+	Users  []*UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_LogsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users  "json:\"users,omitempty\" graphql:\"users\""
+	Groups []*UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_LogsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups "json:\"groups,omitempty\" graphql:\"groups\""
+}
+
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_LogsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings) GetUsers() []*UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_LogsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users {
+	if t == nil {
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_LogsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings{}
+	}
+	return t.Users
+}
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_LogsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings) GetGroups() []*UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_LogsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups {
+	if t == nil {
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_LogsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings{}
+	}
+	return t.Groups
+}
+
+type UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_LogsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name struct {
+	First *string "json:\"first,omitempty\" graphql:\"first\""
+	Last  *string "json:\"last,omitempty\" graphql:\"last\""
+}
+
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_LogsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name) GetFirst() *string {
+	if t == nil {
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_LogsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name{}
+	}
+	return t.First
+}
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_LogsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name) GetLast() *string {
+	if t == nil {
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_LogsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name{}
+	}
+	return t.Last
+}
+
+type UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_LogsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name struct {
+	First *string "json:\"first,omitempty\" graphql:\"first\""
+	Last  *string "json:\"last,omitempty\" graphql:\"last\""
+}
+
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_LogsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name) GetFirst() *string {
+	if t == nil {
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_LogsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name{}
+	}
+	return t.First
+}
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_LogsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name) GetLast() *string {
+	if t == nil {
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_LogsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name{}
+	}
+	return t.Last
+}
+
+type UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_LogsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization struct {
+	Name string "json:\"name\" graphql:\"name\""
+}
+
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_LogsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization) GetName() string {
+	if t == nil {
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_LogsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization{}
+	}
+	return t.Name
+}
+
+type UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_LogsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users struct {
+	ID    string "json:\"id\" graphql:\"id\""
+	Email string "json:\"email\" graphql:\"email\""
+}
+
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_LogsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users) GetID() string {
+	if t == nil {
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_LogsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users{}
+	}
+	return t.ID
+}
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_LogsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users) GetEmail() string {
+	if t == nil {
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_LogsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users{}
+	}
+	return t.Email
+}
+
+type UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_LogsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups struct {
+	Name string "json:\"name\" graphql:\"name\""
+}
+
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_LogsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups) GetName() string {
+	if t == nil {
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_LogsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups{}
+	}
+	return t.Name
+}
+
+type UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_LogsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings struct {
+	Users  []*UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_LogsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users  "json:\"users,omitempty\" graphql:\"users\""
+	Groups []*UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_LogsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups "json:\"groups,omitempty\" graphql:\"groups\""
+}
+
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_LogsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings) GetUsers() []*UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_LogsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users {
+	if t == nil {
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_LogsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings{}
+	}
+	return t.Users
+}
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_LogsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings) GetGroups() []*UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_LogsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups {
+	if t == nil {
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_LogsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings{}
+	}
+	return t.Groups
+}
+
+type UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_LogsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name struct {
+	First *string "json:\"first,omitempty\" graphql:\"first\""
+	Last  *string "json:\"last,omitempty\" graphql:\"last\""
+}
+
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_LogsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name) GetFirst() *string {
+	if t == nil {
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_LogsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name{}
+	}
+	return t.First
+}
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_LogsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name) GetLast() *string {
+	if t == nil {
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_LogsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name{}
+	}
+	return t.Last
+}
+
+type UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_LogsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name struct {
+	First *string "json:\"first,omitempty\" graphql:\"first\""
+	Last  *string "json:\"last,omitempty\" graphql:\"last\""
+}
+
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_LogsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name) GetFirst() *string {
+	if t == nil {
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_LogsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name{}
+	}
+	return t.First
+}
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_LogsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name) GetLast() *string {
+	if t == nil {
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_LogsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name{}
+	}
+	return t.Last
+}
+
+type UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_LogsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization struct {
+	Name string "json:\"name\" graphql:\"name\""
+}
+
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_LogsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization) GetName() string {
+	if t == nil {
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_LogsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization{}
+	}
+	return t.Name
+}
+
+type UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_LogsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users struct {
+	ID    string "json:\"id\" graphql:\"id\""
+	Email string "json:\"email\" graphql:\"email\""
+}
+
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_LogsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users) GetID() string {
+	if t == nil {
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_LogsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users{}
+	}
+	return t.ID
+}
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_LogsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users) GetEmail() string {
+	if t == nil {
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_LogsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users{}
+	}
+	return t.Email
+}
+
+type UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_LogsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups struct {
+	Name string "json:\"name\" graphql:\"name\""
+}
+
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_LogsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups) GetName() string {
+	if t == nil {
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_LogsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups{}
+	}
+	return t.Name
+}
+
+type UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_LogsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings struct {
+	Users  []*UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_LogsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users  "json:\"users,omitempty\" graphql:\"users\""
+	Groups []*UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_LogsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups "json:\"groups,omitempty\" graphql:\"groups\""
+}
+
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_LogsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings) GetUsers() []*UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_LogsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users {
+	if t == nil {
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_LogsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings{}
+	}
+	return t.Users
+}
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_LogsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings) GetGroups() []*UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_LogsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups {
+	if t == nil {
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_LogsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings{}
+	}
+	return t.Groups
+}
+
+type UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_LogsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name struct {
+	First *string "json:\"first,omitempty\" graphql:\"first\""
+	Last  *string "json:\"last,omitempty\" graphql:\"last\""
+}
+
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_LogsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name) GetFirst() *string {
+	if t == nil {
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_LogsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name{}
+	}
+	return t.First
+}
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_LogsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name) GetLast() *string {
+	if t == nil {
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_LogsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name{}
+	}
+	return t.Last
+}
+
+type UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_LogsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name struct {
+	First *string "json:\"first,omitempty\" graphql:\"first\""
+	Last  *string "json:\"last,omitempty\" graphql:\"last\""
+}
+
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_LogsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name) GetFirst() *string {
+	if t == nil {
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_LogsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name{}
+	}
+	return t.First
+}
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_LogsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name) GetLast() *string {
+	if t == nil {
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_LogsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name{}
+	}
+	return t.Last
+}
+
+type UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_LogsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization struct {
+	Name string "json:\"name\" graphql:\"name\""
+}
+
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_LogsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization) GetName() string {
+	if t == nil {
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_LogsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization{}
+	}
+	return t.Name
+}
+
+type UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_LogsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users struct {
+	ID    string "json:\"id\" graphql:\"id\""
+	Email string "json:\"email\" graphql:\"email\""
+}
+
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_LogsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users) GetID() string {
+	if t == nil {
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_LogsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users{}
+	}
+	return t.ID
+}
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_LogsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users) GetEmail() string {
+	if t == nil {
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_LogsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users{}
+	}
+	return t.Email
+}
+
+type UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_LogsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups struct {
+	Name string "json:\"name\" graphql:\"name\""
+}
+
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_LogsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups) GetName() string {
+	if t == nil {
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_LogsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups{}
+	}
+	return t.Name
+}
+
+type UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_LogsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings struct {
+	Users  []*UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_LogsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users  "json:\"users,omitempty\" graphql:\"users\""
+	Groups []*UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_LogsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups "json:\"groups,omitempty\" graphql:\"groups\""
+}
+
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_LogsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings) GetUsers() []*UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_LogsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users {
+	if t == nil {
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_LogsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings{}
+	}
+	return t.Users
+}
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_LogsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings) GetGroups() []*UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_LogsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups {
+	if t == nil {
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_LogsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings{}
+	}
+	return t.Groups
+}
+
+type UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_TracesReaders_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name struct {
+	First *string "json:\"first,omitempty\" graphql:\"first\""
+	Last  *string "json:\"last,omitempty\" graphql:\"last\""
+}
+
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_TracesReaders_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name) GetFirst() *string {
+	if t == nil {
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_TracesReaders_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name{}
+	}
+	return t.First
+}
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_TracesReaders_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name) GetLast() *string {
+	if t == nil {
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_TracesReaders_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name{}
+	}
+	return t.Last
+}
+
+type UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_TracesReaders_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name struct {
+	First *string "json:\"first,omitempty\" graphql:\"first\""
+	Last  *string "json:\"last,omitempty\" graphql:\"last\""
+}
+
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_TracesReaders_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name) GetFirst() *string {
+	if t == nil {
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_TracesReaders_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name{}
+	}
+	return t.First
+}
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_TracesReaders_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name) GetLast() *string {
+	if t == nil {
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_TracesReaders_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name{}
+	}
+	return t.Last
+}
+
+type UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_TracesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization struct {
+	Name string "json:\"name\" graphql:\"name\""
+}
+
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_TracesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization) GetName() string {
+	if t == nil {
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_TracesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization{}
+	}
+	return t.Name
+}
+
+type UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_TracesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users struct {
+	ID    string "json:\"id\" graphql:\"id\""
+	Email string "json:\"email\" graphql:\"email\""
+}
+
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_TracesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users) GetID() string {
+	if t == nil {
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_TracesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users{}
+	}
+	return t.ID
+}
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_TracesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users) GetEmail() string {
+	if t == nil {
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_TracesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users{}
+	}
+	return t.Email
+}
+
+type UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_TracesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups struct {
+	Name string "json:\"name\" graphql:\"name\""
+}
+
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_TracesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups) GetName() string {
+	if t == nil {
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_TracesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups{}
+	}
+	return t.Name
+}
+
+type UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_TracesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings struct {
+	Users  []*UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_TracesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users  "json:\"users,omitempty\" graphql:\"users\""
+	Groups []*UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_TracesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups "json:\"groups,omitempty\" graphql:\"groups\""
+}
+
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_TracesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings) GetUsers() []*UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_TracesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users {
+	if t == nil {
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_TracesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings{}
+	}
+	return t.Users
+}
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_TracesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings) GetGroups() []*UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_TracesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups {
+	if t == nil {
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_TracesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings{}
+	}
+	return t.Groups
+}
+
+type UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_TracesWriters_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name struct {
+	First *string "json:\"first,omitempty\" graphql:\"first\""
+	Last  *string "json:\"last,omitempty\" graphql:\"last\""
+}
+
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_TracesWriters_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name) GetFirst() *string {
+	if t == nil {
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_TracesWriters_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name{}
+	}
+	return t.First
+}
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_TracesWriters_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name) GetLast() *string {
+	if t == nil {
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_TracesWriters_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name{}
+	}
+	return t.Last
+}
+
+type UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_TracesWriters_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name struct {
+	First *string "json:\"first,omitempty\" graphql:\"first\""
+	Last  *string "json:\"last,omitempty\" graphql:\"last\""
+}
+
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_TracesWriters_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name) GetFirst() *string {
+	if t == nil {
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_TracesWriters_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name{}
+	}
+	return t.First
+}
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_TracesWriters_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name) GetLast() *string {
+	if t == nil {
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_TracesWriters_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name{}
+	}
+	return t.Last
+}
+
+type UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_TracesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization struct {
+	Name string "json:\"name\" graphql:\"name\""
+}
+
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_TracesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization) GetName() string {
+	if t == nil {
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_TracesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization{}
+	}
+	return t.Name
+}
+
+type UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_TracesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users struct {
+	ID    string "json:\"id\" graphql:\"id\""
+	Email string "json:\"email\" graphql:\"email\""
+}
+
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_TracesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users) GetID() string {
+	if t == nil {
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_TracesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users{}
+	}
+	return t.ID
+}
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_TracesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users) GetEmail() string {
+	if t == nil {
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_TracesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users{}
+	}
+	return t.Email
+}
+
+type UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_TracesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups struct {
+	Name string "json:\"name\" graphql:\"name\""
+}
+
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_TracesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups) GetName() string {
+	if t == nil {
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_TracesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups{}
+	}
+	return t.Name
+}
+
+type UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_TracesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings struct {
+	Users  []*UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_TracesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users  "json:\"users,omitempty\" graphql:\"users\""
+	Groups []*UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_TracesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups "json:\"groups,omitempty\" graphql:\"groups\""
+}
+
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_TracesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings) GetUsers() []*UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_TracesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users {
+	if t == nil {
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_TracesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings{}
+	}
+	return t.Users
+}
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_TracesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings) GetGroups() []*UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_TracesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Groups {
+	if t == nil {
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_TracesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings{}
+	}
+	return t.Groups
+}
+
+type UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir struct {
+	RequestRate                                   *float64                            "json:\"requestRate,omitempty\" graphql:\"requestRate\""
+	RequestBurstSize                              *int64                              "json:\"requestBurstSize,omitempty\" graphql:\"requestBurstSize\""
+	IngestionRate                                 *float64                            "json:\"ingestionRate,omitempty\" graphql:\"ingestionRate\""
+	IngestionBurstSize                            *int64                              "json:\"ingestionBurstSize,omitempty\" graphql:\"ingestionBurstSize\""
+	AcceptHASamples                               *bool                               "json:\"acceptHASamples,omitempty\" graphql:\"acceptHASamples\""
+	HaClusterLabel                                *string                             "json:\"haClusterLabel,omitempty\" graphql:\"haClusterLabel\""
+	HaReplicaLabel                                *string                             "json:\"haReplicaLabel,omitempty\" graphql:\"haReplicaLabel\""
+	HaMaxClusters                                 *int64                              "json:\"haMaxClusters,omitempty\" graphql:\"haMaxClusters\""
+	DropLabels                                    []*string                           "json:\"dropLabels,omitempty\" graphql:\"dropLabels\""
+	MaxLabelNameLength                            *int64                              "json:\"maxLabelNameLength,omitempty\" graphql:\"maxLabelNameLength\""
+	MaxLabelValueLength                           *int64                              "json:\"maxLabelValueLength,omitempty\" graphql:\"maxLabelValueLength\""
+	MaxLabelNamesPerSeries                        *int64                              "json:\"maxLabelNamesPerSeries,omitempty\" graphql:\"maxLabelNamesPerSeries\""
+	MaxMetadataLength                             *int64                              "json:\"maxMetadataLength,omitempty\" graphql:\"maxMetadataLength\""
+	CreationGracePeriod                           *v1.Duration                        "json:\"creationGracePeriod,omitempty\" graphql:\"creationGracePeriod\""
+	EnforceMetadataMetricName                     *bool                               "json:\"enforceMetadataMetricName,omitempty\" graphql:\"enforceMetadataMetricName\""
+	IngestionTenantShardSize                      *int64                              "json:\"ingestionTenantShardSize,omitempty\" graphql:\"ingestionTenantShardSize\""
+	MaxGlobalSeriesPerUser                        *int64                              "json:\"maxGlobalSeriesPerUser,omitempty\" graphql:\"maxGlobalSeriesPerUser\""
+	MaxGlobalSeriesPerMetric                      *int64                              "json:\"maxGlobalSeriesPerMetric,omitempty\" graphql:\"maxGlobalSeriesPerMetric\""
+	MaxGlobalMetricsWithMetadataPerUser           *int64                              "json:\"maxGlobalMetricsWithMetadataPerUser,omitempty\" graphql:\"maxGlobalMetricsWithMetadataPerUser\""
+	MaxGlobalMetadataPerMetric                    *int64                              "json:\"maxGlobalMetadataPerMetric,omitempty\" graphql:\"maxGlobalMetadataPerMetric\""
+	MaxGlobalExemplarsPerUser                     *int64                              "json:\"maxGlobalExemplarsPerUser,omitempty\" graphql:\"maxGlobalExemplarsPerUser\""
+	NativeHistogramsIngestionEnabled              *bool                               "json:\"nativeHistogramsIngestionEnabled,omitempty\" graphql:\"nativeHistogramsIngestionEnabled\""
+	OutOfOrderTimeWindow                          *v1.Duration                        "json:\"outOfOrderTimeWindow,omitempty\" graphql:\"outOfOrderTimeWindow\""
+	OutOfOrderBlocksExternalLabelEnabled          *bool                               "json:\"outOfOrderBlocksExternalLabelEnabled,omitempty\" graphql:\"outOfOrderBlocksExternalLabelEnabled\""
+	SeparateMetricsGroupLabel                     *string                             "json:\"separateMetricsGroupLabel,omitempty\" graphql:\"separateMetricsGroupLabel\""
+	MaxChunksPerQuery                             *int64                              "json:\"maxChunksPerQuery,omitempty\" graphql:\"maxChunksPerQuery\""
+	MaxFetchedSeriesPerQuery                      *int64                              "json:\"maxFetchedSeriesPerQuery,omitempty\" graphql:\"maxFetchedSeriesPerQuery\""
+	MaxFetchedChunkBytesPerQuery                  *int64                              "json:\"maxFetchedChunkBytesPerQuery,omitempty\" graphql:\"maxFetchedChunkBytesPerQuery\""
+	MaxQueryLookback                              *v1.Duration                        "json:\"maxQueryLookback,omitempty\" graphql:\"maxQueryLookback\""
+	MaxPartialQueryLength                         *v1.Duration                        "json:\"maxPartialQueryLength,omitempty\" graphql:\"maxPartialQueryLength\""
+	MaxQueryParallelism                           *int64                              "json:\"maxQueryParallelism,omitempty\" graphql:\"maxQueryParallelism\""
+	MaxLabelsQueryLength                          *v1.Duration                        "json:\"maxLabelsQueryLength,omitempty\" graphql:\"maxLabelsQueryLength\""
+	MaxCacheFreshness                             *v1.Duration                        "json:\"maxCacheFreshness,omitempty\" graphql:\"maxCacheFreshness\""
+	MaxQueriersPerTenant                          *int64                              "json:\"maxQueriersPerTenant,omitempty\" graphql:\"maxQueriersPerTenant\""
+	QueryShardingTotalShards                      *int64                              "json:\"queryShardingTotalShards,omitempty\" graphql:\"queryShardingTotalShards\""
+	QueryShardingMaxShardedQueries                *int64                              "json:\"queryShardingMaxShardedQueries,omitempty\" graphql:\"queryShardingMaxShardedQueries\""
+	QueryShardingMaxRegexpSizeBytes               *int64                              "json:\"queryShardingMaxRegexpSizeBytes,omitempty\" graphql:\"queryShardingMaxRegexpSizeBytes\""
+	SplitInstantQueriesByInterval                 *v1.Duration                        "json:\"splitInstantQueriesByInterval,omitempty\" graphql:\"splitInstantQueriesByInterval\""
+	MaxTotalQueryLength                           *v1.Duration                        "json:\"maxTotalQueryLength,omitempty\" graphql:\"maxTotalQueryLength\""
+	ResultsCacheTTL                               *v1.Duration                        "json:\"resultsCacheTTL,omitempty\" graphql:\"resultsCacheTTL\""
+	ResultsCacheTTLForOutOfOrderTimeWindow        *v1.Duration                        "json:\"resultsCacheTTLForOutOfOrderTimeWindow,omitempty\" graphql:\"resultsCacheTTLForOutOfOrderTimeWindow\""
+	MaxQueryExpressionSizeBytes                   *int64                              "json:\"maxQueryExpressionSizeBytes,omitempty\" graphql:\"maxQueryExpressionSizeBytes\""
+	CardinalityAnalysisEnabled                    *bool                               "json:\"cardinalityAnalysisEnabled,omitempty\" graphql:\"cardinalityAnalysisEnabled\""
+	LabelNamesAndValuesResultsMaxSizeBytes        *int64                              "json:\"labelNamesAndValuesResultsMaxSizeBytes,omitempty\" graphql:\"labelNamesAndValuesResultsMaxSizeBytes\""
+	LabelValuesMaxCardinalityLabelNamesPerRequest *int64                              "json:\"labelValuesMaxCardinalityLabelNamesPerRequest,omitempty\" graphql:\"labelValuesMaxCardinalityLabelNamesPerRequest\""
+	RulerEvaluationDelay                          *v1.Duration                        "json:\"rulerEvaluationDelay,omitempty\" graphql:\"rulerEvaluationDelay\""
+	RulerTenantShardSize                          *int64                              "json:\"rulerTenantShardSize,omitempty\" graphql:\"rulerTenantShardSize\""
+	RulerMaxRulesPerRuleGroup                     *int64                              "json:\"rulerMaxRulesPerRuleGroup,omitempty\" graphql:\"rulerMaxRulesPerRuleGroup\""
+	RulerMaxRuleGroupsPerTenant                   *int64                              "json:\"rulerMaxRuleGroupsPerTenant,omitempty\" graphql:\"rulerMaxRuleGroupsPerTenant\""
+	RulerRecordingRulesEvaluationEnabled          *bool                               "json:\"rulerRecordingRulesEvaluationEnabled,omitempty\" graphql:\"rulerRecordingRulesEvaluationEnabled\""
+	RulerAlertingRulesEvaluationEnabled           *bool                               "json:\"rulerAlertingRulesEvaluationEnabled,omitempty\" graphql:\"rulerAlertingRulesEvaluationEnabled\""
+	StoreGatewayTenantShardSize                   *int64                              "json:\"storeGatewayTenantShardSize,omitempty\" graphql:\"storeGatewayTenantShardSize\""
+	CompactorBlocksRetentionPeriod                *v1.Duration                        "json:\"compactorBlocksRetentionPeriod,omitempty\" graphql:\"compactorBlocksRetentionPeriod\""
+	CompactorSplitAndMergeShards                  *int64                              "json:\"compactorSplitAndMergeShards,omitempty\" graphql:\"compactorSplitAndMergeShards\""
+	CompactorSplitGroups                          *int64                              "json:\"compactorSplitGroups,omitempty\" graphql:\"compactorSplitGroups\""
+	CompactorTenantShardSize                      *int64                              "json:\"compactorTenantShardSize,omitempty\" graphql:\"compactorTenantShardSize\""
+	CompactorPartialBlockDeletionDelay            *v1.Duration                        "json:\"compactorPartialBlockDeletionDelay,omitempty\" graphql:\"compactorPartialBlockDeletionDelay\""
+	CompactorBlockUploadEnabled                   *bool                               "json:\"compactorBlockUploadEnabled,omitempty\" graphql:\"compactorBlockUploadEnabled\""
+	CompactorBlockUploadValidationEnabled         *bool                               "json:\"compactorBlockUploadValidationEnabled,omitempty\" graphql:\"compactorBlockUploadValidationEnabled\""
+	CompactorBlockUploadVerifyChunks              *bool                               "json:\"compactorBlockUploadVerifyChunks,omitempty\" graphql:\"compactorBlockUploadVerifyChunks\""
+	S3SSEType                                     *string                             "json:\"s3SSEType,omitempty\" graphql:\"s3SSEType\""
+	S3SSEKMSKeyID                                 *string                             "json:\"s3SSEKMSKeyID,omitempty\" graphql:\"s3SSEKMSKeyID\""
+	S3SSEKMSEncryptionContext                     *string                             "json:\"s3SSEKMSEncryptionContext,omitempty\" graphql:\"s3SSEKMSEncryptionContext\""
+	AlertmanagerReceiversBlockCIDRNetworks        *string                             "json:\"alertmanagerReceiversBlockCIDRNetworks,omitempty\" graphql:\"alertmanagerReceiversBlockCIDRNetworks\""
+	AlertmanagerReceiversBlockPrivateAddresses    *bool                               "json:\"alertmanagerReceiversBlockPrivateAddresses,omitempty\" graphql:\"alertmanagerReceiversBlockPrivateAddresses\""
+	NotificationRateLimit                         *float64                            "json:\"notificationRateLimit,omitempty\" graphql:\"notificationRateLimit\""
+	NotificationRateLimitPerIntegration           map[string]*float64                 "json:\"notificationRateLimitPerIntegration,omitempty\" graphql:\"notificationRateLimitPerIntegration\""
+	AlertmanagerMaxConfigSizeBytes                *int64                              "json:\"alertmanagerMaxConfigSizeBytes,omitempty\" graphql:\"alertmanagerMaxConfigSizeBytes\""
+	AlertmanagerMaxTemplatesCount                 *int64                              "json:\"alertmanagerMaxTemplatesCount,omitempty\" graphql:\"alertmanagerMaxTemplatesCount\""
+	AlertmanagerMaxTemplateSizeBytes              *int64                              "json:\"alertmanagerMaxTemplateSizeBytes,omitempty\" graphql:\"alertmanagerMaxTemplateSizeBytes\""
+	AlertmanagerMaxDispatcherAggregationGroups    *int64                              "json:\"alertmanagerMaxDispatcherAggregationGroups,omitempty\" graphql:\"alertmanagerMaxDispatcherAggregationGroups\""
+	AlertmanagerMaxAlertsCount                    *int64                              "json:\"alertmanagerMaxAlertsCount,omitempty\" graphql:\"alertmanagerMaxAlertsCount\""
+	AlertmanagerMaxAlertsSizeBytes                *int64                              "json:\"alertmanagerMaxAlertsSizeBytes,omitempty\" graphql:\"alertmanagerMaxAlertsSizeBytes\""
+	ForwardingEndpoint                            *string                             "json:\"forwardingEndpoint,omitempty\" graphql:\"forwardingEndpoint\""
+	ForwardingDropOlderThan                       *v1.Duration                        "json:\"forwardingDropOlderThan,omitempty\" graphql:\"forwardingDropOlderThan\""
+	ForwardingRules                               map[string]*v1alpha1.ForwardingRule "json:\"forwardingRules,omitempty\" graphql:\"forwardingRules\""
+}
+
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetRequestRate() *float64 {
+	if t == nil {
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.RequestRate
+}
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetRequestBurstSize() *int64 {
+	if t == nil {
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.RequestBurstSize
+}
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetIngestionRate() *float64 {
+	if t == nil {
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.IngestionRate
+}
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetIngestionBurstSize() *int64 {
+	if t == nil {
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.IngestionBurstSize
+}
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetAcceptHASamples() *bool {
+	if t == nil {
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.AcceptHASamples
+}
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetHaClusterLabel() *string {
+	if t == nil {
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.HaClusterLabel
+}
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetHaReplicaLabel() *string {
+	if t == nil {
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.HaReplicaLabel
+}
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetHaMaxClusters() *int64 {
+	if t == nil {
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.HaMaxClusters
+}
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetDropLabels() []*string {
+	if t == nil {
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.DropLabels
+}
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetMaxLabelNameLength() *int64 {
+	if t == nil {
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.MaxLabelNameLength
+}
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetMaxLabelValueLength() *int64 {
+	if t == nil {
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.MaxLabelValueLength
+}
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetMaxLabelNamesPerSeries() *int64 {
+	if t == nil {
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.MaxLabelNamesPerSeries
+}
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetMaxMetadataLength() *int64 {
+	if t == nil {
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.MaxMetadataLength
+}
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetCreationGracePeriod() *v1.Duration {
+	if t == nil {
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.CreationGracePeriod
+}
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetEnforceMetadataMetricName() *bool {
+	if t == nil {
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.EnforceMetadataMetricName
+}
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetIngestionTenantShardSize() *int64 {
+	if t == nil {
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.IngestionTenantShardSize
+}
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetMaxGlobalSeriesPerUser() *int64 {
+	if t == nil {
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.MaxGlobalSeriesPerUser
+}
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetMaxGlobalSeriesPerMetric() *int64 {
+	if t == nil {
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.MaxGlobalSeriesPerMetric
+}
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetMaxGlobalMetricsWithMetadataPerUser() *int64 {
+	if t == nil {
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.MaxGlobalMetricsWithMetadataPerUser
+}
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetMaxGlobalMetadataPerMetric() *int64 {
+	if t == nil {
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.MaxGlobalMetadataPerMetric
+}
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetMaxGlobalExemplarsPerUser() *int64 {
+	if t == nil {
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.MaxGlobalExemplarsPerUser
+}
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetNativeHistogramsIngestionEnabled() *bool {
+	if t == nil {
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.NativeHistogramsIngestionEnabled
+}
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetOutOfOrderTimeWindow() *v1.Duration {
+	if t == nil {
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.OutOfOrderTimeWindow
+}
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetOutOfOrderBlocksExternalLabelEnabled() *bool {
+	if t == nil {
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.OutOfOrderBlocksExternalLabelEnabled
+}
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetSeparateMetricsGroupLabel() *string {
+	if t == nil {
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.SeparateMetricsGroupLabel
+}
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetMaxChunksPerQuery() *int64 {
+	if t == nil {
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.MaxChunksPerQuery
+}
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetMaxFetchedSeriesPerQuery() *int64 {
+	if t == nil {
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.MaxFetchedSeriesPerQuery
+}
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetMaxFetchedChunkBytesPerQuery() *int64 {
+	if t == nil {
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.MaxFetchedChunkBytesPerQuery
+}
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetMaxQueryLookback() *v1.Duration {
+	if t == nil {
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.MaxQueryLookback
+}
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetMaxPartialQueryLength() *v1.Duration {
+	if t == nil {
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.MaxPartialQueryLength
+}
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetMaxQueryParallelism() *int64 {
+	if t == nil {
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.MaxQueryParallelism
+}
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetMaxLabelsQueryLength() *v1.Duration {
+	if t == nil {
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.MaxLabelsQueryLength
+}
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetMaxCacheFreshness() *v1.Duration {
+	if t == nil {
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.MaxCacheFreshness
+}
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetMaxQueriersPerTenant() *int64 {
+	if t == nil {
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.MaxQueriersPerTenant
+}
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetQueryShardingTotalShards() *int64 {
+	if t == nil {
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.QueryShardingTotalShards
+}
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetQueryShardingMaxShardedQueries() *int64 {
+	if t == nil {
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.QueryShardingMaxShardedQueries
+}
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetQueryShardingMaxRegexpSizeBytes() *int64 {
+	if t == nil {
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.QueryShardingMaxRegexpSizeBytes
+}
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetSplitInstantQueriesByInterval() *v1.Duration {
+	if t == nil {
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.SplitInstantQueriesByInterval
+}
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetMaxTotalQueryLength() *v1.Duration {
+	if t == nil {
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.MaxTotalQueryLength
+}
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetResultsCacheTTL() *v1.Duration {
+	if t == nil {
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.ResultsCacheTTL
+}
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetResultsCacheTTLForOutOfOrderTimeWindow() *v1.Duration {
+	if t == nil {
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.ResultsCacheTTLForOutOfOrderTimeWindow
+}
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetMaxQueryExpressionSizeBytes() *int64 {
+	if t == nil {
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.MaxQueryExpressionSizeBytes
+}
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetCardinalityAnalysisEnabled() *bool {
+	if t == nil {
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.CardinalityAnalysisEnabled
+}
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetLabelNamesAndValuesResultsMaxSizeBytes() *int64 {
+	if t == nil {
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.LabelNamesAndValuesResultsMaxSizeBytes
+}
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetLabelValuesMaxCardinalityLabelNamesPerRequest() *int64 {
+	if t == nil {
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.LabelValuesMaxCardinalityLabelNamesPerRequest
+}
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetRulerEvaluationDelay() *v1.Duration {
+	if t == nil {
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.RulerEvaluationDelay
+}
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetRulerTenantShardSize() *int64 {
+	if t == nil {
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.RulerTenantShardSize
+}
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetRulerMaxRulesPerRuleGroup() *int64 {
+	if t == nil {
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.RulerMaxRulesPerRuleGroup
+}
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetRulerMaxRuleGroupsPerTenant() *int64 {
+	if t == nil {
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.RulerMaxRuleGroupsPerTenant
+}
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetRulerRecordingRulesEvaluationEnabled() *bool {
+	if t == nil {
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.RulerRecordingRulesEvaluationEnabled
+}
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetRulerAlertingRulesEvaluationEnabled() *bool {
+	if t == nil {
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.RulerAlertingRulesEvaluationEnabled
+}
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetStoreGatewayTenantShardSize() *int64 {
+	if t == nil {
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.StoreGatewayTenantShardSize
+}
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetCompactorBlocksRetentionPeriod() *v1.Duration {
+	if t == nil {
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.CompactorBlocksRetentionPeriod
+}
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetCompactorSplitAndMergeShards() *int64 {
+	if t == nil {
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.CompactorSplitAndMergeShards
+}
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetCompactorSplitGroups() *int64 {
+	if t == nil {
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.CompactorSplitGroups
+}
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetCompactorTenantShardSize() *int64 {
+	if t == nil {
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.CompactorTenantShardSize
+}
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetCompactorPartialBlockDeletionDelay() *v1.Duration {
+	if t == nil {
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.CompactorPartialBlockDeletionDelay
+}
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetCompactorBlockUploadEnabled() *bool {
+	if t == nil {
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.CompactorBlockUploadEnabled
+}
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetCompactorBlockUploadValidationEnabled() *bool {
+	if t == nil {
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.CompactorBlockUploadValidationEnabled
+}
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetCompactorBlockUploadVerifyChunks() *bool {
+	if t == nil {
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.CompactorBlockUploadVerifyChunks
+}
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetS3SSEType() *string {
+	if t == nil {
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.S3SSEType
+}
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetS3SSEKMSKeyID() *string {
+	if t == nil {
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.S3SSEKMSKeyID
+}
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetS3SSEKMSEncryptionContext() *string {
+	if t == nil {
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.S3SSEKMSEncryptionContext
+}
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetAlertmanagerReceiversBlockCIDRNetworks() *string {
+	if t == nil {
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.AlertmanagerReceiversBlockCIDRNetworks
+}
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetAlertmanagerReceiversBlockPrivateAddresses() *bool {
+	if t == nil {
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.AlertmanagerReceiversBlockPrivateAddresses
+}
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetNotificationRateLimit() *float64 {
+	if t == nil {
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.NotificationRateLimit
+}
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetNotificationRateLimitPerIntegration() map[string]*float64 {
+	if t == nil {
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.NotificationRateLimitPerIntegration
+}
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetAlertmanagerMaxConfigSizeBytes() *int64 {
+	if t == nil {
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.AlertmanagerMaxConfigSizeBytes
+}
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetAlertmanagerMaxTemplatesCount() *int64 {
+	if t == nil {
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.AlertmanagerMaxTemplatesCount
+}
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetAlertmanagerMaxTemplateSizeBytes() *int64 {
+	if t == nil {
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.AlertmanagerMaxTemplateSizeBytes
+}
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetAlertmanagerMaxDispatcherAggregationGroups() *int64 {
+	if t == nil {
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.AlertmanagerMaxDispatcherAggregationGroups
+}
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetAlertmanagerMaxAlertsCount() *int64 {
+	if t == nil {
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.AlertmanagerMaxAlertsCount
+}
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetAlertmanagerMaxAlertsSizeBytes() *int64 {
+	if t == nil {
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.AlertmanagerMaxAlertsSizeBytes
+}
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetForwardingEndpoint() *string {
+	if t == nil {
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.ForwardingEndpoint
+}
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetForwardingDropOlderThan() *v1.Duration {
+	if t == nil {
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.ForwardingDropOlderThan
+}
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetForwardingRules() map[string]*v1alpha1.ForwardingRule {
+	if t == nil {
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+	}
+	return t.ForwardingRules
+}
+
+type DeleteObservabilityTenant_DeleteObservabilityTenant struct {
+	ID string "json:\"id\" graphql:\"id\""
+}
+
+func (t *DeleteObservabilityTenant_DeleteObservabilityTenant) GetID() string {
+	if t == nil {
+		t = &DeleteObservabilityTenant_DeleteObservabilityTenant{}
+	}
+	return t.ID
+}
+
 type ListOAuth2Clients struct {
 	ListOAuth2Clients []*OAuth2ClientFragment "json:\"listOAuth2Clients\" graphql:\"listOAuth2Clients\""
 }
@@ -701,14 +11277,14 @@ func (t *GetOAuth2Client) GetGetOAuth2Client() *OAuth2ClientFragment {
 }
 
 type DeleteOAuth2Client struct {
-	DeleteOAuth2Client *OAuth2ClientFragment "json:\"deleteOAuth2Client\" graphql:\"deleteOAuth2Client\""
+	DeleteOAuth2Client DeleteOAuth2Client_DeleteOAuth2Client "json:\"deleteOAuth2Client\" graphql:\"deleteOAuth2Client\""
 }
 
-func (t *DeleteOAuth2Client) GetDeleteOAuth2Client() *OAuth2ClientFragment {
+func (t *DeleteOAuth2Client) GetDeleteOAuth2Client() *DeleteOAuth2Client_DeleteOAuth2Client {
 	if t == nil {
 		t = &DeleteOAuth2Client{}
 	}
-	return t.DeleteOAuth2Client
+	return &t.DeleteOAuth2Client
 }
 
 type UpdateOAuth2Client struct {
@@ -731,6 +11307,61 @@ func (t *CreateOAuth2Client) GetCreateOAuth2Client() *OAuth2ClientFragment {
 		t = &CreateOAuth2Client{}
 	}
 	return t.CreateOAuth2Client
+}
+
+type ListObservabilityTenants struct {
+	ListObservabilityTenants []*ObservabilityTenantFragment "json:\"listObservabilityTenants\" graphql:\"listObservabilityTenants\""
+}
+
+func (t *ListObservabilityTenants) GetListObservabilityTenants() []*ObservabilityTenantFragment {
+	if t == nil {
+		t = &ListObservabilityTenants{}
+	}
+	return t.ListObservabilityTenants
+}
+
+type GetObservabilityTenant struct {
+	GetObservabilityTenant *ObservabilityTenantFragment "json:\"getObservabilityTenant\" graphql:\"getObservabilityTenant\""
+}
+
+func (t *GetObservabilityTenant) GetGetObservabilityTenant() *ObservabilityTenantFragment {
+	if t == nil {
+		t = &GetObservabilityTenant{}
+	}
+	return t.GetObservabilityTenant
+}
+
+type CreateObservabilityTenant struct {
+	CreateObservabilityTenant *ObservabilityTenantFragment "json:\"createObservabilityTenant\" graphql:\"createObservabilityTenant\""
+}
+
+func (t *CreateObservabilityTenant) GetCreateObservabilityTenant() *ObservabilityTenantFragment {
+	if t == nil {
+		t = &CreateObservabilityTenant{}
+	}
+	return t.CreateObservabilityTenant
+}
+
+type UpdateObservabilityTenant struct {
+	UpdateObservabilityTenant *ObservabilityTenantFragment "json:\"updateObservabilityTenant\" graphql:\"updateObservabilityTenant\""
+}
+
+func (t *UpdateObservabilityTenant) GetUpdateObservabilityTenant() *ObservabilityTenantFragment {
+	if t == nil {
+		t = &UpdateObservabilityTenant{}
+	}
+	return t.UpdateObservabilityTenant
+}
+
+type DeleteObservabilityTenant struct {
+	DeleteObservabilityTenant DeleteObservabilityTenant_DeleteObservabilityTenant "json:\"deleteObservabilityTenant\" graphql:\"deleteObservabilityTenant\""
+}
+
+func (t *DeleteObservabilityTenant) GetDeleteObservabilityTenant() *DeleteObservabilityTenant_DeleteObservabilityTenant {
+	if t == nil {
+		t = &DeleteObservabilityTenant{}
+	}
+	return &t.DeleteObservabilityTenant
 }
 
 const ListOAuth2ClientsDocument = `query ListOAuth2Clients {
@@ -875,58 +11506,7 @@ func (c *Client) GetOAuth2Client(ctx context.Context, clientID string, intercept
 
 const DeleteOAuth2ClientDocument = `mutation DeleteOAuth2Client ($clientId: String!) {
 	deleteOAuth2Client(clientId: $clientId) {
-		... OAuth2ClientFragment
-	}
-}
-fragment OAuth2ClientFragment on OAuth2Client {
-	allowedCorsOrigins
-	audience
-	authorizationCodeGrantAccessTokenLifespan
-	authorizationCodeGrantIdTokenLifespan
-	authorizationCodeGrantRefreshTokenLifespan
-	backChannelLogoutUri
-	clientCredentialsGrantAccessTokenLifespan
-	clientId
-	clientName
-	clientSecret
-	ClientSecretExpiresAt
-	clientUri
-	contacts
-	createdAt
-	frontchannelLogoutSessionRequired
-	frontchannelLogoutUri
-	grantTypes
-	implicitGrantAccessTokenLifespan
-	implicitGrantIdTokenLifespan
-	jwks
-	jwksUri
-	jwtBearerGrantAccessTokenLifespan
-	logoUri
-	metadata
-	owner
-	policyUri
-	postLogoutRedirectUris
-	redirectUris
-	responseTypes
-	scope
-	sectorIdentifierUri
-	subjectType
-	tokenEndpointAuthMethod
-	tokenEndpointAuthSigningAlgorithm
-	tosUri
-	updatedAt
-	userinfoSignedResponseAlgorithm
-	organization {
-		name
-	}
-	loginBindings {
-		users {
-			id
-			email
-		}
-		groups {
-			name
-		}
+		clientId
 	}
 }
 `
@@ -1149,6 +11729,970 @@ func (c *Client) CreateOAuth2Client(ctx context.Context, allowedCorsOrigins []st
 
 	var res CreateOAuth2Client
 	if err := c.Client.Post(ctx, "CreateOAuth2Client", CreateOAuth2ClientDocument, &res, vars, interceptors...); err != nil {
+		return nil, err
+	}
+
+	return &res, nil
+}
+
+const ListObservabilityTenantsDocument = `query ListObservabilityTenants {
+	listObservabilityTenants {
+		... ObservabilityTenantFragment
+	}
+}
+fragment ObservabilityTenantFragment on ObservabilityTenant {
+	id
+	name
+	admins {
+		... ObservabilityTenantPermissionBindingsFragment
+	}
+	metricsReaders {
+		... ObservabilityTenantPermissionBindingsFragment
+	}
+	metricsWriters {
+		... ObservabilityTenantPermissionBindingsFragment
+	}
+	metricsRulesReaders {
+		... ObservabilityTenantPermissionBindingsFragment
+	}
+	metricsRulesWriters {
+		... ObservabilityTenantPermissionBindingsFragment
+	}
+	metricsRulesDeleters {
+		... ObservabilityTenantPermissionBindingsFragment
+	}
+	metricsAlertsReaders {
+		... ObservabilityTenantPermissionBindingsFragment
+	}
+	metricsAlertsWriters {
+		... ObservabilityTenantPermissionBindingsFragment
+	}
+	logsReaders {
+		... ObservabilityTenantPermissionBindingsFragment
+	}
+	logsWriters {
+		... ObservabilityTenantPermissionBindingsFragment
+	}
+	logsRulesReaders {
+		... ObservabilityTenantPermissionBindingsFragment
+	}
+	logsRulesWriters {
+		... ObservabilityTenantPermissionBindingsFragment
+	}
+	logsRulesDeleters {
+		... ObservabilityTenantPermissionBindingsFragment
+	}
+	tracesReaders {
+		... ObservabilityTenantPermissionBindingsFragment
+	}
+	tracesWriters {
+		... ObservabilityTenantPermissionBindingsFragment
+	}
+	limits {
+		... ObservabilityTenantLimitsFragment
+	}
+}
+fragment ObservabilityTenantPermissionBindingsFragment on ObservabilityTenantPermissionBindings {
+	users {
+		... UserFragmentNoGroups
+	}
+	groups {
+		... GroupFragment
+	}
+	oauth2Clients {
+		... OAuth2ClientFragment
+	}
+}
+fragment UserFragmentNoGroups on User {
+	id
+	name {
+		first
+		last
+	}
+	email
+}
+fragment GroupFragment on Group {
+	name
+	members {
+		... UserFragmentNoGroups
+	}
+}
+fragment OAuth2ClientFragment on OAuth2Client {
+	allowedCorsOrigins
+	audience
+	authorizationCodeGrantAccessTokenLifespan
+	authorizationCodeGrantIdTokenLifespan
+	authorizationCodeGrantRefreshTokenLifespan
+	backChannelLogoutUri
+	clientCredentialsGrantAccessTokenLifespan
+	clientId
+	clientName
+	clientSecret
+	ClientSecretExpiresAt
+	clientUri
+	contacts
+	createdAt
+	frontchannelLogoutSessionRequired
+	frontchannelLogoutUri
+	grantTypes
+	implicitGrantAccessTokenLifespan
+	implicitGrantIdTokenLifespan
+	jwks
+	jwksUri
+	jwtBearerGrantAccessTokenLifespan
+	logoUri
+	metadata
+	owner
+	policyUri
+	postLogoutRedirectUris
+	redirectUris
+	responseTypes
+	scope
+	sectorIdentifierUri
+	subjectType
+	tokenEndpointAuthMethod
+	tokenEndpointAuthSigningAlgorithm
+	tosUri
+	updatedAt
+	userinfoSignedResponseAlgorithm
+	organization {
+		name
+	}
+	loginBindings {
+		users {
+			id
+			email
+		}
+		groups {
+			name
+		}
+	}
+}
+fragment ObservabilityTenantLimitsFragment on ObservabilityTenantLimits {
+	mimir {
+		requestRate
+		requestBurstSize
+		ingestionRate
+		ingestionBurstSize
+		acceptHASamples
+		haClusterLabel
+		haReplicaLabel
+		haMaxClusters
+		dropLabels
+		maxLabelNameLength
+		maxLabelValueLength
+		maxLabelNamesPerSeries
+		maxMetadataLength
+		creationGracePeriod
+		enforceMetadataMetricName
+		ingestionTenantShardSize
+		maxGlobalSeriesPerUser
+		maxGlobalSeriesPerMetric
+		maxGlobalMetricsWithMetadataPerUser
+		maxGlobalMetadataPerMetric
+		maxGlobalExemplarsPerUser
+		nativeHistogramsIngestionEnabled
+		outOfOrderTimeWindow
+		outOfOrderBlocksExternalLabelEnabled
+		separateMetricsGroupLabel
+		maxChunksPerQuery
+		maxFetchedSeriesPerQuery
+		maxFetchedChunkBytesPerQuery
+		maxQueryLookback
+		maxPartialQueryLength
+		maxQueryParallelism
+		maxLabelsQueryLength
+		maxCacheFreshness
+		maxQueriersPerTenant
+		queryShardingTotalShards
+		queryShardingMaxShardedQueries
+		queryShardingMaxRegexpSizeBytes
+		splitInstantQueriesByInterval
+		maxTotalQueryLength
+		resultsCacheTTL
+		resultsCacheTTLForOutOfOrderTimeWindow
+		maxQueryExpressionSizeBytes
+		cardinalityAnalysisEnabled
+		labelNamesAndValuesResultsMaxSizeBytes
+		labelValuesMaxCardinalityLabelNamesPerRequest
+		rulerEvaluationDelay
+		rulerTenantShardSize
+		rulerMaxRulesPerRuleGroup
+		rulerMaxRuleGroupsPerTenant
+		rulerRecordingRulesEvaluationEnabled
+		rulerAlertingRulesEvaluationEnabled
+		storeGatewayTenantShardSize
+		compactorBlocksRetentionPeriod
+		compactorSplitAndMergeShards
+		compactorSplitGroups
+		compactorTenantShardSize
+		compactorPartialBlockDeletionDelay
+		compactorBlockUploadEnabled
+		compactorBlockUploadValidationEnabled
+		compactorBlockUploadVerifyChunks
+		s3SSEType
+		s3SSEKMSKeyID
+		s3SSEKMSEncryptionContext
+		alertmanagerReceiversBlockCIDRNetworks
+		alertmanagerReceiversBlockPrivateAddresses
+		notificationRateLimit
+		notificationRateLimitPerIntegration
+		alertmanagerMaxConfigSizeBytes
+		alertmanagerMaxTemplatesCount
+		alertmanagerMaxTemplateSizeBytes
+		alertmanagerMaxDispatcherAggregationGroups
+		alertmanagerMaxAlertsCount
+		alertmanagerMaxAlertsSizeBytes
+		forwardingEndpoint
+		forwardingDropOlderThan
+		forwardingRules
+	}
+}
+`
+
+func (c *Client) ListObservabilityTenants(ctx context.Context, interceptors ...clientv2.RequestInterceptor) (*ListObservabilityTenants, error) {
+	vars := map[string]interface{}{}
+
+	var res ListObservabilityTenants
+	if err := c.Client.Post(ctx, "ListObservabilityTenants", ListObservabilityTenantsDocument, &res, vars, interceptors...); err != nil {
+		return nil, err
+	}
+
+	return &res, nil
+}
+
+const GetObservabilityTenantDocument = `query GetObservabilityTenant ($id: String!) {
+	getObservabilityTenant(id: $id) {
+		... ObservabilityTenantFragment
+	}
+}
+fragment ObservabilityTenantFragment on ObservabilityTenant {
+	id
+	name
+	admins {
+		... ObservabilityTenantPermissionBindingsFragment
+	}
+	metricsReaders {
+		... ObservabilityTenantPermissionBindingsFragment
+	}
+	metricsWriters {
+		... ObservabilityTenantPermissionBindingsFragment
+	}
+	metricsRulesReaders {
+		... ObservabilityTenantPermissionBindingsFragment
+	}
+	metricsRulesWriters {
+		... ObservabilityTenantPermissionBindingsFragment
+	}
+	metricsRulesDeleters {
+		... ObservabilityTenantPermissionBindingsFragment
+	}
+	metricsAlertsReaders {
+		... ObservabilityTenantPermissionBindingsFragment
+	}
+	metricsAlertsWriters {
+		... ObservabilityTenantPermissionBindingsFragment
+	}
+	logsReaders {
+		... ObservabilityTenantPermissionBindingsFragment
+	}
+	logsWriters {
+		... ObservabilityTenantPermissionBindingsFragment
+	}
+	logsRulesReaders {
+		... ObservabilityTenantPermissionBindingsFragment
+	}
+	logsRulesWriters {
+		... ObservabilityTenantPermissionBindingsFragment
+	}
+	logsRulesDeleters {
+		... ObservabilityTenantPermissionBindingsFragment
+	}
+	tracesReaders {
+		... ObservabilityTenantPermissionBindingsFragment
+	}
+	tracesWriters {
+		... ObservabilityTenantPermissionBindingsFragment
+	}
+	limits {
+		... ObservabilityTenantLimitsFragment
+	}
+}
+fragment ObservabilityTenantPermissionBindingsFragment on ObservabilityTenantPermissionBindings {
+	users {
+		... UserFragmentNoGroups
+	}
+	groups {
+		... GroupFragment
+	}
+	oauth2Clients {
+		... OAuth2ClientFragment
+	}
+}
+fragment UserFragmentNoGroups on User {
+	id
+	name {
+		first
+		last
+	}
+	email
+}
+fragment GroupFragment on Group {
+	name
+	members {
+		... UserFragmentNoGroups
+	}
+}
+fragment OAuth2ClientFragment on OAuth2Client {
+	allowedCorsOrigins
+	audience
+	authorizationCodeGrantAccessTokenLifespan
+	authorizationCodeGrantIdTokenLifespan
+	authorizationCodeGrantRefreshTokenLifespan
+	backChannelLogoutUri
+	clientCredentialsGrantAccessTokenLifespan
+	clientId
+	clientName
+	clientSecret
+	ClientSecretExpiresAt
+	clientUri
+	contacts
+	createdAt
+	frontchannelLogoutSessionRequired
+	frontchannelLogoutUri
+	grantTypes
+	implicitGrantAccessTokenLifespan
+	implicitGrantIdTokenLifespan
+	jwks
+	jwksUri
+	jwtBearerGrantAccessTokenLifespan
+	logoUri
+	metadata
+	owner
+	policyUri
+	postLogoutRedirectUris
+	redirectUris
+	responseTypes
+	scope
+	sectorIdentifierUri
+	subjectType
+	tokenEndpointAuthMethod
+	tokenEndpointAuthSigningAlgorithm
+	tosUri
+	updatedAt
+	userinfoSignedResponseAlgorithm
+	organization {
+		name
+	}
+	loginBindings {
+		users {
+			id
+			email
+		}
+		groups {
+			name
+		}
+	}
+}
+fragment ObservabilityTenantLimitsFragment on ObservabilityTenantLimits {
+	mimir {
+		requestRate
+		requestBurstSize
+		ingestionRate
+		ingestionBurstSize
+		acceptHASamples
+		haClusterLabel
+		haReplicaLabel
+		haMaxClusters
+		dropLabels
+		maxLabelNameLength
+		maxLabelValueLength
+		maxLabelNamesPerSeries
+		maxMetadataLength
+		creationGracePeriod
+		enforceMetadataMetricName
+		ingestionTenantShardSize
+		maxGlobalSeriesPerUser
+		maxGlobalSeriesPerMetric
+		maxGlobalMetricsWithMetadataPerUser
+		maxGlobalMetadataPerMetric
+		maxGlobalExemplarsPerUser
+		nativeHistogramsIngestionEnabled
+		outOfOrderTimeWindow
+		outOfOrderBlocksExternalLabelEnabled
+		separateMetricsGroupLabel
+		maxChunksPerQuery
+		maxFetchedSeriesPerQuery
+		maxFetchedChunkBytesPerQuery
+		maxQueryLookback
+		maxPartialQueryLength
+		maxQueryParallelism
+		maxLabelsQueryLength
+		maxCacheFreshness
+		maxQueriersPerTenant
+		queryShardingTotalShards
+		queryShardingMaxShardedQueries
+		queryShardingMaxRegexpSizeBytes
+		splitInstantQueriesByInterval
+		maxTotalQueryLength
+		resultsCacheTTL
+		resultsCacheTTLForOutOfOrderTimeWindow
+		maxQueryExpressionSizeBytes
+		cardinalityAnalysisEnabled
+		labelNamesAndValuesResultsMaxSizeBytes
+		labelValuesMaxCardinalityLabelNamesPerRequest
+		rulerEvaluationDelay
+		rulerTenantShardSize
+		rulerMaxRulesPerRuleGroup
+		rulerMaxRuleGroupsPerTenant
+		rulerRecordingRulesEvaluationEnabled
+		rulerAlertingRulesEvaluationEnabled
+		storeGatewayTenantShardSize
+		compactorBlocksRetentionPeriod
+		compactorSplitAndMergeShards
+		compactorSplitGroups
+		compactorTenantShardSize
+		compactorPartialBlockDeletionDelay
+		compactorBlockUploadEnabled
+		compactorBlockUploadValidationEnabled
+		compactorBlockUploadVerifyChunks
+		s3SSEType
+		s3SSEKMSKeyID
+		s3SSEKMSEncryptionContext
+		alertmanagerReceiversBlockCIDRNetworks
+		alertmanagerReceiversBlockPrivateAddresses
+		notificationRateLimit
+		notificationRateLimitPerIntegration
+		alertmanagerMaxConfigSizeBytes
+		alertmanagerMaxTemplatesCount
+		alertmanagerMaxTemplateSizeBytes
+		alertmanagerMaxDispatcherAggregationGroups
+		alertmanagerMaxAlertsCount
+		alertmanagerMaxAlertsSizeBytes
+		forwardingEndpoint
+		forwardingDropOlderThan
+		forwardingRules
+	}
+}
+`
+
+func (c *Client) GetObservabilityTenant(ctx context.Context, id string, interceptors ...clientv2.RequestInterceptor) (*GetObservabilityTenant, error) {
+	vars := map[string]interface{}{
+		"id": id,
+	}
+
+	var res GetObservabilityTenant
+	if err := c.Client.Post(ctx, "GetObservabilityTenant", GetObservabilityTenantDocument, &res, vars, interceptors...); err != nil {
+		return nil, err
+	}
+
+	return &res, nil
+}
+
+const CreateObservabilityTenantDocument = `mutation CreateObservabilityTenant ($id: String!, $name: String, $admins: ObservabilityTenantPermissionBindingsInput, $metricsReaders: ObservabilityTenantPermissionBindingsInput, $metricsWriters: ObservabilityTenantPermissionBindingsInput, $metricsRulesReaders: ObservabilityTenantPermissionBindingsInput, $metricsRulesWriters: ObservabilityTenantPermissionBindingsInput, $metricsRulesDeleters: ObservabilityTenantPermissionBindingsInput, $metricsAlertsReaders: ObservabilityTenantPermissionBindingsInput, $metricsAlertsWriters: ObservabilityTenantPermissionBindingsInput, $logsReaders: ObservabilityTenantPermissionBindingsInput, $logsWriters: ObservabilityTenantPermissionBindingsInput, $logsRulesReaders: ObservabilityTenantPermissionBindingsInput, $logsRulesWriters: ObservabilityTenantPermissionBindingsInput, $logsRulesDeleters: ObservabilityTenantPermissionBindingsInput, $tracesReaders: ObservabilityTenantPermissionBindingsInput, $tracesWriters: ObservabilityTenantPermissionBindingsInput, $limits: ObservabilityTenantLimitsInput) {
+	createObservabilityTenant(id: $id, name: $name, admins: $admins, metricsReaders: $metricsReaders, metricsWriters: $metricsWriters, metricsRulesReaders: $metricsRulesReaders, metricsRulesWriters: $metricsRulesWriters, metricsRulesDeleters: $metricsRulesDeleters, metricsAlertsReaders: $metricsAlertsReaders, metricsAlertsWriters: $metricsAlertsWriters, logsReaders: $logsReaders, logsWriters: $logsWriters, logsRulesReaders: $logsRulesReaders, logsRulesWriters: $logsRulesWriters, logsRulesDeleters: $logsRulesDeleters, tracesReaders: $tracesReaders, tracesWriters: $tracesWriters, limits: $limits) {
+		... ObservabilityTenantFragment
+	}
+}
+fragment ObservabilityTenantFragment on ObservabilityTenant {
+	id
+	name
+	admins {
+		... ObservabilityTenantPermissionBindingsFragment
+	}
+	metricsReaders {
+		... ObservabilityTenantPermissionBindingsFragment
+	}
+	metricsWriters {
+		... ObservabilityTenantPermissionBindingsFragment
+	}
+	metricsRulesReaders {
+		... ObservabilityTenantPermissionBindingsFragment
+	}
+	metricsRulesWriters {
+		... ObservabilityTenantPermissionBindingsFragment
+	}
+	metricsRulesDeleters {
+		... ObservabilityTenantPermissionBindingsFragment
+	}
+	metricsAlertsReaders {
+		... ObservabilityTenantPermissionBindingsFragment
+	}
+	metricsAlertsWriters {
+		... ObservabilityTenantPermissionBindingsFragment
+	}
+	logsReaders {
+		... ObservabilityTenantPermissionBindingsFragment
+	}
+	logsWriters {
+		... ObservabilityTenantPermissionBindingsFragment
+	}
+	logsRulesReaders {
+		... ObservabilityTenantPermissionBindingsFragment
+	}
+	logsRulesWriters {
+		... ObservabilityTenantPermissionBindingsFragment
+	}
+	logsRulesDeleters {
+		... ObservabilityTenantPermissionBindingsFragment
+	}
+	tracesReaders {
+		... ObservabilityTenantPermissionBindingsFragment
+	}
+	tracesWriters {
+		... ObservabilityTenantPermissionBindingsFragment
+	}
+	limits {
+		... ObservabilityTenantLimitsFragment
+	}
+}
+fragment ObservabilityTenantPermissionBindingsFragment on ObservabilityTenantPermissionBindings {
+	users {
+		... UserFragmentNoGroups
+	}
+	groups {
+		... GroupFragment
+	}
+	oauth2Clients {
+		... OAuth2ClientFragment
+	}
+}
+fragment UserFragmentNoGroups on User {
+	id
+	name {
+		first
+		last
+	}
+	email
+}
+fragment GroupFragment on Group {
+	name
+	members {
+		... UserFragmentNoGroups
+	}
+}
+fragment OAuth2ClientFragment on OAuth2Client {
+	allowedCorsOrigins
+	audience
+	authorizationCodeGrantAccessTokenLifespan
+	authorizationCodeGrantIdTokenLifespan
+	authorizationCodeGrantRefreshTokenLifespan
+	backChannelLogoutUri
+	clientCredentialsGrantAccessTokenLifespan
+	clientId
+	clientName
+	clientSecret
+	ClientSecretExpiresAt
+	clientUri
+	contacts
+	createdAt
+	frontchannelLogoutSessionRequired
+	frontchannelLogoutUri
+	grantTypes
+	implicitGrantAccessTokenLifespan
+	implicitGrantIdTokenLifespan
+	jwks
+	jwksUri
+	jwtBearerGrantAccessTokenLifespan
+	logoUri
+	metadata
+	owner
+	policyUri
+	postLogoutRedirectUris
+	redirectUris
+	responseTypes
+	scope
+	sectorIdentifierUri
+	subjectType
+	tokenEndpointAuthMethod
+	tokenEndpointAuthSigningAlgorithm
+	tosUri
+	updatedAt
+	userinfoSignedResponseAlgorithm
+	organization {
+		name
+	}
+	loginBindings {
+		users {
+			id
+			email
+		}
+		groups {
+			name
+		}
+	}
+}
+fragment ObservabilityTenantLimitsFragment on ObservabilityTenantLimits {
+	mimir {
+		requestRate
+		requestBurstSize
+		ingestionRate
+		ingestionBurstSize
+		acceptHASamples
+		haClusterLabel
+		haReplicaLabel
+		haMaxClusters
+		dropLabels
+		maxLabelNameLength
+		maxLabelValueLength
+		maxLabelNamesPerSeries
+		maxMetadataLength
+		creationGracePeriod
+		enforceMetadataMetricName
+		ingestionTenantShardSize
+		maxGlobalSeriesPerUser
+		maxGlobalSeriesPerMetric
+		maxGlobalMetricsWithMetadataPerUser
+		maxGlobalMetadataPerMetric
+		maxGlobalExemplarsPerUser
+		nativeHistogramsIngestionEnabled
+		outOfOrderTimeWindow
+		outOfOrderBlocksExternalLabelEnabled
+		separateMetricsGroupLabel
+		maxChunksPerQuery
+		maxFetchedSeriesPerQuery
+		maxFetchedChunkBytesPerQuery
+		maxQueryLookback
+		maxPartialQueryLength
+		maxQueryParallelism
+		maxLabelsQueryLength
+		maxCacheFreshness
+		maxQueriersPerTenant
+		queryShardingTotalShards
+		queryShardingMaxShardedQueries
+		queryShardingMaxRegexpSizeBytes
+		splitInstantQueriesByInterval
+		maxTotalQueryLength
+		resultsCacheTTL
+		resultsCacheTTLForOutOfOrderTimeWindow
+		maxQueryExpressionSizeBytes
+		cardinalityAnalysisEnabled
+		labelNamesAndValuesResultsMaxSizeBytes
+		labelValuesMaxCardinalityLabelNamesPerRequest
+		rulerEvaluationDelay
+		rulerTenantShardSize
+		rulerMaxRulesPerRuleGroup
+		rulerMaxRuleGroupsPerTenant
+		rulerRecordingRulesEvaluationEnabled
+		rulerAlertingRulesEvaluationEnabled
+		storeGatewayTenantShardSize
+		compactorBlocksRetentionPeriod
+		compactorSplitAndMergeShards
+		compactorSplitGroups
+		compactorTenantShardSize
+		compactorPartialBlockDeletionDelay
+		compactorBlockUploadEnabled
+		compactorBlockUploadValidationEnabled
+		compactorBlockUploadVerifyChunks
+		s3SSEType
+		s3SSEKMSKeyID
+		s3SSEKMSEncryptionContext
+		alertmanagerReceiversBlockCIDRNetworks
+		alertmanagerReceiversBlockPrivateAddresses
+		notificationRateLimit
+		notificationRateLimitPerIntegration
+		alertmanagerMaxConfigSizeBytes
+		alertmanagerMaxTemplatesCount
+		alertmanagerMaxTemplateSizeBytes
+		alertmanagerMaxDispatcherAggregationGroups
+		alertmanagerMaxAlertsCount
+		alertmanagerMaxAlertsSizeBytes
+		forwardingEndpoint
+		forwardingDropOlderThan
+		forwardingRules
+	}
+}
+`
+
+func (c *Client) CreateObservabilityTenant(ctx context.Context, id string, name *string, admins *ObservabilityTenantPermissionBindingsInput, metricsReaders *ObservabilityTenantPermissionBindingsInput, metricsWriters *ObservabilityTenantPermissionBindingsInput, metricsRulesReaders *ObservabilityTenantPermissionBindingsInput, metricsRulesWriters *ObservabilityTenantPermissionBindingsInput, metricsRulesDeleters *ObservabilityTenantPermissionBindingsInput, metricsAlertsReaders *ObservabilityTenantPermissionBindingsInput, metricsAlertsWriters *ObservabilityTenantPermissionBindingsInput, logsReaders *ObservabilityTenantPermissionBindingsInput, logsWriters *ObservabilityTenantPermissionBindingsInput, logsRulesReaders *ObservabilityTenantPermissionBindingsInput, logsRulesWriters *ObservabilityTenantPermissionBindingsInput, logsRulesDeleters *ObservabilityTenantPermissionBindingsInput, tracesReaders *ObservabilityTenantPermissionBindingsInput, tracesWriters *ObservabilityTenantPermissionBindingsInput, limits *ObservabilityTenantLimitsInput, interceptors ...clientv2.RequestInterceptor) (*CreateObservabilityTenant, error) {
+	vars := map[string]interface{}{
+		"id":                   id,
+		"name":                 name,
+		"admins":               admins,
+		"metricsReaders":       metricsReaders,
+		"metricsWriters":       metricsWriters,
+		"metricsRulesReaders":  metricsRulesReaders,
+		"metricsRulesWriters":  metricsRulesWriters,
+		"metricsRulesDeleters": metricsRulesDeleters,
+		"metricsAlertsReaders": metricsAlertsReaders,
+		"metricsAlertsWriters": metricsAlertsWriters,
+		"logsReaders":          logsReaders,
+		"logsWriters":          logsWriters,
+		"logsRulesReaders":     logsRulesReaders,
+		"logsRulesWriters":     logsRulesWriters,
+		"logsRulesDeleters":    logsRulesDeleters,
+		"tracesReaders":        tracesReaders,
+		"tracesWriters":        tracesWriters,
+		"limits":               limits,
+	}
+
+	var res CreateObservabilityTenant
+	if err := c.Client.Post(ctx, "CreateObservabilityTenant", CreateObservabilityTenantDocument, &res, vars, interceptors...); err != nil {
+		return nil, err
+	}
+
+	return &res, nil
+}
+
+const UpdateObservabilityTenantDocument = `mutation UpdateObservabilityTenant ($id: String!, $name: String, $admins: ObservabilityTenantPermissionBindingsInput, $metricsReaders: ObservabilityTenantPermissionBindingsInput, $metricsWriters: ObservabilityTenantPermissionBindingsInput, $metricsRulesReaders: ObservabilityTenantPermissionBindingsInput, $metricsRulesWriters: ObservabilityTenantPermissionBindingsInput, $metricsRulesDeleters: ObservabilityTenantPermissionBindingsInput, $metricsAlertsReaders: ObservabilityTenantPermissionBindingsInput, $metricsAlertsWriters: ObservabilityTenantPermissionBindingsInput, $logsReaders: ObservabilityTenantPermissionBindingsInput, $logsWriters: ObservabilityTenantPermissionBindingsInput, $logsRulesReaders: ObservabilityTenantPermissionBindingsInput, $logsRulesWriters: ObservabilityTenantPermissionBindingsInput, $logsRulesDeleters: ObservabilityTenantPermissionBindingsInput, $tracesReaders: ObservabilityTenantPermissionBindingsInput, $tracesWriters: ObservabilityTenantPermissionBindingsInput, $limits: ObservabilityTenantLimitsInput) {
+	updateObservabilityTenant(id: $id, name: $name, admins: $admins, metricsReaders: $metricsReaders, metricsWriters: $metricsWriters, metricsRulesReaders: $metricsRulesReaders, metricsRulesWriters: $metricsRulesWriters, metricsRulesDeleters: $metricsRulesDeleters, metricsAlertsReaders: $metricsAlertsReaders, metricsAlertsWriters: $metricsAlertsWriters, logsReaders: $logsReaders, logsWriters: $logsWriters, logsRulesReaders: $logsRulesReaders, logsRulesWriters: $logsRulesWriters, logsRulesDeleters: $logsRulesDeleters, tracesReaders: $tracesReaders, tracesWriters: $tracesWriters, limits: $limits) {
+		... ObservabilityTenantFragment
+	}
+}
+fragment ObservabilityTenantFragment on ObservabilityTenant {
+	id
+	name
+	admins {
+		... ObservabilityTenantPermissionBindingsFragment
+	}
+	metricsReaders {
+		... ObservabilityTenantPermissionBindingsFragment
+	}
+	metricsWriters {
+		... ObservabilityTenantPermissionBindingsFragment
+	}
+	metricsRulesReaders {
+		... ObservabilityTenantPermissionBindingsFragment
+	}
+	metricsRulesWriters {
+		... ObservabilityTenantPermissionBindingsFragment
+	}
+	metricsRulesDeleters {
+		... ObservabilityTenantPermissionBindingsFragment
+	}
+	metricsAlertsReaders {
+		... ObservabilityTenantPermissionBindingsFragment
+	}
+	metricsAlertsWriters {
+		... ObservabilityTenantPermissionBindingsFragment
+	}
+	logsReaders {
+		... ObservabilityTenantPermissionBindingsFragment
+	}
+	logsWriters {
+		... ObservabilityTenantPermissionBindingsFragment
+	}
+	logsRulesReaders {
+		... ObservabilityTenantPermissionBindingsFragment
+	}
+	logsRulesWriters {
+		... ObservabilityTenantPermissionBindingsFragment
+	}
+	logsRulesDeleters {
+		... ObservabilityTenantPermissionBindingsFragment
+	}
+	tracesReaders {
+		... ObservabilityTenantPermissionBindingsFragment
+	}
+	tracesWriters {
+		... ObservabilityTenantPermissionBindingsFragment
+	}
+	limits {
+		... ObservabilityTenantLimitsFragment
+	}
+}
+fragment ObservabilityTenantPermissionBindingsFragment on ObservabilityTenantPermissionBindings {
+	users {
+		... UserFragmentNoGroups
+	}
+	groups {
+		... GroupFragment
+	}
+	oauth2Clients {
+		... OAuth2ClientFragment
+	}
+}
+fragment UserFragmentNoGroups on User {
+	id
+	name {
+		first
+		last
+	}
+	email
+}
+fragment GroupFragment on Group {
+	name
+	members {
+		... UserFragmentNoGroups
+	}
+}
+fragment OAuth2ClientFragment on OAuth2Client {
+	allowedCorsOrigins
+	audience
+	authorizationCodeGrantAccessTokenLifespan
+	authorizationCodeGrantIdTokenLifespan
+	authorizationCodeGrantRefreshTokenLifespan
+	backChannelLogoutUri
+	clientCredentialsGrantAccessTokenLifespan
+	clientId
+	clientName
+	clientSecret
+	ClientSecretExpiresAt
+	clientUri
+	contacts
+	createdAt
+	frontchannelLogoutSessionRequired
+	frontchannelLogoutUri
+	grantTypes
+	implicitGrantAccessTokenLifespan
+	implicitGrantIdTokenLifespan
+	jwks
+	jwksUri
+	jwtBearerGrantAccessTokenLifespan
+	logoUri
+	metadata
+	owner
+	policyUri
+	postLogoutRedirectUris
+	redirectUris
+	responseTypes
+	scope
+	sectorIdentifierUri
+	subjectType
+	tokenEndpointAuthMethod
+	tokenEndpointAuthSigningAlgorithm
+	tosUri
+	updatedAt
+	userinfoSignedResponseAlgorithm
+	organization {
+		name
+	}
+	loginBindings {
+		users {
+			id
+			email
+		}
+		groups {
+			name
+		}
+	}
+}
+fragment ObservabilityTenantLimitsFragment on ObservabilityTenantLimits {
+	mimir {
+		requestRate
+		requestBurstSize
+		ingestionRate
+		ingestionBurstSize
+		acceptHASamples
+		haClusterLabel
+		haReplicaLabel
+		haMaxClusters
+		dropLabels
+		maxLabelNameLength
+		maxLabelValueLength
+		maxLabelNamesPerSeries
+		maxMetadataLength
+		creationGracePeriod
+		enforceMetadataMetricName
+		ingestionTenantShardSize
+		maxGlobalSeriesPerUser
+		maxGlobalSeriesPerMetric
+		maxGlobalMetricsWithMetadataPerUser
+		maxGlobalMetadataPerMetric
+		maxGlobalExemplarsPerUser
+		nativeHistogramsIngestionEnabled
+		outOfOrderTimeWindow
+		outOfOrderBlocksExternalLabelEnabled
+		separateMetricsGroupLabel
+		maxChunksPerQuery
+		maxFetchedSeriesPerQuery
+		maxFetchedChunkBytesPerQuery
+		maxQueryLookback
+		maxPartialQueryLength
+		maxQueryParallelism
+		maxLabelsQueryLength
+		maxCacheFreshness
+		maxQueriersPerTenant
+		queryShardingTotalShards
+		queryShardingMaxShardedQueries
+		queryShardingMaxRegexpSizeBytes
+		splitInstantQueriesByInterval
+		maxTotalQueryLength
+		resultsCacheTTL
+		resultsCacheTTLForOutOfOrderTimeWindow
+		maxQueryExpressionSizeBytes
+		cardinalityAnalysisEnabled
+		labelNamesAndValuesResultsMaxSizeBytes
+		labelValuesMaxCardinalityLabelNamesPerRequest
+		rulerEvaluationDelay
+		rulerTenantShardSize
+		rulerMaxRulesPerRuleGroup
+		rulerMaxRuleGroupsPerTenant
+		rulerRecordingRulesEvaluationEnabled
+		rulerAlertingRulesEvaluationEnabled
+		storeGatewayTenantShardSize
+		compactorBlocksRetentionPeriod
+		compactorSplitAndMergeShards
+		compactorSplitGroups
+		compactorTenantShardSize
+		compactorPartialBlockDeletionDelay
+		compactorBlockUploadEnabled
+		compactorBlockUploadValidationEnabled
+		compactorBlockUploadVerifyChunks
+		s3SSEType
+		s3SSEKMSKeyID
+		s3SSEKMSEncryptionContext
+		alertmanagerReceiversBlockCIDRNetworks
+		alertmanagerReceiversBlockPrivateAddresses
+		notificationRateLimit
+		notificationRateLimitPerIntegration
+		alertmanagerMaxConfigSizeBytes
+		alertmanagerMaxTemplatesCount
+		alertmanagerMaxTemplateSizeBytes
+		alertmanagerMaxDispatcherAggregationGroups
+		alertmanagerMaxAlertsCount
+		alertmanagerMaxAlertsSizeBytes
+		forwardingEndpoint
+		forwardingDropOlderThan
+		forwardingRules
+	}
+}
+`
+
+func (c *Client) UpdateObservabilityTenant(ctx context.Context, id string, name *string, admins *ObservabilityTenantPermissionBindingsInput, metricsReaders *ObservabilityTenantPermissionBindingsInput, metricsWriters *ObservabilityTenantPermissionBindingsInput, metricsRulesReaders *ObservabilityTenantPermissionBindingsInput, metricsRulesWriters *ObservabilityTenantPermissionBindingsInput, metricsRulesDeleters *ObservabilityTenantPermissionBindingsInput, metricsAlertsReaders *ObservabilityTenantPermissionBindingsInput, metricsAlertsWriters *ObservabilityTenantPermissionBindingsInput, logsReaders *ObservabilityTenantPermissionBindingsInput, logsWriters *ObservabilityTenantPermissionBindingsInput, logsRulesReaders *ObservabilityTenantPermissionBindingsInput, logsRulesWriters *ObservabilityTenantPermissionBindingsInput, logsRulesDeleters *ObservabilityTenantPermissionBindingsInput, tracesReaders *ObservabilityTenantPermissionBindingsInput, tracesWriters *ObservabilityTenantPermissionBindingsInput, limits *ObservabilityTenantLimitsInput, interceptors ...clientv2.RequestInterceptor) (*UpdateObservabilityTenant, error) {
+	vars := map[string]interface{}{
+		"id":                   id,
+		"name":                 name,
+		"admins":               admins,
+		"metricsReaders":       metricsReaders,
+		"metricsWriters":       metricsWriters,
+		"metricsRulesReaders":  metricsRulesReaders,
+		"metricsRulesWriters":  metricsRulesWriters,
+		"metricsRulesDeleters": metricsRulesDeleters,
+		"metricsAlertsReaders": metricsAlertsReaders,
+		"metricsAlertsWriters": metricsAlertsWriters,
+		"logsReaders":          logsReaders,
+		"logsWriters":          logsWriters,
+		"logsRulesReaders":     logsRulesReaders,
+		"logsRulesWriters":     logsRulesWriters,
+		"logsRulesDeleters":    logsRulesDeleters,
+		"tracesReaders":        tracesReaders,
+		"tracesWriters":        tracesWriters,
+		"limits":               limits,
+	}
+
+	var res UpdateObservabilityTenant
+	if err := c.Client.Post(ctx, "UpdateObservabilityTenant", UpdateObservabilityTenantDocument, &res, vars, interceptors...); err != nil {
+		return nil, err
+	}
+
+	return &res, nil
+}
+
+const DeleteObservabilityTenantDocument = `mutation DeleteObservabilityTenant ($id: String!) {
+	deleteObservabilityTenant(id: $id) {
+		id
+	}
+}
+`
+
+func (c *Client) DeleteObservabilityTenant(ctx context.Context, id string, interceptors ...clientv2.RequestInterceptor) (*DeleteObservabilityTenant, error) {
+	vars := map[string]interface{}{
+		"id": id,
+	}
+
+	var res DeleteObservabilityTenant
+	if err := c.Client.Post(ctx, "DeleteObservabilityTenant", DeleteObservabilityTenantDocument, &res, vars, interceptors...); err != nil {
 		return nil, err
 	}
 

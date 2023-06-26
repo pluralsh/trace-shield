@@ -1,0 +1,8 @@
+fragment UserFragmentNoGroups on User {
+  id
+  name {
+    first
+    last
+  }
+  email
+}

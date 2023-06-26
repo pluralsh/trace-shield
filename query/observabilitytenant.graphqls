@@ -1,0 +1,251 @@
+query ListObservabilityTenants() {
+    listObservabilityTenants {
+        ...ObservabilityTenantFragment
+    }
+}
+
+query GetObservabilityTenant($id: String!) {
+    getObservabilityTenant(id: $id) {
+        ...ObservabilityTenantFragment
+    }
+}
+
+mutation CreateObservabilityTenant(
+    $id: String!
+    $name: String
+    $admins: ObservabilityTenantPermissionBindingsInput
+    $metricsReaders: ObservabilityTenantPermissionBindingsInput
+    $metricsWriters: ObservabilityTenantPermissionBindingsInput
+    $metricsRulesReaders: ObservabilityTenantPermissionBindingsInput
+    $metricsRulesWriters: ObservabilityTenantPermissionBindingsInput
+    $metricsRulesDeleters: ObservabilityTenantPermissionBindingsInput
+    $metricsAlertsReaders: ObservabilityTenantPermissionBindingsInput
+    $metricsAlertsWriters: ObservabilityTenantPermissionBindingsInput
+    $logsReaders: ObservabilityTenantPermissionBindingsInput
+    $logsWriters: ObservabilityTenantPermissionBindingsInput
+    $logsRulesReaders: ObservabilityTenantPermissionBindingsInput
+    $logsRulesWriters: ObservabilityTenantPermissionBindingsInput
+    $logsRulesDeleters: ObservabilityTenantPermissionBindingsInput
+    $tracesReaders: ObservabilityTenantPermissionBindingsInput
+    $tracesWriters: ObservabilityTenantPermissionBindingsInput
+    $limits: ObservabilityTenantLimitsInput
+  ) {
+    createObservabilityTenant(
+      id: $id
+      name: $name
+      admins: $admins
+      metricsReaders: $metricsReaders
+      metricsWriters: $metricsWriters
+      metricsRulesReaders: $metricsRulesReaders
+      metricsRulesWriters: $metricsRulesWriters
+      metricsRulesDeleters: $metricsRulesDeleters
+      metricsAlertsReaders: $metricsAlertsReaders
+      metricsAlertsWriters: $metricsAlertsWriters
+      logsReaders: $logsReaders
+      logsWriters: $logsWriters
+      logsRulesReaders: $logsRulesReaders
+      logsRulesWriters: $logsRulesWriters
+      logsRulesDeleters: $logsRulesDeleters
+      tracesReaders: $tracesReaders
+      tracesWriters: $tracesWriters
+      limits: $limits
+    ) {
+        ...ObservabilityTenantFragment
+    }
+}
+
+mutation UpdateObservabilityTenant(
+    $id: String!
+    $name: String
+    $admins: ObservabilityTenantPermissionBindingsInput
+    $metricsReaders: ObservabilityTenantPermissionBindingsInput
+    $metricsWriters: ObservabilityTenantPermissionBindingsInput
+    $metricsRulesReaders: ObservabilityTenantPermissionBindingsInput
+    $metricsRulesWriters: ObservabilityTenantPermissionBindingsInput
+    $metricsRulesDeleters: ObservabilityTenantPermissionBindingsInput
+    $metricsAlertsReaders: ObservabilityTenantPermissionBindingsInput
+    $metricsAlertsWriters: ObservabilityTenantPermissionBindingsInput
+    $logsReaders: ObservabilityTenantPermissionBindingsInput
+    $logsWriters: ObservabilityTenantPermissionBindingsInput
+    $logsRulesReaders: ObservabilityTenantPermissionBindingsInput
+    $logsRulesWriters: ObservabilityTenantPermissionBindingsInput
+    $logsRulesDeleters: ObservabilityTenantPermissionBindingsInput
+    $tracesReaders: ObservabilityTenantPermissionBindingsInput
+    $tracesWriters: ObservabilityTenantPermissionBindingsInput
+    $limits: ObservabilityTenantLimitsInput
+  ) {
+    updateObservabilityTenant(
+      id: $id
+      name: $name
+      admins: $admins
+      metricsReaders: $metricsReaders
+      metricsWriters: $metricsWriters
+      metricsRulesReaders: $metricsRulesReaders
+      metricsRulesWriters: $metricsRulesWriters
+      metricsRulesDeleters: $metricsRulesDeleters
+      metricsAlertsReaders: $metricsAlertsReaders
+      metricsAlertsWriters: $metricsAlertsWriters
+      logsReaders: $logsReaders
+      logsWriters: $logsWriters
+      logsRulesReaders: $logsRulesReaders
+      logsRulesWriters: $logsRulesWriters
+      logsRulesDeleters: $logsRulesDeleters
+      tracesReaders: $tracesReaders
+      tracesWriters: $tracesWriters
+      limits: $limits
+    ) {
+        ...ObservabilityTenantFragment
+    }
+}
+
+mutation DeleteObservabilityTenant($id: String!) {
+    deleteObservabilityTenant(id: $id) {
+      id
+    }
+}
+
+fragment ObservabilityTenantFragment on ObservabilityTenant {
+  id
+  name
+  admins {
+    ...ObservabilityTenantPermissionBindingsFragment
+  }
+  metricsReaders {
+    ...ObservabilityTenantPermissionBindingsFragment
+  }
+  metricsWriters {
+    ...ObservabilityTenantPermissionBindingsFragment
+  }
+  metricsRulesReaders {
+    ...ObservabilityTenantPermissionBindingsFragment
+  }
+  metricsRulesWriters {
+    ...ObservabilityTenantPermissionBindingsFragment
+  }
+  metricsRulesDeleters {
+    ...ObservabilityTenantPermissionBindingsFragment
+  }
+  metricsAlertsReaders {
+    ...ObservabilityTenantPermissionBindingsFragment
+  }
+  metricsAlertsWriters {
+    ...ObservabilityTenantPermissionBindingsFragment
+  }
+  logsReaders {
+    ...ObservabilityTenantPermissionBindingsFragment
+  }
+  logsWriters {
+    ...ObservabilityTenantPermissionBindingsFragment
+  }
+  logsRulesReaders {
+    ...ObservabilityTenantPermissionBindingsFragment
+  }
+  logsRulesWriters {
+    ...ObservabilityTenantPermissionBindingsFragment
+  }
+  logsRulesDeleters {
+    ...ObservabilityTenantPermissionBindingsFragment
+  }
+  tracesReaders {
+    ...ObservabilityTenantPermissionBindingsFragment
+  }
+  tracesWriters {
+    ...ObservabilityTenantPermissionBindingsFragment
+  }
+  limits {
+    ...ObservabilityTenantLimitsFragment
+  }
+}
+
+fragment ObservabilityTenantPermissionBindingsFragment on ObservabilityTenantPermissionBindings {
+  users {
+    ...UserFragmentNoGroups
+  }
+  groups {
+    ...GroupFragment
+  }
+  oauth2Clients {
+    ...OAuth2ClientFragment
+  }
+}
+
+fragment ObservabilityTenantLimitsFragment on ObservabilityTenantLimits {
+  mimir {
+    requestRate
+    requestBurstSize
+    ingestionRate
+    ingestionBurstSize
+    acceptHASamples
+    haClusterLabel
+    haReplicaLabel
+    haMaxClusters
+    dropLabels
+    maxLabelNameLength
+    maxLabelValueLength
+    maxLabelNamesPerSeries
+    maxMetadataLength
+    creationGracePeriod
+    enforceMetadataMetricName
+    ingestionTenantShardSize
+    maxGlobalSeriesPerUser
+    maxGlobalSeriesPerMetric
+    maxGlobalMetricsWithMetadataPerUser
+    maxGlobalMetadataPerMetric
+    maxGlobalExemplarsPerUser
+    nativeHistogramsIngestionEnabled
+    outOfOrderTimeWindow
+    outOfOrderBlocksExternalLabelEnabled
+    separateMetricsGroupLabel
+    maxChunksPerQuery
+    maxFetchedSeriesPerQuery
+    maxFetchedChunkBytesPerQuery
+    maxQueryLookback
+    maxPartialQueryLength
+    maxQueryParallelism
+    maxLabelsQueryLength
+    maxCacheFreshness
+    maxQueriersPerTenant
+    queryShardingTotalShards
+    queryShardingMaxShardedQueries
+    queryShardingMaxRegexpSizeBytes
+    splitInstantQueriesByInterval
+    maxTotalQueryLength
+    resultsCacheTTL
+    resultsCacheTTLForOutOfOrderTimeWindow
+    maxQueryExpressionSizeBytes
+    cardinalityAnalysisEnabled
+    labelNamesAndValuesResultsMaxSizeBytes
+    labelValuesMaxCardinalityLabelNamesPerRequest
+    rulerEvaluationDelay
+    rulerTenantShardSize
+    rulerMaxRulesPerRuleGroup
+    rulerMaxRuleGroupsPerTenant
+    rulerRecordingRulesEvaluationEnabled
+    rulerAlertingRulesEvaluationEnabled
+    storeGatewayTenantShardSize
+    compactorBlocksRetentionPeriod
+    compactorSplitAndMergeShards
+    compactorSplitGroups
+    compactorTenantShardSize
+    compactorPartialBlockDeletionDelay
+    compactorBlockUploadEnabled
+    compactorBlockUploadValidationEnabled
+    compactorBlockUploadVerifyChunks
+    s3SSEType
+    s3SSEKMSKeyID
+    s3SSEKMSEncryptionContext
+    alertmanagerReceiversBlockCIDRNetworks
+    alertmanagerReceiversBlockPrivateAddresses
+    notificationRateLimit
+    notificationRateLimitPerIntegration
+    alertmanagerMaxConfigSizeBytes
+    alertmanagerMaxTemplatesCount
+    alertmanagerMaxTemplateSizeBytes
+    alertmanagerMaxDispatcherAggregationGroups
+    alertmanagerMaxAlertsCount
+    alertmanagerMaxAlertsSizeBytes
+    forwardingEndpoint
+    forwardingDropOlderThan
+    forwardingRules
+  }
+}

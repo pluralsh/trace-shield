@@ -1,0 +1,6 @@
+fragment GroupFragment on Group {
+  name
+  members {
+    ...UserFragmentNoGroups
+  }
+}
