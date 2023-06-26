@@ -13,6 +13,9 @@ import (
 )
 
 type TraceShieldGraphQLClient interface {
+	ListGroups(ctx context.Context, interceptors ...clientv2.RequestInterceptor) (*ListGroups, error)
+	UpdateGroup(ctx context.Context, name string, members []string, interceptors ...clientv2.RequestInterceptor) (*UpdateGroup, error)
+	DeleteGroup(ctx context.Context, name string, interceptors ...clientv2.RequestInterceptor) (*DeleteGroup, error)
 	ListOAuth2Clients(ctx context.Context, interceptors ...clientv2.RequestInterceptor) (*ListOAuth2Clients, error)
 	GetOAuth2Client(ctx context.Context, clientID string, interceptors ...clientv2.RequestInterceptor) (*GetOAuth2Client, error)
 	DeleteOAuth2Client(ctx context.Context, clientID string, interceptors ...clientv2.RequestInterceptor) (*DeleteOAuth2Client, error)
@@ -23,6 +26,10 @@ type TraceShieldGraphQLClient interface {
 	CreateObservabilityTenant(ctx context.Context, id string, name *string, admins *ObservabilityTenantPermissionBindingsInput, metricsReaders *ObservabilityTenantPermissionBindingsInput, metricsWriters *ObservabilityTenantPermissionBindingsInput, metricsRulesReaders *ObservabilityTenantPermissionBindingsInput, metricsRulesWriters *ObservabilityTenantPermissionBindingsInput, metricsRulesDeleters *ObservabilityTenantPermissionBindingsInput, metricsAlertsReaders *ObservabilityTenantPermissionBindingsInput, metricsAlertsWriters *ObservabilityTenantPermissionBindingsInput, logsReaders *ObservabilityTenantPermissionBindingsInput, logsWriters *ObservabilityTenantPermissionBindingsInput, logsRulesReaders *ObservabilityTenantPermissionBindingsInput, logsRulesWriters *ObservabilityTenantPermissionBindingsInput, logsRulesDeleters *ObservabilityTenantPermissionBindingsInput, tracesReaders *ObservabilityTenantPermissionBindingsInput, tracesWriters *ObservabilityTenantPermissionBindingsInput, limits *ObservabilityTenantLimitsInput, interceptors ...clientv2.RequestInterceptor) (*CreateObservabilityTenant, error)
 	UpdateObservabilityTenant(ctx context.Context, id string, name *string, admins *ObservabilityTenantPermissionBindingsInput, metricsReaders *ObservabilityTenantPermissionBindingsInput, metricsWriters *ObservabilityTenantPermissionBindingsInput, metricsRulesReaders *ObservabilityTenantPermissionBindingsInput, metricsRulesWriters *ObservabilityTenantPermissionBindingsInput, metricsRulesDeleters *ObservabilityTenantPermissionBindingsInput, metricsAlertsReaders *ObservabilityTenantPermissionBindingsInput, metricsAlertsWriters *ObservabilityTenantPermissionBindingsInput, logsReaders *ObservabilityTenantPermissionBindingsInput, logsWriters *ObservabilityTenantPermissionBindingsInput, logsRulesReaders *ObservabilityTenantPermissionBindingsInput, logsRulesWriters *ObservabilityTenantPermissionBindingsInput, logsRulesDeleters *ObservabilityTenantPermissionBindingsInput, tracesReaders *ObservabilityTenantPermissionBindingsInput, tracesWriters *ObservabilityTenantPermissionBindingsInput, limits *ObservabilityTenantLimitsInput, interceptors ...clientv2.RequestInterceptor) (*UpdateObservabilityTenant, error)
 	DeleteObservabilityTenant(ctx context.Context, id string, interceptors ...clientv2.RequestInterceptor) (*DeleteObservabilityTenant, error)
+	ListUsers(ctx context.Context, interceptors ...clientv2.RequestInterceptor) (*ListUsers, error)
+	GetUser(ctx context.Context, id string, interceptors ...clientv2.RequestInterceptor) (*GetUser, error)
+	CreateUser(ctx context.Context, email string, name *NameInput, interceptors ...clientv2.RequestInterceptor) (*CreateUser, error)
+	DeleteUser(ctx context.Context, id string, interceptors ...clientv2.RequestInterceptor) (*DeleteUser, error)
 }
 
 type Client struct {
@@ -519,6 +526,38 @@ func (t *ObservabilityTenantLimitsFragment) GetMimir() *ObservabilityTenantLimit
 		t = &ObservabilityTenantLimitsFragment{}
 	}
 	return t.Mimir
+}
+
+type UserFragment struct {
+	ID     string                 "json:\"id\" graphql:\"id\""
+	Name   *UserFragment_Name     "json:\"name,omitempty\" graphql:\"name\""
+	Email  string                 "json:\"email\" graphql:\"email\""
+	Groups []*UserFragment_Groups "json:\"groups,omitempty\" graphql:\"groups\""
+}
+
+func (t *UserFragment) GetID() string {
+	if t == nil {
+		t = &UserFragment{}
+	}
+	return t.ID
+}
+func (t *UserFragment) GetName() *UserFragment_Name {
+	if t == nil {
+		t = &UserFragment{}
+	}
+	return t.Name
+}
+func (t *UserFragment) GetEmail() string {
+	if t == nil {
+		t = &UserFragment{}
+	}
+	return t.Email
+}
+func (t *UserFragment) GetGroups() []*UserFragment_Groups {
+	if t == nil {
+		t = &UserFragment{}
+	}
+	return t.Groups
 }
 
 type UserFragmentNoGroups struct {
@@ -3198,6 +3237,35 @@ func (t *ObservabilityTenantLimitsFragment_Mimir) GetForwardingRules() map[strin
 	return t.ForwardingRules
 }
 
+type UserFragment_Name struct {
+	First *string "json:\"first,omitempty\" graphql:\"first\""
+	Last  *string "json:\"last,omitempty\" graphql:\"last\""
+}
+
+func (t *UserFragment_Name) GetFirst() *string {
+	if t == nil {
+		t = &UserFragment_Name{}
+	}
+	return t.First
+}
+func (t *UserFragment_Name) GetLast() *string {
+	if t == nil {
+		t = &UserFragment_Name{}
+	}
+	return t.Last
+}
+
+type UserFragment_Groups struct {
+	Name string "json:\"name\" graphql:\"name\""
+}
+
+func (t *UserFragment_Groups) GetName() string {
+	if t == nil {
+		t = &UserFragment_Groups{}
+	}
+	return t.Name
+}
+
 type UserFragmentNoGroups_Name struct {
 	First *string "json:\"first,omitempty\" graphql:\"first\""
 	Last  *string "json:\"last,omitempty\" graphql:\"last\""
@@ -3214,6 +3282,53 @@ func (t *UserFragmentNoGroups_Name) GetLast() *string {
 		t = &UserFragmentNoGroups_Name{}
 	}
 	return t.Last
+}
+
+type ListGroups_ListGroups_GroupFragment_Members_UserFragmentNoGroups_Name struct {
+	First *string "json:\"first,omitempty\" graphql:\"first\""
+	Last  *string "json:\"last,omitempty\" graphql:\"last\""
+}
+
+func (t *ListGroups_ListGroups_GroupFragment_Members_UserFragmentNoGroups_Name) GetFirst() *string {
+	if t == nil {
+		t = &ListGroups_ListGroups_GroupFragment_Members_UserFragmentNoGroups_Name{}
+	}
+	return t.First
+}
+func (t *ListGroups_ListGroups_GroupFragment_Members_UserFragmentNoGroups_Name) GetLast() *string {
+	if t == nil {
+		t = &ListGroups_ListGroups_GroupFragment_Members_UserFragmentNoGroups_Name{}
+	}
+	return t.Last
+}
+
+type UpdateGroup_Group_GroupFragment_Members_UserFragmentNoGroups_Name struct {
+	First *string "json:\"first,omitempty\" graphql:\"first\""
+	Last  *string "json:\"last,omitempty\" graphql:\"last\""
+}
+
+func (t *UpdateGroup_Group_GroupFragment_Members_UserFragmentNoGroups_Name) GetFirst() *string {
+	if t == nil {
+		t = &UpdateGroup_Group_GroupFragment_Members_UserFragmentNoGroups_Name{}
+	}
+	return t.First
+}
+func (t *UpdateGroup_Group_GroupFragment_Members_UserFragmentNoGroups_Name) GetLast() *string {
+	if t == nil {
+		t = &UpdateGroup_Group_GroupFragment_Members_UserFragmentNoGroups_Name{}
+	}
+	return t.Last
+}
+
+type DeleteGroup_DeleteGroup struct {
+	Name string "json:\"name\" graphql:\"name\""
+}
+
+func (t *DeleteGroup_DeleteGroup) GetName() string {
+	if t == nil {
+		t = &DeleteGroup_DeleteGroup{}
+	}
+	return t.Name
 }
 
 type ListOAuth2Clients_ListOAuth2Clients_OAuth2ClientFragment_Organization struct {
@@ -11254,6 +11369,137 @@ func (t *DeleteObservabilityTenant_DeleteObservabilityTenant) GetID() string {
 	return t.ID
 }
 
+type ListUsers_ListUsers_UserFragment_Name struct {
+	First *string "json:\"first,omitempty\" graphql:\"first\""
+	Last  *string "json:\"last,omitempty\" graphql:\"last\""
+}
+
+func (t *ListUsers_ListUsers_UserFragment_Name) GetFirst() *string {
+	if t == nil {
+		t = &ListUsers_ListUsers_UserFragment_Name{}
+	}
+	return t.First
+}
+func (t *ListUsers_ListUsers_UserFragment_Name) GetLast() *string {
+	if t == nil {
+		t = &ListUsers_ListUsers_UserFragment_Name{}
+	}
+	return t.Last
+}
+
+type ListUsers_ListUsers_UserFragment_Groups struct {
+	Name string "json:\"name\" graphql:\"name\""
+}
+
+func (t *ListUsers_ListUsers_UserFragment_Groups) GetName() string {
+	if t == nil {
+		t = &ListUsers_ListUsers_UserFragment_Groups{}
+	}
+	return t.Name
+}
+
+type GetUser_GetUser_UserFragment_Name struct {
+	First *string "json:\"first,omitempty\" graphql:\"first\""
+	Last  *string "json:\"last,omitempty\" graphql:\"last\""
+}
+
+func (t *GetUser_GetUser_UserFragment_Name) GetFirst() *string {
+	if t == nil {
+		t = &GetUser_GetUser_UserFragment_Name{}
+	}
+	return t.First
+}
+func (t *GetUser_GetUser_UserFragment_Name) GetLast() *string {
+	if t == nil {
+		t = &GetUser_GetUser_UserFragment_Name{}
+	}
+	return t.Last
+}
+
+type GetUser_GetUser_UserFragment_Groups struct {
+	Name string "json:\"name\" graphql:\"name\""
+}
+
+func (t *GetUser_GetUser_UserFragment_Groups) GetName() string {
+	if t == nil {
+		t = &GetUser_GetUser_UserFragment_Groups{}
+	}
+	return t.Name
+}
+
+type CreateUser_CreateUser_UserFragment_Name struct {
+	First *string "json:\"first,omitempty\" graphql:\"first\""
+	Last  *string "json:\"last,omitempty\" graphql:\"last\""
+}
+
+func (t *CreateUser_CreateUser_UserFragment_Name) GetFirst() *string {
+	if t == nil {
+		t = &CreateUser_CreateUser_UserFragment_Name{}
+	}
+	return t.First
+}
+func (t *CreateUser_CreateUser_UserFragment_Name) GetLast() *string {
+	if t == nil {
+		t = &CreateUser_CreateUser_UserFragment_Name{}
+	}
+	return t.Last
+}
+
+type CreateUser_CreateUser_UserFragment_Groups struct {
+	Name string "json:\"name\" graphql:\"name\""
+}
+
+func (t *CreateUser_CreateUser_UserFragment_Groups) GetName() string {
+	if t == nil {
+		t = &CreateUser_CreateUser_UserFragment_Groups{}
+	}
+	return t.Name
+}
+
+type DeleteUser_DeleteUser struct {
+	ID string "json:\"id\" graphql:\"id\""
+}
+
+func (t *DeleteUser_DeleteUser) GetID() string {
+	if t == nil {
+		t = &DeleteUser_DeleteUser{}
+	}
+	return t.ID
+}
+
+type ListGroups struct {
+	ListGroups []*GroupFragment "json:\"listGroups,omitempty\" graphql:\"listGroups\""
+}
+
+func (t *ListGroups) GetListGroups() []*GroupFragment {
+	if t == nil {
+		t = &ListGroups{}
+	}
+	return t.ListGroups
+}
+
+type UpdateGroup struct {
+	Group *GroupFragment "json:\"group\" graphql:\"group\""
+}
+
+func (t *UpdateGroup) GetGroup() *GroupFragment {
+	if t == nil {
+		t = &UpdateGroup{}
+	}
+	return t.Group
+}
+
+type DeleteGroup struct {
+	DeleteGroup DeleteGroup_DeleteGroup "json:\"deleteGroup\" graphql:\"deleteGroup\""
+}
+
+func (t *DeleteGroup) GetDeleteGroup() *DeleteGroup_DeleteGroup {
+	if t == nil {
+		t = &DeleteGroup{}
+	}
+	return &t.DeleteGroup
+}
+
 type ListOAuth2Clients struct {
 	ListOAuth2Clients []*OAuth2ClientFragment "json:\"listOAuth2Clients\" graphql:\"listOAuth2Clients\""
 }
@@ -11362,6 +11608,139 @@ func (t *DeleteObservabilityTenant) GetDeleteObservabilityTenant() *DeleteObserv
 		t = &DeleteObservabilityTenant{}
 	}
 	return &t.DeleteObservabilityTenant
+}
+
+type ListUsers struct {
+	ListUsers []*UserFragment "json:\"listUsers\" graphql:\"listUsers\""
+}
+
+func (t *ListUsers) GetListUsers() []*UserFragment {
+	if t == nil {
+		t = &ListUsers{}
+	}
+	return t.ListUsers
+}
+
+type GetUser struct {
+	GetUser *UserFragment "json:\"getUser\" graphql:\"getUser\""
+}
+
+func (t *GetUser) GetGetUser() *UserFragment {
+	if t == nil {
+		t = &GetUser{}
+	}
+	return t.GetUser
+}
+
+type CreateUser struct {
+	CreateUser *UserFragment "json:\"createUser\" graphql:\"createUser\""
+}
+
+func (t *CreateUser) GetCreateUser() *UserFragment {
+	if t == nil {
+		t = &CreateUser{}
+	}
+	return t.CreateUser
+}
+
+type DeleteUser struct {
+	DeleteUser DeleteUser_DeleteUser "json:\"deleteUser\" graphql:\"deleteUser\""
+}
+
+func (t *DeleteUser) GetDeleteUser() *DeleteUser_DeleteUser {
+	if t == nil {
+		t = &DeleteUser{}
+	}
+	return &t.DeleteUser
+}
+
+const ListGroupsDocument = `query ListGroups {
+	# TODO: we should also support getting a single group
+	listGroups {
+		... GroupFragment
+	}
+}
+fragment GroupFragment on Group {
+	name
+	members {
+		... UserFragmentNoGroups
+	}
+}
+fragment UserFragmentNoGroups on User {
+	id
+	name {
+		first
+		last
+	}
+	email
+}
+`
+
+func (c *Client) ListGroups(ctx context.Context, interceptors ...clientv2.RequestInterceptor) (*ListGroups, error) {
+	vars := map[string]interface{}{}
+
+	var res ListGroups
+	if err := c.Client.Post(ctx, "ListGroups", ListGroupsDocument, &res, vars, interceptors...); err != nil {
+		return nil, err
+	}
+
+	return &res, nil
+}
+
+const UpdateGroupDocument = `mutation UpdateGroup ($name: String!, $members: [String!]) {
+	# TODO: for consistency we should probably split create and update mutations
+	group(name: $name, members: $members) {
+		... GroupFragment
+	}
+}
+fragment GroupFragment on Group {
+	name
+	members {
+		... UserFragmentNoGroups
+	}
+}
+fragment UserFragmentNoGroups on User {
+	id
+	name {
+		first
+		last
+	}
+	email
+}
+`
+
+func (c *Client) UpdateGroup(ctx context.Context, name string, members []string, interceptors ...clientv2.RequestInterceptor) (*UpdateGroup, error) {
+	vars := map[string]interface{}{
+		"name":    name,
+		"members": members,
+	}
+
+	var res UpdateGroup
+	if err := c.Client.Post(ctx, "UpdateGroup", UpdateGroupDocument, &res, vars, interceptors...); err != nil {
+		return nil, err
+	}
+
+	return &res, nil
+}
+
+const DeleteGroupDocument = `mutation DeleteGroup ($name: String!) {
+	deleteGroup(name: $name) {
+		name
+	}
+}
+`
+
+func (c *Client) DeleteGroup(ctx context.Context, name string, interceptors ...clientv2.RequestInterceptor) (*DeleteGroup, error) {
+	vars := map[string]interface{}{
+		"name": name,
+	}
+
+	var res DeleteGroup
+	if err := c.Client.Post(ctx, "DeleteGroup", DeleteGroupDocument, &res, vars, interceptors...); err != nil {
+		return nil, err
+	}
+
+	return &res, nil
 }
 
 const ListOAuth2ClientsDocument = `query ListOAuth2Clients {
@@ -12693,6 +13072,118 @@ func (c *Client) DeleteObservabilityTenant(ctx context.Context, id string, inter
 
 	var res DeleteObservabilityTenant
 	if err := c.Client.Post(ctx, "DeleteObservabilityTenant", DeleteObservabilityTenantDocument, &res, vars, interceptors...); err != nil {
+		return nil, err
+	}
+
+	return &res, nil
+}
+
+const ListUsersDocument = `query ListUsers {
+	listUsers {
+		... UserFragment
+	}
+}
+fragment UserFragment on User {
+	id
+	name {
+		first
+		last
+	}
+	email
+	groups {
+		name
+	}
+}
+`
+
+func (c *Client) ListUsers(ctx context.Context, interceptors ...clientv2.RequestInterceptor) (*ListUsers, error) {
+	vars := map[string]interface{}{}
+
+	var res ListUsers
+	if err := c.Client.Post(ctx, "ListUsers", ListUsersDocument, &res, vars, interceptors...); err != nil {
+		return nil, err
+	}
+
+	return &res, nil
+}
+
+const GetUserDocument = `query GetUser ($id: ID!) {
+	getUser(id: $id) {
+		... UserFragment
+	}
+}
+fragment UserFragment on User {
+	id
+	name {
+		first
+		last
+	}
+	email
+	groups {
+		name
+	}
+}
+`
+
+func (c *Client) GetUser(ctx context.Context, id string, interceptors ...clientv2.RequestInterceptor) (*GetUser, error) {
+	vars := map[string]interface{}{
+		"id": id,
+	}
+
+	var res GetUser
+	if err := c.Client.Post(ctx, "GetUser", GetUserDocument, &res, vars, interceptors...); err != nil {
+		return nil, err
+	}
+
+	return &res, nil
+}
+
+const CreateUserDocument = `mutation CreateUser ($email: String!, $name: NameInput) {
+	createUser(email: $email, name: $name) {
+		... UserFragment
+	}
+}
+fragment UserFragment on User {
+	id
+	name {
+		first
+		last
+	}
+	email
+	groups {
+		name
+	}
+}
+`
+
+func (c *Client) CreateUser(ctx context.Context, email string, name *NameInput, interceptors ...clientv2.RequestInterceptor) (*CreateUser, error) {
+	vars := map[string]interface{}{
+		"email": email,
+		"name":  name,
+	}
+
+	var res CreateUser
+	if err := c.Client.Post(ctx, "CreateUser", CreateUserDocument, &res, vars, interceptors...); err != nil {
+		return nil, err
+	}
+
+	return &res, nil
+}
+
+const DeleteUserDocument = `mutation DeleteUser ($id: ID!) {
+	deleteUser(id: $id) {
+		id
+	}
+}
+`
+
+func (c *Client) DeleteUser(ctx context.Context, id string, interceptors ...clientv2.RequestInterceptor) (*DeleteUser, error) {
+	vars := map[string]interface{}{
+		"id": id,
+	}
+
+	var res DeleteUser
+	if err := c.Client.Post(ctx, "DeleteUser", DeleteUserDocument, &res, vars, interceptors...); err != nil {
 		return nil, err
 	}
 

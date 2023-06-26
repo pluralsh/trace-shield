@@ -1,3 +1,21 @@
+query ListGroups { # TODO: we should also support getting a single group
+  listGroups {
+    ...GroupFragment
+  }
+}
+
+mutation UpdateGroup($name: String!, $members: [String!]) { # TODO: for consistency we should probably split create and update mutations
+  group(name: $name, members: $members) {
+    ...GroupFragment
+  }
+}
+
+mutation DeleteGroup($name: String!) {
+  deleteGroup(name: $name) {
+    name
+  }
+}
+
 fragment GroupFragment on Group {
   name
   members {
