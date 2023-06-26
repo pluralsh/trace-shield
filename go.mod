@@ -171,7 +171,7 @@ require (
 	github.com/modern-go/reflect2 v1.0.2 // indirect
 	github.com/munnerz/goautoneg v0.0.0-20191010083416-a7dc8b61c822 // indirect
 	github.com/ory/hydra-client-go/v2 v2.0.3
-	github.com/ory/oathkeeper v0.40.2
+	github.com/ory/oathkeeper v0.40.3
 	github.com/ory/x v0.0.547
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/prometheus/client_golang v1.14.0 // indirect
