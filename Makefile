@@ -5,6 +5,9 @@ run:
 generate:
 	go run github.com/99designs/gqlgen generate
 
+generate-client:
+	go run github.com/Yamashou/gqlgenc
+
 generate-db:
 	go generate ./ent
 
