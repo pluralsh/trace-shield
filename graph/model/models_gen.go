@@ -10,9 +10,9 @@ import (
 
 type AcceptOAuth2ConsentRequestSession struct {
 	// AccessToken sets session data for the access and refresh token, as well as any future tokens issued by the refresh grant. Keep in mind that this data will be available to anyone performing OAuth 2.0 Challenge Introspection. If only your services can perform OAuth 2.0 Challenge Introspection, this is usually fine. But if third parties can access that endpoint as well, sensitive data from the session might be exposed to them. Use with care!
-	AccessToken map[string]interface{} `json:"accessToken"`
+	AccessToken map[string]interface{} `json:"accessToken,omitempty"`
 	// IDToken sets session data for the OpenID Connect ID token. Keep in mind that the session'id payloads are readable by anyone that has access to the ID Challenge. Use with care!
-	IDToken map[string]interface{} `json:"idToken"`
+	IDToken map[string]interface{} `json:"idToken,omitempty"`
 }
 
 // Input for adding a user to an organization as an administrator.
@@ -26,7 +26,7 @@ type Group struct {
 	// The unique name of the group.
 	Name string `json:"name"`
 	// The users that are admins of the organization.
-	Members []*User `json:"members"`
+	Members []*User `json:"members,omitempty"`
 	// The organization that the group belongs to.
 	Organization *Organization `json:"organization"`
 }
@@ -34,151 +34,151 @@ type Group struct {
 // Representation of users and groups that are allowed to login with through OAuth2 Client.
 type LoginBindings struct {
 	// The users that are allowed to login with this OAuth2 Client.
-	Users []*User `json:"users"`
+	Users []*User `json:"users,omitempty"`
 	// The groups that are allowed to login with this OAuth2 Client.
-	Groups []*Group `json:"groups"`
+	Groups []*Group `json:"groups,omitempty"`
 }
 
 type LoginBindingsInput struct {
 	// The users that are allowed to login with this OAuth2 Client.
-	Users []string `json:"users"`
+	Users []string `json:"users,omitempty"`
 	// The groups that are allowed to login with this OAuth2 Client.
-	Groups []string `json:"groups"`
+	Groups []string `json:"groups,omitempty"`
 }
 
 // Representation of the limits for Loki for a tenant.
 type LokiLimits struct {
-	RequestRate *float64 `json:"requestRate"`
+	RequestRate *float64 `json:"requestRate,omitempty"`
 }
 
 // The first and last name of a user.
 type Name struct {
 	// The user's first name.
-	First *string `json:"first"`
+	First *string `json:"first,omitempty"`
 	// The user's last name.
-	Last *string `json:"last"`
+	Last *string `json:"last,omitempty"`
 }
 
 type NameInput struct {
 	// The user's first name.
-	First *string `json:"first"`
+	First *string `json:"first,omitempty"`
 	// The user's last name.
-	Last *string `json:"last"`
+	Last *string `json:"last,omitempty"`
 }
 
 // Representation of the information about an OAuth2 Client sourced from Hydra.
 type OAuth2Client struct {
 	// OAuth 2.0 Client Allowed CORS Origins. AllowedCORSOrigins is an array of allowed CORS origins. If the array is empty, the value of the first element is considered valid.
-	AllowedCorsOrigins []string `json:"allowedCorsOrigins"`
+	AllowedCorsOrigins []string `json:"allowedCorsOrigins,omitempty"`
 	// OAuth 2.0 Client Audience. Audience is an array of URLs that the OAuth 2.0 Client is allowed to request tokens for.
-	Audience []string `json:"audience"`
+	Audience []string `json:"audience,omitempty"`
 	// Specify a time duration in milliseconds, seconds, minutes, hours. For example, 1h, 1m, 1s, 1ms.
-	AuthorizationCodeGrantAccessTokenLifespan *string `json:"authorizationCodeGrantAccessTokenLifespan"`
+	AuthorizationCodeGrantAccessTokenLifespan *string `json:"authorizationCodeGrantAccessTokenLifespan,omitempty"`
 	// Specify a time duration in milliseconds, seconds, minutes, hours. For example, 1h, 1m, 1s, 1ms.
-	AuthorizationCodeGrantIDTokenLifespan *string `json:"authorizationCodeGrantIdTokenLifespan"`
+	AuthorizationCodeGrantIDTokenLifespan *string `json:"authorizationCodeGrantIdTokenLifespan,omitempty"`
 	// Specify a time duration in milliseconds, seconds, minutes, hours. For example, 1h, 1m, 1s, 1ms.
-	AuthorizationCodeGrantRefreshTokenLifespan *string `json:"authorizationCodeGrantRefreshTokenLifespan"`
+	AuthorizationCodeGrantRefreshTokenLifespan *string `json:"authorizationCodeGrantRefreshTokenLifespan,omitempty"`
 	// OpenID Connect Back-Channel Logout Session Required  Boolean value specifying whether the RP requires that a sid (session ID) Claim be included in the Logout Token to identify the RP session with the OP when the backchannel_logout_uri is used. If omitted, the default value is false.
-	BackChannelLogoutSessionRequired *bool `json:"backChannelLogoutSessionRequired"`
+	BackChannelLogoutSessionRequired *bool `json:"backChannelLogoutSessionRequired,omitempty"`
 	// OpenID Connect Back-Channel Logout URI. RP URL that will cause the RP to log itself out when sent a Logout Token by the OP.
-	BackChannelLogoutURI *string `json:"backChannelLogoutUri"`
+	BackChannelLogoutURI *string `json:"backChannelLogoutUri,omitempty"`
 	// Specify a time duration in milliseconds, seconds, minutes, hours. For example, 1h, 1m, 1s, 1ms.
-	ClientCredentialsGrantAccessTokenLifespan *string `json:"clientCredentialsGrantAccessTokenLifespan"`
+	ClientCredentialsGrantAccessTokenLifespan *string `json:"clientCredentialsGrantAccessTokenLifespan,omitempty"`
 	// OAuth 2.0 Client ID. The ID is autogenerated and immutable.
-	ClientID *string `json:"clientId"`
+	ClientID *string `json:"clientId,omitempty"`
 	// OAuth 2.0 Client Name. The human-readable name of the client to be presented to the end-user during authorization.
-	ClientName *string `json:"clientName"`
+	ClientName *string `json:"clientName,omitempty"`
 	// OAuth 2.0 Client Secret. The secret will be included in the create request as cleartext, and then never again. The secret is kept in hashed format and is not recoverable once lost.
-	ClientSecret *string `json:"clientSecret"`
+	ClientSecret *string `json:"clientSecret,omitempty"`
 	// OAuth 2.0 Client Secret Expires At. The field is currently not supported and its value is always 0.
-	ClientSecretExpiresAt *int64 `json:"ClientSecretExpiresAt"`
+	ClientSecretExpiresAt *int64 `json:"ClientSecretExpiresAt,omitempty"`
 	// OAuth 2.0 Client URI. ClientURI is a URL string of a web page providing information about the client. If present, the server SHOULD display this URL to the end-user in a clickable fashion.
-	ClientURI *string `json:"clientUri"`
+	ClientURI *string `json:"clientUri,omitempty"`
 	// OAuth 2.0 Client Contacts. Contacts is an array of strings representing ways to contact people responsible for this client, typically email addresses.
-	Contacts []string `json:"contacts"`
+	Contacts []string `json:"contacts,omitempty"`
 	// OAuth 2.0 Client Creation Date. CreatedAt returns the timestamp of the client's creation.
-	CreatedAt *time.Time `json:"createdAt"`
+	CreatedAt *time.Time `json:"createdAt,omitempty"`
 	// OpenID Connect Front-Channel Logout Session Required. Boolean value specifying whether the RP requires that iss (issuer) and sid (session ID) query parameters be included to identify the RP session with the OP when the frontchannel_logout_uri is used. If omitted, the default value is false.
-	FrontchannelLogoutSessionRequired *bool `json:"frontchannelLogoutSessionRequired"`
+	FrontchannelLogoutSessionRequired *bool `json:"frontchannelLogoutSessionRequired,omitempty"`
 	// OpenID Connect Front-Channel Logout URI. RP URL that will cause the RP to log itself out when rendered in an iframe by the OP.
-	FrontchannelLogoutURI *string  `json:"frontchannelLogoutUri"`
-	GrantTypes            []string `json:"grantTypes"`
+	FrontchannelLogoutURI *string  `json:"frontchannelLogoutUri,omitempty"`
+	GrantTypes            []string `json:"grantTypes,omitempty"`
 	// Specify a time duration in milliseconds, seconds, minutes, hours. For example, 1h, 1m, 1s, 1ms.
-	ImplicitGrantAccessTokenLifespan *string `json:"implicitGrantAccessTokenLifespan"`
+	ImplicitGrantAccessTokenLifespan *string `json:"implicitGrantAccessTokenLifespan,omitempty"`
 	// Specify a time duration in milliseconds, seconds, minutes, hours. For example, 1h, 1m, 1s, 1ms.
-	ImplicitGrantIDTokenLifespan *string `json:"implicitGrantIdTokenLifespan"`
+	ImplicitGrantIDTokenLifespan *string `json:"implicitGrantIdTokenLifespan,omitempty"`
 	// OAuth 2.0 Client JSON Web Key Set. Client's JSON Web Key Set [JWK] document, passed by value. The semantics of the jwks parameter are the same as the jwks_uri parameter, other than that the JWK Set is passed by value, rather than by reference. This parameter is intended only to be used by Clients that, for some reason, are unable to use the jwks_uri parameter, for instance, by native applications that might not have a location to host the contents of the JWK Set. If a Client can use jwks_uri, it MUST NOT use jwks. One significant downside of jwks is that it does not enable key rotation (which jwks_uri does, as described in Section 10 of OpenID Connect Core 1.0 [OpenID.Core]). The jwks_uri and jwks parameters MUST NOT be used together.
-	Jwks map[string]interface{} `json:"jwks"`
+	Jwks map[string]interface{} `json:"jwks,omitempty"`
 	// OAuth 2.0 Client JSON Web Key Set URI. Client's JSON Web Key Set [JWK] document URI, passed by reference. The semantics of the jwks_uri parameter are the same as the jwks parameter, other than that the JWK Set is passed by reference, rather than by value. The jwks_uri and jwks parameters MUST NOT be used together.
-	JwksURI *string `json:"jwksUri"`
+	JwksURI *string `json:"jwksUri,omitempty"`
 	// Specify a time duration in milliseconds, seconds, minutes, hours. For example, 1h, 1m, 1s, 1ms.
-	JwtBearerGrantAccessTokenLifespan *string `json:"jwtBearerGrantAccessTokenLifespan"`
+	JwtBearerGrantAccessTokenLifespan *string `json:"jwtBearerGrantAccessTokenLifespan,omitempty"`
 	// OAuth 2.0 Client Logo URI. A URL string referencing the client's logo.
-	LogoURI *string `json:"logoUri"`
+	LogoURI *string `json:"logoUri,omitempty"`
 	// OAuth 2.0 Client Metadata. Metadata is a map of key-value pairs that contain additional information about the client.
-	Metadata map[string]interface{} `json:"metadata"`
+	Metadata map[string]interface{} `json:"metadata,omitempty"`
 	// OAuth 2.0 Client Owner. Owner is a string identifying the owner of the OAuth 2.0 Client.
-	Owner *string `json:"owner"`
+	Owner *string `json:"owner,omitempty"`
 	// OAuth 2.0 Client Policy URI. PolicyURI is a URL string that points to a human-readable privacy policy document that describes how the deployment organization collects, uses, retains, and discloses personal data.
-	PolicyURI *string `json:"policyUri"`
+	PolicyURI *string `json:"policyUri,omitempty"`
 	// OAuth 2.0 Client Post Logout Redirect URIs. PostLogoutRedirectUris is an array of allowed URLs to which the RP is allowed to redirect the End-User's User Agent after a logout has been performed.
-	PostLogoutRedirectUris []string `json:"postLogoutRedirectUris"`
+	PostLogoutRedirectUris []string `json:"postLogoutRedirectUris,omitempty"`
 	// OAuth 2.0 Client Redirect URIs. RedirectUris is an array of allowed redirect URLs for the OAuth 2.0 Client.
-	RedirectUris []string `json:"redirectUris"`
+	RedirectUris []string `json:"redirectUris,omitempty"`
 	// OAuth 2.0 Client Response Types. ResponseTypes is an array of the OAuth 2.0 response type strings that the client can use at the Authorization Endpoint.
-	ResponseTypes []string `json:"responseTypes"`
+	ResponseTypes []string `json:"responseTypes,omitempty"`
 	// OAuth 2.0 Client Scope. Scope is a string containing a space-separated list of scope values (as described in Section 3.3 of OAuth 2.0 [RFC6749]) that the client can use when requesting access tokens.
-	Scope *string `json:"scope"`
+	Scope *string `json:"scope,omitempty"`
 	// OAuth 2.0 Client Sector Identifier URI. SectorIdentifierURI is a URL string using the https scheme referencing a file with a single JSON array of redirect_uri values.
-	SectorIdentifierURI *string `json:"sectorIdentifierUri"`
+	SectorIdentifierURI *string `json:"sectorIdentifierUri,omitempty"`
 	// OAuth 2.0 Client Subject Type. SubjectType requested for responses to this Client. The subject_types_supported Discovery parameter contains a list of the supported subject_type values for this server. Valid types include pairwise and public.
-	SubjectType *string `json:"subjectType"`
+	SubjectType *string `json:"subjectType,omitempty"`
 	// OAuth 2.0 Client Token Endpoint Auth Method. TokenEndpointAuthMethod is the requested Client Authentication method for the Token Endpoint. The token_endpoint_auth_methods_supported Discovery parameter contains a list of the authentication methods supported by this server. Valid types include client_secret_post, client_secret_basic, private_key_jwt, and none.
-	TokenEndpointAuthMethod *string `json:"tokenEndpointAuthMethod"`
+	TokenEndpointAuthMethod *string `json:"tokenEndpointAuthMethod,omitempty"`
 	// OAuth 2.0 Client Token Endpoint Auth Signing Algorithm. TokenEndpointAuthSigningAlgorithm is the requested Client Authentication signing algorithm for the Token Endpoint. The token_endpoint_auth_signing_alg_values_supported Discovery parameter contains a list of the supported signing algorithms for the token endpoint.
-	TokenEndpointAuthSigningAlgorithm *string `json:"tokenEndpointAuthSigningAlgorithm"`
+	TokenEndpointAuthSigningAlgorithm *string `json:"tokenEndpointAuthSigningAlgorithm,omitempty"`
 	// OAuth 2.0 Client Terms of Service URI. A URL string pointing to a human-readable terms of service document for the client that describes a contractual relationship between the end-user and the client that the end-user accepts when authorizing the client.
-	TosURI *string `json:"tosUri"`
+	TosURI *string `json:"tosUri,omitempty"`
 	// OAuth 2.0 Client Updated Date. UpdatedAt returns the timestamp of the client's last update.
-	UpdatedAt *time.Time `json:"updatedAt"`
+	UpdatedAt *time.Time `json:"updatedAt,omitempty"`
 	// OpenID Connect Userinfo Signed Response Algorithm. UserInfoSignedResponseAlg is a string containing the JWS signing algorithm (alg) parameter required for signing UserInfo Responses. The value none MAY be used, which indicates that the UserInfo Response will not be signed. The alg value RS256 MUST be used unless support for RS256 has been explicitly disabled. If support for RS256 has been disabled, the value none MUST be used.
-	UserinfoSignedResponseAlgorithm *string `json:"userinfoSignedResponseAlgorithm"`
+	UserinfoSignedResponseAlgorithm *string `json:"userinfoSignedResponseAlgorithm,omitempty"`
 	// The organization that owns this OAuth2 Client.
 	Organization *Organization `json:"organization"`
 	// The users and groups that are allowed to login with this OAuth2 Client.
-	LoginBindings *LoginBindings `json:"loginBindings"`
+	LoginBindings *LoginBindings `json:"loginBindings,omitempty"`
 }
 
 // OAuth2ConsentRequest represents an OAuth 2.0 consent request.
 type OAuth2ConsentRequest struct {
 	// ACR represents the Authentication AuthorizationContext Class Reference value for this authentication session. You can use it to express that, for example, a user authenticated using two factor authentication.
-	Acr *string `json:"acr"`
+	Acr *string `json:"acr,omitempty"`
 	// AMR represents the Authentication Methods References. It lists the method used to authenticate the end-user. For instance, if the end-user authenticated using password and OTP, the AMR value would be ["pwd", "otp"].
-	Amr []string `json:"amr"`
+	Amr []string `json:"amr,omitempty"`
 	// The challenge is a random string which is used to identify the consent request.
 	Challenge string `json:"challenge"`
 	// The client is the OAuth 2.0 Client requesting the OAuth 2.0 Authorization.
 	Client *OAuth2Client `json:"client"`
 	// Context contains arbitrary context that is forwarded from the login request. This is useful if you want to pass data from the login request to the consent request.
-	Context map[string]interface{} `json:"context"`
+	Context map[string]interface{} `json:"context,omitempty"`
 	// LoginChallenge is the login challenge this consent challenge belongs to. It can be used to associate a login and consent request in the login & consent app.
-	LoginChallenge *string `json:"loginChallenge"`
+	LoginChallenge *string `json:"loginChallenge,omitempty"`
 	// LoginSessionID is the login session ID. If the user-agent reuses a login session (via cookie / remember flag) this ID will remain the same. If the user-agent did not have an existing authentication session (e.g. remember is false) this will be a new random value. This value is used as the "sid" parameter in the ID Token and in OIDC Front-/Back- channel logout. It's value can generally be used to associate consecutive login requests by a certain user.
-	LoginSessionID *string `json:"loginSessionId"`
+	LoginSessionID *string `json:"loginSessionId,omitempty"`
 	// OIDCContext contains the OIDC context of the request. If the OAuth 2.0 Authorization request was not an OpenID Connect request, this value will be nil.
-	OidcContext *OidcContext `json:"oidcContext"`
+	OidcContext *OidcContext `json:"oidcContext,omitempty"`
 	// RequestURL is the original OAuth 2.0 Authorization URL requested by the OAuth 2.0 client. It is the URL which initiates the OAuth 2.0 Authorization Code or OAuth 2.0 Implicit flow. This URL is typically not needed, but might come in handy if you want to deal with additional request parameters.
-	RequestURL *string `json:"requestUrl"`
+	RequestURL *string `json:"requestUrl,omitempty"`
 	// RequestedAccessTokenAudience contains the audience (client) that the OAuth 2.0 Client requested the OAuth 2.0 Access Token to be issued for.
-	RequestedAccessTokenAudience []string `json:"requestedAccessTokenAudience"`
+	RequestedAccessTokenAudience []string `json:"requestedAccessTokenAudience,omitempty"`
 	// RequestedScope contains the OAuth 2.0 Scope requested by the OAuth 2.0 Client.
-	RequestedScope []string `json:"requestedScope"`
+	RequestedScope []string `json:"requestedScope,omitempty"`
 	// Skip is true when the client has requested the same scopes from the same user before. If this is true, you can skip asking the user to grant the requested scopes, or you can force showing the UI by setting this value to false.
-	Skip *bool `json:"skip"`
+	Skip *bool `json:"skip,omitempty"`
 	// Subject is the user ID of the end-user that authenticated. This value will be set to the "sub" claim in the ID Token.
 	Subject string `json:"subject"`
 	// The URL to redirect to if an error occurred.
-	RedirectTo *string `json:"redirectTo"`
+	RedirectTo *string `json:"redirectTo,omitempty"`
 }
 
 type OAuth2RedirectTo struct {
@@ -191,88 +191,88 @@ type ObservabilityTenant struct {
 	// The unique id of the tenant.
 	ID string `json:"id"`
 	// The display name of the tenant.
-	Name *string `json:"name"`
+	Name *string `json:"name,omitempty"`
 	// The users, groups or clients that are admins of the observability tenant and can change its permissions.
-	Admins *ObservabilityTenantPermissionBindings `json:"admins"`
+	Admins *ObservabilityTenantPermissionBindings `json:"admins,omitempty"`
 	// The users, groups or clients that can read metrics from the tenant.
-	MetricsReaders *ObservabilityTenantPermissionBindings `json:"metricsReaders"`
+	MetricsReaders *ObservabilityTenantPermissionBindings `json:"metricsReaders,omitempty"`
 	// The users, groups or clients that can write metrics to the tenant.
-	MetricsWriters *ObservabilityTenantPermissionBindings `json:"metricsWriters"`
+	MetricsWriters *ObservabilityTenantPermissionBindings `json:"metricsWriters,omitempty"`
 	// The users, groups or clients that can delete metrics from the tenant.
-	MetricsDeleters *ObservabilityTenantPermissionBindings `json:"metricsDeleters"`
+	MetricsDeleters *ObservabilityTenantPermissionBindings `json:"metricsDeleters,omitempty"`
 	// The users, groups or clients that can read metric rules from the tenant.
-	MetricsRulesReaders *ObservabilityTenantPermissionBindings `json:"metricsRulesReaders"`
+	MetricsRulesReaders *ObservabilityTenantPermissionBindings `json:"metricsRulesReaders,omitempty"`
 	// The users, groups or clients that can write metric rules to the tenant.
-	MetricsRulesWriters *ObservabilityTenantPermissionBindings `json:"metricsRulesWriters"`
+	MetricsRulesWriters *ObservabilityTenantPermissionBindings `json:"metricsRulesWriters,omitempty"`
 	// The users, groups or clients that can delete metric rules from the tenant.
-	MetricsRulesDeleters *ObservabilityTenantPermissionBindings `json:"metricsRulesDeleters"`
+	MetricsRulesDeleters *ObservabilityTenantPermissionBindings `json:"metricsRulesDeleters,omitempty"`
 	// The users, groups or clients that can view the Alertmanager UI and get the Alertmanager configuration for a tenant.
-	MetricsAlertsReaders *ObservabilityTenantPermissionBindings `json:"metricsAlertsReaders"`
+	MetricsAlertsReaders *ObservabilityTenantPermissionBindings `json:"metricsAlertsReaders,omitempty"`
 	// The users, groups or clients that can create silences in the Alertmanager UI and create and delete the Alertmanager configuration for a tenant.
-	MetricsAlertsWriters *ObservabilityTenantPermissionBindings `json:"metricsAlertsWriters"`
+	MetricsAlertsWriters *ObservabilityTenantPermissionBindings `json:"metricsAlertsWriters,omitempty"`
 	// The users, groups or clients that can read logs from the tenant.
-	LogsReaders *ObservabilityTenantPermissionBindings `json:"logsReaders"`
+	LogsReaders *ObservabilityTenantPermissionBindings `json:"logsReaders,omitempty"`
 	// The users, groups or clients that can write logs to the tenant.
-	LogsWriters *ObservabilityTenantPermissionBindings `json:"logsWriters"`
+	LogsWriters *ObservabilityTenantPermissionBindings `json:"logsWriters,omitempty"`
 	// The users, groups or clients that can delete logs from the tenant.
-	LogsDeleters *ObservabilityTenantPermissionBindings `json:"logsDeleters"`
+	LogsDeleters *ObservabilityTenantPermissionBindings `json:"logsDeleters,omitempty"`
 	// The users, groups or clients that can read log rules from the tenant.
-	LogsRulesReaders *ObservabilityTenantPermissionBindings `json:"logsRulesReaders"`
+	LogsRulesReaders *ObservabilityTenantPermissionBindings `json:"logsRulesReaders,omitempty"`
 	// The users, groups or clients that can write log rules to the tenant.
-	LogsRulesWriters *ObservabilityTenantPermissionBindings `json:"logsRulesWriters"`
+	LogsRulesWriters *ObservabilityTenantPermissionBindings `json:"logsRulesWriters,omitempty"`
 	// The users, groups or clients that can delete log rules from the tenant.
-	LogsRulesDeleters *ObservabilityTenantPermissionBindings `json:"logsRulesDeleters"`
+	LogsRulesDeleters *ObservabilityTenantPermissionBindings `json:"logsRulesDeleters,omitempty"`
 	// The users, groups or clients that can read traces from the tenant.
-	TracesReaders *ObservabilityTenantPermissionBindings `json:"tracesReaders"`
+	TracesReaders *ObservabilityTenantPermissionBindings `json:"tracesReaders,omitempty"`
 	// The users, groups or clients that can write traces to the tenant.
-	TracesWriters *ObservabilityTenantPermissionBindings `json:"tracesWriters"`
+	TracesWriters *ObservabilityTenantPermissionBindings `json:"tracesWriters,omitempty"`
 	// The limits of the tenant.
-	Limits *ObservabilityTenantLimits `json:"limits"`
+	Limits *ObservabilityTenantLimits `json:"limits,omitempty"`
 }
 
 // Representation of the limits of a tenant.
 type ObservabilityTenantLimits struct {
 	// The limits for Mimir for the tenant.
-	Mimir *v1alpha1.MimirLimits `json:"mimir"`
+	Mimir *v1alpha1.MimirLimits `json:"mimir,omitempty"`
 }
 
 // Inputs for the limits of a tenant.
 type ObservabilityTenantLimitsInput struct {
 	// The limits for Mimir for the tenant.
-	Mimir *v1alpha1.MimirLimitsInput `json:"mimir"`
+	Mimir *v1alpha1.MimirLimitsInput `json:"mimir,omitempty"`
 }
 
 // Representation of the users, groups and oauth2 clients that have a set of permissions on a tenant.
 type ObservabilityTenantPermissionBindings struct {
 	// The users that have a particular permission on a tenant.
-	Users []*User `json:"users"`
+	Users []*User `json:"users,omitempty"`
 	// The groups have a particular permission on a tenant.
-	Groups []*Group `json:"groups"`
+	Groups []*Group `json:"groups,omitempty"`
 	// The oauth2 clients  have a particular permission on a tenant.
-	Oauth2Clients []*OAuth2Client `json:"oauth2Clients"`
+	Oauth2Clients []*OAuth2Client `json:"oauth2Clients,omitempty"`
 }
 
 type ObservabilityTenantPermissionBindingsInput struct {
 	// The IDs of users that can view a tenant.
-	Users []string `json:"users"`
+	Users []string `json:"users,omitempty"`
 	// The names of groups that can view a tenant.
-	Groups []string `json:"groups"`
+	Groups []string `json:"groups,omitempty"`
 	// The clientIDs oauth2 clients that can send data a tenant.
-	Oauth2Clients []string `json:"oauth2Clients"`
+	Oauth2Clients []string `json:"oauth2Clients,omitempty"`
 }
 
 // OIDC Context for a consent request.
 type OidcContext struct {
 	// ACRValues is the Authentication AuthorizationContext Class Reference requested in the OAuth 2.0 Authorization request. It is a parameter defined by OpenID Connect and expresses which level of authentication (e.g. 2FA) is required.  OpenID Connect defines it as follows: > Requested Authentication AuthorizationContext Class Reference values. Space-separated string that specifies the acr values that the Authorization Server is being requested to use for processing this Authentication Request, with the values appearing in order of preference. The Authentication AuthorizationContext Class satisfied by the authentication performed is returned as the acr Claim Value, as specified in Section 2. The acr Claim is requested as a Voluntary Claim by this parameter.
-	AcrValues []string `json:"acrValues"`
+	AcrValues []string `json:"acrValues,omitempty"`
 	// Display is the display mode requested in the OAuth 2.0 Authorization request. It is a parameter defined by OpenID Connect and expresses how the Authorization Server displays authentication and consent user interfaces to the End-User.  OpenID Connect defines it as follows: > ASCII string value that specifies how the Authorization Server displays the authentication and consent user interface pages to the End-User. The defined values are: page: The Authorization Server SHOULD display the authentication and consent UI consistent with a full User Agent page view. If the display parameter is not specified, this is the default display mode. popup: The Authorization Server SHOULD display the authentication and consent UI consistent with a popup User Agent window. The popup User Agent window should be of an appropriate size for a login-focused dialog and should not obscure the entire window that it is popping up over. touch: The Authorization Server SHOULD display the authentication and consent UI consistent with a device that leverages a touch interface. > The display parameter is used only if the prompt parameter value is not none. If the prompt parameter value is none, the display parameter is ignored.
-	Display *string `json:"display"`
+	Display *string `json:"display,omitempty"`
 	// IDTokenHintClaims contains the claims from the ID Token hint if it was present in the OAuth 2.0 Authorization request.
-	IDTokenHintClaims map[string]interface{} `json:"idTokenHintClaims"`
+	IDTokenHintClaims map[string]interface{} `json:"idTokenHintClaims,omitempty"`
 	// LoginHint is the login hint requested in the OAuth 2.0 Authorization request. It is a parameter defined by OpenID Connect and expresses the preferred login identifier the End-User might use to log in (if necessary).  OpenID Connect defines it as follows: > Hint to the Authorization Server about the login identifier the End-User might use to log in (if necessary). > This hint can be used by an RP if it first asks the End-User for their e-mail address (or other identifier) and then wants to pass that value as a hint to the discovered authorization service. > It is RECOMMENDED that the hint value match the value used for discovery. > This value MAY also be a phone number in the format specified for the phone_number Claim. > The use of this parameter is left to the OP's discretion.
-	LoginHint *string `json:"loginHint"`
+	LoginHint *string `json:"loginHint,omitempty"`
 	// UILocales is the End-User'id preferred languages and scripts for the user interface, represented as a space-separated list of BCP47 [RFC5646] language tag values, ordered by preference. For instance, the value "fr-CA fr en" represents a preference for French as spoken in Canada, then French (without a region designation), followed by English (without a region designation). An error SHOULD NOT result if some or all of the requested locales are not supported by the OpenID Provider.
-	UILocales []string `json:"uiLocales"`
+	UILocales []string `json:"uiLocales,omitempty"`
 }
 
 // Representation an Organization in the auth stack.
@@ -280,12 +280,12 @@ type Organization struct {
 	// The unique name of the organization.
 	Name string `json:"name"`
 	// The users that are admins of the organization.
-	Admins []*User `json:"admins"`
+	Admins []*User `json:"admins,omitempty"`
 }
 
 // Representation of the limits for Tempo for a tenant.
 type TempoLimits struct {
-	RequestRate *float64 `json:"requestRate"`
+	RequestRate *float64 `json:"requestRate,omitempty"`
 }
 
 // Representation of the information about a user sourced from Kratos.
@@ -293,13 +293,13 @@ type User struct {
 	// The unique ID of the user.
 	ID string `json:"id"`
 	// The user's full name.
-	Name *Name `json:"name"`
+	Name *Name `json:"name,omitempty"`
 	// The user's email address.
 	Email string `json:"email"`
 	// The groups the user belongs to.
-	Groups []*Group `json:"groups"`
+	Groups []*Group `json:"groups,omitempty"`
 	// The organization the user belongs to.
 	Organization *Organization `json:"organization"`
 	// The link a user can use to recover their account.
-	RecoveryLink *string `json:"recoveryLink"`
+	RecoveryLink *string `json:"recoveryLink,omitempty"`
 }

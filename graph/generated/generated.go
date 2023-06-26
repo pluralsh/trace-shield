@@ -394,7 +394,7 @@ func (e *executableSchema) Schema() *ast.Schema {
 }
 
 func (e *executableSchema) Complexity(typeName, field string, childComplexity int, rawArgs map[string]interface{}) (int, bool) {
-	ec := executionContext{nil, e}
+	ec := executionContext{nil, e, 0, 0, nil}
 	_ = ec
 	switch typeName + "." + field {
 
@@ -1901,7 +1901,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 	rc := graphql.GetOperationContext(ctx)
-	ec := executionContext{rc, e}
+	ec := executionContext{rc, e, 0, 0, make(chan graphql.DeferredResult)}
 	inputUnmarshalMap := graphql.BuildUnmarshalerMap(
 		ec.unmarshalInputAcceptOAuth2ConsentRequestSession,
 		ec.unmarshalInputAdmin,
@@ -1916,20 +1916,35 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 	switch rc.Operation.Operation {
 	case ast.Query:
 		return func(ctx context.Context) *graphql.Response {
-			if !first {
-				return nil
+			var response graphql.Response
+			var data graphql.Marshaler
+			if first {
+				first = false
+				ctx = graphql.WithUnmarshalerMap(ctx, inputUnmarshalMap)
+				data = ec._queryMiddleware(ctx, rc.Operation, func(ctx context.Context) (interface{}, error) {
+					return ec._Query(ctx, rc.Operation.SelectionSet), nil
+				})
+			} else {
+				if atomic.LoadInt32(&ec.pendingDeferred) > 0 {
+					result := <-ec.deferredResults
+					atomic.AddInt32(&ec.pendingDeferred, -1)
+					data = result.Result
+					response.Path = result.Path
+					response.Label = result.Label
+					response.Errors = result.Errors
+				} else {
+					return nil
+				}
 			}
-			first = false
-			ctx = graphql.WithUnmarshalerMap(ctx, inputUnmarshalMap)
-			data := ec._queryMiddleware(ctx, rc.Operation, func(ctx context.Context) (interface{}, error) {
-				return ec._Query(ctx, rc.Operation.SelectionSet), nil
-			})
 			var buf bytes.Buffer
 			data.MarshalGQL(&buf)
-
-			return &graphql.Response{
-				Data: buf.Bytes(),
+			response.Data = buf.Bytes()
+			if atomic.LoadInt32(&ec.deferred) > 0 {
+				hasNext := atomic.LoadInt32(&ec.pendingDeferred) > 0
+				response.HasNext = &hasNext
 			}
+
+			return &response
 		}
 	case ast.Mutation:
 		return func(ctx context.Context) *graphql.Response {
@@ -1957,6 +1972,28 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 type executionContext struct {
 	*graphql.OperationContext
 	*executableSchema
+	deferred        int32
+	pendingDeferred int32
+	deferredResults chan graphql.DeferredResult
+}
+
+func (ec *executionContext) processDeferredGroup(dg graphql.DeferredGroup) {
+	atomic.AddInt32(&ec.pendingDeferred, 1)
+	go func() {
+		ctx := graphql.WithFreshResponseContext(dg.Context)
+		dg.FieldSet.Dispatch(ctx)
+		ds := graphql.DeferredResult{
+			Path:   dg.Path,
+			Label:  dg.Label,
+			Result: dg.FieldSet,
+			Errors: graphql.GetErrors(ctx),
+		}
+		// null fields should bubble up
+		if dg.FieldSet.Invalids > 0 {
+			ds.Result = graphql.Null
+		}
+		ec.deferredResults <- ds
+	}()
 }
 
 func (ec *executionContext) introspectSchema() (*introspection.Schema, error) {
@@ -7984,7 +8021,7 @@ func (ec *executionContext) fieldContext_Mutation_createUser(ctx context.Context
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_Mutation_createUser_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
-		return
+		return fc, err
 	}
 	return fc, nil
 }
@@ -8076,7 +8113,7 @@ func (ec *executionContext) fieldContext_Mutation_deleteUser(ctx context.Context
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_Mutation_deleteUser_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
-		return
+		return fc, err
 	}
 	return fc, nil
 }
@@ -8162,7 +8199,7 @@ func (ec *executionContext) fieldContext_Mutation_group(ctx context.Context, fie
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_Mutation_group_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
-		return
+		return fc, err
 	}
 	return fc, nil
 }
@@ -8248,7 +8285,7 @@ func (ec *executionContext) fieldContext_Mutation_deleteGroup(ctx context.Contex
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_Mutation_deleteGroup_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
-		return
+		return fc, err
 	}
 	return fc, nil
 }
@@ -8408,7 +8445,7 @@ func (ec *executionContext) fieldContext_Mutation_createOAuth2Client(ctx context
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_Mutation_createOAuth2Client_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
-		return
+		return fc, err
 	}
 	return fc, nil
 }
@@ -8568,7 +8605,7 @@ func (ec *executionContext) fieldContext_Mutation_updateOAuth2Client(ctx context
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_Mutation_updateOAuth2Client_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
-		return
+		return fc, err
 	}
 	return fc, nil
 }
@@ -8728,7 +8765,7 @@ func (ec *executionContext) fieldContext_Mutation_deleteOAuth2Client(ctx context
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_Mutation_deleteOAuth2Client_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
-		return
+		return fc, err
 	}
 	return fc, nil
 }
@@ -8784,7 +8821,7 @@ func (ec *executionContext) fieldContext_Mutation_acceptOAuth2ConsentRequest(ctx
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_Mutation_acceptOAuth2ConsentRequest_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
-		return
+		return fc, err
 	}
 	return fc, nil
 }
@@ -8840,7 +8877,7 @@ func (ec *executionContext) fieldContext_Mutation_rejectOAuth2ConsentRequest(ctx
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_Mutation_rejectOAuth2ConsentRequest_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
-		return
+		return fc, err
 	}
 	return fc, nil
 }
@@ -8960,7 +8997,7 @@ func (ec *executionContext) fieldContext_Mutation_createObservabilityTenant(ctx 
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_Mutation_createObservabilityTenant_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
-		return
+		return fc, err
 	}
 	return fc, nil
 }
@@ -9080,7 +9117,7 @@ func (ec *executionContext) fieldContext_Mutation_updateObservabilityTenant(ctx 
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_Mutation_updateObservabilityTenant_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
-		return
+		return fc, err
 	}
 	return fc, nil
 }
@@ -9200,7 +9237,7 @@ func (ec *executionContext) fieldContext_Mutation_deleteObservabilityTenant(ctx 
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_Mutation_deleteObservabilityTenant_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
-		return
+		return fc, err
 	}
 	return fc, nil
 }
@@ -9284,7 +9321,7 @@ func (ec *executionContext) fieldContext_Mutation_organization(ctx context.Conte
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_Mutation_organization_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
-		return
+		return fc, err
 	}
 	return fc, nil
 }
@@ -13340,7 +13377,7 @@ func (ec *executionContext) fieldContext_Query_getUser(ctx context.Context, fiel
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_Query_getUser_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
-		return
+		return fc, err
 	}
 	return fc, nil
 }
@@ -13718,7 +13755,7 @@ func (ec *executionContext) fieldContext_Query_getOAuth2Client(ctx context.Conte
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_Query_getOAuth2Client_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
-		return
+		return fc, err
 	}
 	return fc, nil
 }
@@ -13797,7 +13834,7 @@ func (ec *executionContext) fieldContext_Query_oauth2ConsentRequest(ctx context.
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_Query_oauth2ConsentRequest_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
-		return
+		return fc, err
 	}
 	return fc, nil
 }
@@ -14026,7 +14063,7 @@ func (ec *executionContext) fieldContext_Query_getObservabilityTenant(ctx contex
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_Query_getObservabilityTenant_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
-		return
+		return fc, err
 	}
 	return fc, nil
 }
@@ -14183,7 +14220,7 @@ func (ec *executionContext) fieldContext_Query_organization(ctx context.Context,
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_Query_organization_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
-		return
+		return fc, err
 	}
 	return fc, nil
 }
@@ -14254,7 +14291,7 @@ func (ec *executionContext) fieldContext_Query___type(ctx context.Context, field
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_Query___type_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
-		return
+		return fc, err
 	}
 	return fc, nil
 }
@@ -15940,7 +15977,7 @@ func (ec *executionContext) fieldContext___Type_fields(ctx context.Context, fiel
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field___Type_fields_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
-		return
+		return fc, err
 	}
 	return fc, nil
 }
@@ -16119,7 +16156,7 @@ func (ec *executionContext) fieldContext___Type_enumValues(ctx context.Context, 
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field___Type_enumValues_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
-		return
+		return fc, err
 	}
 	return fc, nil
 }
@@ -16292,18 +16329,20 @@ func (ec *executionContext) unmarshalInputAcceptOAuth2ConsentRequestSession(ctx 
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("accessToken"))
-			it.AccessToken, err = ec.unmarshalOMap2map(ctx, v)
+			data, err := ec.unmarshalOMap2map(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.AccessToken = data
 		case "idToken":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("idToken"))
-			it.IDToken, err = ec.unmarshalOMap2map(ctx, v)
+			data, err := ec.unmarshalOMap2map(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.IDToken = data
 		}
 	}
 
@@ -16328,10 +16367,11 @@ func (ec *executionContext) unmarshalInputAdmin(ctx context.Context, obj interfa
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
-			it.ID, err = ec.unmarshalNID2string(ctx, v)
+			data, err := ec.unmarshalNID2string(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.ID = data
 		}
 	}
 
@@ -16356,18 +16396,20 @@ func (ec *executionContext) unmarshalInputLoginBindingsInput(ctx context.Context
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("users"))
-			it.Users, err = ec.unmarshalOID2ᚕstringᚄ(ctx, v)
+			data, err := ec.unmarshalOID2ᚕstringᚄ(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.Users = data
 		case "groups":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("groups"))
-			it.Groups, err = ec.unmarshalOID2ᚕstringᚄ(ctx, v)
+			data, err := ec.unmarshalOID2ᚕstringᚄ(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.Groups = data
 		}
 	}
 
@@ -16392,610 +16434,686 @@ func (ec *executionContext) unmarshalInputMimirLimitsInput(ctx context.Context, 
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("requestRate"))
-			it.RequestRate, err = ec.unmarshalOFloat2ᚖfloat64(ctx, v)
+			data, err := ec.unmarshalOFloat2ᚖfloat64(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.RequestRate = data
 		case "requestBurstSize":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("requestBurstSize"))
-			it.RequestBurstSize, err = ec.unmarshalOInt2ᚖint(ctx, v)
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.RequestBurstSize = data
 		case "ingestionRate":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("ingestionRate"))
-			it.IngestionRate, err = ec.unmarshalOFloat2ᚖfloat64(ctx, v)
+			data, err := ec.unmarshalOFloat2ᚖfloat64(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.IngestionRate = data
 		case "ingestionBurstSize":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("ingestionBurstSize"))
-			it.IngestionBurstSize, err = ec.unmarshalOInt2ᚖint(ctx, v)
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.IngestionBurstSize = data
 		case "acceptHASamples":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("acceptHASamples"))
-			it.AcceptHASamples, err = ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.AcceptHASamples = data
 		case "haClusterLabel":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("haClusterLabel"))
-			it.HAClusterLabel, err = ec.unmarshalOString2ᚖstring(ctx, v)
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.HAClusterLabel = data
 		case "haReplicaLabel":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("haReplicaLabel"))
-			it.HAReplicaLabel, err = ec.unmarshalOString2ᚖstring(ctx, v)
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.HAReplicaLabel = data
 		case "haMaxClusters":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("haMaxClusters"))
-			it.HAMaxClusters, err = ec.unmarshalOInt2ᚖint(ctx, v)
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.HAMaxClusters = data
 		case "dropLabels":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("dropLabels"))
-			it.DropLabels, err = ec.unmarshalOString2ᚕᚖstring(ctx, v)
+			data, err := ec.unmarshalOString2ᚕᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.DropLabels = data
 		case "maxLabelNameLength":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("maxLabelNameLength"))
-			it.MaxLabelNameLength, err = ec.unmarshalOInt2ᚖint(ctx, v)
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.MaxLabelNameLength = data
 		case "maxLabelValueLength":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("maxLabelValueLength"))
-			it.MaxLabelValueLength, err = ec.unmarshalOInt2ᚖint(ctx, v)
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.MaxLabelValueLength = data
 		case "maxLabelNamesPerSeries":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("maxLabelNamesPerSeries"))
-			it.MaxLabelNamesPerSeries, err = ec.unmarshalOInt2ᚖint(ctx, v)
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.MaxLabelNamesPerSeries = data
 		case "maxMetadataLength":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("maxMetadataLength"))
-			it.MaxMetadataLength, err = ec.unmarshalOInt2ᚖint(ctx, v)
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.MaxMetadataLength = data
 		case "creationGracePeriod":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("creationGracePeriod"))
-			it.CreationGracePeriod, err = ec.unmarshalODuration2ᚖk8sᚗioᚋapimachineryᚋpkgᚋapisᚋmetaᚋv1ᚐDuration(ctx, v)
+			data, err := ec.unmarshalODuration2ᚖk8sᚗioᚋapimachineryᚋpkgᚋapisᚋmetaᚋv1ᚐDuration(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.CreationGracePeriod = data
 		case "enforceMetadataMetricName":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("enforceMetadataMetricName"))
-			it.EnforceMetadataMetricName, err = ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.EnforceMetadataMetricName = data
 		case "ingestionTenantShardSize":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("ingestionTenantShardSize"))
-			it.IngestionTenantShardSize, err = ec.unmarshalOInt2ᚖint(ctx, v)
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.IngestionTenantShardSize = data
 		case "maxGlobalSeriesPerUser":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("maxGlobalSeriesPerUser"))
-			it.MaxGlobalSeriesPerUser, err = ec.unmarshalOInt2ᚖint(ctx, v)
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.MaxGlobalSeriesPerUser = data
 		case "maxGlobalSeriesPerMetric":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("maxGlobalSeriesPerMetric"))
-			it.MaxGlobalSeriesPerMetric, err = ec.unmarshalOInt2ᚖint(ctx, v)
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.MaxGlobalSeriesPerMetric = data
 		case "maxGlobalMetricsWithMetadataPerUser":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("maxGlobalMetricsWithMetadataPerUser"))
-			it.MaxGlobalMetricsWithMetadataPerUser, err = ec.unmarshalOInt2ᚖint(ctx, v)
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.MaxGlobalMetricsWithMetadataPerUser = data
 		case "maxGlobalMetadataPerMetric":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("maxGlobalMetadataPerMetric"))
-			it.MaxGlobalMetadataPerMetric, err = ec.unmarshalOInt2ᚖint(ctx, v)
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.MaxGlobalMetadataPerMetric = data
 		case "maxGlobalExemplarsPerUser":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("maxGlobalExemplarsPerUser"))
-			it.MaxGlobalExemplarsPerUser, err = ec.unmarshalOInt2ᚖint(ctx, v)
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.MaxGlobalExemplarsPerUser = data
 		case "nativeHistogramsIngestionEnabled":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("nativeHistogramsIngestionEnabled"))
-			it.NativeHistogramsIngestionEnabled, err = ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.NativeHistogramsIngestionEnabled = data
 		case "outOfOrderTimeWindow":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("outOfOrderTimeWindow"))
-			it.OutOfOrderTimeWindow, err = ec.unmarshalODuration2ᚖk8sᚗioᚋapimachineryᚋpkgᚋapisᚋmetaᚋv1ᚐDuration(ctx, v)
+			data, err := ec.unmarshalODuration2ᚖk8sᚗioᚋapimachineryᚋpkgᚋapisᚋmetaᚋv1ᚐDuration(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.OutOfOrderTimeWindow = data
 		case "outOfOrderBlocksExternalLabelEnabled":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("outOfOrderBlocksExternalLabelEnabled"))
-			it.OutOfOrderBlocksExternalLabelEnabled, err = ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.OutOfOrderBlocksExternalLabelEnabled = data
 		case "separateMetricsGroupLabel":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("separateMetricsGroupLabel"))
-			it.SeparateMetricsGroupLabel, err = ec.unmarshalOString2ᚖstring(ctx, v)
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.SeparateMetricsGroupLabel = data
 		case "maxChunksPerQuery":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("maxChunksPerQuery"))
-			it.MaxChunksPerQuery, err = ec.unmarshalOInt2ᚖint(ctx, v)
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.MaxChunksPerQuery = data
 		case "maxFetchedSeriesPerQuery":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("maxFetchedSeriesPerQuery"))
-			it.MaxFetchedSeriesPerQuery, err = ec.unmarshalOInt2ᚖint(ctx, v)
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.MaxFetchedSeriesPerQuery = data
 		case "maxFetchedChunkBytesPerQuery":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("maxFetchedChunkBytesPerQuery"))
-			it.MaxFetchedChunkBytesPerQuery, err = ec.unmarshalOInt2ᚖint(ctx, v)
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.MaxFetchedChunkBytesPerQuery = data
 		case "maxQueryLookback":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("maxQueryLookback"))
-			it.MaxQueryLookback, err = ec.unmarshalODuration2ᚖk8sᚗioᚋapimachineryᚋpkgᚋapisᚋmetaᚋv1ᚐDuration(ctx, v)
+			data, err := ec.unmarshalODuration2ᚖk8sᚗioᚋapimachineryᚋpkgᚋapisᚋmetaᚋv1ᚐDuration(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.MaxQueryLookback = data
 		case "maxPartialQueryLength":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("maxPartialQueryLength"))
-			it.MaxPartialQueryLength, err = ec.unmarshalODuration2ᚖk8sᚗioᚋapimachineryᚋpkgᚋapisᚋmetaᚋv1ᚐDuration(ctx, v)
+			data, err := ec.unmarshalODuration2ᚖk8sᚗioᚋapimachineryᚋpkgᚋapisᚋmetaᚋv1ᚐDuration(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.MaxPartialQueryLength = data
 		case "maxQueryParallelism":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("maxQueryParallelism"))
-			it.MaxQueryParallelism, err = ec.unmarshalOInt2ᚖint(ctx, v)
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.MaxQueryParallelism = data
 		case "maxLabelsQueryLength":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("maxLabelsQueryLength"))
-			it.MaxLabelsQueryLength, err = ec.unmarshalODuration2ᚖk8sᚗioᚋapimachineryᚋpkgᚋapisᚋmetaᚋv1ᚐDuration(ctx, v)
+			data, err := ec.unmarshalODuration2ᚖk8sᚗioᚋapimachineryᚋpkgᚋapisᚋmetaᚋv1ᚐDuration(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.MaxLabelsQueryLength = data
 		case "maxCacheFreshness":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("maxCacheFreshness"))
-			it.MaxCacheFreshness, err = ec.unmarshalODuration2ᚖk8sᚗioᚋapimachineryᚋpkgᚋapisᚋmetaᚋv1ᚐDuration(ctx, v)
+			data, err := ec.unmarshalODuration2ᚖk8sᚗioᚋapimachineryᚋpkgᚋapisᚋmetaᚋv1ᚐDuration(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.MaxCacheFreshness = data
 		case "maxQueriersPerTenant":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("maxQueriersPerTenant"))
-			it.MaxQueriersPerTenant, err = ec.unmarshalOInt2ᚖint(ctx, v)
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.MaxQueriersPerTenant = data
 		case "queryShardingTotalShards":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("queryShardingTotalShards"))
-			it.QueryShardingTotalShards, err = ec.unmarshalOInt2ᚖint(ctx, v)
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.QueryShardingTotalShards = data
 		case "queryShardingMaxShardedQueries":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("queryShardingMaxShardedQueries"))
-			it.QueryShardingMaxShardedQueries, err = ec.unmarshalOInt2ᚖint(ctx, v)
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.QueryShardingMaxShardedQueries = data
 		case "queryShardingMaxRegexpSizeBytes":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("queryShardingMaxRegexpSizeBytes"))
-			it.QueryShardingMaxRegexpSizeBytes, err = ec.unmarshalOInt2ᚖint(ctx, v)
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.QueryShardingMaxRegexpSizeBytes = data
 		case "splitInstantQueriesByInterval":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("splitInstantQueriesByInterval"))
-			it.SplitInstantQueriesByInterval, err = ec.unmarshalODuration2ᚖk8sᚗioᚋapimachineryᚋpkgᚋapisᚋmetaᚋv1ᚐDuration(ctx, v)
+			data, err := ec.unmarshalODuration2ᚖk8sᚗioᚋapimachineryᚋpkgᚋapisᚋmetaᚋv1ᚐDuration(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.SplitInstantQueriesByInterval = data
 		case "maxTotalQueryLength":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("maxTotalQueryLength"))
-			it.MaxTotalQueryLength, err = ec.unmarshalODuration2ᚖk8sᚗioᚋapimachineryᚋpkgᚋapisᚋmetaᚋv1ᚐDuration(ctx, v)
+			data, err := ec.unmarshalODuration2ᚖk8sᚗioᚋapimachineryᚋpkgᚋapisᚋmetaᚋv1ᚐDuration(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.MaxTotalQueryLength = data
 		case "resultsCacheTTL":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("resultsCacheTTL"))
-			it.ResultsCacheTTL, err = ec.unmarshalODuration2ᚖk8sᚗioᚋapimachineryᚋpkgᚋapisᚋmetaᚋv1ᚐDuration(ctx, v)
+			data, err := ec.unmarshalODuration2ᚖk8sᚗioᚋapimachineryᚋpkgᚋapisᚋmetaᚋv1ᚐDuration(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.ResultsCacheTTL = data
 		case "resultsCacheTTLForOutOfOrderTimeWindow":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("resultsCacheTTLForOutOfOrderTimeWindow"))
-			it.ResultsCacheTTLForOutOfOrderTimeWindow, err = ec.unmarshalODuration2ᚖk8sᚗioᚋapimachineryᚋpkgᚋapisᚋmetaᚋv1ᚐDuration(ctx, v)
+			data, err := ec.unmarshalODuration2ᚖk8sᚗioᚋapimachineryᚋpkgᚋapisᚋmetaᚋv1ᚐDuration(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.ResultsCacheTTLForOutOfOrderTimeWindow = data
 		case "maxQueryExpressionSizeBytes":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("maxQueryExpressionSizeBytes"))
-			it.MaxQueryExpressionSizeBytes, err = ec.unmarshalOInt2ᚖint(ctx, v)
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.MaxQueryExpressionSizeBytes = data
 		case "cardinalityAnalysisEnabled":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("cardinalityAnalysisEnabled"))
-			it.CardinalityAnalysisEnabled, err = ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.CardinalityAnalysisEnabled = data
 		case "labelNamesAndValuesResultsMaxSizeBytes":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("labelNamesAndValuesResultsMaxSizeBytes"))
-			it.LabelNamesAndValuesResultsMaxSizeBytes, err = ec.unmarshalOInt2ᚖint(ctx, v)
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.LabelNamesAndValuesResultsMaxSizeBytes = data
 		case "labelValuesMaxCardinalityLabelNamesPerRequest":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("labelValuesMaxCardinalityLabelNamesPerRequest"))
-			it.LabelValuesMaxCardinalityLabelNamesPerRequest, err = ec.unmarshalOInt2ᚖint(ctx, v)
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.LabelValuesMaxCardinalityLabelNamesPerRequest = data
 		case "rulerEvaluationDelay":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("rulerEvaluationDelay"))
-			it.RulerEvaluationDelay, err = ec.unmarshalODuration2ᚖk8sᚗioᚋapimachineryᚋpkgᚋapisᚋmetaᚋv1ᚐDuration(ctx, v)
+			data, err := ec.unmarshalODuration2ᚖk8sᚗioᚋapimachineryᚋpkgᚋapisᚋmetaᚋv1ᚐDuration(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.RulerEvaluationDelay = data
 		case "rulerTenantShardSize":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("rulerTenantShardSize"))
-			it.RulerTenantShardSize, err = ec.unmarshalOInt2ᚖint(ctx, v)
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.RulerTenantShardSize = data
 		case "rulerMaxRulesPerRuleGroup":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("rulerMaxRulesPerRuleGroup"))
-			it.RulerMaxRulesPerRuleGroup, err = ec.unmarshalOInt2ᚖint(ctx, v)
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.RulerMaxRulesPerRuleGroup = data
 		case "rulerMaxRuleGroupsPerTenant":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("rulerMaxRuleGroupsPerTenant"))
-			it.RulerMaxRuleGroupsPerTenant, err = ec.unmarshalOInt2ᚖint(ctx, v)
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.RulerMaxRuleGroupsPerTenant = data
 		case "rulerRecordingRulesEvaluationEnabled":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("rulerRecordingRulesEvaluationEnabled"))
-			it.RulerRecordingRulesEvaluationEnabled, err = ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.RulerRecordingRulesEvaluationEnabled = data
 		case "rulerAlertingRulesEvaluationEnabled":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("rulerAlertingRulesEvaluationEnabled"))
-			it.RulerAlertingRulesEvaluationEnabled, err = ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.RulerAlertingRulesEvaluationEnabled = data
 		case "storeGatewayTenantShardSize":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("storeGatewayTenantShardSize"))
-			it.StoreGatewayTenantShardSize, err = ec.unmarshalOInt2ᚖint(ctx, v)
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.StoreGatewayTenantShardSize = data
 		case "compactorBlocksRetentionPeriod":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("compactorBlocksRetentionPeriod"))
-			it.CompactorBlocksRetentionPeriod, err = ec.unmarshalODuration2ᚖk8sᚗioᚋapimachineryᚋpkgᚋapisᚋmetaᚋv1ᚐDuration(ctx, v)
+			data, err := ec.unmarshalODuration2ᚖk8sᚗioᚋapimachineryᚋpkgᚋapisᚋmetaᚋv1ᚐDuration(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.CompactorBlocksRetentionPeriod = data
 		case "compactorSplitAndMergeShards":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("compactorSplitAndMergeShards"))
-			it.CompactorSplitAndMergeShards, err = ec.unmarshalOInt2ᚖint(ctx, v)
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.CompactorSplitAndMergeShards = data
 		case "compactorSplitGroups":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("compactorSplitGroups"))
-			it.CompactorSplitGroups, err = ec.unmarshalOInt2ᚖint(ctx, v)
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.CompactorSplitGroups = data
 		case "compactorTenantShardSize":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("compactorTenantShardSize"))
-			it.CompactorTenantShardSize, err = ec.unmarshalOInt2ᚖint(ctx, v)
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.CompactorTenantShardSize = data
 		case "compactorPartialBlockDeletionDelay":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("compactorPartialBlockDeletionDelay"))
-			it.CompactorPartialBlockDeletionDelay, err = ec.unmarshalODuration2ᚖk8sᚗioᚋapimachineryᚋpkgᚋapisᚋmetaᚋv1ᚐDuration(ctx, v)
+			data, err := ec.unmarshalODuration2ᚖk8sᚗioᚋapimachineryᚋpkgᚋapisᚋmetaᚋv1ᚐDuration(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.CompactorPartialBlockDeletionDelay = data
 		case "compactorBlockUploadEnabled":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("compactorBlockUploadEnabled"))
-			it.CompactorBlockUploadEnabled, err = ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.CompactorBlockUploadEnabled = data
 		case "compactorBlockUploadValidationEnabled":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("compactorBlockUploadValidationEnabled"))
-			it.CompactorBlockUploadValidationEnabled, err = ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.CompactorBlockUploadValidationEnabled = data
 		case "compactorBlockUploadVerifyChunks":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("compactorBlockUploadVerifyChunks"))
-			it.CompactorBlockUploadVerifyChunks, err = ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.CompactorBlockUploadVerifyChunks = data
 		case "s3SSEType":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("s3SSEType"))
-			it.S3SSEType, err = ec.unmarshalOString2ᚖstring(ctx, v)
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.S3SSEType = data
 		case "s3SSEKMSKeyID":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("s3SSEKMSKeyID"))
-			it.S3SSEKMSKeyID, err = ec.unmarshalOString2ᚖstring(ctx, v)
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.S3SSEKMSKeyID = data
 		case "s3SSEKMSEncryptionContext":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("s3SSEKMSEncryptionContext"))
-			it.S3SSEKMSEncryptionContext, err = ec.unmarshalOString2ᚖstring(ctx, v)
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.S3SSEKMSEncryptionContext = data
 		case "alertmanagerReceiversBlockCIDRNetworks":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("alertmanagerReceiversBlockCIDRNetworks"))
-			it.AlertmanagerReceiversBlockCIDRNetworks, err = ec.unmarshalOString2ᚖstring(ctx, v)
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.AlertmanagerReceiversBlockCIDRNetworks = data
 		case "alertmanagerReceiversBlockPrivateAddresses":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("alertmanagerReceiversBlockPrivateAddresses"))
-			it.AlertmanagerReceiversBlockPrivateAddresses, err = ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.AlertmanagerReceiversBlockPrivateAddresses = data
 		case "notificationRateLimit":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("notificationRateLimit"))
-			it.NotificationRateLimit, err = ec.unmarshalOFloat2ᚖfloat64(ctx, v)
+			data, err := ec.unmarshalOFloat2ᚖfloat64(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.NotificationRateLimit = data
 		case "notificationRateLimitPerIntegration":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("notificationRateLimitPerIntegration"))
-			it.NotificationRateLimitPerIntegration, err = ec.unmarshalOFloatMap2map(ctx, v)
+			data, err := ec.unmarshalOFloatMap2map(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.NotificationRateLimitPerIntegration = data
 		case "alertmanagerMaxConfigSizeBytes":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("alertmanagerMaxConfigSizeBytes"))
-			it.AlertmanagerMaxConfigSizeBytes, err = ec.unmarshalOInt2ᚖint(ctx, v)
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.AlertmanagerMaxConfigSizeBytes = data
 		case "alertmanagerMaxTemplatesCount":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("alertmanagerMaxTemplatesCount"))
-			it.AlertmanagerMaxTemplatesCount, err = ec.unmarshalOInt2ᚖint(ctx, v)
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.AlertmanagerMaxTemplatesCount = data
 		case "alertmanagerMaxTemplateSizeBytes":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("alertmanagerMaxTemplateSizeBytes"))
-			it.AlertmanagerMaxTemplateSizeBytes, err = ec.unmarshalOInt2ᚖint(ctx, v)
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.AlertmanagerMaxTemplateSizeBytes = data
 		case "alertmanagerMaxDispatcherAggregationGroups":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("alertmanagerMaxDispatcherAggregationGroups"))
-			it.AlertmanagerMaxDispatcherAggregationGroups, err = ec.unmarshalOInt2ᚖint(ctx, v)
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.AlertmanagerMaxDispatcherAggregationGroups = data
 		case "alertmanagerMaxAlertsCount":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("alertmanagerMaxAlertsCount"))
-			it.AlertmanagerMaxAlertsCount, err = ec.unmarshalOInt2ᚖint(ctx, v)
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.AlertmanagerMaxAlertsCount = data
 		case "alertmanagerMaxAlertsSizeBytes":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("alertmanagerMaxAlertsSizeBytes"))
-			it.AlertmanagerMaxAlertsSizeBytes, err = ec.unmarshalOInt2ᚖint(ctx, v)
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.AlertmanagerMaxAlertsSizeBytes = data
 		case "forwardingEndpoint":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("forwardingEndpoint"))
-			it.ForwardingEndpoint, err = ec.unmarshalOString2ᚖstring(ctx, v)
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.ForwardingEndpoint = data
 		case "forwardingDropOlderThan":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("forwardingDropOlderThan"))
-			it.ForwardingDropOlderThan, err = ec.unmarshalODuration2ᚖk8sᚗioᚋapimachineryᚋpkgᚋapisᚋmetaᚋv1ᚐDuration(ctx, v)
+			data, err := ec.unmarshalODuration2ᚖk8sᚗioᚋapimachineryᚋpkgᚋapisᚋmetaᚋv1ᚐDuration(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.ForwardingDropOlderThan = data
 		case "forwardingRules":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("forwardingRules"))
-			it.ForwardingRules, err = ec.unmarshalOForwardingRuleMap2map(ctx, v)
+			data, err := ec.unmarshalOForwardingRuleMap2map(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.ForwardingRules = data
 		}
 	}
 
@@ -17020,18 +17138,20 @@ func (ec *executionContext) unmarshalInputNameInput(ctx context.Context, obj int
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("first"))
-			it.First, err = ec.unmarshalOString2ᚖstring(ctx, v)
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.First = data
 		case "last":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("last"))
-			it.Last, err = ec.unmarshalOString2ᚖstring(ctx, v)
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.Last = data
 		}
 	}
 
@@ -17056,10 +17176,11 @@ func (ec *executionContext) unmarshalInputObservabilityTenantLimitsInput(ctx con
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("mimir"))
-			it.Mimir, err = ec.unmarshalOMimirLimitsInput2ᚖgithubᚗcomᚋpluralshᚋtraceᚑshieldᚑcontrollerᚋapiᚋobservabilityᚋv1alpha1ᚐMimirLimitsInput(ctx, v)
+			data, err := ec.unmarshalOMimirLimitsInput2ᚖgithubᚗcomᚋpluralshᚋtraceᚑshieldᚑcontrollerᚋapiᚋobservabilityᚋv1alpha1ᚐMimirLimitsInput(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.Mimir = data
 		}
 	}
 
@@ -17084,26 +17205,29 @@ func (ec *executionContext) unmarshalInputObservabilityTenantPermissionBindingsI
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("users"))
-			it.Users, err = ec.unmarshalOString2ᚕstringᚄ(ctx, v)
+			data, err := ec.unmarshalOString2ᚕstringᚄ(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.Users = data
 		case "groups":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("groups"))
-			it.Groups, err = ec.unmarshalOString2ᚕstringᚄ(ctx, v)
+			data, err := ec.unmarshalOString2ᚕstringᚄ(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.Groups = data
 		case "oauth2Clients":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("oauth2Clients"))
-			it.Oauth2Clients, err = ec.unmarshalOString2ᚕstringᚄ(ctx, v)
+			data, err := ec.unmarshalOString2ᚕstringᚄ(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.Oauth2Clients = data
 		}
 	}
 
@@ -17122,24 +17246,35 @@ var forwardingRuleImplementors = []string{"ForwardingRule"}
 
 func (ec *executionContext) _ForwardingRule(ctx context.Context, sel ast.SelectionSet, obj *v1alpha1.ForwardingRule) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, forwardingRuleImplementors)
+
 	out := graphql.NewFieldSet(fields)
-	var invalids uint32
+	deferred := make(map[string]*graphql.FieldSet)
 	for i, field := range fields {
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("ForwardingRule")
 		case "ingest":
-
 			out.Values[i] = ec._ForwardingRule_ingest(ctx, field, obj)
-
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
 	}
-	out.Dispatch()
-	if invalids > 0 {
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
 		return graphql.Null
 	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
 	return out
 }
 
@@ -17147,23 +17282,22 @@ var groupImplementors = []string{"Group"}
 
 func (ec *executionContext) _Group(ctx context.Context, sel ast.SelectionSet, obj *model.Group) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, groupImplementors)
+
 	out := graphql.NewFieldSet(fields)
-	var invalids uint32
+	deferred := make(map[string]*graphql.FieldSet)
 	for i, field := range fields {
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("Group")
 		case "name":
-
 			out.Values[i] = ec._Group_name(ctx, field, obj)
-
 			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&invalids, 1)
+				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "members":
 			field := field
 
-			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
 				defer func() {
 					if r := recover(); r != nil {
 						ec.Error(ctx, ec.Recover(ctx, r))
@@ -17173,25 +17307,51 @@ func (ec *executionContext) _Group(ctx context.Context, sel ast.SelectionSet, ob
 				return res
 			}
 
-			out.Concurrently(i, func() graphql.Marshaler {
-				return innerFunc(ctx)
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
 
-			})
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "organization":
-
 			out.Values[i] = ec._Group_organization(ctx, field, obj)
-
 			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&invalids, 1)
+				atomic.AddUint32(&out.Invalids, 1)
 			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
 	}
-	out.Dispatch()
-	if invalids > 0 {
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
 		return graphql.Null
 	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
 	return out
 }
 
@@ -17199,8 +17359,9 @@ var loginBindingsImplementors = []string{"LoginBindings"}
 
 func (ec *executionContext) _LoginBindings(ctx context.Context, sel ast.SelectionSet, obj *model.LoginBindings) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, loginBindingsImplementors)
+
 	out := graphql.NewFieldSet(fields)
-	var invalids uint32
+	deferred := make(map[string]*graphql.FieldSet)
 	for i, field := range fields {
 		switch field.Name {
 		case "__typename":
@@ -17208,7 +17369,7 @@ func (ec *executionContext) _LoginBindings(ctx context.Context, sel ast.Selectio
 		case "users":
 			field := field
 
-			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
 				defer func() {
 					if r := recover(); r != nil {
 						ec.Error(ctx, ec.Recover(ctx, r))
@@ -17218,14 +17379,30 @@ func (ec *executionContext) _LoginBindings(ctx context.Context, sel ast.Selectio
 				return res
 			}
 
-			out.Concurrently(i, func() graphql.Marshaler {
-				return innerFunc(ctx)
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
 
-			})
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "groups":
 			field := field
 
-			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
 				defer func() {
 					if r := recover(); r != nil {
 						ec.Error(ctx, ec.Recover(ctx, r))
@@ -17235,18 +17412,46 @@ func (ec *executionContext) _LoginBindings(ctx context.Context, sel ast.Selectio
 				return res
 			}
 
-			out.Concurrently(i, func() graphql.Marshaler {
-				return innerFunc(ctx)
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
 
-			})
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
 	}
-	out.Dispatch()
-	if invalids > 0 {
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
 		return graphql.Null
 	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
 	return out
 }
 
@@ -17254,24 +17459,35 @@ var lokiLimitsImplementors = []string{"LokiLimits"}
 
 func (ec *executionContext) _LokiLimits(ctx context.Context, sel ast.SelectionSet, obj *model.LokiLimits) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, lokiLimitsImplementors)
+
 	out := graphql.NewFieldSet(fields)
-	var invalids uint32
+	deferred := make(map[string]*graphql.FieldSet)
 	for i, field := range fields {
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("LokiLimits")
 		case "requestRate":
-
 			out.Values[i] = ec._LokiLimits_requestRate(ctx, field, obj)
-
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
 	}
-	out.Dispatch()
-	if invalids > 0 {
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
 		return graphql.Null
 	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
 	return out
 }
 
@@ -17279,324 +17495,185 @@ var mimirLimitsImplementors = []string{"MimirLimits"}
 
 func (ec *executionContext) _MimirLimits(ctx context.Context, sel ast.SelectionSet, obj *v1alpha1.MimirLimits) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, mimirLimitsImplementors)
+
 	out := graphql.NewFieldSet(fields)
-	var invalids uint32
+	deferred := make(map[string]*graphql.FieldSet)
 	for i, field := range fields {
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("MimirLimits")
 		case "requestRate":
-
 			out.Values[i] = ec._MimirLimits_requestRate(ctx, field, obj)
-
 		case "requestBurstSize":
-
 			out.Values[i] = ec._MimirLimits_requestBurstSize(ctx, field, obj)
-
 		case "ingestionRate":
-
 			out.Values[i] = ec._MimirLimits_ingestionRate(ctx, field, obj)
-
 		case "ingestionBurstSize":
-
 			out.Values[i] = ec._MimirLimits_ingestionBurstSize(ctx, field, obj)
-
 		case "acceptHASamples":
-
 			out.Values[i] = ec._MimirLimits_acceptHASamples(ctx, field, obj)
-
 		case "haClusterLabel":
-
 			out.Values[i] = ec._MimirLimits_haClusterLabel(ctx, field, obj)
-
 		case "haReplicaLabel":
-
 			out.Values[i] = ec._MimirLimits_haReplicaLabel(ctx, field, obj)
-
 		case "haMaxClusters":
-
 			out.Values[i] = ec._MimirLimits_haMaxClusters(ctx, field, obj)
-
 		case "dropLabels":
-
 			out.Values[i] = ec._MimirLimits_dropLabels(ctx, field, obj)
-
 		case "maxLabelNameLength":
-
 			out.Values[i] = ec._MimirLimits_maxLabelNameLength(ctx, field, obj)
-
 		case "maxLabelValueLength":
-
 			out.Values[i] = ec._MimirLimits_maxLabelValueLength(ctx, field, obj)
-
 		case "maxLabelNamesPerSeries":
-
 			out.Values[i] = ec._MimirLimits_maxLabelNamesPerSeries(ctx, field, obj)
-
 		case "maxMetadataLength":
-
 			out.Values[i] = ec._MimirLimits_maxMetadataLength(ctx, field, obj)
-
 		case "creationGracePeriod":
-
 			out.Values[i] = ec._MimirLimits_creationGracePeriod(ctx, field, obj)
-
 		case "enforceMetadataMetricName":
-
 			out.Values[i] = ec._MimirLimits_enforceMetadataMetricName(ctx, field, obj)
-
 		case "ingestionTenantShardSize":
-
 			out.Values[i] = ec._MimirLimits_ingestionTenantShardSize(ctx, field, obj)
-
 		case "maxGlobalSeriesPerUser":
-
 			out.Values[i] = ec._MimirLimits_maxGlobalSeriesPerUser(ctx, field, obj)
-
 		case "maxGlobalSeriesPerMetric":
-
 			out.Values[i] = ec._MimirLimits_maxGlobalSeriesPerMetric(ctx, field, obj)
-
 		case "maxGlobalMetricsWithMetadataPerUser":
-
 			out.Values[i] = ec._MimirLimits_maxGlobalMetricsWithMetadataPerUser(ctx, field, obj)
-
 		case "maxGlobalMetadataPerMetric":
-
 			out.Values[i] = ec._MimirLimits_maxGlobalMetadataPerMetric(ctx, field, obj)
-
 		case "maxGlobalExemplarsPerUser":
-
 			out.Values[i] = ec._MimirLimits_maxGlobalExemplarsPerUser(ctx, field, obj)
-
 		case "nativeHistogramsIngestionEnabled":
-
 			out.Values[i] = ec._MimirLimits_nativeHistogramsIngestionEnabled(ctx, field, obj)
-
 		case "outOfOrderTimeWindow":
-
 			out.Values[i] = ec._MimirLimits_outOfOrderTimeWindow(ctx, field, obj)
-
 		case "outOfOrderBlocksExternalLabelEnabled":
-
 			out.Values[i] = ec._MimirLimits_outOfOrderBlocksExternalLabelEnabled(ctx, field, obj)
-
 		case "separateMetricsGroupLabel":
-
 			out.Values[i] = ec._MimirLimits_separateMetricsGroupLabel(ctx, field, obj)
-
 		case "maxChunksPerQuery":
-
 			out.Values[i] = ec._MimirLimits_maxChunksPerQuery(ctx, field, obj)
-
 		case "maxFetchedSeriesPerQuery":
-
 			out.Values[i] = ec._MimirLimits_maxFetchedSeriesPerQuery(ctx, field, obj)
-
 		case "maxFetchedChunkBytesPerQuery":
-
 			out.Values[i] = ec._MimirLimits_maxFetchedChunkBytesPerQuery(ctx, field, obj)
-
 		case "maxQueryLookback":
-
 			out.Values[i] = ec._MimirLimits_maxQueryLookback(ctx, field, obj)
-
 		case "maxPartialQueryLength":
-
 			out.Values[i] = ec._MimirLimits_maxPartialQueryLength(ctx, field, obj)
-
 		case "maxQueryParallelism":
-
 			out.Values[i] = ec._MimirLimits_maxQueryParallelism(ctx, field, obj)
-
 		case "maxLabelsQueryLength":
-
 			out.Values[i] = ec._MimirLimits_maxLabelsQueryLength(ctx, field, obj)
-
 		case "maxCacheFreshness":
-
 			out.Values[i] = ec._MimirLimits_maxCacheFreshness(ctx, field, obj)
-
 		case "maxQueriersPerTenant":
-
 			out.Values[i] = ec._MimirLimits_maxQueriersPerTenant(ctx, field, obj)
-
 		case "queryShardingTotalShards":
-
 			out.Values[i] = ec._MimirLimits_queryShardingTotalShards(ctx, field, obj)
-
 		case "queryShardingMaxShardedQueries":
-
 			out.Values[i] = ec._MimirLimits_queryShardingMaxShardedQueries(ctx, field, obj)
-
 		case "queryShardingMaxRegexpSizeBytes":
-
 			out.Values[i] = ec._MimirLimits_queryShardingMaxRegexpSizeBytes(ctx, field, obj)
-
 		case "splitInstantQueriesByInterval":
-
 			out.Values[i] = ec._MimirLimits_splitInstantQueriesByInterval(ctx, field, obj)
-
 		case "maxTotalQueryLength":
-
 			out.Values[i] = ec._MimirLimits_maxTotalQueryLength(ctx, field, obj)
-
 		case "resultsCacheTTL":
-
 			out.Values[i] = ec._MimirLimits_resultsCacheTTL(ctx, field, obj)
-
 		case "resultsCacheTTLForOutOfOrderTimeWindow":
-
 			out.Values[i] = ec._MimirLimits_resultsCacheTTLForOutOfOrderTimeWindow(ctx, field, obj)
-
 		case "maxQueryExpressionSizeBytes":
-
 			out.Values[i] = ec._MimirLimits_maxQueryExpressionSizeBytes(ctx, field, obj)
-
 		case "cardinalityAnalysisEnabled":
-
 			out.Values[i] = ec._MimirLimits_cardinalityAnalysisEnabled(ctx, field, obj)
-
 		case "labelNamesAndValuesResultsMaxSizeBytes":
-
 			out.Values[i] = ec._MimirLimits_labelNamesAndValuesResultsMaxSizeBytes(ctx, field, obj)
-
 		case "labelValuesMaxCardinalityLabelNamesPerRequest":
-
 			out.Values[i] = ec._MimirLimits_labelValuesMaxCardinalityLabelNamesPerRequest(ctx, field, obj)
-
 		case "rulerEvaluationDelay":
-
 			out.Values[i] = ec._MimirLimits_rulerEvaluationDelay(ctx, field, obj)
-
 		case "rulerTenantShardSize":
-
 			out.Values[i] = ec._MimirLimits_rulerTenantShardSize(ctx, field, obj)
-
 		case "rulerMaxRulesPerRuleGroup":
-
 			out.Values[i] = ec._MimirLimits_rulerMaxRulesPerRuleGroup(ctx, field, obj)
-
 		case "rulerMaxRuleGroupsPerTenant":
-
 			out.Values[i] = ec._MimirLimits_rulerMaxRuleGroupsPerTenant(ctx, field, obj)
-
 		case "rulerRecordingRulesEvaluationEnabled":
-
 			out.Values[i] = ec._MimirLimits_rulerRecordingRulesEvaluationEnabled(ctx, field, obj)
-
 		case "rulerAlertingRulesEvaluationEnabled":
-
 			out.Values[i] = ec._MimirLimits_rulerAlertingRulesEvaluationEnabled(ctx, field, obj)
-
 		case "storeGatewayTenantShardSize":
-
 			out.Values[i] = ec._MimirLimits_storeGatewayTenantShardSize(ctx, field, obj)
-
 		case "compactorBlocksRetentionPeriod":
-
 			out.Values[i] = ec._MimirLimits_compactorBlocksRetentionPeriod(ctx, field, obj)
-
 		case "compactorSplitAndMergeShards":
-
 			out.Values[i] = ec._MimirLimits_compactorSplitAndMergeShards(ctx, field, obj)
-
 		case "compactorSplitGroups":
-
 			out.Values[i] = ec._MimirLimits_compactorSplitGroups(ctx, field, obj)
-
 		case "compactorTenantShardSize":
-
 			out.Values[i] = ec._MimirLimits_compactorTenantShardSize(ctx, field, obj)
-
 		case "compactorPartialBlockDeletionDelay":
-
 			out.Values[i] = ec._MimirLimits_compactorPartialBlockDeletionDelay(ctx, field, obj)
-
 		case "compactorBlockUploadEnabled":
-
 			out.Values[i] = ec._MimirLimits_compactorBlockUploadEnabled(ctx, field, obj)
-
 		case "compactorBlockUploadValidationEnabled":
-
 			out.Values[i] = ec._MimirLimits_compactorBlockUploadValidationEnabled(ctx, field, obj)
-
 		case "compactorBlockUploadVerifyChunks":
-
 			out.Values[i] = ec._MimirLimits_compactorBlockUploadVerifyChunks(ctx, field, obj)
-
 		case "s3SSEType":
-
 			out.Values[i] = ec._MimirLimits_s3SSEType(ctx, field, obj)
-
 		case "s3SSEKMSKeyID":
-
 			out.Values[i] = ec._MimirLimits_s3SSEKMSKeyID(ctx, field, obj)
-
 		case "s3SSEKMSEncryptionContext":
-
 			out.Values[i] = ec._MimirLimits_s3SSEKMSEncryptionContext(ctx, field, obj)
-
 		case "alertmanagerReceiversBlockCIDRNetworks":
-
 			out.Values[i] = ec._MimirLimits_alertmanagerReceiversBlockCIDRNetworks(ctx, field, obj)
-
 		case "alertmanagerReceiversBlockPrivateAddresses":
-
 			out.Values[i] = ec._MimirLimits_alertmanagerReceiversBlockPrivateAddresses(ctx, field, obj)
-
 		case "notificationRateLimit":
-
 			out.Values[i] = ec._MimirLimits_notificationRateLimit(ctx, field, obj)
-
 		case "notificationRateLimitPerIntegration":
-
 			out.Values[i] = ec._MimirLimits_notificationRateLimitPerIntegration(ctx, field, obj)
-
 		case "alertmanagerMaxConfigSizeBytes":
-
 			out.Values[i] = ec._MimirLimits_alertmanagerMaxConfigSizeBytes(ctx, field, obj)
-
 		case "alertmanagerMaxTemplatesCount":
-
 			out.Values[i] = ec._MimirLimits_alertmanagerMaxTemplatesCount(ctx, field, obj)
-
 		case "alertmanagerMaxTemplateSizeBytes":
-
 			out.Values[i] = ec._MimirLimits_alertmanagerMaxTemplateSizeBytes(ctx, field, obj)
-
 		case "alertmanagerMaxDispatcherAggregationGroups":
-
 			out.Values[i] = ec._MimirLimits_alertmanagerMaxDispatcherAggregationGroups(ctx, field, obj)
-
 		case "alertmanagerMaxAlertsCount":
-
 			out.Values[i] = ec._MimirLimits_alertmanagerMaxAlertsCount(ctx, field, obj)
-
 		case "alertmanagerMaxAlertsSizeBytes":
-
 			out.Values[i] = ec._MimirLimits_alertmanagerMaxAlertsSizeBytes(ctx, field, obj)
-
 		case "forwardingEndpoint":
-
 			out.Values[i] = ec._MimirLimits_forwardingEndpoint(ctx, field, obj)
-
 		case "forwardingDropOlderThan":
-
 			out.Values[i] = ec._MimirLimits_forwardingDropOlderThan(ctx, field, obj)
-
 		case "forwardingRules":
-
 			out.Values[i] = ec._MimirLimits_forwardingRules(ctx, field, obj)
-
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
 	}
-	out.Dispatch()
-	if invalids > 0 {
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
 		return graphql.Null
 	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
 	return out
 }
 
@@ -17609,6 +17686,7 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 	})
 
 	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
 	for i, field := range fields {
 		innerCtx := graphql.WithRootFieldContext(ctx, &graphql.RootFieldContext{
 			Object: field.Name,
@@ -17619,88 +17697,116 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("Mutation")
 		case "createUser":
-
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_createUser(ctx, field)
 			})
-
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		case "deleteUser":
-
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_deleteUser(ctx, field)
 			})
-
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		case "group":
-
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_group(ctx, field)
 			})
-
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		case "deleteGroup":
-
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_deleteGroup(ctx, field)
 			})
-
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		case "createOAuth2Client":
-
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_createOAuth2Client(ctx, field)
 			})
-
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		case "updateOAuth2Client":
-
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_updateOAuth2Client(ctx, field)
 			})
-
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		case "deleteOAuth2Client":
-
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_deleteOAuth2Client(ctx, field)
 			})
-
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		case "acceptOAuth2ConsentRequest":
-
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_acceptOAuth2ConsentRequest(ctx, field)
 			})
-
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		case "rejectOAuth2ConsentRequest":
-
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_rejectOAuth2ConsentRequest(ctx, field)
 			})
-
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		case "createObservabilityTenant":
-
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_createObservabilityTenant(ctx, field)
 			})
-
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		case "updateObservabilityTenant":
-
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_updateObservabilityTenant(ctx, field)
 			})
-
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		case "deleteObservabilityTenant":
-
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_deleteObservabilityTenant(ctx, field)
 			})
-
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		case "organization":
-
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_organization(ctx, field)
 			})
-
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
 	}
-	out.Dispatch()
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
 	return out
 }
 
@@ -17708,28 +17814,37 @@ var nameImplementors = []string{"Name"}
 
 func (ec *executionContext) _Name(ctx context.Context, sel ast.SelectionSet, obj *model.Name) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, nameImplementors)
+
 	out := graphql.NewFieldSet(fields)
-	var invalids uint32
+	deferred := make(map[string]*graphql.FieldSet)
 	for i, field := range fields {
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("Name")
 		case "first":
-
 			out.Values[i] = ec._Name_first(ctx, field, obj)
-
 		case "last":
-
 			out.Values[i] = ec._Name_last(ctx, field, obj)
-
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
 	}
-	out.Dispatch()
-	if invalids > 0 {
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
 		return graphql.Null
 	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
 	return out
 }
 
@@ -17737,116 +17852,67 @@ var oAuth2ClientImplementors = []string{"OAuth2Client"}
 
 func (ec *executionContext) _OAuth2Client(ctx context.Context, sel ast.SelectionSet, obj *model.OAuth2Client) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, oAuth2ClientImplementors)
+
 	out := graphql.NewFieldSet(fields)
-	var invalids uint32
+	deferred := make(map[string]*graphql.FieldSet)
 	for i, field := range fields {
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("OAuth2Client")
 		case "allowedCorsOrigins":
-
 			out.Values[i] = ec._OAuth2Client_allowedCorsOrigins(ctx, field, obj)
-
 		case "audience":
-
 			out.Values[i] = ec._OAuth2Client_audience(ctx, field, obj)
-
 		case "authorizationCodeGrantAccessTokenLifespan":
-
 			out.Values[i] = ec._OAuth2Client_authorizationCodeGrantAccessTokenLifespan(ctx, field, obj)
-
 		case "authorizationCodeGrantIdTokenLifespan":
-
 			out.Values[i] = ec._OAuth2Client_authorizationCodeGrantIdTokenLifespan(ctx, field, obj)
-
 		case "authorizationCodeGrantRefreshTokenLifespan":
-
 			out.Values[i] = ec._OAuth2Client_authorizationCodeGrantRefreshTokenLifespan(ctx, field, obj)
-
 		case "backChannelLogoutSessionRequired":
-
 			out.Values[i] = ec._OAuth2Client_backChannelLogoutSessionRequired(ctx, field, obj)
-
 		case "backChannelLogoutUri":
-
 			out.Values[i] = ec._OAuth2Client_backChannelLogoutUri(ctx, field, obj)
-
 		case "clientCredentialsGrantAccessTokenLifespan":
-
 			out.Values[i] = ec._OAuth2Client_clientCredentialsGrantAccessTokenLifespan(ctx, field, obj)
-
 		case "clientId":
-
 			out.Values[i] = ec._OAuth2Client_clientId(ctx, field, obj)
-
 		case "clientName":
-
 			out.Values[i] = ec._OAuth2Client_clientName(ctx, field, obj)
-
 		case "clientSecret":
-
 			out.Values[i] = ec._OAuth2Client_clientSecret(ctx, field, obj)
-
 		case "ClientSecretExpiresAt":
-
 			out.Values[i] = ec._OAuth2Client_ClientSecretExpiresAt(ctx, field, obj)
-
 		case "clientUri":
-
 			out.Values[i] = ec._OAuth2Client_clientUri(ctx, field, obj)
-
 		case "contacts":
-
 			out.Values[i] = ec._OAuth2Client_contacts(ctx, field, obj)
-
 		case "createdAt":
-
 			out.Values[i] = ec._OAuth2Client_createdAt(ctx, field, obj)
-
 		case "frontchannelLogoutSessionRequired":
-
 			out.Values[i] = ec._OAuth2Client_frontchannelLogoutSessionRequired(ctx, field, obj)
-
 		case "frontchannelLogoutUri":
-
 			out.Values[i] = ec._OAuth2Client_frontchannelLogoutUri(ctx, field, obj)
-
 		case "grantTypes":
-
 			out.Values[i] = ec._OAuth2Client_grantTypes(ctx, field, obj)
-
 		case "implicitGrantAccessTokenLifespan":
-
 			out.Values[i] = ec._OAuth2Client_implicitGrantAccessTokenLifespan(ctx, field, obj)
-
 		case "implicitGrantIdTokenLifespan":
-
 			out.Values[i] = ec._OAuth2Client_implicitGrantIdTokenLifespan(ctx, field, obj)
-
 		case "jwks":
-
 			out.Values[i] = ec._OAuth2Client_jwks(ctx, field, obj)
-
 		case "jwksUri":
-
 			out.Values[i] = ec._OAuth2Client_jwksUri(ctx, field, obj)
-
 		case "jwtBearerGrantAccessTokenLifespan":
-
 			out.Values[i] = ec._OAuth2Client_jwtBearerGrantAccessTokenLifespan(ctx, field, obj)
-
 		case "logoUri":
-
 			out.Values[i] = ec._OAuth2Client_logoUri(ctx, field, obj)
-
 		case "metadata":
-
 			out.Values[i] = ec._OAuth2Client_metadata(ctx, field, obj)
-
 		case "owner":
 			field := field
 
-			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
 				defer func() {
 					if r := recover(); r != nil {
 						ec.Error(ctx, ec.Recover(ctx, r))
@@ -17856,69 +17922,59 @@ func (ec *executionContext) _OAuth2Client(ctx context.Context, sel ast.Selection
 				return res
 			}
 
-			out.Concurrently(i, func() graphql.Marshaler {
-				return innerFunc(ctx)
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
 
-			})
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "policyUri":
-
 			out.Values[i] = ec._OAuth2Client_policyUri(ctx, field, obj)
-
 		case "postLogoutRedirectUris":
-
 			out.Values[i] = ec._OAuth2Client_postLogoutRedirectUris(ctx, field, obj)
-
 		case "redirectUris":
-
 			out.Values[i] = ec._OAuth2Client_redirectUris(ctx, field, obj)
-
 		case "responseTypes":
-
 			out.Values[i] = ec._OAuth2Client_responseTypes(ctx, field, obj)
-
 		case "scope":
-
 			out.Values[i] = ec._OAuth2Client_scope(ctx, field, obj)
-
 		case "sectorIdentifierUri":
-
 			out.Values[i] = ec._OAuth2Client_sectorIdentifierUri(ctx, field, obj)
-
 		case "subjectType":
-
 			out.Values[i] = ec._OAuth2Client_subjectType(ctx, field, obj)
-
 		case "tokenEndpointAuthMethod":
-
 			out.Values[i] = ec._OAuth2Client_tokenEndpointAuthMethod(ctx, field, obj)
-
 		case "tokenEndpointAuthSigningAlgorithm":
-
 			out.Values[i] = ec._OAuth2Client_tokenEndpointAuthSigningAlgorithm(ctx, field, obj)
-
 		case "tosUri":
-
 			out.Values[i] = ec._OAuth2Client_tosUri(ctx, field, obj)
-
 		case "updatedAt":
-
 			out.Values[i] = ec._OAuth2Client_updatedAt(ctx, field, obj)
-
 		case "userinfoSignedResponseAlgorithm":
-
 			out.Values[i] = ec._OAuth2Client_userinfoSignedResponseAlgorithm(ctx, field, obj)
-
 		case "organization":
-
 			out.Values[i] = ec._OAuth2Client_organization(ctx, field, obj)
-
 			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&invalids, 1)
+				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "loginBindings":
 			field := field
 
-			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
 				defer func() {
 					if r := recover(); r != nil {
 						ec.Error(ctx, ec.Recover(ctx, r))
@@ -17928,18 +17984,46 @@ func (ec *executionContext) _OAuth2Client(ctx context.Context, sel ast.Selection
 				return res
 			}
 
-			out.Concurrently(i, func() graphql.Marshaler {
-				return innerFunc(ctx)
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
 
-			})
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
 	}
-	out.Dispatch()
-	if invalids > 0 {
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
 		return graphql.Null
 	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
 	return out
 }
 
@@ -17947,85 +18031,70 @@ var oAuth2ConsentRequestImplementors = []string{"OAuth2ConsentRequest"}
 
 func (ec *executionContext) _OAuth2ConsentRequest(ctx context.Context, sel ast.SelectionSet, obj *model.OAuth2ConsentRequest) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, oAuth2ConsentRequestImplementors)
+
 	out := graphql.NewFieldSet(fields)
-	var invalids uint32
+	deferred := make(map[string]*graphql.FieldSet)
 	for i, field := range fields {
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("OAuth2ConsentRequest")
 		case "acr":
-
 			out.Values[i] = ec._OAuth2ConsentRequest_acr(ctx, field, obj)
-
 		case "amr":
-
 			out.Values[i] = ec._OAuth2ConsentRequest_amr(ctx, field, obj)
-
 		case "challenge":
-
 			out.Values[i] = ec._OAuth2ConsentRequest_challenge(ctx, field, obj)
-
 			if out.Values[i] == graphql.Null {
-				invalids++
+				out.Invalids++
 			}
 		case "client":
-
 			out.Values[i] = ec._OAuth2ConsentRequest_client(ctx, field, obj)
-
 			if out.Values[i] == graphql.Null {
-				invalids++
+				out.Invalids++
 			}
 		case "context":
-
 			out.Values[i] = ec._OAuth2ConsentRequest_context(ctx, field, obj)
-
 		case "loginChallenge":
-
 			out.Values[i] = ec._OAuth2ConsentRequest_loginChallenge(ctx, field, obj)
-
 		case "loginSessionId":
-
 			out.Values[i] = ec._OAuth2ConsentRequest_loginSessionId(ctx, field, obj)
-
 		case "oidcContext":
-
 			out.Values[i] = ec._OAuth2ConsentRequest_oidcContext(ctx, field, obj)
-
 		case "requestUrl":
-
 			out.Values[i] = ec._OAuth2ConsentRequest_requestUrl(ctx, field, obj)
-
 		case "requestedAccessTokenAudience":
-
 			out.Values[i] = ec._OAuth2ConsentRequest_requestedAccessTokenAudience(ctx, field, obj)
-
 		case "requestedScope":
-
 			out.Values[i] = ec._OAuth2ConsentRequest_requestedScope(ctx, field, obj)
-
 		case "skip":
-
 			out.Values[i] = ec._OAuth2ConsentRequest_skip(ctx, field, obj)
-
 		case "subject":
-
 			out.Values[i] = ec._OAuth2ConsentRequest_subject(ctx, field, obj)
-
 			if out.Values[i] == graphql.Null {
-				invalids++
+				out.Invalids++
 			}
 		case "redirectTo":
-
 			out.Values[i] = ec._OAuth2ConsentRequest_redirectTo(ctx, field, obj)
-
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
 	}
-	out.Dispatch()
-	if invalids > 0 {
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
 		return graphql.Null
 	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
 	return out
 }
 
@@ -18033,27 +18102,38 @@ var oAuth2RedirectToImplementors = []string{"OAuth2RedirectTo"}
 
 func (ec *executionContext) _OAuth2RedirectTo(ctx context.Context, sel ast.SelectionSet, obj *model.OAuth2RedirectTo) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, oAuth2RedirectToImplementors)
+
 	out := graphql.NewFieldSet(fields)
-	var invalids uint32
+	deferred := make(map[string]*graphql.FieldSet)
 	for i, field := range fields {
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("OAuth2RedirectTo")
 		case "redirectTo":
-
 			out.Values[i] = ec._OAuth2RedirectTo_redirectTo(ctx, field, obj)
-
 			if out.Values[i] == graphql.Null {
-				invalids++
+				out.Invalids++
 			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
 	}
-	out.Dispatch()
-	if invalids > 0 {
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
 		return graphql.Null
 	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
 	return out
 }
 
@@ -18061,27 +18141,24 @@ var observabilityTenantImplementors = []string{"ObservabilityTenant"}
 
 func (ec *executionContext) _ObservabilityTenant(ctx context.Context, sel ast.SelectionSet, obj *model.ObservabilityTenant) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, observabilityTenantImplementors)
+
 	out := graphql.NewFieldSet(fields)
-	var invalids uint32
+	deferred := make(map[string]*graphql.FieldSet)
 	for i, field := range fields {
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("ObservabilityTenant")
 		case "id":
-
 			out.Values[i] = ec._ObservabilityTenant_id(ctx, field, obj)
-
 			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&invalids, 1)
+				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "name":
-
 			out.Values[i] = ec._ObservabilityTenant_name(ctx, field, obj)
-
 		case "admins":
 			field := field
 
-			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
 				defer func() {
 					if r := recover(); r != nil {
 						ec.Error(ctx, ec.Recover(ctx, r))
@@ -18091,14 +18168,30 @@ func (ec *executionContext) _ObservabilityTenant(ctx context.Context, sel ast.Se
 				return res
 			}
 
-			out.Concurrently(i, func() graphql.Marshaler {
-				return innerFunc(ctx)
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
 
-			})
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "metricsReaders":
 			field := field
 
-			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
 				defer func() {
 					if r := recover(); r != nil {
 						ec.Error(ctx, ec.Recover(ctx, r))
@@ -18108,14 +18201,30 @@ func (ec *executionContext) _ObservabilityTenant(ctx context.Context, sel ast.Se
 				return res
 			}
 
-			out.Concurrently(i, func() graphql.Marshaler {
-				return innerFunc(ctx)
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
 
-			})
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "metricsWriters":
 			field := field
 
-			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
 				defer func() {
 					if r := recover(); r != nil {
 						ec.Error(ctx, ec.Recover(ctx, r))
@@ -18125,14 +18234,30 @@ func (ec *executionContext) _ObservabilityTenant(ctx context.Context, sel ast.Se
 				return res
 			}
 
-			out.Concurrently(i, func() graphql.Marshaler {
-				return innerFunc(ctx)
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
 
-			})
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "metricsDeleters":
 			field := field
 
-			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
 				defer func() {
 					if r := recover(); r != nil {
 						ec.Error(ctx, ec.Recover(ctx, r))
@@ -18142,14 +18267,30 @@ func (ec *executionContext) _ObservabilityTenant(ctx context.Context, sel ast.Se
 				return res
 			}
 
-			out.Concurrently(i, func() graphql.Marshaler {
-				return innerFunc(ctx)
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
 
-			})
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "metricsRulesReaders":
 			field := field
 
-			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
 				defer func() {
 					if r := recover(); r != nil {
 						ec.Error(ctx, ec.Recover(ctx, r))
@@ -18159,14 +18300,30 @@ func (ec *executionContext) _ObservabilityTenant(ctx context.Context, sel ast.Se
 				return res
 			}
 
-			out.Concurrently(i, func() graphql.Marshaler {
-				return innerFunc(ctx)
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
 
-			})
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "metricsRulesWriters":
 			field := field
 
-			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
 				defer func() {
 					if r := recover(); r != nil {
 						ec.Error(ctx, ec.Recover(ctx, r))
@@ -18176,14 +18333,30 @@ func (ec *executionContext) _ObservabilityTenant(ctx context.Context, sel ast.Se
 				return res
 			}
 
-			out.Concurrently(i, func() graphql.Marshaler {
-				return innerFunc(ctx)
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
 
-			})
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "metricsRulesDeleters":
 			field := field
 
-			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
 				defer func() {
 					if r := recover(); r != nil {
 						ec.Error(ctx, ec.Recover(ctx, r))
@@ -18193,14 +18366,30 @@ func (ec *executionContext) _ObservabilityTenant(ctx context.Context, sel ast.Se
 				return res
 			}
 
-			out.Concurrently(i, func() graphql.Marshaler {
-				return innerFunc(ctx)
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
 
-			})
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "metricsAlertsReaders":
 			field := field
 
-			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
 				defer func() {
 					if r := recover(); r != nil {
 						ec.Error(ctx, ec.Recover(ctx, r))
@@ -18210,14 +18399,30 @@ func (ec *executionContext) _ObservabilityTenant(ctx context.Context, sel ast.Se
 				return res
 			}
 
-			out.Concurrently(i, func() graphql.Marshaler {
-				return innerFunc(ctx)
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
 
-			})
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "metricsAlertsWriters":
 			field := field
 
-			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
 				defer func() {
 					if r := recover(); r != nil {
 						ec.Error(ctx, ec.Recover(ctx, r))
@@ -18227,14 +18432,30 @@ func (ec *executionContext) _ObservabilityTenant(ctx context.Context, sel ast.Se
 				return res
 			}
 
-			out.Concurrently(i, func() graphql.Marshaler {
-				return innerFunc(ctx)
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
 
-			})
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "logsReaders":
 			field := field
 
-			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
 				defer func() {
 					if r := recover(); r != nil {
 						ec.Error(ctx, ec.Recover(ctx, r))
@@ -18244,14 +18465,30 @@ func (ec *executionContext) _ObservabilityTenant(ctx context.Context, sel ast.Se
 				return res
 			}
 
-			out.Concurrently(i, func() graphql.Marshaler {
-				return innerFunc(ctx)
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
 
-			})
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "logsWriters":
 			field := field
 
-			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
 				defer func() {
 					if r := recover(); r != nil {
 						ec.Error(ctx, ec.Recover(ctx, r))
@@ -18261,14 +18498,30 @@ func (ec *executionContext) _ObservabilityTenant(ctx context.Context, sel ast.Se
 				return res
 			}
 
-			out.Concurrently(i, func() graphql.Marshaler {
-				return innerFunc(ctx)
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
 
-			})
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "logsDeleters":
 			field := field
 
-			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
 				defer func() {
 					if r := recover(); r != nil {
 						ec.Error(ctx, ec.Recover(ctx, r))
@@ -18278,14 +18531,30 @@ func (ec *executionContext) _ObservabilityTenant(ctx context.Context, sel ast.Se
 				return res
 			}
 
-			out.Concurrently(i, func() graphql.Marshaler {
-				return innerFunc(ctx)
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
 
-			})
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "logsRulesReaders":
 			field := field
 
-			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
 				defer func() {
 					if r := recover(); r != nil {
 						ec.Error(ctx, ec.Recover(ctx, r))
@@ -18295,14 +18564,30 @@ func (ec *executionContext) _ObservabilityTenant(ctx context.Context, sel ast.Se
 				return res
 			}
 
-			out.Concurrently(i, func() graphql.Marshaler {
-				return innerFunc(ctx)
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
 
-			})
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "logsRulesWriters":
 			field := field
 
-			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
 				defer func() {
 					if r := recover(); r != nil {
 						ec.Error(ctx, ec.Recover(ctx, r))
@@ -18312,14 +18597,30 @@ func (ec *executionContext) _ObservabilityTenant(ctx context.Context, sel ast.Se
 				return res
 			}
 
-			out.Concurrently(i, func() graphql.Marshaler {
-				return innerFunc(ctx)
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
 
-			})
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "logsRulesDeleters":
 			field := field
 
-			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
 				defer func() {
 					if r := recover(); r != nil {
 						ec.Error(ctx, ec.Recover(ctx, r))
@@ -18329,14 +18630,30 @@ func (ec *executionContext) _ObservabilityTenant(ctx context.Context, sel ast.Se
 				return res
 			}
 
-			out.Concurrently(i, func() graphql.Marshaler {
-				return innerFunc(ctx)
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
 
-			})
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "tracesReaders":
 			field := field
 
-			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
 				defer func() {
 					if r := recover(); r != nil {
 						ec.Error(ctx, ec.Recover(ctx, r))
@@ -18346,14 +18663,30 @@ func (ec *executionContext) _ObservabilityTenant(ctx context.Context, sel ast.Se
 				return res
 			}
 
-			out.Concurrently(i, func() graphql.Marshaler {
-				return innerFunc(ctx)
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
 
-			})
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "tracesWriters":
 			field := field
 
-			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
 				defer func() {
 					if r := recover(); r != nil {
 						ec.Error(ctx, ec.Recover(ctx, r))
@@ -18363,22 +18696,48 @@ func (ec *executionContext) _ObservabilityTenant(ctx context.Context, sel ast.Se
 				return res
 			}
 
-			out.Concurrently(i, func() graphql.Marshaler {
-				return innerFunc(ctx)
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
 
-			})
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "limits":
-
 			out.Values[i] = ec._ObservabilityTenant_limits(ctx, field, obj)
-
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
 	}
-	out.Dispatch()
-	if invalids > 0 {
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
 		return graphql.Null
 	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
 	return out
 }
 
@@ -18386,24 +18745,35 @@ var observabilityTenantLimitsImplementors = []string{"ObservabilityTenantLimits"
 
 func (ec *executionContext) _ObservabilityTenantLimits(ctx context.Context, sel ast.SelectionSet, obj *model.ObservabilityTenantLimits) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, observabilityTenantLimitsImplementors)
+
 	out := graphql.NewFieldSet(fields)
-	var invalids uint32
+	deferred := make(map[string]*graphql.FieldSet)
 	for i, field := range fields {
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("ObservabilityTenantLimits")
 		case "mimir":
-
 			out.Values[i] = ec._ObservabilityTenantLimits_mimir(ctx, field, obj)
-
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
 	}
-	out.Dispatch()
-	if invalids > 0 {
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
 		return graphql.Null
 	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
 	return out
 }
 
@@ -18411,8 +18781,9 @@ var observabilityTenantPermissionBindingsImplementors = []string{"ObservabilityT
 
 func (ec *executionContext) _ObservabilityTenantPermissionBindings(ctx context.Context, sel ast.SelectionSet, obj *model.ObservabilityTenantPermissionBindings) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, observabilityTenantPermissionBindingsImplementors)
+
 	out := graphql.NewFieldSet(fields)
-	var invalids uint32
+	deferred := make(map[string]*graphql.FieldSet)
 	for i, field := range fields {
 		switch field.Name {
 		case "__typename":
@@ -18420,7 +18791,7 @@ func (ec *executionContext) _ObservabilityTenantPermissionBindings(ctx context.C
 		case "users":
 			field := field
 
-			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
 				defer func() {
 					if r := recover(); r != nil {
 						ec.Error(ctx, ec.Recover(ctx, r))
@@ -18430,14 +18801,30 @@ func (ec *executionContext) _ObservabilityTenantPermissionBindings(ctx context.C
 				return res
 			}
 
-			out.Concurrently(i, func() graphql.Marshaler {
-				return innerFunc(ctx)
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
 
-			})
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "groups":
 			field := field
 
-			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
 				defer func() {
 					if r := recover(); r != nil {
 						ec.Error(ctx, ec.Recover(ctx, r))
@@ -18447,14 +18834,30 @@ func (ec *executionContext) _ObservabilityTenantPermissionBindings(ctx context.C
 				return res
 			}
 
-			out.Concurrently(i, func() graphql.Marshaler {
-				return innerFunc(ctx)
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
 
-			})
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "oauth2Clients":
 			field := field
 
-			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
 				defer func() {
 					if r := recover(); r != nil {
 						ec.Error(ctx, ec.Recover(ctx, r))
@@ -18464,18 +18867,46 @@ func (ec *executionContext) _ObservabilityTenantPermissionBindings(ctx context.C
 				return res
 			}
 
-			out.Concurrently(i, func() graphql.Marshaler {
-				return innerFunc(ctx)
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
 
-			})
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
 	}
-	out.Dispatch()
-	if invalids > 0 {
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
 		return graphql.Null
 	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
 	return out
 }
 
@@ -18483,40 +18914,43 @@ var oidcContextImplementors = []string{"OidcContext"}
 
 func (ec *executionContext) _OidcContext(ctx context.Context, sel ast.SelectionSet, obj *model.OidcContext) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, oidcContextImplementors)
+
 	out := graphql.NewFieldSet(fields)
-	var invalids uint32
+	deferred := make(map[string]*graphql.FieldSet)
 	for i, field := range fields {
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("OidcContext")
 		case "acrValues":
-
 			out.Values[i] = ec._OidcContext_acrValues(ctx, field, obj)
-
 		case "display":
-
 			out.Values[i] = ec._OidcContext_display(ctx, field, obj)
-
 		case "idTokenHintClaims":
-
 			out.Values[i] = ec._OidcContext_idTokenHintClaims(ctx, field, obj)
-
 		case "loginHint":
-
 			out.Values[i] = ec._OidcContext_loginHint(ctx, field, obj)
-
 		case "uiLocales":
-
 			out.Values[i] = ec._OidcContext_uiLocales(ctx, field, obj)
-
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
 	}
-	out.Dispatch()
-	if invalids > 0 {
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
 		return graphql.Null
 	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
 	return out
 }
 
@@ -18524,23 +18958,22 @@ var organizationImplementors = []string{"Organization"}
 
 func (ec *executionContext) _Organization(ctx context.Context, sel ast.SelectionSet, obj *model.Organization) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, organizationImplementors)
+
 	out := graphql.NewFieldSet(fields)
-	var invalids uint32
+	deferred := make(map[string]*graphql.FieldSet)
 	for i, field := range fields {
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("Organization")
 		case "name":
-
 			out.Values[i] = ec._Organization_name(ctx, field, obj)
-
 			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&invalids, 1)
+				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "admins":
 			field := field
 
-			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
 				defer func() {
 					if r := recover(); r != nil {
 						ec.Error(ctx, ec.Recover(ctx, r))
@@ -18550,18 +18983,46 @@ func (ec *executionContext) _Organization(ctx context.Context, sel ast.Selection
 				return res
 			}
 
-			out.Concurrently(i, func() graphql.Marshaler {
-				return innerFunc(ctx)
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
 
-			})
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
 	}
-	out.Dispatch()
-	if invalids > 0 {
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
 		return graphql.Null
 	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
 	return out
 }
 
@@ -18574,6 +19035,7 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 	})
 
 	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
 	for i, field := range fields {
 		innerCtx := graphql.WithRootFieldContext(ctx, &graphql.RootFieldContext{
 			Object: field.Name,
@@ -18586,47 +19048,51 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 		case "listUsers":
 			field := field
 
-			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
 				defer func() {
 					if r := recover(); r != nil {
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
 				res = ec._Query_listUsers(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
 				return res
 			}
 
 			rrm := func(ctx context.Context) graphql.Marshaler {
-				return ec.OperationContext.RootResolverMiddleware(ctx, innerFunc)
+				return ec.OperationContext.RootResolverMiddleware(ctx,
+					func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 			}
 
-			out.Concurrently(i, func() graphql.Marshaler {
-				return rrm(innerCtx)
-			})
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
 		case "getUser":
 			field := field
 
-			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
 				defer func() {
 					if r := recover(); r != nil {
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
 				res = ec._Query_getUser(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
 				return res
 			}
 
 			rrm := func(ctx context.Context) graphql.Marshaler {
-				return ec.OperationContext.RootResolverMiddleware(ctx, innerFunc)
+				return ec.OperationContext.RootResolverMiddleware(ctx,
+					func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 			}
 
-			out.Concurrently(i, func() graphql.Marshaler {
-				return rrm(innerCtx)
-			})
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
 		case "listGroups":
 			field := field
 
-			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
 				defer func() {
 					if r := recover(); r != nil {
 						ec.Error(ctx, ec.Recover(ctx, r))
@@ -18637,36 +19103,37 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 			}
 
 			rrm := func(ctx context.Context) graphql.Marshaler {
-				return ec.OperationContext.RootResolverMiddleware(ctx, innerFunc)
+				return ec.OperationContext.RootResolverMiddleware(ctx,
+					func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 			}
 
-			out.Concurrently(i, func() graphql.Marshaler {
-				return rrm(innerCtx)
-			})
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
 		case "listOAuth2Clients":
 			field := field
 
-			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
 				defer func() {
 					if r := recover(); r != nil {
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
 				res = ec._Query_listOAuth2Clients(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
 				return res
 			}
 
 			rrm := func(ctx context.Context) graphql.Marshaler {
-				return ec.OperationContext.RootResolverMiddleware(ctx, innerFunc)
+				return ec.OperationContext.RootResolverMiddleware(ctx,
+					func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 			}
 
-			out.Concurrently(i, func() graphql.Marshaler {
-				return rrm(innerCtx)
-			})
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
 		case "getOAuth2Client":
 			field := field
 
-			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
 				defer func() {
 					if r := recover(); r != nil {
 						ec.Error(ctx, ec.Recover(ctx, r))
@@ -18677,16 +19144,15 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 			}
 
 			rrm := func(ctx context.Context) graphql.Marshaler {
-				return ec.OperationContext.RootResolverMiddleware(ctx, innerFunc)
+				return ec.OperationContext.RootResolverMiddleware(ctx,
+					func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 			}
 
-			out.Concurrently(i, func() graphql.Marshaler {
-				return rrm(innerCtx)
-			})
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
 		case "oauth2ConsentRequest":
 			field := field
 
-			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
 				defer func() {
 					if r := recover(); r != nil {
 						ec.Error(ctx, ec.Recover(ctx, r))
@@ -18697,109 +19163,127 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 			}
 
 			rrm := func(ctx context.Context) graphql.Marshaler {
-				return ec.OperationContext.RootResolverMiddleware(ctx, innerFunc)
+				return ec.OperationContext.RootResolverMiddleware(ctx,
+					func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 			}
 
-			out.Concurrently(i, func() graphql.Marshaler {
-				return rrm(innerCtx)
-			})
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
 		case "listObservabilityTenants":
 			field := field
 
-			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
 				defer func() {
 					if r := recover(); r != nil {
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
 				res = ec._Query_listObservabilityTenants(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
 				return res
 			}
 
 			rrm := func(ctx context.Context) graphql.Marshaler {
-				return ec.OperationContext.RootResolverMiddleware(ctx, innerFunc)
+				return ec.OperationContext.RootResolverMiddleware(ctx,
+					func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 			}
 
-			out.Concurrently(i, func() graphql.Marshaler {
-				return rrm(innerCtx)
-			})
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
 		case "getObservabilityTenant":
 			field := field
 
-			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
 				defer func() {
 					if r := recover(); r != nil {
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
 				res = ec._Query_getObservabilityTenant(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
 				return res
 			}
 
 			rrm := func(ctx context.Context) graphql.Marshaler {
-				return ec.OperationContext.RootResolverMiddleware(ctx, innerFunc)
+				return ec.OperationContext.RootResolverMiddleware(ctx,
+					func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 			}
 
-			out.Concurrently(i, func() graphql.Marshaler {
-				return rrm(innerCtx)
-			})
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
 		case "listOrganizations":
 			field := field
 
-			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
 				defer func() {
 					if r := recover(); r != nil {
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
 				res = ec._Query_listOrganizations(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
 				return res
 			}
 
 			rrm := func(ctx context.Context) graphql.Marshaler {
-				return ec.OperationContext.RootResolverMiddleware(ctx, innerFunc)
+				return ec.OperationContext.RootResolverMiddleware(ctx,
+					func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 			}
 
-			out.Concurrently(i, func() graphql.Marshaler {
-				return rrm(innerCtx)
-			})
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
 		case "organization":
 			field := field
 
-			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
 				defer func() {
 					if r := recover(); r != nil {
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
 				res = ec._Query_organization(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
 				return res
 			}
 
 			rrm := func(ctx context.Context) graphql.Marshaler {
-				return ec.OperationContext.RootResolverMiddleware(ctx, innerFunc)
+				return ec.OperationContext.RootResolverMiddleware(ctx,
+					func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 			}
 
-			out.Concurrently(i, func() graphql.Marshaler {
-				return rrm(innerCtx)
-			})
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
 		case "__type":
-
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Query___type(ctx, field)
 			})
-
 		case "__schema":
-
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Query___schema(ctx, field)
 			})
-
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
 	}
-	out.Dispatch()
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
 	return out
 }
 
@@ -18807,24 +19291,35 @@ var tempoLimitsImplementors = []string{"TempoLimits"}
 
 func (ec *executionContext) _TempoLimits(ctx context.Context, sel ast.SelectionSet, obj *model.TempoLimits) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, tempoLimitsImplementors)
+
 	out := graphql.NewFieldSet(fields)
-	var invalids uint32
+	deferred := make(map[string]*graphql.FieldSet)
 	for i, field := range fields {
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("TempoLimits")
 		case "requestRate":
-
 			out.Values[i] = ec._TempoLimits_requestRate(ctx, field, obj)
-
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
 	}
-	out.Dispatch()
-	if invalids > 0 {
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
 		return graphql.Null
 	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
 	return out
 }
 
@@ -18832,34 +19327,29 @@ var userImplementors = []string{"User"}
 
 func (ec *executionContext) _User(ctx context.Context, sel ast.SelectionSet, obj *model.User) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, userImplementors)
+
 	out := graphql.NewFieldSet(fields)
-	var invalids uint32
+	deferred := make(map[string]*graphql.FieldSet)
 	for i, field := range fields {
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("User")
 		case "id":
-
 			out.Values[i] = ec._User_id(ctx, field, obj)
-
 			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&invalids, 1)
+				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "name":
-
 			out.Values[i] = ec._User_name(ctx, field, obj)
-
 		case "email":
-
 			out.Values[i] = ec._User_email(ctx, field, obj)
-
 			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&invalids, 1)
+				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "groups":
 			field := field
 
-			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
 				defer func() {
 					if r := recover(); r != nil {
 						ec.Error(ctx, ec.Recover(ctx, r))
@@ -18869,29 +19359,53 @@ func (ec *executionContext) _User(ctx context.Context, sel ast.SelectionSet, obj
 				return res
 			}
 
-			out.Concurrently(i, func() graphql.Marshaler {
-				return innerFunc(ctx)
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
 
-			})
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "organization":
-
 			out.Values[i] = ec._User_organization(ctx, field, obj)
-
 			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&invalids, 1)
+				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "recoveryLink":
-
 			out.Values[i] = ec._User_recoveryLink(ctx, field, obj)
-
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
 	}
-	out.Dispatch()
-	if invalids > 0 {
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
 		return graphql.Null
 	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
 	return out
 }
 
@@ -18899,52 +19413,55 @@ var __DirectiveImplementors = []string{"__Directive"}
 
 func (ec *executionContext) ___Directive(ctx context.Context, sel ast.SelectionSet, obj *introspection.Directive) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, __DirectiveImplementors)
+
 	out := graphql.NewFieldSet(fields)
-	var invalids uint32
+	deferred := make(map[string]*graphql.FieldSet)
 	for i, field := range fields {
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("__Directive")
 		case "name":
-
 			out.Values[i] = ec.___Directive_name(ctx, field, obj)
-
 			if out.Values[i] == graphql.Null {
-				invalids++
+				out.Invalids++
 			}
 		case "description":
-
 			out.Values[i] = ec.___Directive_description(ctx, field, obj)
-
 		case "locations":
-
 			out.Values[i] = ec.___Directive_locations(ctx, field, obj)
-
 			if out.Values[i] == graphql.Null {
-				invalids++
+				out.Invalids++
 			}
 		case "args":
-
 			out.Values[i] = ec.___Directive_args(ctx, field, obj)
-
 			if out.Values[i] == graphql.Null {
-				invalids++
+				out.Invalids++
 			}
 		case "isRepeatable":
-
 			out.Values[i] = ec.___Directive_isRepeatable(ctx, field, obj)
-
 			if out.Values[i] == graphql.Null {
-				invalids++
+				out.Invalids++
 			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
 	}
-	out.Dispatch()
-	if invalids > 0 {
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
 		return graphql.Null
 	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
 	return out
 }
 
@@ -18952,42 +19469,47 @@ var __EnumValueImplementors = []string{"__EnumValue"}
 
 func (ec *executionContext) ___EnumValue(ctx context.Context, sel ast.SelectionSet, obj *introspection.EnumValue) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, __EnumValueImplementors)
+
 	out := graphql.NewFieldSet(fields)
-	var invalids uint32
+	deferred := make(map[string]*graphql.FieldSet)
 	for i, field := range fields {
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("__EnumValue")
 		case "name":
-
 			out.Values[i] = ec.___EnumValue_name(ctx, field, obj)
-
 			if out.Values[i] == graphql.Null {
-				invalids++
+				out.Invalids++
 			}
 		case "description":
-
 			out.Values[i] = ec.___EnumValue_description(ctx, field, obj)
-
 		case "isDeprecated":
-
 			out.Values[i] = ec.___EnumValue_isDeprecated(ctx, field, obj)
-
 			if out.Values[i] == graphql.Null {
-				invalids++
+				out.Invalids++
 			}
 		case "deprecationReason":
-
 			out.Values[i] = ec.___EnumValue_deprecationReason(ctx, field, obj)
-
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
 	}
-	out.Dispatch()
-	if invalids > 0 {
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
 		return graphql.Null
 	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
 	return out
 }
 
@@ -18995,56 +19517,57 @@ var __FieldImplementors = []string{"__Field"}
 
 func (ec *executionContext) ___Field(ctx context.Context, sel ast.SelectionSet, obj *introspection.Field) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, __FieldImplementors)
+
 	out := graphql.NewFieldSet(fields)
-	var invalids uint32
+	deferred := make(map[string]*graphql.FieldSet)
 	for i, field := range fields {
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("__Field")
 		case "name":
-
 			out.Values[i] = ec.___Field_name(ctx, field, obj)
-
 			if out.Values[i] == graphql.Null {
-				invalids++
+				out.Invalids++
 			}
 		case "description":
-
 			out.Values[i] = ec.___Field_description(ctx, field, obj)
-
 		case "args":
-
 			out.Values[i] = ec.___Field_args(ctx, field, obj)
-
 			if out.Values[i] == graphql.Null {
-				invalids++
+				out.Invalids++
 			}
 		case "type":
-
 			out.Values[i] = ec.___Field_type(ctx, field, obj)
-
 			if out.Values[i] == graphql.Null {
-				invalids++
+				out.Invalids++
 			}
 		case "isDeprecated":
-
 			out.Values[i] = ec.___Field_isDeprecated(ctx, field, obj)
-
 			if out.Values[i] == graphql.Null {
-				invalids++
+				out.Invalids++
 			}
 		case "deprecationReason":
-
 			out.Values[i] = ec.___Field_deprecationReason(ctx, field, obj)
-
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
 	}
-	out.Dispatch()
-	if invalids > 0 {
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
 		return graphql.Null
 	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
 	return out
 }
 
@@ -19052,42 +19575,47 @@ var __InputValueImplementors = []string{"__InputValue"}
 
 func (ec *executionContext) ___InputValue(ctx context.Context, sel ast.SelectionSet, obj *introspection.InputValue) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, __InputValueImplementors)
+
 	out := graphql.NewFieldSet(fields)
-	var invalids uint32
+	deferred := make(map[string]*graphql.FieldSet)
 	for i, field := range fields {
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("__InputValue")
 		case "name":
-
 			out.Values[i] = ec.___InputValue_name(ctx, field, obj)
-
 			if out.Values[i] == graphql.Null {
-				invalids++
+				out.Invalids++
 			}
 		case "description":
-
 			out.Values[i] = ec.___InputValue_description(ctx, field, obj)
-
 		case "type":
-
 			out.Values[i] = ec.___InputValue_type(ctx, field, obj)
-
 			if out.Values[i] == graphql.Null {
-				invalids++
+				out.Invalids++
 			}
 		case "defaultValue":
-
 			out.Values[i] = ec.___InputValue_defaultValue(ctx, field, obj)
-
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
 	}
-	out.Dispatch()
-	if invalids > 0 {
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
 		return graphql.Null
 	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
 	return out
 }
 
@@ -19095,53 +19623,54 @@ var __SchemaImplementors = []string{"__Schema"}
 
 func (ec *executionContext) ___Schema(ctx context.Context, sel ast.SelectionSet, obj *introspection.Schema) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, __SchemaImplementors)
+
 	out := graphql.NewFieldSet(fields)
-	var invalids uint32
+	deferred := make(map[string]*graphql.FieldSet)
 	for i, field := range fields {
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("__Schema")
 		case "description":
-
 			out.Values[i] = ec.___Schema_description(ctx, field, obj)
-
 		case "types":
-
 			out.Values[i] = ec.___Schema_types(ctx, field, obj)
-
 			if out.Values[i] == graphql.Null {
-				invalids++
+				out.Invalids++
 			}
 		case "queryType":
-
 			out.Values[i] = ec.___Schema_queryType(ctx, field, obj)
-
 			if out.Values[i] == graphql.Null {
-				invalids++
+				out.Invalids++
 			}
 		case "mutationType":
-
 			out.Values[i] = ec.___Schema_mutationType(ctx, field, obj)
-
 		case "subscriptionType":
-
 			out.Values[i] = ec.___Schema_subscriptionType(ctx, field, obj)
-
 		case "directives":
-
 			out.Values[i] = ec.___Schema_directives(ctx, field, obj)
-
 			if out.Values[i] == graphql.Null {
-				invalids++
+				out.Invalids++
 			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
 	}
-	out.Dispatch()
-	if invalids > 0 {
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
 		return graphql.Null
 	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
 	return out
 }
 
@@ -19149,63 +19678,56 @@ var __TypeImplementors = []string{"__Type"}
 
 func (ec *executionContext) ___Type(ctx context.Context, sel ast.SelectionSet, obj *introspection.Type) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, __TypeImplementors)
+
 	out := graphql.NewFieldSet(fields)
-	var invalids uint32
+	deferred := make(map[string]*graphql.FieldSet)
 	for i, field := range fields {
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("__Type")
 		case "kind":
-
 			out.Values[i] = ec.___Type_kind(ctx, field, obj)
-
 			if out.Values[i] == graphql.Null {
-				invalids++
+				out.Invalids++
 			}
 		case "name":
-
 			out.Values[i] = ec.___Type_name(ctx, field, obj)
-
 		case "description":
-
 			out.Values[i] = ec.___Type_description(ctx, field, obj)
-
 		case "fields":
-
 			out.Values[i] = ec.___Type_fields(ctx, field, obj)
-
 		case "interfaces":
-
 			out.Values[i] = ec.___Type_interfaces(ctx, field, obj)
-
 		case "possibleTypes":
-
 			out.Values[i] = ec.___Type_possibleTypes(ctx, field, obj)
-
 		case "enumValues":
-
 			out.Values[i] = ec.___Type_enumValues(ctx, field, obj)
-
 		case "inputFields":
-
 			out.Values[i] = ec.___Type_inputFields(ctx, field, obj)
-
 		case "ofType":
-
 			out.Values[i] = ec.___Type_ofType(ctx, field, obj)
-
 		case "specifiedByURL":
-
 			out.Values[i] = ec.___Type_specifiedByURL(ctx, field, obj)
-
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
 	}
-	out.Dispatch()
-	if invalids > 0 {
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
 		return graphql.Null
 	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
 	return out
 }
 
