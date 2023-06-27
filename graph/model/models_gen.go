@@ -175,10 +175,32 @@ type OAuth2ConsentRequest struct {
 	RequestedScope []string `json:"requestedScope,omitempty"`
 	// Skip is true when the client has requested the same scopes from the same user before. If this is true, you can skip asking the user to grant the requested scopes, or you can force showing the UI by setting this value to false.
 	Skip *bool `json:"skip,omitempty"`
-	// Subject is the user ID of the end-user that authenticated. This value will be set to the "sub" claim in the ID Token.
+	// Subject is the user ID of the end-user that authenticated. This value will be set to the 'sub' claim in the ID Token.
 	Subject string `json:"subject"`
 	// The URL to redirect to if an error occurred.
 	RedirectTo *string `json:"redirectTo,omitempty"`
+}
+
+// OAuth2LoginRequest represents an OAuth 2.0 login request.
+type OAuth2LoginRequest struct {
+	// The challenge is a random string which is used to identify the consent request.
+	Challenge string `json:"challenge"`
+	// The client is the OAuth 2.0 Client requesting the OAuth 2.0 Authorization.
+	Client *OAuth2Client `json:"client"`
+	// OIDCContext contains the OIDC context of the request. If the OAuth 2.0 Authorization request was not an OpenID Connect request, this value will be nil.
+	OidcContext *OidcContext `json:"oidcContext,omitempty"`
+	// RequestURL is the original OAuth 2.0 Authorization URL requested by the OAuth 2.0 client. It is the URL which initiates the OAuth 2.0 Authorization Code or OAuth 2.0 Implicit flow. This URL is typically not needed, but might come in handy if you want to deal with additional request parameters.
+	RequestURL *string `json:"requestUrl,omitempty"`
+	// RequestedAccessTokenAudience contains the audience (client) that the OAuth 2.0 Client requested the OAuth 2.0 Access Token to be issued for.
+	RequestedAccessTokenAudience []string `json:"requestedAccessTokenAudience,omitempty"`
+	// RequestedScope contains the OAuth 2.0 Scope requested by the OAuth 2.0 Client.
+	RequestedScope []string `json:"requestedScope,omitempty"`
+	// SessionID is the login session ID. If the user-agent reuses a login session (via cookie / remember flag) this ID will remain the same. If the user-agent did not have an existing authentication session (e.g. remember is false) this will be a new random value. This value is used as the 'sid' parameter in the ID Token and in OIDC Front-/Back- channel logout. It's value can generally be used to associate consecutive login requests by a certain user.
+	SessionID *string `json:"sessionId,omitempty"`
+	// Skip is true when the client has requested the same scopes from the same user before. If this is true, you can skip asking the user to grant the requested scopes, or you can force showing the UI by setting this value to false.
+	Skip *bool `json:"skip,omitempty"`
+	// Subject is the user ID of the end-user that authenticated. This value will be set to the 'sub' claim in the ID Token.
+	Subject string `json:"subject"`
 }
 
 type OAuth2RedirectTo struct {

@@ -27,6 +27,7 @@ export const Login = (): JSX.Element => {
 
   // Create a new login flow
   const createFlow = () => {
+    console.log("createFlow")
     const refresh = searchParams.get("refresh")
     const return_to = searchParams.get("return_to") || undefined
     const aal2 = searchParams.get("aal2")
@@ -74,6 +75,7 @@ export const Login = (): JSX.Element => {
     const flowId = searchParams.get("flow")
     // the flow already exists
     if (flowId) {
+      console.log("getFlow")
       getFlow(flowId).catch(createFlow) // if for some reason the flow has expired, we need to get a new one
       return
     }

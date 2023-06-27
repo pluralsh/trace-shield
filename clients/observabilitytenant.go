@@ -521,8 +521,8 @@ func (c *ClientWrapper) ListTenants(ctx context.Context) ([]*model.Observability
 	for _, tenant := range tenants.Items {
 		outputTenants = append(outputTenants, &model.ObservabilityTenant{
 			ID: tenant.Name,
-			Limits: &model.ObservabilityTenantLimits{
-				Mimir: tenant.Spec.Limits.Mimir,
+			Limits: &model.ObservabilityTenantLimits{ //TODO: can error
+				Mimir: tenant.Spec.Limits.Mimir, //TODO: can error
 			},
 		})
 	}

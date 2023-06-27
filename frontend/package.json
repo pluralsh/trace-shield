@@ -18,7 +18,7 @@
     "@mui/system": "^5.0.6",
     "@mui/x-data-grid": "^4.0.1",
     "@ory/client": "1.1.23",
-    "@ory/elements": "^0.0.1-beta.5",
+    "@ory/elements": "^0.0.1-beta.6",
     "@ory/integrations": "0.2.8",
     "@ory/kratos-client": "0.11.1",
     "axios": "^0.27.2",

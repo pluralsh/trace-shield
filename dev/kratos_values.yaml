@@ -1,3 +1,7 @@
+image:
+  repository: davidspek/kratos
+  tag: c15de85a6
+
 job:
   annotations:
     helm.sh/hook-weight: "1"
