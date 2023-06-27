@@ -1,15 +1,13 @@
 import {CircularProgress} from '@mui/material'
 import {OAuth2Client, OAuth2ConsentRequest} from "@ory/client"
 import {UserConsentCard} from "@ory/elements"
-import {useNavigate, useSearchParams} from "react-router-dom"
+import {useEffect, useState} from "react";
+import {useSearchParams} from "react-router-dom"
 import {useAcceptOAuth2ConsentRequestMutation, useOAuth2ConsentRequestQuery} from "../generated/graphql"
 
 export const Consent = (): JSX.Element => {
-  // const [flow, setFlow] = useState<LoginFlow | null>(null)
-  const [searchParams, setSearchParams] = useSearchParams()
-  const win: Window = window;
-
-  const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
+  const [scope, setScope] = useState<Array<string>>([])
 
   const challenge = searchParams.get("consent_challenge")
 
@@ -20,19 +18,19 @@ export const Consent = (): JSX.Element => {
   const { data } = useOAuth2ConsentRequestQuery({
     variables: {
       challenge: challenge
-    }
+    },
   })
 
-  const [mutation, { loading, error }] = useAcceptOAuth2ConsentRequestMutation({
+  const [mutation] = useAcceptOAuth2ConsentRequestMutation({
     variables: {
       challenge,
-      grantScope: data?.oauth2ConsentRequest?.requestedScope || ['profile', 'openid'],
+      grantScope: scope,
       remember: data?.oauth2ConsentRequest?.skip,
       // rememberFor: 3600,
       // session: // TODO: need to parse using the subject and scopes. See https://github.com/ory/kratos-selfservice-ui-node/pull/248/files#diff-f55c47595a4b4dc1dc448defc15f0157e124c1f8241c25474835948ca51be903R24
     },
     onCompleted: ({ acceptOAuth2ConsentRequest: { redirectTo } }) => {
-      win.location = redirectTo
+      window.location = redirectTo
     },
   })
 
@@ -41,15 +39,20 @@ export const Consent = (): JSX.Element => {
       {
         variables: {
           challenge,
-          grantScope: data?.oauth2ConsentRequest?.requestedScope,
+          grantScope: scope,
           remember: data?.oauth2ConsentRequest?.skip,
-
         },
       },
     )
   }
 
-  console.log(data)
+  useEffect(() => {
+    if(!data || !data?.oauth2ConsentRequest || !data?.oauth2ConsentRequest?.client) {
+      return
+    }
+
+    setScope(data.oauth2ConsentRequest.client.scope?.split(' ') ?? data?.oauth2ConsentRequest?.requestedScope ?? ['profile', 'openid'])
+  }, [data])
 
 
   // we check if the flow is set, if not we show a loading indicator
@@ -59,7 +62,7 @@ export const Consent = (): JSX.Element => {
       consent={data.oauth2ConsentRequest as OAuth2ConsentRequest}
       cardImage={data?.oauth2ConsentRequest?.client?.logoUri || "/logo192.png"}
       client_name={data?.oauth2ConsentRequest?.client?.clientName || 'unknown client'}
-      requested_scope={data?.oauth2ConsentRequest?.requestedScope || []}
+      requested_scope={scope}
       client={data?.oauth2ConsentRequest?.client as OAuth2Client}
       action={(process.env.BASE_URL || "") + "/consent"}
       />
