@@ -26,6 +26,9 @@ type OAuth2LoginRequest {
 
   "Subject is the user ID of the end-user that authenticated. This value will be set to the 'sub' claim in the ID Token."
   subject: String!
+
+  "The URL to redirect to if an error occurred."
+  redirectTo: String
 }
 
 extend type Query {

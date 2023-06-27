@@ -201,6 +201,8 @@ type OAuth2LoginRequest struct {
 	Skip *bool `json:"skip,omitempty"`
 	// Subject is the user ID of the end-user that authenticated. This value will be set to the 'sub' claim in the ID Token.
 	Subject string `json:"subject"`
+	// The URL to redirect to if an error occurred.
+	RedirectTo *string `json:"redirectTo"`
 }
 
 type OAuth2RedirectTo struct {

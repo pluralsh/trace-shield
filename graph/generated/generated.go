@@ -242,6 +242,7 @@ type ComplexityRoot struct {
 		Challenge                    func(childComplexity int) int
 		Client                       func(childComplexity int) int
 		OidcContext                  func(childComplexity int) int
+		RedirectTo                   func(childComplexity int) int
 		RequestURL                   func(childComplexity int) int
 		RequestedAccessTokenAudience func(childComplexity int) int
 		RequestedScope               func(childComplexity int) int
@@ -1590,6 +1591,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.OAuth2LoginRequest.OidcContext(childComplexity), true
 
+	case "OAuth2LoginRequest.redirectTo":
+		if e.complexity.OAuth2LoginRequest.RedirectTo == nil {
+			break
+		}
+
+		return e.complexity.OAuth2LoginRequest.RedirectTo(childComplexity), true
+
 	case "OAuth2LoginRequest.requestUrl":
 		if e.complexity.OAuth2LoginRequest.RequestURL == nil {
 			break
@@ -2688,6 +2696,9 @@ type OAuth2LoginRequest {
 
   "Subject is the user ID of the end-user that authenticated. This value will be set to the 'sub' claim in the ID Token."
   subject: String!
+
+  "The URL to redirect to if an error occurred."
+  redirectTo: String
 }
 
 extend type Query {
@@ -12415,6 +12426,44 @@ func (ec *executionContext) fieldContext_OAuth2LoginRequest_subject(ctx context.
 	return fc, nil
 }
 
+func (ec *executionContext) _OAuth2LoginRequest_redirectTo(ctx context.Context, field graphql.CollectedField, obj *model.OAuth2LoginRequest) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_OAuth2LoginRequest_redirectTo(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp := ec._fieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.RedirectTo, nil
+	})
+
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_OAuth2LoginRequest_redirectTo(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "OAuth2LoginRequest",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _OAuth2RedirectTo_redirectTo(ctx context.Context, field graphql.CollectedField, obj *model.OAuth2RedirectTo) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_OAuth2RedirectTo_redirectTo(ctx, field)
 	if err != nil {
@@ -14733,6 +14782,8 @@ func (ec *executionContext) fieldContext_Query_oauth2LoginRequest(ctx context.Co
 				return ec.fieldContext_OAuth2LoginRequest_skip(ctx, field)
 			case "subject":
 				return ec.fieldContext_OAuth2LoginRequest_subject(ctx, field)
+			case "redirectTo":
+				return ec.fieldContext_OAuth2LoginRequest_redirectTo(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type OAuth2LoginRequest", field.Name)
 		},
@@ -19062,6 +19113,10 @@ func (ec *executionContext) _OAuth2LoginRequest(ctx context.Context, sel ast.Sel
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
+		case "redirectTo":
+
+			out.Values[i] = ec._OAuth2LoginRequest_redirectTo(ctx, field, obj)
+
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}

@@ -6,22 +6,21 @@ package resolvers
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/pluralsh/trace-shield/graph/model"
 )
 
 // AcceptOAuth2LoginRequest is the resolver for the acceptOAuth2LoginRequest field.
 func (r *mutationResolver) AcceptOAuth2LoginRequest(ctx context.Context, challenge string, acr *string, amr []string, context map[string]interface{}, remember *bool, rememberFor *int64, subject string) (*model.OAuth2RedirectTo, error) {
-	panic(fmt.Errorf("not implemented: AcceptOAuth2LoginRequest - acceptOAuth2LoginRequest"))
+	return r.C.AcceptOAuth2LoginRequest(ctx, challenge, acr, amr, context, remember, rememberFor, subject)
 }
 
 // RejectOAuth2LoginRequest is the resolver for the rejectOAuth2LoginRequest field.
 func (r *mutationResolver) RejectOAuth2LoginRequest(ctx context.Context, challenge string) (*model.OAuth2RedirectTo, error) {
-	panic(fmt.Errorf("not implemented: RejectOAuth2LoginRequest - rejectOAuth2LoginRequest"))
+	return r.C.RejectOAuth2LoginRequest(ctx, challenge)
 }
 
 // Oauth2LoginRequest is the resolver for the oauth2LoginRequest field.
 func (r *queryResolver) Oauth2LoginRequest(ctx context.Context, challenge string) (*model.OAuth2LoginRequest, error) {
-	panic(fmt.Errorf("not implemented: Oauth2LoginRequest - oauth2LoginRequest"))
+	return r.C.GetOAuth2LoginRequest(ctx, challenge)
 }
