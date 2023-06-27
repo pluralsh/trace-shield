@@ -1,9 +1,10 @@
-import { LoginFlow, UpdateLoginFlowBody } from "@ory/client"
+import { LoginFlow, UpdateLoginFlowBody, Session } from "@ory/client"
 import { UserAuthCard } from "@ory/elements"
 import { useCallback, useEffect, useState } from "react"
 import { useNavigate, useSearchParams } from "react-router-dom"
 import { CircularProgress } from '@mui/material'
 import { sdk, sdkError } from "../apis/ory"
+import { useAcceptOAuth2LoginRequestMutation } from "../generated/graphql"
 
 export const Login = (): JSX.Element => {
   const [flow, setFlow] = useState<LoginFlow | null>(null)
@@ -48,6 +49,8 @@ export const Login = (): JSX.Element => {
       .catch(sdkErrorHandler)
   }
 
+  const [acceptOAuth2LoginRequestMutation, { data, loading, error }] = useAcceptOAuth2LoginRequestMutation({})
+
   // submit the login form data to Ory
   const submitFlow = (body: UpdateLoginFlowBody) => {
     // something unexpected went wrong and the flow was not set
@@ -59,7 +62,36 @@ export const Login = (): JSX.Element => {
         console.log(flow)
         console.log(resp)
         console.log(status)
-        // we successfully submitted the login flow, so lets redirect to the dashboard
+
+        if (flow.oauth2_login_request) {
+          // TODO: add logic to skip login accept if user is already logged in
+          console.log("oauth2_login_request")
+
+          acceptOAuth2LoginRequestMutation(
+            {
+              variables: {
+                challenge: flow?.oauth2_login_request?.challenge,
+                // acr: flow.oauth2_login_request.acr_values,
+                // amr: flow.oauth2_login_request.amr_values,
+                // context: flow.oauth2_login_request.context,
+                remember: true,
+                // remember_for: 3600,
+                subject: resp.session.identity.id,
+              },
+            }
+          ).then(({ data, errors }) => {
+            if (errors) {
+              console.log(errors)
+            }
+            if (data) {
+              console.log(data)
+            }
+
+            if (data?.acceptOAuth2LoginRequest.redirectTo) {
+              window.location.href = data?.acceptOAuth2LoginRequest.redirectTo
+            }
+          })
+        }
 
         if (flow?.return_to) {
           window.location.href = flow?.return_to
@@ -68,6 +100,9 @@ export const Login = (): JSX.Element => {
         navigate("/", { replace: true })
       })
       .catch(sdkErrorHandler)
+
+      // TODO: handle oauth2_login_challenge for cases where oauth2_login_request is not set for some reason
+    // if (flow.oauth2_login_challenge) {}
   }
 
   useEffect(() => {
