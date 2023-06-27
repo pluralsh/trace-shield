@@ -3,7 +3,7 @@
     url: http://frontend.default.svc.cluster.local
     preserve_host: true
   match:
-    url: <http|https>://localhost.pluraldev.sh:4455</|/registration.*|/welcome.*|/recovery.*|/verification.*|/login.*|/consent.*|/error|/404|/500|/.*.css|./*.js|/.*.png|/.*.svg|/assets/.*|/static/.*|/users|/groups|/settings.*|/.*.json>
+    url: <http|https>://localhost.pluraldev.sh:4455</|/registration.*|/welcome.*|/recovery.*|/verification.*|/login.*|/error|/404|/500|/.*.css|./*.js|/.*.png|/.*.svg|/assets/.*|/static/.*|/users|/groups|/settings.*|/.*.json>
     methods:
       - GET
       - POST
@@ -11,6 +11,20 @@
       - DELETE
       - PATCH
       - OPTIONS
+  authenticators:
+    - handler: noop
+  authorizer:
+    handler: allow
+  mutators:
+    - handler: noop
+- id: frontend:consent:public
+  upstream:
+    url: http://frontend.default.svc.cluster.local
+    preserve_host: true
+  match:
+    url: <http|https>://localhost.pluraldev.sh:4455/consent
+    methods:
+      - GET
   authenticators:
     - handler: noop
   authorizer:
@@ -50,6 +64,20 @@
       - DELETE
       - PATCH
       - OPTIONS
+  authenticators:
+    - handler: noop
+  authorizer:
+    handler: allow
+  mutators:
+    - handler: noop
+- id: api-server:consent:public
+  upstream:
+    url: http://api-server.default.svc.cluster.local:8082
+    preserve_host: true
+  match:
+    url: <http|https>://localhost.pluraldev.sh:4455/consent
+    methods:
+      - POST
   authenticators:
     - handler: noop
   authorizer:

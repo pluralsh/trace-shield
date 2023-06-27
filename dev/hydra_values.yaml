@@ -1,4 +1,4 @@
-maester:
+master:
   enabled: false
 hydra:
   automigration:

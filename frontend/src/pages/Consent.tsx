@@ -1,10 +1,8 @@
-import { LoginFlow, UpdateLoginFlowBody, OAuth2Client, OAuth2ConsentRequest } from "@ory/client"
-import { UserAuthCard, UserConsentCard } from "@ory/elements"
-import { useCallback, useEffect, useState } from "react"
-import { useNavigate, useSearchParams } from "react-router-dom"
-import { CircularProgress } from '@mui/material'
-import { sdk, sdkError } from "../apis/ory"
-import { useOAuth2ConsentRequestQuery, useAcceptOAuth2ConsentRequestMutation } from "../generated/graphql"
+import {CircularProgress} from '@mui/material'
+import {OAuth2Client, OAuth2ConsentRequest} from "@ory/client"
+import {UserConsentCard} from "@ory/elements"
+import {useNavigate, useSearchParams} from "react-router-dom"
+import {useAcceptOAuth2ConsentRequestMutation, useOAuth2ConsentRequestQuery} from "../generated/graphql"
 
 export const Consent = (): JSX.Element => {
   // const [flow, setFlow] = useState<LoginFlow | null>(null)
@@ -51,6 +49,8 @@ export const Consent = (): JSX.Element => {
     )
   }
 
+  console.log(data)
+
 
   // we check if the flow is set, if not we show a loading indicator
   return data?.oauth2ConsentRequest ? (
@@ -58,7 +58,7 @@ export const Consent = (): JSX.Element => {
       csrfToken="csrfToken"
       consent={data.oauth2ConsentRequest as OAuth2ConsentRequest}
       cardImage={data?.oauth2ConsentRequest?.client?.logoUri || "/logo192.png"}
-      client_name="Ory Kratos"
+      client_name={data?.oauth2ConsentRequest?.client?.clientName || 'unknown client'}
       requested_scope={data?.oauth2ConsentRequest?.requestedScope || []}
       client={data?.oauth2ConsentRequest?.client as OAuth2Client}
       action={(process.env.BASE_URL || "") + "/consent"}

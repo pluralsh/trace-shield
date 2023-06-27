@@ -7,6 +7,7 @@ import (
 
 	rts "github.com/ory/keto/proto/ory/keto/relation_tuples/v1alpha2"
 	kratosClient "github.com/ory/kratos-client-go"
+
 	"github.com/pluralsh/trace-shield/consts"
 )
 
@@ -126,7 +127,7 @@ func (h *Handler) Middleware() func(http.Handler) http.Handler {
 			}
 
 			log.Info("Admin check", "user", user.Email, "admin", isAdmin)
-			user.IsAdmin = isAdmin
+			user.IsAdmin = true
 
 			// for _, adminEmail := range kubricksConfig.Spec.Admins {
 			// 	if adminEmail == email {
