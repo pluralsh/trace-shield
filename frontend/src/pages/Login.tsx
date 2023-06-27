@@ -2,10 +2,12 @@ import {CircularProgress} from '@mui/material'
 import {LoginFlow} from "@ory/client"
 import {UserAuthCard} from "@ory/elements"
 import {useCallback, useEffect, useState} from "react"
-import {useSearchParams} from "react-router-dom"
+import {useNavigate, useSearchParams} from "react-router-dom"
 import {sdk, sdkError} from "../apis/ory"
 
 export const Login = (): JSX.Element => {
+  const navigate = useNavigate()
+
   const [flow, setFlow] = useState<LoginFlow>()
   const [searchParams, setSearchParams] = useSearchParams()
 
@@ -30,17 +32,25 @@ export const Login = (): JSX.Element => {
       // aal1 is the default authentication level (Single-Factor)
       // we always pass refresh (true) on login so that the session can be refreshed when there is already an active session
       .createBrowserLoginFlow({
-        refresh: true,
+        refresh: refresh === 'true',
         aal: aal2 ? "aal2" : "aal1",
         returnTo: return_to,
         loginChallenge: loginChallenge
       })
       // flow contains the form fields and csrf token
-      .then(({data: flow}) => {
+      .then((response) => {
+        const redirectURI = response?.request?.requestURL
+
+        // If loginChallenge is present then redirect to kratos to handle the OAuth flow
+        if(loginChallenge && redirectURI) {
+          window.location = redirectURI
+          return
+        }
+
         // Update URI query params to include flow id
         setSearchParams({})
         // Set the flow data
-        setFlow(flow)
+        setFlow(response?.data)
       })
       .catch(sdkErrorHandler)
   }
