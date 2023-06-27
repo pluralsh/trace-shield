@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"context"
-	"fmt"
 	"io"
 	"net/http"
 	"strings"
@@ -49,9 +48,6 @@ func (h *Handler) Consent(w http.ResponseWriter, r *http.Request) {
 	}
 
 	email := h.getUserEmail(r)
-	fmt.Printf("user email: %s\n", email)
-	fmt.Printf("remember: %t\n", consentRequest.Remember)
-
 	if consentRequest.Action == ConsentActionAccept {
 		var rememberFor int64 = 3600
 		acceptConsent, _, err := h.C.HydraClient.OAuth2Api.AcceptOAuth2ConsentRequest(context.Background()).
