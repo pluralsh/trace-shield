@@ -7,7 +7,6 @@ import {useAcceptOAuth2ConsentRequestMutation, useOAuth2ConsentRequestQuery} fro
 
 export const Consent = (): JSX.Element => {
   const [searchParams] = useSearchParams()
-  const [scope, setScope] = useState<Array<string>>([])
 
   const challenge = searchParams.get("consent_challenge")
   const csrfCookie = document.cookie.replace(/(?:(?:^|.*;\s*)_csrf\s*=\s*([^;]*).*$)|^.*$/, "$1")
@@ -24,12 +23,12 @@ export const Consent = (): JSX.Element => {
 
   const [mutation, {loading}] = useAcceptOAuth2ConsentRequestMutation()
 
-  if (data?.oauth2ConsentRequest?.skip && !loading) {
+  if (data?.oauth2ConsentRequest?.skip && data?.oauth2ConsentRequest.requestedScope && !loading) {
     mutation(
       {
         variables: {
           challenge,
-          grantScope: scope,
+          grantScope: data?.oauth2ConsentRequest.requestedScope,
           remember: data?.oauth2ConsentRequest?.skip,
         },
       },
@@ -48,8 +47,6 @@ export const Consent = (): JSX.Element => {
     }
 
     console.log(data?.oauth2ConsentRequest)
-
-    setScope(data?.oauth2ConsentRequest?.requestedScope ?? ['profile', 'openid'])
   }, [data])
 
 
@@ -60,7 +57,7 @@ export const Consent = (): JSX.Element => {
       consent={data.oauth2ConsentRequest as OAuth2ConsentRequest}
       cardImage={data?.oauth2ConsentRequest?.client?.logoUri || "/logo192.png"}
       client_name={data?.oauth2ConsentRequest?.client?.clientName || 'unknown client'}
-      requested_scope={scope}
+      requested_scope={data?.oauth2ConsentRequest?.requestedScope || []}
       client={data?.oauth2ConsentRequest?.client as OAuth2Client}
       action={(process.env.BASE_URL || "") + "/oauth2/consent"}
       />
