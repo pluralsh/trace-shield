@@ -34,8 +34,7 @@ export const Consent = (): JSX.Element => {
         },
       },
     ).then((response) => {
-      const redirectTo = response.data!.acceptOAuth2ConsentRequest!.redirectTo
-      window.location = redirectTo
+      (window as Window).location = response.data!.acceptOAuth2ConsentRequest!.redirectTo
     })
   }
 
