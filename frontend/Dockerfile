@@ -1,11 +1,19 @@
 # Name the node stage "builder"
 FROM node:18.12.1-alpine AS builder
+
+# copy only the package.json and yarn.lock to work directory so that they can be cached
+COPY package.json /tmp/package.json
+COPY yarn.lock /tmp/yarn.lock
+COPY .yarn /tmp/.yarn
+COPY .yarnrc.yml /tmp/.yarnrc.yml
+# install node modules
+RUN cd /tmp && yarn install
+RUN mkdir -p /app && cp -a /tmp/node_modules /app/
+
 # Set working directory
 WORKDIR /app
 # Copy all files from current directory to working dir in image
 COPY . .
-# install node modules
-RUN yarn install
 # Build app for production with minification
 RUN yarn build
 
