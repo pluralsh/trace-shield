@@ -34,7 +34,11 @@ export const Consent = (): JSX.Element => {
         },
       },
     ).then((response) => {
-      (window as Window).location = response.data!.acceptOAuth2ConsentRequest!.redirectTo
+      if (response.data && response.data.acceptOAuth2ConsentRequest?.redirectTo) {
+        (window as Window).location = response.data.acceptOAuth2ConsentRequest.redirectTo
+      } else {
+        console.error("Could not redirect to redirectTo for acceptOAuth2ConsentRequest")
+      }
     })
   }
 
@@ -43,7 +47,7 @@ export const Consent = (): JSX.Element => {
       return
     }
 
-    setScope(data.oauth2ConsentRequest.client.scope?.split(' ') ?? data?.oauth2ConsentRequest?.requestedScope ?? ['profile', 'openid'])
+    setScope(data?.oauth2ConsentRequest?.requestedScope ?? ['profile', 'openid'])
   }, [data])
 
 

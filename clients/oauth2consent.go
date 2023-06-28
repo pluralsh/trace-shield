@@ -33,10 +33,14 @@ func (c *ClientWrapper) GetOAuth2ConsentRequest(ctx context.Context, challenge s
 			fmt.Println("It's gone")
 			return &model.OAuth2ConsentRequest{RedirectTo: &r.RedirectTo}, err
 		default:
-			r, ok := err.(*hydra.GenericOpenAPIError).Model().(hydra.ErrorOAuth2)
+			r, ok := err.(*hydra.GenericOpenAPIError)
 			if ok {
-				log.Error(err, "Error getting consent request", "error", r.Error, "hint", r.ErrorHint, "description", r.ErrorDescription)
+				r, ok := err.(*hydra.GenericOpenAPIError).Model().(hydra.ErrorOAuth2)
+				if ok {
+					log.Error(err, "Error getting consent request", "error", r.Error, "hint", r.ErrorHint, "description", r.ErrorDescription)
+				}
 			}
+			log.Error(err, "Error when calling `OAuth2Api.GetOAuth2ConsentRequest", "request", r)
 			return nil, err
 		}
 	}
