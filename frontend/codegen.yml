@@ -1,5 +1,5 @@
 overwrite: true
-schema: "https://localhost.pluraldev.sh:4455/graphql"
+schema: "../graph/*.graphqls"
 documents: './graph/**/*.graphql'
 generates:
   src/generated/graphql.tsx:

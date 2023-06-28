@@ -273,7 +273,6 @@ export type MutationAcceptOAuth2ConsentRequestArgs = {
   grantScope?: InputMaybe<Array<Scalars['String']>>;
   remember?: InputMaybe<Scalars['Boolean']>;
   rememberFor?: InputMaybe<Scalars['Int']>;
-  session?: InputMaybe<AcceptOAuth2ConsentRequestSession>;
 };
 
 
@@ -848,7 +847,6 @@ export type AcceptOAuth2ConsentRequestMutationVariables = Exact<{
   grantScope?: InputMaybe<Array<Scalars['String']> | Scalars['String']>;
   remember?: InputMaybe<Scalars['Boolean']>;
   rememberFor?: InputMaybe<Scalars['Int']>;
-  session?: InputMaybe<AcceptOAuth2ConsentRequestSession>;
 }>;
 
 
@@ -1154,13 +1152,12 @@ export type OAuth2ConsentRequestQueryHookResult = ReturnType<typeof useOAuth2Con
 export type OAuth2ConsentRequestLazyQueryHookResult = ReturnType<typeof useOAuth2ConsentRequestLazyQuery>;
 export type OAuth2ConsentRequestQueryResult = Apollo.QueryResult<OAuth2ConsentRequestQuery, OAuth2ConsentRequestQueryVariables>;
 export const AcceptOAuth2ConsentRequestDocument = gql`
-    mutation AcceptOAuth2ConsentRequest($challenge: String!, $grantScope: [String!], $remember: Boolean, $rememberFor: Int, $session: AcceptOAuth2ConsentRequestSession) {
+    mutation AcceptOAuth2ConsentRequest($challenge: String!, $grantScope: [String!], $remember: Boolean, $rememberFor: Int) {
   acceptOAuth2ConsentRequest(
     challenge: $challenge
     grantScope: $grantScope
     remember: $remember
     rememberFor: $rememberFor
-    session: $session
   ) {
     redirectTo
   }
@@ -1185,7 +1182,6 @@ export type AcceptOAuth2ConsentRequestMutationFn = Apollo.MutationFunction<Accep
  *      grantScope: // value for 'grantScope'
  *      remember: // value for 'remember'
  *      rememberFor: // value for 'rememberFor'
- *      session: // value for 'session'
  *   },
  * });
  */
