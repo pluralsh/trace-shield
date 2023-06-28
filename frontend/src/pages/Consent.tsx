@@ -10,6 +10,7 @@ export const Consent = (): JSX.Element => {
   const [scope, setScope] = useState<Array<string>>([])
 
   const challenge = searchParams.get("consent_challenge")
+  const csrfCookie = document.cookie.replace(/(?:(?:^|.*;\s*)_csrf\s*=\s*([^;]*).*$)|^.*$/, "$1")
 
   if (!challenge) {
     return <div>There is no consent challenge</div>
@@ -58,7 +59,7 @@ export const Consent = (): JSX.Element => {
   // we check if the flow is set, if not we show a loading indicator
   return data?.oauth2ConsentRequest ? (
     <UserConsentCard
-      csrfToken="csrfToken"
+      csrfToken={csrfCookie}
       consent={data.oauth2ConsentRequest as OAuth2ConsentRequest}
       cardImage={data?.oauth2ConsentRequest?.client?.logoUri || "/logo192.png"}
       client_name={data?.oauth2ConsentRequest?.client?.clientName || 'unknown client'}
