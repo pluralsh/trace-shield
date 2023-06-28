@@ -68,6 +68,7 @@ func (c *ClientWrapper) GetOAuth2ConsentRequest(ctx context.Context, challenge s
 		OidcContext:                  oidcContext,
 		RequestURL:                   consent.RequestUrl,
 		RequestedAccessTokenAudience: consent.RequestedAccessTokenAudience,
+		RequestedScope:               consent.RequestedScope,
 		Skip:                         consent.Skip,
 		Subject:                      *consent.Subject,
 	}, nil
