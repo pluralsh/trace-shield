@@ -4,8 +4,10 @@ FROM node:18.12.1-alpine AS builder
 WORKDIR /app
 # Copy all files from current directory to working dir in image
 COPY . .
-# install node modules and build assets
-RUN yarn install && yarn build
+# install node modules
+RUN yarn install
+# Build app for production with minification
+RUN yarn build
 
 # nginx state for serving content
 FROM nginxinc/nginx-unprivileged:1.21.6-alpine
@@ -17,4 +19,3 @@ COPY --from=builder /app/build .
 COPY ./nginx.conf /etc/nginx/conf.d/default.conf
 # Containers run nginx with global directives and daemon off
 ENTRYPOINT ["sh", "-c", "cd /usr/share/nginx/html/ && nginx -g 'daemon off;'"]
-# CMD ["sh", "-c", "cd /usr/share/nginx/html/ && nginx -g 'daemon off;'"]
