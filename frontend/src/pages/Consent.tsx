@@ -47,6 +47,8 @@ export const Consent = (): JSX.Element => {
       return
     }
 
+    console.log(data?.oauth2ConsentRequest)
+
     setScope(data?.oauth2ConsentRequest?.requestedScope ?? ['profile', 'openid'])
   }, [data])
 
