@@ -39,7 +39,7 @@ export const Login = (): JSX.Element => {
       })
       // flow contains the form fields and csrf token
       .then((response) => {
-        const redirectURI = response?.request?.requestURL
+        const redirectURI = response?.request?.requestURL ?? response?.request?.responseURL
 
         // If loginChallenge is present then redirect to kratos to handle the OAuth flow
         if(loginChallenge && redirectURI) {
