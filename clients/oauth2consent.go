@@ -133,6 +133,8 @@ func (c *ClientWrapper) AcceptOAuth2ConsentRequest(ctx context.Context, challeng
 				idToken.Email = &userCtx.Email
 			}
 		}
+	} else {
+		log.Info("No user context found for OAuth2 consent request")
 	}
 
 	outSession := &hydra.AcceptOAuth2ConsentRequestSession{
