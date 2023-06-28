@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	hydra "github.com/ory/hydra-client-go/v2"
+	"github.com/pluralsh/trace-shield/utils"
 )
 
 type ConsentAction string
@@ -21,6 +22,16 @@ type ConsentRequest struct {
 	Action     ConsentAction `json:"consent_action"`
 	Remember   bool          `json:"remember"`
 	GrantScope []string      `json:"grant_scope"`
+}
+
+type ConsentRequestSessionAccessToken struct {
+	Subject *string `json:"subject,omitempty"`
+}
+
+// ConsentRequestSessionIDToken is the ID token for the consent request session.
+type ConsentRequestSessionIDToken struct {
+	Subject *string `json:"subject,omitempty"`
+	Email   *string `json:"email,omitempty"`
 }
 
 func (h *Handler) Consent(w http.ResponseWriter, r *http.Request) {
@@ -47,7 +58,28 @@ func (h *Handler) Consent(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	email := h.getUserEmail(r)
+	userCtx := ForContext(r.Context())
+
+	accessToken := &ConsentRequestSessionAccessToken{}
+	idToken := &ConsentRequestSessionIDToken{}
+
+	if userCtx != nil {
+
+		accessToken.Subject = &userCtx.Id
+		idToken.Subject = &userCtx.Id
+
+		if consentRequest.GrantScope != nil && &userCtx.Email != nil {
+			if utils.StringContains(consentRequest.GrantScope, "email") {
+				idToken.Email = &userCtx.Email
+			}
+		}
+	}
+
+	outSession := &hydra.AcceptOAuth2ConsentRequestSession{
+		AccessToken: accessToken,
+		IdToken:     idToken,
+	}
+
 	if consentRequest.Action == ConsentActionAccept {
 		var rememberFor int64 = 3600
 		acceptConsent, _, err := h.C.HydraClient.OAuth2Api.AcceptOAuth2ConsentRequest(context.Background()).
@@ -57,13 +89,7 @@ func (h *Handler) Consent(w http.ResponseWriter, r *http.Request) {
 				GrantScope:               consentRequest.GrantScope,
 				Remember:                 &consentRequest.Remember,
 				RememberFor:              &rememberFor,
-				Session: &hydra.AcceptOAuth2ConsentRequestSession{
-					IdToken: struct {
-						Email string `json:"email"`
-					}{
-						Email: email,
-					},
-				},
+				Session:                  outSession,
 			}).
 			Execute()
 		if err != nil {
