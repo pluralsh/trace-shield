@@ -22,20 +22,9 @@ export const Consent = (): JSX.Element => {
     },
   })
 
-  const [mutation] = useAcceptOAuth2ConsentRequestMutation({
-    variables: {
-      challenge,
-      grantScope: scope,
-      remember: data?.oauth2ConsentRequest?.skip,
-      // rememberFor: 3600,
-      // session: // TODO: need to parse using the subject and scopes. See https://github.com/ory/kratos-selfservice-ui-node/pull/248/files#diff-f55c47595a4b4dc1dc448defc15f0157e124c1f8241c25474835948ca51be903R24
-    },
-    onCompleted: ({ acceptOAuth2ConsentRequest: { redirectTo } }) => {
-      (window as Window).location = redirectTo
-    },
-  })
+  const [mutation, {loading}] = useAcceptOAuth2ConsentRequestMutation()
 
-  if (data?.oauth2ConsentRequest?.skip) {
+  if (data?.oauth2ConsentRequest?.skip && !loading) {
     mutation(
       {
         variables: {
@@ -44,7 +33,10 @@ export const Consent = (): JSX.Element => {
           remember: data?.oauth2ConsentRequest?.skip,
         },
       },
-    )
+    ).then((response) => {
+      const redirectTo = response.data!.acceptOAuth2ConsentRequest!.redirectTo
+      window.location = redirectTo
+    })
   }
 
   useEffect(() => {
