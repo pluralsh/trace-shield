@@ -30,7 +30,7 @@ export const Consent = (): JSX.Element => {
       // session: // TODO: need to parse using the subject and scopes. See https://github.com/ory/kratos-selfservice-ui-node/pull/248/files#diff-f55c47595a4b4dc1dc448defc15f0157e124c1f8241c25474835948ca51be903R24
     },
     onCompleted: ({ acceptOAuth2ConsentRequest: { redirectTo } }) => {
-      window.location = redirectTo
+      (window as Window).location = redirectTo
     },
   })
 
