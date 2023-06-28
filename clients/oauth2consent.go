@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	hydra "github.com/ory/hydra-client-go/v2"
+	kratosClient "github.com/ory/kratos-client-go"
 	"github.com/pluralsh/trace-shield/format"
 	"github.com/pluralsh/trace-shield/graph/model"
 	"github.com/pluralsh/trace-shield/utils"
@@ -74,17 +75,69 @@ func (c *ClientWrapper) GetOAuth2ConsentRequest(ctx context.Context, challenge s
 	}, nil
 }
 
+// ConsentRequestSessionAccessToken is the access token for the consent request session.
+type ConsentRequestSessionAccessToken struct {
+	Subject *string `json:"subject,omitempty"`
+}
+
+// ConsentRequestSessionIDToken is the ID token for the consent request session.
+type ConsentRequestSessionIDToken struct {
+	Subject *string `json:"subject,omitempty"`
+	Email   *string `json:"email,omitempty"`
+}
+
+// A stand-in for our backed user object
+type user struct {
+	// Type          AccountType
+	// Username      string
+	Id    string
+	Name  string
+	Email string
+	// Groups        []string
+	// ProfileImage  *string
+	// JWT           *string
+	KratosSession *kratosClient.Session
+	IsAdmin       bool
+}
+
+type contextKey struct {
+	name string
+}
+
+// A private key for context that only this package can access. This is important
+// to prevent collisions between different context uses
+var userCtxKey = &contextKey{"user"}
+
+// ForContext finds the user from the context. REQUIRES Middleware to have run.
+func forContext(ctx context.Context) *user {
+	raw, _ := ctx.Value(userCtxKey).(*user)
+	return raw
+}
+
 // AcceptOAuth2ConsentRequest accepts the OAuth2 consent request for the given challenge.
 func (c *ClientWrapper) AcceptOAuth2ConsentRequest(ctx context.Context, challenge string, grantAccessTokenAudience []string, grantScope []string, remember *bool, rememberFor *int64, session *model.AcceptOAuth2ConsentRequestSession) (*model.OAuth2RedirectTo, error) {
 	log := c.Log.WithName("AcceptOAuth2ConsentRequest").WithValues("challenge", challenge)
 
-	var outSession *hydra.AcceptOAuth2ConsentRequestSession
+	userCtx := forContext(ctx)
 
-	if session != nil {
-		outSession = &hydra.AcceptOAuth2ConsentRequestSession{
-			AccessToken: session.AccessToken,
-			IdToken:     session.IDToken,
+	accessToken := &ConsentRequestSessionAccessToken{}
+	idToken := &ConsentRequestSessionIDToken{}
+
+	if userCtx != nil {
+
+		accessToken.Subject = &userCtx.Id
+		idToken.Subject = &userCtx.Id
+
+		if grantScope != nil && &userCtx.Email != nil {
+			if stringContains(grantScope, "email") {
+				idToken.Email = &userCtx.Email
+			}
 		}
+	}
+
+	outSession := &hydra.AcceptOAuth2ConsentRequestSession{
+		AccessToken: accessToken,
+		IdToken:     idToken,
 	}
 
 	consent, resp, err := c.HydraClient.OAuth2Api.AcceptOAuth2ConsentRequest(ctx).
