@@ -75,7 +75,7 @@
     url: http://api-server.default.svc.cluster.local:8082
     preserve_host: true
   match:
-    url: <http|https>://localhost.pluraldev.sh:4455/consent
+    url: <http|https>://localhost.pluraldev.sh:4455/oauth2/consent
     methods:
       - POST
   authenticators:

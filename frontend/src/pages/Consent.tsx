@@ -64,7 +64,7 @@ export const Consent = (): JSX.Element => {
       client_name={data?.oauth2ConsentRequest?.client?.clientName || 'unknown client'}
       requested_scope={scope}
       client={data?.oauth2ConsentRequest?.client as OAuth2Client}
-      action={(process.env.BASE_URL || "") + "/consent"}
+      action={(process.env.BASE_URL || "") + "/oauth2/consent"}
       />
   ) : (
     <CircularProgress />
