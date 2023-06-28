@@ -115,7 +115,7 @@ func forContext(ctx context.Context) *user {
 }
 
 // AcceptOAuth2ConsentRequest accepts the OAuth2 consent request for the given challenge.
-func (c *ClientWrapper) AcceptOAuth2ConsentRequest(ctx context.Context, challenge string, grantAccessTokenAudience []string, grantScope []string, remember *bool, rememberFor *int64, session *model.AcceptOAuth2ConsentRequestSession) (*model.OAuth2RedirectTo, error) {
+func (c *ClientWrapper) AcceptOAuth2ConsentRequest(ctx context.Context, challenge string, grantAccessTokenAudience []string, grantScope []string, remember *bool, rememberFor *int64) (*model.OAuth2RedirectTo, error) {
 	log := c.Log.WithName("AcceptOAuth2ConsentRequest").WithValues("challenge", challenge)
 
 	userCtx := forContext(ctx)

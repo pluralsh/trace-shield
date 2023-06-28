@@ -99,9 +99,6 @@ extend type Mutation {
 
     "RememberFor sets how long the consent authorization should be remembered for in seconds. If set to 0, the authorization will be remembered indefinitely."
     rememberFor: Int
-
-    "The session to set for the granted OAuth 2.0 request."
-    session: AcceptOAuth2ConsentRequestSession
   ): OAuth2RedirectTo!
 
   "RejectOAuth2ConsentRequest rejects an OAuth 2.0 consent request."

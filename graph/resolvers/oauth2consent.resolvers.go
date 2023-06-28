@@ -11,8 +11,8 @@ import (
 )
 
 // AcceptOAuth2ConsentRequest is the resolver for the acceptOAuth2ConsentRequest field.
-func (r *mutationResolver) AcceptOAuth2ConsentRequest(ctx context.Context, challenge string, grantAccessTokenAudience []string, grantScope []string, remember *bool, rememberFor *int64, session *model.AcceptOAuth2ConsentRequestSession) (*model.OAuth2RedirectTo, error) {
-	return r.C.AcceptOAuth2ConsentRequest(ctx, challenge, grantAccessTokenAudience, grantScope, remember, rememberFor, session)
+func (r *mutationResolver) AcceptOAuth2ConsentRequest(ctx context.Context, challenge string, grantAccessTokenAudience []string, grantScope []string, remember *bool, rememberFor *int64) (*model.OAuth2RedirectTo, error) {
+	return r.C.AcceptOAuth2ConsentRequest(ctx, challenge, grantAccessTokenAudience, grantScope, remember, rememberFor)
 }
 
 // RejectOAuth2ConsentRequest is the resolver for the rejectOAuth2ConsentRequest field.

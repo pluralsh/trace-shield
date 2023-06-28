@@ -156,7 +156,7 @@ type ComplexityRoot struct {
 	}
 
 	Mutation struct {
-		AcceptOAuth2ConsentRequest func(childComplexity int, challenge string, grantAccessTokenAudience []string, grantScope []string, remember *bool, rememberFor *int64, session *model.AcceptOAuth2ConsentRequestSession) int
+		AcceptOAuth2ConsentRequest func(childComplexity int, challenge string, grantAccessTokenAudience []string, grantScope []string, remember *bool, rememberFor *int64) int
 		AcceptOAuth2LoginRequest   func(childComplexity int, challenge string, acr *string, amr []string, context map[string]interface{}, remember *bool, rememberFor *int64, subject string) int
 		CreateOAuth2Client         func(childComplexity int, allowedCorsOrigins []string, audience []string, authorizationCodeGrantAccessTokenLifespan *string, authorizationCodeGrantIDTokenLifespan *string, authorizationCodeGrantRefreshTokenLifespan *string, backChannelLogoutSessionRequired *bool, backChannelLogoutURI *string, clientCredentialsGrantAccessTokenLifespan *string, clientName *string, clientSecret *string, clientSecretExpiresAt *int64, clientURI *string, contacts []string, frontchannelLogoutSessionRequired *bool, frontchannelLogoutURI *string, grantTypes []string, implicitGrantAccessTokenLifespan *string, implicitGrantIDTokenLifespan *string, jwks map[string]interface{}, jwksURI *string, jwtBearerGrantAccessTokenLifespan *string, logoURI *string, metadata map[string]interface{}, policyURI *string, postLogoutRedirectUris []string, redirectUris []string, responseTypes []string, scope *string, sectorIdentifierURI *string, subjectType *string, tokenEndpointAuthMethod *string, tokenEndpointAuthSigningAlgorithm *string, tosURI *string, userinfoSignedResponseAlgorithm *string, loginBindings *model.LoginBindingsInput) int
 		CreateObservabilityTenant  func(childComplexity int, id string, name *string, admins *model.ObservabilityTenantPermissionBindingsInput, metricsReaders *model.ObservabilityTenantPermissionBindingsInput, metricsWriters *model.ObservabilityTenantPermissionBindingsInput, metricsDeleters *model.ObservabilityTenantPermissionBindingsInput, metricsRulesReaders *model.ObservabilityTenantPermissionBindingsInput, metricsRulesWriters *model.ObservabilityTenantPermissionBindingsInput, metricsRulesDeleters *model.ObservabilityTenantPermissionBindingsInput, metricsAlertsReaders *model.ObservabilityTenantPermissionBindingsInput, metricsAlertsWriters *model.ObservabilityTenantPermissionBindingsInput, logsReaders *model.ObservabilityTenantPermissionBindingsInput, logsWriters *model.ObservabilityTenantPermissionBindingsInput, logsDeleters *model.ObservabilityTenantPermissionBindingsInput, logsRulesReaders *model.ObservabilityTenantPermissionBindingsInput, logsRulesWriters *model.ObservabilityTenantPermissionBindingsInput, logsRulesDeleters *model.ObservabilityTenantPermissionBindingsInput, tracesReaders *model.ObservabilityTenantPermissionBindingsInput, tracesWriters *model.ObservabilityTenantPermissionBindingsInput, limits *model.ObservabilityTenantLimitsInput) int
@@ -344,7 +344,7 @@ type MutationResolver interface {
 	CreateOAuth2Client(ctx context.Context, allowedCorsOrigins []string, audience []string, authorizationCodeGrantAccessTokenLifespan *string, authorizationCodeGrantIDTokenLifespan *string, authorizationCodeGrantRefreshTokenLifespan *string, backChannelLogoutSessionRequired *bool, backChannelLogoutURI *string, clientCredentialsGrantAccessTokenLifespan *string, clientName *string, clientSecret *string, clientSecretExpiresAt *int64, clientURI *string, contacts []string, frontchannelLogoutSessionRequired *bool, frontchannelLogoutURI *string, grantTypes []string, implicitGrantAccessTokenLifespan *string, implicitGrantIDTokenLifespan *string, jwks map[string]interface{}, jwksURI *string, jwtBearerGrantAccessTokenLifespan *string, logoURI *string, metadata map[string]interface{}, policyURI *string, postLogoutRedirectUris []string, redirectUris []string, responseTypes []string, scope *string, sectorIdentifierURI *string, subjectType *string, tokenEndpointAuthMethod *string, tokenEndpointAuthSigningAlgorithm *string, tosURI *string, userinfoSignedResponseAlgorithm *string, loginBindings *model.LoginBindingsInput) (*model.OAuth2Client, error)
 	UpdateOAuth2Client(ctx context.Context, allowedCorsOrigins []string, audience []string, authorizationCodeGrantAccessTokenLifespan *string, authorizationCodeGrantIDTokenLifespan *string, authorizationCodeGrantRefreshTokenLifespan *string, backChannelLogoutSessionRequired *bool, backChannelLogoutURI *string, clientCredentialsGrantAccessTokenLifespan *string, clientID string, clientName *string, clientSecret *string, clientSecretExpiresAt *int64, clientURI *string, contacts []string, frontchannelLogoutSessionRequired *bool, frontchannelLogoutURI *string, grantTypes []string, implicitGrantAccessTokenLifespan *string, implicitGrantIDTokenLifespan *string, jwks map[string]interface{}, jwksURI *string, jwtBearerGrantAccessTokenLifespan *string, logoURI *string, metadata map[string]interface{}, policyURI *string, postLogoutRedirectUris []string, redirectUris []string, responseTypes []string, scope *string, sectorIdentifierURI *string, subjectType *string, tokenEndpointAuthMethod *string, tokenEndpointAuthSigningAlgorithm *string, tosURI *string, userinfoSignedResponseAlgorithm *string, loginBindings *model.LoginBindingsInput) (*model.OAuth2Client, error)
 	DeleteOAuth2Client(ctx context.Context, clientID string) (*model.OAuth2Client, error)
-	AcceptOAuth2ConsentRequest(ctx context.Context, challenge string, grantAccessTokenAudience []string, grantScope []string, remember *bool, rememberFor *int64, session *model.AcceptOAuth2ConsentRequestSession) (*model.OAuth2RedirectTo, error)
+	AcceptOAuth2ConsentRequest(ctx context.Context, challenge string, grantAccessTokenAudience []string, grantScope []string, remember *bool, rememberFor *int64) (*model.OAuth2RedirectTo, error)
 	RejectOAuth2ConsentRequest(ctx context.Context, challenge string) (*model.OAuth2RedirectTo, error)
 	AcceptOAuth2LoginRequest(ctx context.Context, challenge string, acr *string, amr []string, context map[string]interface{}, remember *bool, rememberFor *int64, subject string) (*model.OAuth2RedirectTo, error)
 	RejectOAuth2LoginRequest(ctx context.Context, challenge string) (*model.OAuth2RedirectTo, error)
@@ -1008,7 +1008,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Mutation.AcceptOAuth2ConsentRequest(childComplexity, args["challenge"].(string), args["grantAccessTokenAudience"].([]string), args["grantScope"].([]string), args["remember"].(*bool), args["rememberFor"].(*int64), args["session"].(*model.AcceptOAuth2ConsentRequestSession)), true
+		return e.complexity.Mutation.AcceptOAuth2ConsentRequest(childComplexity, args["challenge"].(string), args["grantAccessTokenAudience"].([]string), args["grantScope"].([]string), args["remember"].(*bool), args["rememberFor"].(*int64)), true
 
 	case "Mutation.acceptOAuth2LoginRequest":
 		if e.complexity.Mutation.AcceptOAuth2LoginRequest == nil {
@@ -2656,9 +2656,6 @@ extend type Mutation {
 
     "RememberFor sets how long the consent authorization should be remembered for in seconds. If set to 0, the authorization will be remembered indefinitely."
     rememberFor: Int
-
-    "The session to set for the granted OAuth 2.0 request."
-    session: AcceptOAuth2ConsentRequestSession
   ): OAuth2RedirectTo!
 
   "RejectOAuth2ConsentRequest rejects an OAuth 2.0 consent request."
@@ -3520,15 +3517,6 @@ func (ec *executionContext) field_Mutation_acceptOAuth2ConsentRequest_args(ctx c
 		}
 	}
 	args["rememberFor"] = arg4
-	var arg5 *model.AcceptOAuth2ConsentRequestSession
-	if tmp, ok := rawArgs["session"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("session"))
-		arg5, err = ec.unmarshalOAcceptOAuth2ConsentRequestSession2ᚖgithubᚗcomᚋpluralshᚋtraceᚑshieldᚋgraphᚋmodelᚐAcceptOAuth2ConsentRequestSession(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["session"] = arg5
 	return args, nil
 }
 
@@ -9081,7 +9069,7 @@ func (ec *executionContext) _Mutation_acceptOAuth2ConsentRequest(ctx context.Con
 	}()
 	resTmp := ec._fieldMiddleware(ctx, nil, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().AcceptOAuth2ConsentRequest(rctx, fc.Args["challenge"].(string), fc.Args["grantAccessTokenAudience"].([]string), fc.Args["grantScope"].([]string), fc.Args["remember"].(*bool), fc.Args["rememberFor"].(*int64), fc.Args["session"].(*model.AcceptOAuth2ConsentRequestSession))
+		return ec.resolvers.Mutation().AcceptOAuth2ConsentRequest(rctx, fc.Args["challenge"].(string), fc.Args["grantAccessTokenAudience"].([]string), fc.Args["grantScope"].([]string), fc.Args["remember"].(*bool), fc.Args["rememberFor"].(*int64))
 	})
 
 	if resTmp == nil {
@@ -19114,9 +19102,7 @@ func (ec *executionContext) _OAuth2LoginRequest(ctx context.Context, sel ast.Sel
 				out.Invalids++
 			}
 		case "redirectTo":
-
 			out.Values[i] = ec._OAuth2LoginRequest_redirectTo(ctx, field, obj)
-
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -21384,14 +21370,6 @@ func (ec *executionContext) marshalN__TypeKind2string(ctx context.Context, sel a
 		}
 	}
 	return res
-}
-
-func (ec *executionContext) unmarshalOAcceptOAuth2ConsentRequestSession2ᚖgithubᚗcomᚋpluralshᚋtraceᚑshieldᚋgraphᚋmodelᚐAcceptOAuth2ConsentRequestSession(ctx context.Context, v interface{}) (*model.AcceptOAuth2ConsentRequestSession, error) {
-	if v == nil {
-		return nil, nil
-	}
-	res, err := ec.unmarshalInputAcceptOAuth2ConsentRequestSession(ctx, v)
-	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) unmarshalOBoolean2bool(ctx context.Context, v interface{}) (bool, error) {
