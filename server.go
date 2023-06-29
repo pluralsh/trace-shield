@@ -25,7 +25,8 @@ import (
 	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
 	"go.opentelemetry.io/contrib/propagators/b3"
 	jaegerProp "go.opentelemetry.io/contrib/propagators/jaeger"
-	"go.opentelemetry.io/otel/exporters/jaeger"
+	"go.opentelemetry.io/otel/exporters/otlp/otlptrace"
+	"go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracehttp"
 	"go.opentelemetry.io/otel/exporters/stdout/stdouttrace"
 	"go.opentelemetry.io/otel/propagation"
 	sdktrace "go.opentelemetry.io/otel/sdk/trace"
@@ -48,8 +49,6 @@ func main() {
 		port = defaultPort
 	}
 
-	initTracer()
-
 	opts := zap.Options{}
 	opts.BindFlags(flag.CommandLine)
 	flag.Parse()
@@ -57,6 +56,8 @@ func main() {
 
 	ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt)
 	defer cancel()
+
+	initTracer(ctx)
 
 	kratosAdminClient, err := clients.NewKratosAdminClient()
 	if err != nil {
@@ -205,14 +206,15 @@ func serve(ctx context.Context, resolver *resolvers.Resolver, directives *direct
 
 }
 
-func initTracer() {
+func initTracer(ctx context.Context) {
 	traceExporter, err := stdouttrace.New(
 		stdouttrace.WithPrettyPrint(),
 	)
 	if err != nil {
 		log.Fatalf("failed to initialize stdouttrace export pipeline: %v", err)
 	}
-	exp, err := jaeger.New(jaeger.WithCollectorEndpoint())
+	client := otlptracehttp.NewClient()
+	exp, err := otlptrace.New(ctx, client)
 	if err != nil {
 		log.Fatalf("failed to initialize jaeger export pipeline: %v", err)
 	}
