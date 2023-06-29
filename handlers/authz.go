@@ -111,7 +111,7 @@ func (h *Handler) ObservabilityTenantPolicyCheck(w http.ResponseWriter, r *http.
 
 			// get all the tenants a user has permissions for via group membership
 			for _, group := range groups {
-				groupTenants, err := h.getGroupPolicyTenants(p, group)
+				groupTenants, err := h.getGroupPolicyTenants(r.Context(), p, group)
 				if err != nil {
 					log.Error(err, "Failed to get group tenants", "group", group)
 				}
@@ -121,7 +121,7 @@ func (h *Handler) ObservabilityTenantPolicyCheck(w http.ResponseWriter, r *http.
 
 	}
 	// get all the tenants a client has permissions for
-	clientTenants, err := h.getDirectTenants(p)
+	clientTenants, err := h.getDirectTenants(r.Context(), p)
 	if err != nil {
 		log.Error(err, "Failed to get client tenants")
 	}
@@ -188,9 +188,9 @@ func (p *PolicyRequest) GetRelationTuple(tenantId string) *rts.RelationTuple {
 }
 
 // Get the ObservabilityTenants a user has permissions for
-func (h *Handler) getDirectTenants(p *PolicyRequest) ([]string, error) {
+func (h *Handler) getDirectTenants(ctx context.Context, p *PolicyRequest) ([]string, error) {
 	query := p.GetRelationQuery()
-	respTuples, err := h.C.KetoClient.QueryAllTuples(context.Background(), query, 100)
+	respTuples, err := h.C.KetoClient.QueryAllTuples(ctx, query, 100)
 	if err != nil {
 		return []string{}, err
 	}
@@ -207,13 +207,13 @@ func (h *Handler) getDirectTenants(p *PolicyRequest) ([]string, error) {
 }
 
 // Get the ObservabilityTenants a group has permissions for
-func (h *Handler) getGroupPolicyTenants(p *PolicyRequest, group string) ([]string, error) {
+func (h *Handler) getGroupPolicyTenants(ctx context.Context, p *PolicyRequest, group string) ([]string, error) {
 	query := rts.RelationQuery{
 		Namespace: px.Ptr(consts.ObservabilityTenantNamespace.String()),
 		Relation:  px.Ptr(p.relation.String()),
 		Subject:   rts.NewSubjectSet(consts.GroupNamespace.String(), group, consts.GroupRelationMembers.String()),
 	}
-	respTuples, err := h.C.KetoClient.QueryAllTuples(context.Background(), &query, 100)
+	respTuples, err := h.C.KetoClient.QueryAllTuples(ctx, &query, 100)
 	if err != nil {
 		return []string{}, err
 	}
