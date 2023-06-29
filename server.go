@@ -27,7 +27,6 @@ import (
 	jaegerProp "go.opentelemetry.io/contrib/propagators/jaeger"
 	"go.opentelemetry.io/otel/exporters/otlp/otlptrace"
 	"go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracehttp"
-	"go.opentelemetry.io/otel/exporters/stdout/stdouttrace"
 	"go.opentelemetry.io/otel/propagation"
 	sdktrace "go.opentelemetry.io/otel/sdk/trace"
 
@@ -207,12 +206,6 @@ func serve(ctx context.Context, resolver *resolvers.Resolver, directives *direct
 }
 
 func initTracer(ctx context.Context) {
-	traceExporter, err := stdouttrace.New(
-		stdouttrace.WithPrettyPrint(),
-	)
-	if err != nil {
-		log.Fatalf("failed to initialize stdouttrace export pipeline: %v", err)
-	}
 	client := otlptracehttp.NewClient()
 	exp, err := otlptrace.New(ctx, client)
 	if err != nil {
@@ -222,7 +215,6 @@ func initTracer(ctx context.Context) {
 	tp := sdktrace.NewTracerProvider(
 		sdktrace.WithSampler(sdktrace.AlwaysSample()),
 		sdktrace.WithSyncer(exp),
-		sdktrace.WithSyncer(traceExporter),
 	)
 
 	otel.SetTracerProvider(tp)
