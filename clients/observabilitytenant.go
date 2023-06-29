@@ -198,6 +198,8 @@ func (c *ClientWrapper) UpdateObservabilityTenant(ctx context.Context, id string
 		return nil, err
 	}
 
+	mimirLimits.DeepCopyInto(existingTenant.Spec.Limits.Mimir)
+
 	tenantStruct := &observabilityv1alpha1.Tenant{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:            id,
