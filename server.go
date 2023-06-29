@@ -3,13 +3,13 @@ package main
 import (
 	"context"
 	"flag"
+	"log"
 	"net/http"
 	"os"
 	"os/signal"
 	"time"
 
 	gqlHandler "github.com/99designs/gqlgen/graphql/handler"
-	"github.com/99designs/gqlgen/graphql/handler/apollotracing"
 	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/go-chi/chi/v5"
 	"github.com/rs/cors"
@@ -19,12 +19,21 @@ import (
 	"github.com/pluralsh/trace-shield/graph/generated"
 	"github.com/pluralsh/trace-shield/graph/resolvers"
 	"github.com/pluralsh/trace-shield/handlers"
+	"github.com/ravilushqa/otelgqlgen"
+	"go.opentelemetry.io/otel"
+
+	// "go.opentelemetry.io/otel/exporters/stdout/stdouttrace"
+	"go.opentelemetry.io/otel/exporters/jaeger"
+	"go.opentelemetry.io/otel/propagation"
+	sdktrace "go.opentelemetry.io/otel/sdk/trace"
 
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
 )
 
 const defaultPort = "8082"
+
+var tracer = otel.Tracer("trace-shield-server")
 
 var (
 	setupLog = ctrl.Log.WithName("setup")
@@ -35,6 +44,8 @@ func main() {
 	if port == "" {
 		port = defaultPort
 	}
+
+	initTracer()
 
 	opts := zap.Options{}
 	opts.BindFlags(flag.CommandLine)
@@ -128,7 +139,7 @@ func serve(ctx context.Context, resolver *resolvers.Resolver, directives *direct
 	gqlConfig.Directives.CheckPermissions = directives.CheckPermissions
 
 	gqlSrv := gqlHandler.NewDefaultServer(generated.NewExecutableSchema(gqlConfig))
-	gqlSrv.Use(apollotracing.Tracer{})
+	gqlSrv.Use(otelgqlgen.Middleware())
 	// gqlSrv.AddTransport(&transport.Websocket{
 	//     Upgrader: websocket.Upgrader{
 	//         CheckOrigin: func(r *http.Request) bool {
@@ -143,7 +154,7 @@ func serve(ctx context.Context, resolver *resolvers.Resolver, directives *direct
 
 	router.Handle("/graphiql", playground.Handler("GraphQL playground", "/graphql"))
 	router.Handle("/graphql", gqlSrv)
-	router.Post("/tenant-hydrator", handlers.HydrateObservabilityTenants) // TODO: remove this since we now use the check endpoint
+	// router.Post("/tenant-hydrator", handlers.HydrateObservabilityTenants) // TODO: remove this since we now use the check endpoint
 	router.Post("/user-webhook", handlers.BootstrapAdmin)
 	router.Post("/check", handlers.ObservabilityTenantPolicyCheck)
 	router.Post("/oauth2/consent", handlers.Consent)
@@ -183,4 +194,22 @@ func serve(ctx context.Context, resolver *resolvers.Resolver, directives *direct
 
 	return
 
+}
+
+func initTracer() {
+	// traceExporter, err := stdouttrace.New(
+	// 	stdouttrace.WithPrettyPrint(),
+	// )
+	exp, err := jaeger.New(jaeger.WithCollectorEndpoint())
+	if err != nil {
+		log.Fatalf("failed to initialize stdouttrace export pipeline: %v", err)
+	}
+
+	tp := sdktrace.NewTracerProvider(
+		sdktrace.WithSampler(sdktrace.AlwaysSample()),
+		sdktrace.WithSyncer(exp),
+	)
+
+	otel.SetTracerProvider(tp)
+	otel.SetTextMapPropagator(propagation.NewCompositeTextMapPropagator(propagation.TraceContext{}, propagation.Baggage{}))
 }

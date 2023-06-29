@@ -2,82 +2,15 @@ package handlers
 
 import (
 	"context"
-	"encoding/json"
-	"errors"
 	"net/http"
-	"strings"
 
 	"github.com/go-chi/render"
-	"github.com/ory/oathkeeper/pipeline/authn"
 	"github.com/pluralsh/trace-shield/consts"
 	"github.com/pluralsh/trace-shield/utils"
 
 	rts "github.com/ory/keto/proto/ory/keto/relation_tuples/v1alpha2"
 	px "github.com/ory/x/pointerx"
 )
-
-type AuthenticationSessionRequest struct {
-	*authn.AuthenticationSession
-
-	// User *UserPayload `json:"user,omitempty"`
-
-	// ProtectedID string `json:"id"` // override 'id' json to have more control
-}
-
-func (a *AuthenticationSessionRequest) Bind(r *http.Request) error {
-	// a.Article is nil if no Article fields are sent in the request. Return an
-	// error to avoid a nil pointer dereference.
-	if a.Subject == "" {
-		return errors.New("missing required Article fields.")
-	}
-
-	// a.User is nil if no Userpayload fields are sent in the request. In this app
-	// this won't cause a panic, but checks in this Bind method may be required if
-	// a.User or further nested fields like a.User.Name are accessed elsewhere.
-
-	// just a post-process after a decode..
-	// a.ProtectedID = ""                                 // unset the protected ID
-	// a.Article.Title = strings.ToLower(a.Article.Title) // as an example, we down-case
-	return nil
-}
-
-func (a *AuthenticationSessionRequest) Render(w http.ResponseWriter, r *http.Request) error {
-	// Pre-processing before a response is marshalled and sent across the wire
-	// a.Elapsed = 10
-	return nil
-}
-
-func (h *Handler) HydrateObservabilityTenants(w http.ResponseWriter, r *http.Request) {
-	log := h.Log.WithName("HydrateObservabilityTenants")
-	data := &AuthenticationSessionRequest{}
-	if err := render.Bind(r, data); err != nil {
-		render.Render(w, r, ErrInvalidRequest(err))
-		return
-	}
-
-	// article := data.Subject
-	// dbNewArticle(article)
-
-	json, _ := json.Marshal(data.AuthenticationSession)
-	log.Info("Post", "body", string(json)) // TODO: remove debug log query since it leaks tokens
-
-	render.Status(r, http.StatusOK) // TODO: we should probably do error checking above so we can return a 400 if something goes wrong
-	render.Render(w, r, h.NewAuthenticationSessionResponse(data))
-}
-
-func (h *Handler) NewAuthenticationSessionResponse(session *AuthenticationSessionRequest) *AuthenticationSessionRequest {
-	log := h.Log.WithName("NewAuthenticationSessionResponse")
-	tenants, err := h.getUserTenants(session.Subject)
-	if err != nil {
-		log.Error(err, "Error getting tenants")
-	}
-	log.Info("Success getting tenants", "Tenants", tenants)
-
-	session.Header = map[string][]string{
-		"X-Scope-OrgID": {strings.Join(tenants, "|")},
-	}
-	return session
-}
 
 // Get all the ObservabilityTenants has permissions for based on direct bindings and group memberships
 func (h *Handler) getUserTenants(subject string) ([]string, error) {
