@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	hydra "github.com/ory/hydra-client-go/v2"
+	"github.com/pluralsh/trace-shield/graph/model"
 	"github.com/pluralsh/trace-shield/utils"
 )
 
@@ -22,16 +23,6 @@ type ConsentRequest struct {
 	Action     ConsentAction `json:"consent_action"`
 	Remember   bool          `json:"remember"`
 	GrantScope []string      `json:"grant_scope"`
-}
-
-type ConsentRequestSessionAccessToken struct {
-	Subject *string `json:"subject,omitempty"`
-}
-
-// ConsentRequestSessionIDToken is the ID token for the consent request session.
-type ConsentRequestSessionIDToken struct {
-	Subject *string `json:"subject,omitempty"`
-	Email   *string `json:"email,omitempty"`
 }
 
 func (h *Handler) Consent(w http.ResponseWriter, r *http.Request) {
@@ -60,8 +51,8 @@ func (h *Handler) Consent(w http.ResponseWriter, r *http.Request) {
 
 	userCtx := ForContext(r.Context())
 
-	accessToken := &ConsentRequestSessionAccessToken{}
-	idToken := &ConsentRequestSessionIDToken{}
+	accessToken := &model.ConsentRequestSessionAccessToken{}
+	idToken := &model.ConsentRequestSessionIDToken{}
 
 	if userCtx != nil {
 
@@ -154,27 +145,4 @@ func toConsentRequest(body string) *ConsentRequest {
 	}
 
 	return result
-}
-
-func (h *Handler) getUserEmail(r *http.Request) string {
-	cookie, err := r.Cookie("ory_kratos_session") // TODO: make this compatible with bearer token
-	if err != nil || cookie == nil {
-		return ""
-	}
-
-	resp, _, err := h.C.KratosPublicClient.FrontendApi.ToSession(context.Background()).Cookie(cookie.String()).Execute()
-	if err != nil {
-		return ""
-	}
-
-	var email string
-	if val, ok := resp.Identity.Traits.(map[string]interface{})["email"]; ok {
-		if foundEmail, ok := val.(string); ok {
-			email = foundEmail
-		} else {
-			h.Log.Error(err, "could not find user email")
-		}
-	}
-
-	return email
 }

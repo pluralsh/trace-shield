@@ -127,8 +127,7 @@ func (h *Handler) Middleware() func(http.Handler) http.Handler {
 			}
 
 			log.Info("Admin check", "user", user.Email, "admin", isAdmin)
-			// TODO: Revert this to `isAdmin`
-			user.IsAdmin = true
+			user.IsAdmin = isAdmin
 
 			// for _, adminEmail := range kubricksConfig.Spec.Admins {
 			// 	if adminEmail == email {

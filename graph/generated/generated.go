@@ -2715,7 +2715,7 @@ extend type Mutation {
     "ACR represents the Authentication AuthorizationContext Class Reference value for this authentication session. You can use it to express that, for example, a user authenticated using two factor authentication."
     acr: String
 
-    "AMR represents the Authentication Methods References. It lists the method used to authenticate the end-user. For instance, if the end-user authenticated using password and OTP, the AMR value would be [\"pwd\", \"otp\"]."
+    "AMR represents the Authentication Methods References. It lists the method used to authenticate the end-user. For instance, if the end-user authenticated using password and OTP, the AMR value would be ['pwd', 'otp']."
     amr: [String!]
 
     "Context contains arbitrary context that is forwarded from the login request. This is useful if you want to pass data from the login request to the consent request."
