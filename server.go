@@ -207,7 +207,7 @@ func initTracer(ctx context.Context) {
 	client := otlptracehttp.NewClient()
 	exp, err := otlptrace.New(ctx, client)
 	if err != nil {
-		log.Fatalf("failed to initialize jaeger export pipeline: %v", err)
+		log.Fatalf("failed to initialize otlp export pipeline: %v", err)
 	}
 
 	tp := sdktrace.NewTracerProvider(
