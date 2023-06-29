@@ -8,7 +8,7 @@ import {useAcceptOAuth2ConsentRequestMutation, useOAuth2ConsentRequestQuery} fro
 export const Consent = (): JSX.Element => {
   const [searchParams] = useSearchParams()
 
-  const challenge = useMemo(() => searchParams.get("consent_challenge"), [searchParams])
+  const challenge = useMemo(() => searchParams.get("consent_challenge") ?? '', [searchParams])
   const csrfCookie = useMemo(() => document.cookie.replace(/(?:(?:^|.*;\s*)_csrf\s*=\s*([^;]*).*$)|^.*$/, "$1"), [])
 
   const {data} = useOAuth2ConsentRequestQuery(
