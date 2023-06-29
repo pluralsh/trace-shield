@@ -200,20 +200,8 @@ func (c *ClientWrapper) UpdateObservabilityTenant(ctx context.Context, id string
 
 	mimirLimits.DeepCopyInto(existingTenant.Spec.Limits.Mimir)
 
-	tenantStruct := &observabilityv1alpha1.Tenant{
-		ObjectMeta: metav1.ObjectMeta{
-			Name:            id,
-			ResourceVersion: existingTenant.GetResourceVersion(),
-		},
-		Spec: observabilityv1alpha1.TenantSpec{
-			Limits: &observabilityv1alpha1.LimitSpec{
-				Mimir: mimirLimits,
-			},
-		},
-	}
-
 	if name != nil {
-		tenantStruct.Spec.DisplayName = *name
+		existingTenant.Spec.DisplayName = *name
 	}
 
 	var tenantRelations []ObservabilityTenantRelation
@@ -338,7 +326,7 @@ func (c *ClientWrapper) UpdateObservabilityTenant(ctx context.Context, id string
 		tenantRelations = append(tenantRelations, relation)
 	}
 
-	tenant, err := c.ControllerClient.ObservabilityV1alpha1().Tenants().Update(ctx, tenantStruct, metav1.UpdateOptions{})
+	tenant, err := c.ControllerClient.ObservabilityV1alpha1().Tenants().Update(ctx, existingTenant, metav1.UpdateOptions{})
 	if err != nil {
 		log.Error(err, "Failed to update observability tenant")
 		return nil, err
