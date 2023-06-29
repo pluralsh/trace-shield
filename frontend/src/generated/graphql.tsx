@@ -13,11 +13,11 @@ export type Scalars = {
   Boolean: boolean;
   Int: number;
   Float: number;
-  Duration: any;
-  FloatMap: any;
-  ForwardingRuleMap: any;
-  Map: any;
-  Time: any;
+  Duration: string;
+  FloatMap: Map<string, number>;
+  ForwardingRuleMap: Map<string, ForwardingRule>;
+  Map: Map<string, unknown>;
+  Time: string;
 };
 
 export type AcceptOAuth2ConsentRequestSession = {
@@ -829,9 +829,9 @@ export type GroupMutationVariables = Exact<{
 
 export type GroupMutation = { __typename?: 'Mutation', group: { __typename?: 'Group', name: string, members?: Array<{ __typename?: 'User', id: string, email: string, name?: { __typename?: 'Name', first?: string | null, last?: string | null } | null }> | null } };
 
-export type OAuth2ConsentRequestFragment = { __typename?: 'OAuth2ConsentRequest', challenge: string, context?: any | null, loginChallenge?: string | null, loginSessionId?: string | null, requestUrl?: string | null, requestedAccessTokenAudience?: Array<string> | null, requestedScope?: Array<string> | null, skip?: boolean | null, subject: string, redirectTo?: string | null, client: { __typename?: 'OAuth2Client', clientId?: string | null, clientName?: string | null, logoUri?: string | null, policyUri?: string | null, scope?: string | null, tosUri?: string | null }, oidcContext?: { __typename?: 'OidcContext', acrValues?: Array<string> | null, display?: string | null, idTokenHintClaims?: any | null, loginHint?: string | null, uiLocales?: Array<string> | null } | null };
+export type OAuth2ConsentRequestFragment = { __typename?: 'OAuth2ConsentRequest', challenge: string, context?: Map<string, unknown> | null, loginChallenge?: string | null, loginSessionId?: string | null, requestUrl?: string | null, requestedAccessTokenAudience?: Array<string> | null, requestedScope?: Array<string> | null, skip?: boolean | null, subject: string, redirectTo?: string | null, client: { __typename?: 'OAuth2Client', clientId?: string | null, clientName?: string | null, logoUri?: string | null, policyUri?: string | null, scope?: string | null, tosUri?: string | null }, oidcContext?: { __typename?: 'OidcContext', acrValues?: Array<string> | null, display?: string | null, idTokenHintClaims?: Map<string, unknown> | null, loginHint?: string | null, uiLocales?: Array<string> | null } | null };
 
-export type OAuthConsentOidcContextFragment = { __typename?: 'OidcContext', acrValues?: Array<string> | null, display?: string | null, idTokenHintClaims?: any | null, loginHint?: string | null, uiLocales?: Array<string> | null };
+export type OAuthConsentOidcContextFragment = { __typename?: 'OidcContext', acrValues?: Array<string> | null, display?: string | null, idTokenHintClaims?: Map<string, unknown> | null, loginHint?: string | null, uiLocales?: Array<string> | null };
 
 export type OAuth2ConsentClientFragment = { __typename?: 'OAuth2Client', clientId?: string | null, clientName?: string | null, logoUri?: string | null, policyUri?: string | null, scope?: string | null, tosUri?: string | null };
 
@@ -840,7 +840,7 @@ export type OAuth2ConsentRequestQueryVariables = Exact<{
 }>;
 
 
-export type OAuth2ConsentRequestQuery = { __typename?: 'Query', oauth2ConsentRequest?: { __typename?: 'OAuth2ConsentRequest', challenge: string, context?: any | null, loginChallenge?: string | null, loginSessionId?: string | null, requestUrl?: string | null, requestedAccessTokenAudience?: Array<string> | null, requestedScope?: Array<string> | null, skip?: boolean | null, subject: string, redirectTo?: string | null, client: { __typename?: 'OAuth2Client', clientId?: string | null, clientName?: string | null, logoUri?: string | null, policyUri?: string | null, scope?: string | null, tosUri?: string | null }, oidcContext?: { __typename?: 'OidcContext', acrValues?: Array<string> | null, display?: string | null, idTokenHintClaims?: any | null, loginHint?: string | null, uiLocales?: Array<string> | null } | null } | null };
+export type OAuth2ConsentRequestQuery = { __typename?: 'Query', oauth2ConsentRequest?: { __typename?: 'OAuth2ConsentRequest', challenge: string, context?: Map<string, unknown> | null, loginChallenge?: string | null, loginSessionId?: string | null, requestUrl?: string | null, requestedAccessTokenAudience?: Array<string> | null, requestedScope?: Array<string> | null, skip?: boolean | null, subject: string, redirectTo?: string | null, client: { __typename?: 'OAuth2Client', clientId?: string | null, clientName?: string | null, logoUri?: string | null, policyUri?: string | null, scope?: string | null, tosUri?: string | null }, oidcContext?: { __typename?: 'OidcContext', acrValues?: Array<string> | null, display?: string | null, idTokenHintClaims?: Map<string, unknown> | null, loginHint?: string | null, uiLocales?: Array<string> | null } | null } | null };
 
 export type AcceptOAuth2ConsentRequestMutationVariables = Exact<{
   challenge: Scalars['String'];
@@ -859,9 +859,9 @@ export type RejectOAuth2ConsentRequestMutationVariables = Exact<{
 
 export type RejectOAuth2ConsentRequestMutation = { __typename?: 'Mutation', rejectOAuth2ConsentRequest: { __typename?: 'OAuth2RedirectTo', redirectTo: string } };
 
-export type OAuth2LoginRequestFragment = { __typename?: 'OAuth2LoginRequest', challenge: string, requestUrl?: string | null, requestedAccessTokenAudience?: Array<string> | null, requestedScope?: Array<string> | null, sessionId?: string | null, skip?: boolean | null, subject: string, redirectTo?: string | null, client: { __typename?: 'OAuth2Client', clientId?: string | null, clientName?: string | null, logoUri?: string | null, policyUri?: string | null, scope?: string | null, tosUri?: string | null }, oidcContext?: { __typename?: 'OidcContext', acrValues?: Array<string> | null, display?: string | null, idTokenHintClaims?: any | null, loginHint?: string | null, uiLocales?: Array<string> | null } | null };
+export type OAuth2LoginRequestFragment = { __typename?: 'OAuth2LoginRequest', challenge: string, requestUrl?: string | null, requestedAccessTokenAudience?: Array<string> | null, requestedScope?: Array<string> | null, sessionId?: string | null, skip?: boolean | null, subject: string, redirectTo?: string | null, client: { __typename?: 'OAuth2Client', clientId?: string | null, clientName?: string | null, logoUri?: string | null, policyUri?: string | null, scope?: string | null, tosUri?: string | null }, oidcContext?: { __typename?: 'OidcContext', acrValues?: Array<string> | null, display?: string | null, idTokenHintClaims?: Map<string, unknown> | null, loginHint?: string | null, uiLocales?: Array<string> | null } | null };
 
-export type OAuthLoginOidcContextFragment = { __typename?: 'OidcContext', acrValues?: Array<string> | null, display?: string | null, idTokenHintClaims?: any | null, loginHint?: string | null, uiLocales?: Array<string> | null };
+export type OAuthLoginOidcContextFragment = { __typename?: 'OidcContext', acrValues?: Array<string> | null, display?: string | null, idTokenHintClaims?: Map<string, unknown> | null, loginHint?: string | null, uiLocales?: Array<string> | null };
 
 export type OAuth2LoginClientFragment = { __typename?: 'OAuth2Client', clientId?: string | null, clientName?: string | null, logoUri?: string | null, policyUri?: string | null, scope?: string | null, tosUri?: string | null };
 
@@ -870,7 +870,7 @@ export type OAuth2LoginRequestQueryVariables = Exact<{
 }>;
 
 
-export type OAuth2LoginRequestQuery = { __typename?: 'Query', oauth2LoginRequest?: { __typename?: 'OAuth2LoginRequest', challenge: string, requestUrl?: string | null, requestedAccessTokenAudience?: Array<string> | null, requestedScope?: Array<string> | null, sessionId?: string | null, skip?: boolean | null, subject: string, redirectTo?: string | null, client: { __typename?: 'OAuth2Client', clientId?: string | null, clientName?: string | null, logoUri?: string | null, policyUri?: string | null, scope?: string | null, tosUri?: string | null }, oidcContext?: { __typename?: 'OidcContext', acrValues?: Array<string> | null, display?: string | null, idTokenHintClaims?: any | null, loginHint?: string | null, uiLocales?: Array<string> | null } | null } | null };
+export type OAuth2LoginRequestQuery = { __typename?: 'Query', oauth2LoginRequest?: { __typename?: 'OAuth2LoginRequest', challenge: string, requestUrl?: string | null, requestedAccessTokenAudience?: Array<string> | null, requestedScope?: Array<string> | null, sessionId?: string | null, skip?: boolean | null, subject: string, redirectTo?: string | null, client: { __typename?: 'OAuth2Client', clientId?: string | null, clientName?: string | null, logoUri?: string | null, policyUri?: string | null, scope?: string | null, tosUri?: string | null }, oidcContext?: { __typename?: 'OidcContext', acrValues?: Array<string> | null, display?: string | null, idTokenHintClaims?: Map<string, unknown> | null, loginHint?: string | null, uiLocales?: Array<string> | null } | null } | null };
 
 export type AcceptOAuth2LoginRequestMutationVariables = Exact<{
   challenge: Scalars['String'];

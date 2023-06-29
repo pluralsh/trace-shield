@@ -247,7 +247,7 @@ export default function Layout() {
                 <Menu />
               </IconButton>
               <Typography variant="h6" noWrap component="div" mt={0.5}>
-                Kubricks
+                Trace Shield
               </Typography>
               <Box marginLeft={2}>
                 {/* <SelectNamespaceMenu /> */}

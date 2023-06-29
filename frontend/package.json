@@ -1,5 +1,5 @@
 {
-  "name": "kubricks-frontend",
+  "name": "trace-shield-frontend",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -45,19 +45,16 @@
     "@mui/x-data-grid": "5.0.1",
     "@ory/client": "1.1.39",
     "@ory/elements": "0.0.1-beta.6",
-    "@ory/integrations": "1.1.1",
-    "@ory/kratos-client": "0.13.1",
     "axios": "0.27.2",
     "moment": "2.29.1",
-    "query-string": "7.1.1",
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "react-router-dom": "6.2.2",
     "react-scripts": "5.0.1",
-    "recoil": "0.7.1",
-    "web-vitals": "3.3.0"
+    "recoil": "0.7.1"
   },
   "devDependencies": {
+    "@graphql-codegen/add": "^5.0.0",
     "@graphql-codegen/cli": "2.16.5",
     "@graphql-codegen/introspection": "2.2.3",
     "@graphql-codegen/named-operations-object": "2.3.1",
@@ -78,19 +75,8 @@
     "@typescript-eslint/parser": "5.27.0",
     "eslint-config-prettier": "8.5.0",
     "eslint-config-react-app": "6.0.0",
+    "graphql-scalars": "^1.22.2",
     "prettier": "2.6.2",
-    "typescript": "4.9.5",
-    "workbox-background-sync": "6.4.2",
-    "workbox-broadcast-update": "6.4.2",
-    "workbox-cacheable-response": "6.4.2",
-    "workbox-core": "6.4.2",
-    "workbox-expiration": "6.4.2",
-    "workbox-google-analytics": "6.4.2",
-    "workbox-navigation-preload": "6.4.2",
-    "workbox-precaching": "6.4.2",
-    "workbox-range-requests": "6.4.2",
-    "workbox-routing": "6.4.2",
-    "workbox-strategies": "6.4.2",
-    "workbox-streams": "6.4.2"
+    "typescript": "4.9.5"
   }
 }
