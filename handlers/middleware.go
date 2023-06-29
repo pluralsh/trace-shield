@@ -9,6 +9,8 @@ import (
 	kratosClient "github.com/ory/kratos-client-go"
 
 	"github.com/pluralsh/trace-shield/consts"
+	"go.opentelemetry.io/otel/propagation"
+	"go.opentelemetry.io/otel/trace"
 )
 
 // A private key for context that only this package can access. This is important
@@ -46,6 +48,13 @@ func (h *Handler) Middleware() func(http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			log := h.Log.WithName("Middleware")
 
+			// ctx := h.Propagators.Extract(r.Context(), propagation.HeaderCarrier(r.Header))
+			ctx := r.Context()
+			span := trace.SpanFromContext(ctx)
+			// bag := baggage.FromContext(ctx)
+			span.AddEvent("handling request...")
+			defer span.End()
+
 			cookie, err := r.Cookie("ory_kratos_session") // TODO: make this compatible with bearer token
 			// Allow unauthenticated users in
 			if err != nil || cookie == nil {
@@ -55,7 +64,7 @@ func (h *Handler) Middleware() func(http.Handler) http.Handler {
 
 			// log.Info(fmt.Sprintf("Cookie: %s", cookie.String()))
 
-			resp, req, err := h.C.KratosPublicClient.FrontendApi.ToSession(context.Background()).Cookie(cookie.String()).Execute()
+			resp, req, err := h.C.KratosPublicClient.FrontendApi.ToSession(ctx).Cookie(cookie.String()).Execute()
 			if err != nil {
 				// TODO: should we return here?
 				log.Error(err, fmt.Sprintf("Error when calling `V0alpha2Api.ToSession``: %v\n", err))
@@ -113,7 +122,7 @@ func (h *Handler) Middleware() func(http.Handler) http.Handler {
 				),
 			}
 
-			isAdmin, err := h.C.KetoClient.Check(context.Background(), &adminQuery)
+			isAdmin, err := h.C.KetoClient.Check(ctx, &adminQuery)
 			if err != nil {
 				log.Error(err, "Error when checking if user is admin")
 			}
@@ -127,11 +136,12 @@ func (h *Handler) Middleware() func(http.Handler) http.Handler {
 			// 	}
 			// }
 
-			ctx := context.WithValue(r.Context(), userCtxKey, user)
+			ctx = context.WithValue(ctx, userCtxKey, user)
 
 			// and call the next with our new context
 			log.Info("Success auth", "user", user.Email)
 			r = r.WithContext(ctx)
+			h.Propagators.Inject(ctx, propagation.HeaderCarrier(r.Header))
 			next.ServeHTTP(w, r)
 		})
 	}

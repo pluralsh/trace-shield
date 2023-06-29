@@ -55,7 +55,9 @@ func (r *oAuth2ClientResolver) LoginBindings(ctx context.Context, obj *model.OAu
 
 // ListOAuth2Clients is the resolver for the listOAuth2Clients field.
 func (r *queryResolver) ListOAuth2Clients(ctx context.Context) ([]*model.OAuth2Client, error) {
-	return r.C.ListOAuth2Clients(ctx)
+	newCtx, span := r.Tracer.Start(ctx, "listOAuth2Clients")
+	defer span.End()
+	return r.C.ListOAuth2Clients(newCtx)
 }
 
 // GetOAuth2Client is the resolver for the getOAuth2Client field.

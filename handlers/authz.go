@@ -104,7 +104,7 @@ func (h *Handler) ObservabilityTenantPolicyCheck(w http.ResponseWriter, r *http.
 			}
 		} else {
 			// get all the groups a user is a member of
-			groups, err := h.getUserGroups(p.Subject)
+			groups, err := h.getUserGroups(r.Context(), p.Subject)
 			if err != nil {
 				log.Error(err, "Failed to get user groups")
 			}

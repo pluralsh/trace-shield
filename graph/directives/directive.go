@@ -1,7 +1,11 @@
 package directives
 
-import "github.com/pluralsh/trace-shield/clients"
+import (
+	"github.com/pluralsh/trace-shield/clients"
+	"go.opentelemetry.io/otel/trace"
+)
 
 type Directive struct {
-	C *clients.ClientWrapper
+	C      *clients.ClientWrapper
+	Tracer trace.Tracer
 }

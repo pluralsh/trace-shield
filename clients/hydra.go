@@ -2,9 +2,11 @@ package clients
 
 import (
 	"fmt"
+	"net/http"
 	"os"
 
 	hydra "github.com/ory/hydra-client-go/v2"
+	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
 )
 
 const (
@@ -19,6 +21,7 @@ func NewHydraAdminClient() (*hydra.APIClient, error) {
 	if hydraAdminUrl == "" {
 		return nil, fmt.Errorf("No admin address configured for hydra")
 	}
+	client := http.Client{Transport: otelhttp.NewTransport(http.DefaultTransport)}
 	hydraAdminConfiguration := hydra.NewConfiguration()
 	hydraAdminConfiguration.Scheme = "http"
 	hydraAdminConfiguration.Servers = []hydra.ServerConfiguration{
@@ -26,6 +29,7 @@ func NewHydraAdminClient() (*hydra.APIClient, error) {
 			URL: hydraAdminUrl, // Hydra Admin API
 		},
 	}
+	hydraAdminConfiguration.HTTPClient = &client
 	hydraAdminClient := hydra.NewAPIClient(hydraAdminConfiguration)
 	return hydraAdminClient, nil
 }

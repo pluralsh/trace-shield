@@ -22,8 +22,10 @@ import (
 	"github.com/ravilushqa/otelgqlgen"
 	"go.opentelemetry.io/otel"
 
-	// "go.opentelemetry.io/otel/exporters/stdout/stdouttrace"
+	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
+	jaegerProp "go.opentelemetry.io/contrib/propagators/jaeger"
 	"go.opentelemetry.io/otel/exporters/jaeger"
+	"go.opentelemetry.io/otel/exporters/stdout/stdouttrace"
 	"go.opentelemetry.io/otel/propagation"
 	sdktrace "go.opentelemetry.io/otel/sdk/trace"
 
@@ -101,12 +103,15 @@ func main() {
 	}
 
 	directives := &directives.Directive{
-		C: clientWrapper,
+		C:      clientWrapper,
+		Tracer: tracer,
 	}
 
 	handlers := &handlers.Handler{
-		C:   clientWrapper,
-		Log: ctrl.Log.WithName("handlers"),
+		C:           clientWrapper,
+		Tracer:      tracer,
+		Propagators: otel.GetTextMapPropagator(),
+		Log:         ctrl.Log.WithName("handlers"),
 	}
 
 	if err := serve(ctx, resolver, directives, handlers); err != nil {
@@ -160,9 +165,11 @@ func serve(ctx context.Context, resolver *resolvers.Resolver, directives *direct
 	router.Post("/check", handlers.ObservabilityTenantPolicyCheck)
 	router.Post("/oauth2/consent", handlers.Consent)
 
+	otelHandler := otelhttp.NewHandler(router, "Router")
+
 	srv := &http.Server{
 		Addr:    ":" + port,
-		Handler: router,
+		Handler: otelHandler,
 	}
 
 	go func() {
@@ -198,19 +205,23 @@ func serve(ctx context.Context, resolver *resolvers.Resolver, directives *direct
 }
 
 func initTracer() {
-	// traceExporter, err := stdouttrace.New(
-	// 	stdouttrace.WithPrettyPrint(),
-	// )
-	exp, err := jaeger.New(jaeger.WithCollectorEndpoint())
+	traceExporter, err := stdouttrace.New(
+		stdouttrace.WithPrettyPrint(),
+	)
 	if err != nil {
 		log.Fatalf("failed to initialize stdouttrace export pipeline: %v", err)
+	}
+	exp, err := jaeger.New(jaeger.WithCollectorEndpoint())
+	if err != nil {
+		log.Fatalf("failed to initialize jaeger export pipeline: %v", err)
 	}
 
 	tp := sdktrace.NewTracerProvider(
 		sdktrace.WithSampler(sdktrace.AlwaysSample()),
 		sdktrace.WithSyncer(exp),
+		sdktrace.WithSyncer(traceExporter),
 	)
 
 	otel.SetTracerProvider(tp)
-	otel.SetTextMapPropagator(propagation.NewCompositeTextMapPropagator(propagation.TraceContext{}, propagation.Baggage{}))
+	otel.SetTextMapPropagator(propagation.NewCompositeTextMapPropagator(jaegerProp.Jaeger{}, propagation.TraceContext{}, propagation.Baggage{}))
 }

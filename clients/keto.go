@@ -9,6 +9,7 @@ import (
 	"strings"
 	"time"
 
+	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
 	"golang.org/x/oauth2"
 
 	"google.golang.org/grpc"
@@ -126,6 +127,8 @@ func KetoConn(ctx context.Context, remote string, cd *KetoConnectionDetails) (*g
 		append([]grpc.DialOption{
 			grpc.WithBlock(),
 			grpc.WithDisableHealthCheck(),
+			grpc.WithUnaryInterceptor(otelgrpc.UnaryClientInterceptor()),
+			grpc.WithStreamInterceptor(otelgrpc.StreamClientInterceptor()),
 		}, cd.dialOptions()...)...,
 	)
 }

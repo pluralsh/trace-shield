@@ -13,22 +13,22 @@ import (
 )
 
 // Get all the ObservabilityTenants has permissions for based on direct bindings and group memberships
-func (h *Handler) getUserTenants(subject string) ([]string, error) {
+func (h *Handler) getUserTenants(ctx context.Context, subject string) ([]string, error) {
 	// get all the groups a user is a member of
-	groups, err := h.getUserGroups(subject)
+	groups, err := h.getUserGroups(ctx, subject)
 	if err != nil {
 		return []string{}, err
 	}
 
 	// get all the tenants a user has permissions for
-	tenants, err := h.getUserDirectTenants(subject)
+	tenants, err := h.getUserDirectTenants(ctx, subject)
 	if err != nil {
 		return []string{}, err
 	}
 
 	// get all the tenants a user has permissions for via group membership
 	for _, group := range groups {
-		groupTenants, err := h.getGroupTenants(group)
+		groupTenants, err := h.getGroupTenants(ctx, group)
 		if err != nil {
 			return []string{}, err
 		}
@@ -36,12 +36,12 @@ func (h *Handler) getUserTenants(subject string) ([]string, error) {
 	}
 
 	// get all the tenants a user has permissions for via organization admin permissions
-	orgs, err := h.isOrgAdmin(subject)
+	orgs, err := h.isOrgAdmin(ctx, subject)
 	if err != nil {
 		return []string{}, err
 	}
 	for _, org := range orgs {
-		orgTenants, err := h.getOrgTenants(org)
+		orgTenants, err := h.getOrgTenants(ctx, org)
 		if err != nil {
 			return []string{}, err
 		}
@@ -52,13 +52,13 @@ func (h *Handler) getUserTenants(subject string) ([]string, error) {
 }
 
 // Check in which organizations a user is an admin
-func (h *Handler) isOrgAdmin(subject string) ([]string, error) {
+func (h *Handler) isOrgAdmin(ctx context.Context, subject string) ([]string, error) {
 	query := rts.RelationQuery{
 		Namespace: px.Ptr(consts.OrganizationNamespace.String()),
 		Relation:  px.Ptr(consts.OrganizationRelationAdmins.String()),
 		Subject:   rts.NewSubjectSet(consts.UserNamespace.String(), subject, ""),
 	}
-	respTuples, err := h.C.KetoClient.QueryAllTuples(context.Background(), &query, 100)
+	respTuples, err := h.C.KetoClient.QueryAllTuples(ctx, &query, 100)
 	if err != nil {
 		return []string{}, err
 	}
@@ -75,12 +75,12 @@ func (h *Handler) isOrgAdmin(subject string) ([]string, error) {
 }
 
 // Get all the ObservabilityTenants that belong to an organization
-func (h *Handler) getOrgTenants(org string) ([]string, error) {
+func (h *Handler) getOrgTenants(ctx context.Context, org string) ([]string, error) {
 	query := rts.RelationQuery{
 		Namespace: px.Ptr(consts.ObservabilityTenantNamespace.String()),
 		Subject:   rts.NewSubjectSet("Organization", org, ""),
 	}
-	respTuples, err := h.C.KetoClient.QueryAllTuples(context.Background(), &query, 100)
+	respTuples, err := h.C.KetoClient.QueryAllTuples(ctx, &query, 100)
 	if err != nil {
 		return []string{}, err
 	}
@@ -97,13 +97,13 @@ func (h *Handler) getOrgTenants(org string) ([]string, error) {
 }
 
 // Get the groups a user is a member of
-func (h *Handler) getUserGroups(subject string) ([]string, error) {
+func (h *Handler) getUserGroups(ctx context.Context, subject string) ([]string, error) {
 	query := rts.RelationQuery{
 		Namespace: px.Ptr("Group"),
 		Relation:  px.Ptr("members"),
 		Subject:   rts.NewSubjectSet("User", subject, ""),
 	}
-	respTuples, err := h.C.KetoClient.QueryAllTuples(context.Background(), &query, 100)
+	respTuples, err := h.C.KetoClient.QueryAllTuples(ctx, &query, 100)
 	if err != nil {
 		return []string{}, err
 	}
@@ -120,12 +120,12 @@ func (h *Handler) getUserGroups(subject string) ([]string, error) {
 }
 
 // Get the ObservabilityTenants a user has permissions for
-func (h *Handler) getUserDirectTenants(subject string) ([]string, error) {
+func (h *Handler) getUserDirectTenants(ctx context.Context, subject string) ([]string, error) {
 	query := rts.RelationQuery{
 		Namespace: px.Ptr(consts.ObservabilityTenantNamespace.String()),
 		Subject:   rts.NewSubjectSet("User", subject, ""),
 	}
-	respTuples, err := h.C.KetoClient.QueryAllTuples(context.Background(), &query, 100)
+	respTuples, err := h.C.KetoClient.QueryAllTuples(ctx, &query, 100)
 	if err != nil {
 		return []string{}, err
 	}
@@ -142,12 +142,12 @@ func (h *Handler) getUserDirectTenants(subject string) ([]string, error) {
 }
 
 // Get the ObservabilityTenants a group has permissions for
-func (h *Handler) getGroupTenants(group string) ([]string, error) {
+func (h *Handler) getGroupTenants(ctx context.Context, group string) ([]string, error) {
 	query := rts.RelationQuery{
 		Namespace: px.Ptr(consts.ObservabilityTenantNamespace.String()),
 		Subject:   rts.NewSubjectSet("Group", group, "members"),
 	}
-	respTuples, err := h.C.KetoClient.QueryAllTuples(context.Background(), &query, 100)
+	respTuples, err := h.C.KetoClient.QueryAllTuples(ctx, &query, 100)
 	if err != nil {
 		return []string{}, err
 	}
