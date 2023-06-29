@@ -7,12 +7,51 @@ package resolvers
 import (
 	"context"
 
+	hydra "github.com/ory/hydra-client-go/v2"
 	"github.com/pluralsh/trace-shield/graph/model"
+	"github.com/pluralsh/trace-shield/handlers"
+	"github.com/pluralsh/trace-shield/utils"
 )
+
+// ConsentRequestSessionAccessToken is the access token for the consent request session.
+type ConsentRequestSessionAccessToken struct {
+	Subject *string `json:"subject,omitempty"`
+}
+
+// ConsentRequestSessionIDToken is the ID token for the consent request session.
+type ConsentRequestSessionIDToken struct {
+	Subject *string `json:"subject,omitempty"`
+	Email   *string `json:"email,omitempty"`
+}
 
 // AcceptOAuth2ConsentRequest is the resolver for the acceptOAuth2ConsentRequest field.
 func (r *mutationResolver) AcceptOAuth2ConsentRequest(ctx context.Context, challenge string, grantAccessTokenAudience []string, grantScope []string, remember *bool, rememberFor *int64) (*model.OAuth2RedirectTo, error) {
-	return r.C.AcceptOAuth2ConsentRequest(ctx, challenge, grantAccessTokenAudience, grantScope, remember, rememberFor)
+
+	userCtx := handlers.ForContext(ctx)
+
+	accessToken := &ConsentRequestSessionAccessToken{}
+	idToken := &ConsentRequestSessionIDToken{}
+
+	if userCtx != nil {
+
+		accessToken.Subject = &userCtx.Id
+		idToken.Subject = &userCtx.Id
+
+		if grantScope != nil && &userCtx.Email != nil {
+			if utils.StringContains(grantScope, "email") {
+				idToken.Email = &userCtx.Email
+			}
+		}
+	} else {
+		r.C.Log.Info("No user context found for OAuth2 consent request")
+	}
+
+	outSession := &hydra.AcceptOAuth2ConsentRequestSession{
+		AccessToken: accessToken,
+		IdToken:     idToken,
+	}
+
+	return r.C.AcceptOAuth2ConsentRequest(ctx, challenge, grantAccessTokenAudience, grantScope, remember, rememberFor, outSession)
 }
 
 // RejectOAuth2ConsentRequest is the resolver for the rejectOAuth2ConsentRequest field.
