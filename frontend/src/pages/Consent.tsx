@@ -34,7 +34,7 @@ export const Consent = (): JSX.Element => {
         },
       },
     ).then((response) => {
-      if (!!response?.data?.acceptOAuth2ConsentRequest?.redirectTo) {
+      if (response?.data?.acceptOAuth2ConsentRequest?.redirectTo) {
         (window as Window).location = response.data.acceptOAuth2ConsentRequest.redirectTo
       } else {
         console.error("Could not redirect to redirectTo for acceptOAuth2ConsentRequest")
