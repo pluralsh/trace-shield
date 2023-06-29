@@ -6,9 +6,16 @@ import (
 
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/pluralsh/trace-shield/handlers"
+	"go.opentelemetry.io/otel/attribute"
+	"go.opentelemetry.io/otel/codes"
 )
 
 func (d *Directive) CheckPermissions(ctx context.Context, obj interface{}, next graphql.Resolver) (interface{}, error) {
+
+	log := d.C.Log.WithName("CheckPermissions")
+
+	ctx, span := d.C.Tracer.Start(ctx, "CheckPermissions")
+	defer span.End()
 
 	// setupLog.Info("Scope directive", "object", graphql.GetFieldContext(ctx).Parent)
 
@@ -82,23 +89,41 @@ func (d *Directive) CheckPermissions(ctx context.Context, obj interface{}, next 
 	// 	namespace); err != nil {
 
 	// 	// TODO: remove debug log message
-	// 	setupLog.Info("scope directive failed")
+	// 	setupLog.Info("permission directive failed")
 	// 	return nil, fmt.Errorf("Access denied: User is not allowed to '%s' '%s' in namespace '%s'. Error: %s", verb, TypeSar.Resource, namespace, err)
 	// }
 
 	userCtx := handlers.ForContext(ctx)
 	if userCtx != nil {
 		if !userCtx.IsAdmin {
-			return nil, fmt.Errorf("Access denied: User '%s' does not have required permissions.", userCtx.Email)
+			err := fmt.Errorf("Access denied: User does not have required permissions.")
+			log.Error(err, "permission directive failed", "userId", userCtx.Id, "email", userCtx.Email)
+			span.RecordError(err)
+			span.SetStatus(codes.Error, err.Error())
+			if span.IsRecording() {
+				span.SetAttributes(
+					attribute.String("user_id", userCtx.Id),
+					attribute.String("email", userCtx.Email),
+				)
+			}
+			return nil, err
 		}
 	} else {
-		// TODO: remove debug log message
-		d.C.Log.Info("scope directive failed")
-		return nil, fmt.Errorf("Access denied: User does not have required permissions.")
+		err := fmt.Errorf("Access denied: No known user.")
+		log.Error(err, "permission directive failed")
+		span.RecordError(err)
+		span.SetStatus(codes.Error, err.Error())
+		return nil, err
 	}
 
-	// TODO: remove debug log message
-	d.C.Log.Info("scope directive successful")
+	log.Info("User has required permissions.", "userId", userCtx.Id, "email", userCtx.Email)
+
+	if span.IsRecording() {
+		span.SetAttributes(
+			attribute.String("user_id", userCtx.Id),
+			attribute.String("email", userCtx.Email),
+		)
+	}
 
 	// or let it pass through
 	return next(ctx)

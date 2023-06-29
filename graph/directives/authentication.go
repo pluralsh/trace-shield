@@ -7,33 +7,61 @@ import (
 
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/pluralsh/trace-shield/handlers"
+	"go.opentelemetry.io/otel/attribute"
+	"go.opentelemetry.io/otel/codes"
 )
 
 func (d *Directive) IsAuthenticated(ctx context.Context, obj interface{}, next graphql.Resolver) (interface{}, error) {
+	log := d.C.Log.WithName("IsAuthenticated")
+
+	ctx, span := d.C.Tracer.Start(ctx, "IsAuthenticated")
+	defer span.End()
+
 	userCtx := handlers.ForContext(ctx)
 	if userCtx != nil {
 
-		if userCtx.KratosSession != nil {
+		if userCtx.KratosSession != nil && userCtx.Email != "" {
 
 			session := userCtx.KratosSession
 
 			if !session.GetActive() || session.ExpiresAt.Before(time.Now()) {
-				return nil, fmt.Errorf("Access denied: User session not active or has expired.")
+				err := fmt.Errorf("Access denied: User session not active or has expired.")
+				log.Error(err, "auth directive failed", "userId", session.Identity.Id, "email", userCtx.Email)
+				if span.IsRecording() {
+					span.SetAttributes(
+						attribute.String("user_id", session.Identity.Id),
+						attribute.String("email", userCtx.Email),
+					)
+				}
+				span.RecordError(err)
+				span.SetStatus(codes.Error, err.Error())
+				return nil, err
 			}
 		} else {
-			// TODO: remove debug log message
-			d.C.Log.Info("auth directive failed")
-			return nil, fmt.Errorf("Access denied: User must be logged in.")
+			err := fmt.Errorf("Access denied: No known session for user.")
+			log.Error(err, "auth directive failed")
+			span.RecordError(err)
+			span.SetStatus(codes.Error, err.Error())
+			return nil, err
 		}
 	} else {
-		// TODO: remove debug log message
-		d.C.Log.Info("auth directive failed")
-		return nil, fmt.Errorf("Access denied: User must be logged in.")
+		err := fmt.Errorf("Access denied: No known user.")
+		log.Error(err, "auth directive failed")
+		span.RecordError(err)
+		span.SetStatus(codes.Error, err.Error())
+		return nil, err
 	}
 
 	// TODO: remove debug log message
 	// setupLog.Info("auth directive successful")
-	d.C.Log.Info("auth directive successful")
+	log.Info("Successfully authenticated user.", "userId", userCtx.Id, "email", userCtx.Email)
+
+	if span.IsRecording() {
+		span.SetAttributes(
+			attribute.String("user_id", userCtx.Id),
+			attribute.String("email", userCtx.Email),
+		)
+	}
 
 	// let it pass through if user is authenticated
 	return next(ctx)

@@ -8,12 +8,24 @@ import (
 	px "github.com/ory/x/pointerx"
 	"github.com/pluralsh/trace-shield/consts"
 	"github.com/pluralsh/trace-shield/graph/model"
+	"github.com/pluralsh/trace-shield/utils"
+	"go.opentelemetry.io/otel/attribute"
+	"go.opentelemetry.io/otel/codes"
 )
 
 func (c *ClientWrapper) MutateGroup(ctx context.Context, name string, members []string) (*model.Group, error) {
 
 	// TODO: figure out which members to add or remove
 	log := c.Log.WithName("Group").WithValues("Name", name)
+
+	ctx, span := c.Tracer.Start(ctx, "MutateGroup")
+	defer span.End()
+
+	if span.IsRecording() {
+		span.SetAttributes(
+			attribute.String("name", name),
+		)
+	}
 
 	// TODO: figure out how to distinguish between creating or updating a group
 	// updating a group would require that we first check if it exists and if a user is allowed to update it
@@ -67,8 +79,17 @@ func (c *ClientWrapper) MutateGroup(ctx context.Context, name string, members []
 
 // function that determines which users to add or remove from a group
 func (c *ClientWrapper) GroupChangeset(ctx context.Context, groupName string, members []string) (toAdd []string, toRemove []string, err error) {
-	currentMembers, err := c.GetGroupMembersInKeto(ctx, groupName)
 
+	ctx, span := c.Tracer.Start(ctx, "GroupChangeset")
+	defer span.End()
+
+	if span.IsRecording() {
+		span.SetAttributes(
+			attribute.String("group_id", groupName),
+		)
+	}
+
+	currentMembers, err := c.GetGroupMembersInKeto(ctx, groupName)
 	if err != nil {
 		return nil, nil, fmt.Errorf("failed to get current members: %w", err)
 	}
@@ -80,7 +101,7 @@ func (c *ClientWrapper) GroupChangeset(ctx context.Context, groupName string, me
 	}
 
 	for _, member := range currentMembers {
-		if !stringContains(members, member.ID) {
+		if !utils.StringContains(members, member.ID) {
 			toRemove = append(toRemove, member.ID)
 		}
 	}
@@ -108,24 +129,26 @@ func groupNameInListOfGroups(groups []*model.Group, groupId string) bool {
 	return false
 }
 
-// function that checks if a string is in a []string
-func stringContains(list []string, s string) bool {
-	for _, u := range list {
-		if u == s {
-			return true
-		}
-	}
-	return false
-}
-
 // function that checks if a user is part of a group
 func (c *ClientWrapper) IsUserInGroup(ctx context.Context, groupName string, userId string) (bool, error) {
 	log := c.Log.WithName("IsUserInGroup").WithValues("Name", groupName)
+
+	ctx, span := c.Tracer.Start(ctx, "GroupChangeset")
+	defer span.End()
+
+	if span.IsRecording() {
+		span.SetAttributes(
+			attribute.String("group_id", groupName),
+		)
+	}
 
 	group := model.NewGroup(groupName)
 
 	_, err := c.KetoClient.Check(ctx, group.GetUserTuple(userId))
 	if err != nil {
+		log.Error(err, "Failed to check tuple")
+		span.RecordError(err)
+		span.SetStatus(codes.Error, err.Error())
 		return false, fmt.Errorf("failed to check tuple: %w", err)
 	}
 
@@ -137,10 +160,22 @@ func (c *ClientWrapper) IsUserInGroup(ctx context.Context, groupName string, use
 func (c *ClientWrapper) CreateGroupInKeto(ctx context.Context, name string) error {
 	log := c.Log.WithName("CreateGroupInKeto").WithValues("Name", name)
 
+	ctx, span := c.Tracer.Start(ctx, "CreateGroupInKeto")
+	defer span.End()
+
+	if span.IsRecording() {
+		span.SetAttributes(
+			attribute.String("name", name),
+		)
+	}
+
 	group := model.NewGroup(name)
 
 	err := c.KetoClient.CreateTuple(ctx, group.GetOrganizationTuple())
 	if err != nil {
+		log.Error(err, "Failed to create tuple")
+		span.RecordError(err)
+		span.SetStatus(codes.Error, err.Error())
 		return fmt.Errorf("failed to create tuple: %w", err)
 	}
 
@@ -152,10 +187,23 @@ func (c *ClientWrapper) CreateGroupInKeto(ctx context.Context, name string) erro
 func (c *ClientWrapper) AddUserToGroupInKeto(ctx context.Context, groupName string, userId string) error {
 	log := c.Log.WithName("AddUserToGroupInKeto").WithValues("Name", groupName)
 
+	ctx, span := c.Tracer.Start(ctx, "AddUserToGroupInKeto")
+	defer span.End()
+
+	if span.IsRecording() {
+		span.SetAttributes(
+			attribute.String("group_id", groupName),
+			attribute.String("user_id", userId),
+		)
+	}
+
 	group := model.NewGroup(groupName)
 
 	err := c.KetoClient.CreateTuple(ctx, group.GetUserTuple(userId))
 	if err != nil {
+		log.Error(err, "Failed to create tuple")
+		span.RecordError(err)
+		span.SetStatus(codes.Error, err.Error())
 		return fmt.Errorf("failed to create tuple: %w", err)
 	}
 
@@ -167,10 +215,23 @@ func (c *ClientWrapper) AddUserToGroupInKeto(ctx context.Context, groupName stri
 func (c *ClientWrapper) RemoveUserFromGroupInKeto(ctx context.Context, groupName string, userId string) error {
 	log := c.Log.WithName("RemoveUserFromGroupInKeto").WithValues("Name", groupName)
 
+	ctx, span := c.Tracer.Start(ctx, "RemoveUserFromGroupInKeto")
+	defer span.End()
+
+	if span.IsRecording() {
+		span.SetAttributes(
+			attribute.String("group_id", groupName),
+			attribute.String("user_id", userId),
+		)
+	}
+
 	group := model.NewGroup(groupName)
 
 	err := c.KetoClient.DeleteTuple(ctx, group.GetUserTuple(userId))
 	if err != nil {
+		log.Error(err, "Failed to delete tuple")
+		span.RecordError(err)
+		span.SetStatus(codes.Error, err.Error())
 		return fmt.Errorf("failed to delete tuple: %w", err)
 	}
 
@@ -182,6 +243,15 @@ func (c *ClientWrapper) RemoveUserFromGroupInKeto(ctx context.Context, groupName
 func (c *ClientWrapper) GetGroupMembersInKeto(ctx context.Context, groupName string) ([]*model.User, error) {
 	log := c.Log.WithName("GetGroupMembersInKeto").WithValues("Name", groupName)
 
+	ctx, span := c.Tracer.Start(ctx, "GetGroupMembersInKeto")
+	defer span.End()
+
+	if span.IsRecording() {
+		span.SetAttributes(
+			attribute.String("group_id", groupName),
+		)
+	}
+
 	query := rts.RelationQuery{
 		Namespace: px.Ptr(consts.GroupNamespace.String()),
 		Object:    px.Ptr(groupName),
@@ -191,6 +261,9 @@ func (c *ClientWrapper) GetGroupMembersInKeto(ctx context.Context, groupName str
 
 	respTuples, err := c.KetoClient.QueryAllTuples(context.Background(), &query, 100)
 	if err != nil {
+		log.Error(err, "Failed to query tuples")
+		span.RecordError(err)
+		span.SetStatus(codes.Error, err.Error())
 		return nil, fmt.Errorf("failed to query tuples: %w", err)
 	}
 
@@ -218,8 +291,21 @@ func (c *ClientWrapper) GetGroupMembersInKeto(ctx context.Context, groupName str
 func (c *ClientWrapper) GetGroupFromName(ctx context.Context, groupName string) (*model.Group, error) {
 	log := c.Log.WithName("GetGroupFromName").WithValues("Name", groupName)
 
+	ctx, span := c.Tracer.Start(ctx, "GetGroupFromName")
+	defer span.End()
+
+	if span.IsRecording() {
+		span.SetAttributes(
+			attribute.String("group_id", groupName),
+		)
+	}
+
 	if groupName == "" {
-		return nil, fmt.Errorf("group name cannot be empty")
+		err := fmt.Errorf("group name cannot be empty")
+		log.Error(err, "Group name cannot be empty")
+		span.RecordError(err)
+		span.SetStatus(codes.Error, err.Error())
+		return nil, err
 	}
 
 	// check if group exists in keto
@@ -229,7 +315,11 @@ func (c *ClientWrapper) GetGroupFromName(ctx context.Context, groupName string) 
 		return nil, err
 	}
 	if !exists {
-		return nil, fmt.Errorf("group does not exist in keto")
+		err := fmt.Errorf("group does not exist in keto")
+		log.Error(err, "Group does not exist in keto")
+		span.RecordError(err)
+		span.SetStatus(codes.Error, err.Error())
+		return nil, err
 	}
 
 	return &model.Group{
@@ -243,6 +333,15 @@ func (c *ClientWrapper) GetGroupFromName(ctx context.Context, groupName string) 
 // function that checks if a group exists in keto
 func (c *ClientWrapper) GroupExistsInKeto(ctx context.Context, groupName string) (bool, error) {
 	log := c.Log.WithName("GroupExistsInKeto").WithValues("Name", groupName)
+
+	ctx, span := c.Tracer.Start(ctx, "GroupExistsInKeto")
+	defer span.End()
+
+	if span.IsRecording() {
+		span.SetAttributes(
+			attribute.String("group_id", groupName),
+		)
+	}
 
 	query := rts.RelationQuery{
 		Namespace: px.Ptr(consts.GroupNamespace.String()),
@@ -258,6 +357,8 @@ func (c *ClientWrapper) GroupExistsInKeto(ctx context.Context, groupName string)
 	respTuples, err := c.KetoClient.QueryAllTuples(context.Background(), &query, 100)
 	if err != nil {
 		log.Error(err, "Failed to query tuples")
+		span.RecordError(err)
+		span.SetStatus(codes.Error, err.Error())
 		return false, fmt.Errorf("failed to query tuples: %w", err)
 	}
 
@@ -272,6 +373,9 @@ func (c *ClientWrapper) GroupExistsInKeto(ctx context.Context, groupName string)
 func (c *ClientWrapper) ListGroupsInKeto(ctx context.Context) ([]*model.Group, error) {
 	log := c.Log.WithName("ListGroupsInKeto")
 
+	ctx, span := c.Tracer.Start(ctx, "ListGroupsInKeto")
+	defer span.End()
+
 	query := rts.RelationQuery{
 		Namespace: px.Ptr(consts.GroupNamespace.String()),
 		Object:    nil,
@@ -285,6 +389,9 @@ func (c *ClientWrapper) ListGroupsInKeto(ctx context.Context) ([]*model.Group, e
 
 	respTuples, err := c.KetoClient.QueryAllTuples(context.Background(), &query, 100)
 	if err != nil {
+		log.Error(err, "Failed to query tuples")
+		span.RecordError(err)
+		span.SetStatus(codes.Error, err.Error())
 		return nil, fmt.Errorf("failed to query tuples: %w", err)
 	}
 
@@ -310,11 +417,22 @@ func (c *ClientWrapper) ListGroupsInKeto(ctx context.Context) ([]*model.Group, e
 func (c *ClientWrapper) DeleteGroup(ctx context.Context, groupName string) (*model.Group, error) {
 	log := c.Log.WithName("DeleteGroup").WithValues("Name", groupName)
 
+	ctx, span := c.Tracer.Start(ctx, "DeleteGroup")
+	defer span.End()
+
+	if span.IsRecording() {
+		span.SetAttributes(
+			attribute.String("group_id", groupName),
+		)
+	}
+
 	group := model.NewGroup(groupName)
 
 	err := c.KetoClient.DeleteTuple(ctx, group.GetOrganizationTuple())
 	if err != nil {
 		log.Error(err, "Failed to delete tuple")
+		span.RecordError(err)
+		span.SetStatus(codes.Error, err.Error())
 		return nil, err
 	}
 

@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"fmt"
 	"io"
 	"net/http"
 	"strings"
@@ -8,6 +9,7 @@ import (
 	hydra "github.com/ory/hydra-client-go/v2"
 	"github.com/pluralsh/trace-shield/graph/model"
 	"github.com/pluralsh/trace-shield/utils"
+	"go.opentelemetry.io/otel/codes"
 )
 
 type ConsentAction string
@@ -25,30 +27,42 @@ type ConsentRequest struct {
 }
 
 func (h *Handler) Consent(w http.ResponseWriter, r *http.Request) {
-	log := h.Log.WithName("Consent")
+	log := h.Log.WithName("OAuthConsent")
+
+	ctx := r.Context()
+
+	ctx, span := h.C.Tracer.Start(ctx, "OAuthConsent")
+	defer span.End()
 
 	body, err := io.ReadAll(r.Body)
 	if err != nil {
 		log.Error(err, "error during reading body")
+		span.RecordError(err)
+		span.SetStatus(codes.Error, err.Error())
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
 	consentRequest := toConsentRequest(string(body))
 	if consentRequest == nil {
-		log.Error(nil, "error during parsing consent request")
+		err := fmt.Errorf("error during parsing consent body")
+		log.Error(err, "error during parsing consent request")
+		span.RecordError(err)
+		span.SetStatus(codes.Error, err.Error())
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
-	consent, _, err := h.C.HydraClient.OAuth2Api.GetOAuth2ConsentRequest(r.Context()).ConsentChallenge(consentRequest.Challenge).Execute()
+	consent, _, err := h.C.HydraClient.OAuth2Api.GetOAuth2ConsentRequest(ctx).ConsentChallenge(consentRequest.Challenge).Execute()
 	if err != nil {
 		log.Error(err, "error during getting consent request")
+		span.RecordError(err)
+		span.SetStatus(codes.Error, err.Error())
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
-	userCtx := ForContext(r.Context())
+	userCtx := ForContext(ctx)
 
 	accessToken := &model.ConsentRequestSessionAccessToken{}
 	idToken := &model.ConsentRequestSessionIDToken{}
@@ -72,7 +86,7 @@ func (h *Handler) Consent(w http.ResponseWriter, r *http.Request) {
 
 	if consentRequest.Action == ConsentActionAccept {
 		var rememberFor int64 = 3600
-		acceptConsent, _, err := h.C.HydraClient.OAuth2Api.AcceptOAuth2ConsentRequest(r.Context()).
+		acceptConsent, _, err := h.C.HydraClient.OAuth2Api.AcceptOAuth2ConsentRequest(ctx).
 			ConsentChallenge(consentRequest.Challenge).
 			AcceptOAuth2ConsentRequest(hydra.AcceptOAuth2ConsentRequest{
 				GrantAccessTokenAudience: consent.RequestedAccessTokenAudience,
@@ -84,6 +98,8 @@ func (h *Handler) Consent(w http.ResponseWriter, r *http.Request) {
 			Execute()
 		if err != nil {
 			log.Error(err, "error during accepting consent request")
+			span.RecordError(err)
+			span.SetStatus(codes.Error, err.Error())
 			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
@@ -92,7 +108,7 @@ func (h *Handler) Consent(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	rejectConsent, _, err := h.C.HydraClient.OAuth2Api.RejectOAuth2ConsentRequest(r.Context()).
+	rejectConsent, _, err := h.C.HydraClient.OAuth2Api.RejectOAuth2ConsentRequest(ctx).
 		ConsentChallenge(consentRequest.Challenge).
 		RejectOAuth2Request(hydra.RejectOAuth2Request{
 			Error:            nil,
@@ -103,6 +119,8 @@ func (h *Handler) Consent(w http.ResponseWriter, r *http.Request) {
 		}).Execute()
 	if err != nil {
 		log.Error(err, "error during rejecting consent request")
+		span.RecordError(err)
+		span.SetStatus(codes.Error, err.Error())
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}

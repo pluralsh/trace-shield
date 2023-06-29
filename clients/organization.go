@@ -8,13 +8,25 @@ import (
 	px "github.com/ory/x/pointerx"
 	"github.com/pluralsh/trace-shield/consts"
 	"github.com/pluralsh/trace-shield/graph/model"
+	"github.com/pluralsh/trace-shield/utils"
+	"go.opentelemetry.io/otel/attribute"
+	"go.opentelemetry.io/otel/codes"
 )
 
 func (c *ClientWrapper) UpdateOrganization(ctx context.Context, name string, admins []string) (*model.Organization, error) {
 
 	// TODO: figure out which admins to add or remove
 	// TODO: create separate functions for adding and removing admins from an organization
-	log := c.Log.WithName("Organization").WithValues("Name", name)
+	log := c.Log.WithName("UpdateOrganization").WithValues("Name", name)
+
+	ctx, span := c.Tracer.Start(ctx, "UpdateOrganization")
+	defer span.End()
+
+	if span.IsRecording() {
+		span.SetAttributes(
+			attribute.String("name", name),
+		)
+	}
 
 	_, err := c.OrganizationExistsInKeto(ctx, name)
 	if err != nil {
@@ -59,8 +71,21 @@ func (c *ClientWrapper) UpdateOrganization(ctx context.Context, name string, adm
 
 // function that determines which admins to add or remove from an organization
 func (c *ClientWrapper) OrgAdminChangeset(ctx context.Context, orgName string, admins []string) (toAdd []string, toRemove []string, err error) {
+	log := c.Log.WithName("OrgAdminChangeset").WithValues("Name", orgName)
+
+	ctx, span := c.Tracer.Start(ctx, "OrgAdminChangeset")
+	defer span.End()
+
+	if span.IsRecording() {
+		span.SetAttributes(
+			attribute.String("name", orgName),
+			attribute.StringSlice("admins", admins),
+		)
+	}
+
 	currentAdmins, err := c.GetOrganizationAdmins(ctx, orgName)
 	if err != nil {
+		log.Error(err, "Failed to get current admins")
 		return nil, nil, fmt.Errorf("failed to get current admins: %w", err)
 	}
 
@@ -71,7 +96,7 @@ func (c *ClientWrapper) OrgAdminChangeset(ctx context.Context, orgName string, a
 	}
 
 	for _, admin := range currentAdmins {
-		if !stringContains(admins, admin.ID) {
+		if !utils.StringContains(admins, admin.ID) {
 			toRemove = append(toRemove, admin.ID)
 		}
 	}
@@ -81,6 +106,18 @@ func (c *ClientWrapper) OrgAdminChangeset(ctx context.Context, orgName string, a
 
 // function that adds an admin to an organization in keto
 func (c *ClientWrapper) AddAdminToOrganization(ctx context.Context, orgName string, adminId string) error {
+	log := c.Log.WithName("AddAdminToOrganization").WithValues("Name", orgName, "User", adminId)
+
+	ctx, span := c.Tracer.Start(ctx, "AddAdminToOrganization")
+	defer span.End()
+
+	if span.IsRecording() {
+		span.SetAttributes(
+			attribute.String("name", orgName),
+			attribute.String("user_id", adminId),
+		)
+	}
+
 	adminTuple := &rts.RelationTuple{
 		Namespace: consts.OrganizationNamespace.String(),
 		Object:    orgName,
@@ -94,6 +131,9 @@ func (c *ClientWrapper) AddAdminToOrganization(ctx context.Context, orgName stri
 
 	err := c.KetoClient.CreateTuple(ctx, adminTuple)
 	if err != nil {
+		log.Error(err, "Failed to create tuple")
+		span.RecordError(err)
+		span.SetStatus(codes.Error, err.Error())
 		return fmt.Errorf("failed to create tuple: %w", err)
 	}
 
@@ -102,6 +142,18 @@ func (c *ClientWrapper) AddAdminToOrganization(ctx context.Context, orgName stri
 
 // function that removes an admin from an organization in keto
 func (c *ClientWrapper) RemoveAdminFromOrganization(ctx context.Context, orgName string, adminId string) error {
+	log := c.Log.WithName("RemoveAdminFromOrganization").WithValues("Name", orgName, "User", adminId)
+
+	ctx, span := c.Tracer.Start(ctx, "RemoveAdminFromOrganization")
+	defer span.End()
+
+	if span.IsRecording() {
+		span.SetAttributes(
+			attribute.String("name", orgName),
+			attribute.String("user_id", adminId),
+		)
+	}
+
 	adminTuple := &rts.RelationTuple{
 		Namespace: consts.OrganizationNamespace.String(),
 		Object:    orgName,
@@ -115,6 +167,9 @@ func (c *ClientWrapper) RemoveAdminFromOrganization(ctx context.Context, orgName
 
 	err := c.KetoClient.DeleteTuple(ctx, adminTuple)
 	if err != nil {
+		log.Error(err, "Failed to delete tuple")
+		span.RecordError(err)
+		span.SetStatus(codes.Error, err.Error())
 		return fmt.Errorf("failed to delete tuple: %w", err)
 	}
 
@@ -123,6 +178,17 @@ func (c *ClientWrapper) RemoveAdminFromOrganization(ctx context.Context, orgName
 
 // function that returns all admins for an organization
 func (c *ClientWrapper) GetOrganizationAdmins(ctx context.Context, orgName string) ([]*model.User, error) {
+	log := c.Log.WithName("GetOrganizationAdmins").WithValues("Name", orgName)
+
+	ctx, span := c.Tracer.Start(ctx, "GetOrganizationAdmins")
+	defer span.End()
+
+	if span.IsRecording() {
+		span.SetAttributes(
+			attribute.String("name", orgName),
+		)
+	}
+
 	query := rts.RelationQuery{
 		Namespace: px.Ptr(consts.OrganizationNamespace.String()),
 		Object:    px.Ptr(orgName),
@@ -130,8 +196,11 @@ func (c *ClientWrapper) GetOrganizationAdmins(ctx context.Context, orgName strin
 		Subject:   nil,
 	}
 
-	respTuples, err := c.KetoClient.QueryAllTuples(context.Background(), &query, 100)
+	respTuples, err := c.KetoClient.QueryAllTuples(ctx, &query, 100)
 	if err != nil {
+		log.Error(err, "Failed to query tuples")
+		span.RecordError(err)
+		span.SetStatus(codes.Error, err.Error())
 		return nil, fmt.Errorf("failed to query tuples: %w", err)
 	}
 
@@ -156,6 +225,17 @@ func (c *ClientWrapper) GetOrganizationAdmins(ctx context.Context, orgName strin
 
 // function that checks if an organization exists in keto
 func (c *ClientWrapper) OrganizationExistsInKeto(ctx context.Context, orgName string) (bool, error) {
+	log := c.Log.WithName("OrganizationExistsInKeto").WithValues("Name", orgName)
+
+	ctx, span := c.Tracer.Start(ctx, "OrganizationExistsInKeto")
+	defer span.End()
+
+	if span.IsRecording() {
+		span.SetAttributes(
+			attribute.String("name", orgName),
+		)
+	}
+
 	query := rts.RelationQuery{
 		Namespace: px.Ptr(consts.OrganizationNamespace.String()),
 		Object:    px.Ptr(orgName),
@@ -163,8 +243,11 @@ func (c *ClientWrapper) OrganizationExistsInKeto(ctx context.Context, orgName st
 		Subject:   nil,
 	}
 
-	respTuples, err := c.KetoClient.QueryAllTuples(context.Background(), &query, 100)
+	respTuples, err := c.KetoClient.QueryAllTuples(ctx, &query, 100)
 	if err != nil {
+		log.Error(err, "Failed to query tuples")
+		span.RecordError(err)
+		span.SetStatus(codes.Error, err.Error())
 		return false, fmt.Errorf("failed to query tuples: %w", err)
 	}
 
@@ -177,6 +260,11 @@ func (c *ClientWrapper) OrganizationExistsInKeto(ctx context.Context, orgName st
 
 // function that lists all organizations in keto
 func (c *ClientWrapper) ListOrganizations(ctx context.Context) ([]*model.Organization, error) {
+	log := c.Log.WithName("ListOrganizations")
+
+	ctx, span := c.Tracer.Start(ctx, "ListOrganizations")
+	defer span.End()
+
 	query := rts.RelationQuery{
 		Namespace: px.Ptr(consts.OrganizationNamespace.String()),
 		Object:    nil,
@@ -184,8 +272,11 @@ func (c *ClientWrapper) ListOrganizations(ctx context.Context) ([]*model.Organiz
 		Subject:   nil,
 	}
 
-	respTuples, err := c.KetoClient.QueryAllTuples(context.Background(), &query, 100)
+	respTuples, err := c.KetoClient.QueryAllTuples(ctx, &query, 100)
 	if err != nil {
+		log.Error(err, "Failed to query tuples")
+		span.RecordError(err)
+		span.SetStatus(codes.Error, err.Error())
 		return nil, fmt.Errorf("failed to query tuples: %w", err)
 	}
 
@@ -203,6 +294,16 @@ func (c *ClientWrapper) ListOrganizations(ctx context.Context) ([]*model.Organiz
 // function that lists all organizations in keto
 func (c *ClientWrapper) GetOrganization(ctx context.Context, orgName string) (*model.Organization, error) {
 	log := c.Log.WithName("Organization").WithValues("Name", orgName)
+
+	ctx, span := c.Tracer.Start(ctx, "Organization")
+	defer span.End()
+
+	if span.IsRecording() {
+		span.SetAttributes(
+			attribute.String("name", orgName),
+		)
+	}
+
 	exists, err := c.OrganizationExistsInKeto(ctx, orgName)
 	if err != nil {
 		log.Error(err, "Failed to check if organization exists in keto")
@@ -210,8 +311,11 @@ func (c *ClientWrapper) GetOrganization(ctx context.Context, orgName string) (*m
 	}
 
 	if !exists {
-		log.Error(nil, "Organization does not exist in keto. Having multiple organizations is not yet supported.")
-		return nil, fmt.Errorf("Organization does not exist in keto. Having multiple organizations is not yet supported.")
+		err := fmt.Errorf("Failed to get organization")
+		log.Error(err, "Organization does not exist in keto. Having multiple organizations is not yet supported.", "Name", orgName)
+		span.RecordError(err)
+		span.SetStatus(codes.Error, err.Error())
+		return nil, err
 	}
 
 	currentAdmins, err := c.GetOrganizationAdmins(ctx, orgName)

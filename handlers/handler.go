@@ -5,13 +5,11 @@ import (
 	"github.com/ory/herodot"
 	"github.com/pluralsh/trace-shield/clients"
 	"go.opentelemetry.io/otel/propagation"
-	"go.opentelemetry.io/otel/trace"
 )
 
 type Handler struct {
 	C           *clients.ClientWrapper
 	Log         logr.Logger
-	Tracer      trace.Tracer
 	Propagators propagation.TextMapPropagator
 	hd          *herodot.JSONWriter
 }

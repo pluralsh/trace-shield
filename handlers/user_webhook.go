@@ -1,12 +1,12 @@
 package handlers
 
 import (
-	"context"
-	"encoding/json"
 	"errors"
 	"net/http"
 
 	"github.com/go-chi/render"
+	"go.opentelemetry.io/otel/attribute"
+	"go.opentelemetry.io/otel/codes"
 )
 
 type BootstrapRequest struct {
@@ -38,13 +38,37 @@ func (b *BootstrapRequest) Render(w http.ResponseWriter, r *http.Request) error 
 
 func (h *Handler) BootstrapAdmin(w http.ResponseWriter, r *http.Request) {
 	log := h.Log.WithName("BootstrapAdmin")
+	log.Info("Bootstrapping first user as admin")
+
+	ctx := r.Context()
+
+	ctx, span := h.C.Tracer.Start(ctx, "getGroupPolicyTenants")
+	defer span.End()
+
 	data := &BootstrapRequest{}
 	if err := render.Bind(r, data); err != nil {
+		log.Error(err, "failed to bind request")
+		span.RecordError(err)
+		span.SetStatus(codes.Error, err.Error())
 		render.Render(w, r, ErrInvalidRequest(err))
 		return
 	}
 
-	currentAdmins, err := h.C.GetOrganizationAdmins(context.Background(), "main") // TODO: decide if we want to harcode this
+	if data.UserID == "" {
+		err := errors.New("missing required userId field")
+		log.Error(err, "failed to bind request")
+		span.RecordError(err)
+		span.SetStatus(codes.Error, err.Error())
+		return
+	}
+
+	if span.IsRecording() {
+		span.SetAttributes(
+			attribute.String("user_id", data.UserID),
+		)
+	}
+
+	currentAdmins, err := h.C.GetOrganizationAdmins(ctx, "main") // TODO: decide if we want to harcode this
 	if err != nil {
 		log.Error(err, "failed to get current admins")
 		render.Render(w, r, ErrFailedToGetAdmins(err))
@@ -53,16 +77,13 @@ func (h *Handler) BootstrapAdmin(w http.ResponseWriter, r *http.Request) {
 
 	if len(currentAdmins) == 0 {
 		log.Info("No current admins, adding initial user as admin", "user", data.UserID)
-		err = h.C.AddAdminToOrganization(context.Background(), "main", data.UserID)
+		err = h.C.AddAdminToOrganization(ctx, "main", data.UserID)
 		if err != nil {
 			log.Error(err, "failed to add bootstrap user")
 			render.Render(w, r, ErrFailedToSetInitialAdmin(err))
 			return
 		}
 	}
-
-	json, _ := json.Marshal(data.UserID)
-	log.Info("Post", "body", string(json))
 
 	render.Status(r, http.StatusOK) // TODO: we should probably do error checking above so we can return a 400 if something goes wrong
 	render.Render(w, r, h.BootstrapUser(data))

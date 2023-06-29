@@ -8,15 +8,28 @@ import (
 	hydra "github.com/ory/hydra-client-go/v2"
 	"github.com/pluralsh/trace-shield/format"
 	"github.com/pluralsh/trace-shield/graph/model"
+	"go.opentelemetry.io/otel/attribute"
+	"go.opentelemetry.io/otel/codes"
 )
 
 // GetOAuth2LoginRequest returns the OAuth2 login request for the given challenge.
 func (c *ClientWrapper) GetOAuth2LoginRequest(ctx context.Context, challenge string) (*model.OAuth2LoginRequest, error) {
 	log := c.Log.WithName("GetOAuth2LoginRequest").WithValues("challenge", challenge)
 
+	ctx, span := c.Tracer.Start(ctx, "GetOAuth2LoginRequest")
+	defer span.End()
+
+	if span.IsRecording() {
+		span.SetAttributes(
+			attribute.String("challenge", challenge),
+		)
+	}
+
 	login, resp, err := c.HydraClient.OAuth2Api.GetOAuth2LoginRequest(ctx).LoginChallenge(challenge).Execute()
 	if err != nil || resp.StatusCode != 200 {
 		log.Error(err, "Error getting login request")
+		span.RecordError(err)
+		span.SetStatus(codes.Error, err.Error())
 		switch resp.StatusCode {
 		// case http.StatusNotFound:
 		// 	// Accessing to response details
@@ -34,10 +47,20 @@ func (c *ClientWrapper) GetOAuth2LoginRequest(ctx context.Context, challenge str
 		default:
 			r, ok := err.(*hydra.GenericOpenAPIError).Model().(hydra.ErrorOAuth2)
 			if ok {
+				span.RecordError(err)
+				span.SetStatus(codes.Error, err.Error())
 				log.Error(err, "Error getting login request", "error", r.Error, "hint", r.ErrorHint, "description", r.ErrorDescription)
 			}
+			span.RecordError(err)
+			span.SetStatus(codes.Error, err.Error())
 			return nil, err
 		}
+	}
+
+	if span.IsRecording() {
+		span.SetAttributes(
+			attribute.String("subject", login.Subject),
+		)
 	}
 
 	var oidcContext *model.OidcContext
@@ -70,6 +93,16 @@ func (c *ClientWrapper) GetOAuth2LoginRequest(ctx context.Context, challenge str
 func (c *ClientWrapper) AcceptOAuth2LoginRequest(ctx context.Context, challenge string, acr *string, amr []string, context map[string]interface{}, remember *bool, rememberFor *int64, subject string) (*model.OAuth2RedirectTo, error) {
 	log := c.Log.WithName("AcceptOAuth2LoginRequest").WithValues("challenge", challenge)
 
+	ctx, span := c.Tracer.Start(ctx, "AcceptOAuth2LoginRequest")
+	defer span.End()
+
+	if span.IsRecording() {
+		span.SetAttributes(
+			attribute.String("challenge", challenge),
+			attribute.String("subject", subject),
+		)
+	}
+
 	// TODO: We should probably check the login binding here to ensure the user is allowed to login using the given OAuth 2.0 Client
 
 	login, resp, err := c.HydraClient.OAuth2Api.AcceptOAuth2LoginRequest(ctx).
@@ -88,6 +121,8 @@ func (c *ClientWrapper) AcceptOAuth2LoginRequest(ctx context.Context, challenge 
 		if ok {
 			log.Error(err, "Error accepting login request", "error", r.Error, "hint", r.ErrorHint, "description", r.ErrorDescription)
 		}
+		span.RecordError(err)
+		span.SetStatus(codes.Error, err.Error())
 		return nil, err
 	}
 
@@ -100,6 +135,15 @@ func (c *ClientWrapper) AcceptOAuth2LoginRequest(ctx context.Context, challenge 
 func (c *ClientWrapper) RejectOAuth2LoginRequest(ctx context.Context, challenge string) (*model.OAuth2RedirectTo, error) {
 	log := c.Log.WithName("RejectOAuth2LoginRequest").WithValues("challenge", challenge)
 
+	ctx, span := c.Tracer.Start(ctx, "RejectOAuth2LoginRequest")
+	defer span.End()
+
+	if span.IsRecording() {
+		span.SetAttributes(
+			attribute.String("challenge", challenge),
+		)
+	}
+
 	login, resp, err := c.HydraClient.OAuth2Api.RejectOAuth2LoginRequest(ctx).
 		LoginChallenge(challenge).
 		Execute()
@@ -108,6 +152,8 @@ func (c *ClientWrapper) RejectOAuth2LoginRequest(ctx context.Context, challenge 
 		if ok {
 			log.Error(err, "Error rejecting login request", "error", r.Error, "hint", r.ErrorHint, "description", r.ErrorDescription)
 		}
+		span.RecordError(err)
+		span.SetStatus(codes.Error, err.Error())
 		return nil, err
 	}
 

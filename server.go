@@ -95,22 +95,20 @@ func main() {
 		KratosPublicClient: kratosPublicClient,
 		KetoClient:         ketoClient,
 		HydraClient:        hydraAdminClient,
+		Tracer:             tracer,
 		Log:                ctrl.Log.WithName("clients"),
 	}
 
 	resolver := &resolvers.Resolver{
-		C:      clientWrapper,
-		Tracer: tracer,
+		C: clientWrapper,
 	}
 
 	directives := &directives.Directive{
-		C:      clientWrapper,
-		Tracer: tracer,
+		C: clientWrapper,
 	}
 
 	handlers := &handlers.Handler{
 		C:           clientWrapper,
-		Tracer:      tracer,
 		Propagators: otel.GetTextMapPropagator(),
 		Log:         ctrl.Log.WithName("handlers"),
 	}

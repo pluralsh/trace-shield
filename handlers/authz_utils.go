@@ -7,6 +7,8 @@ import (
 	"github.com/go-chi/render"
 	"github.com/pluralsh/trace-shield/consts"
 	"github.com/pluralsh/trace-shield/utils"
+	"go.opentelemetry.io/otel/attribute"
+	"go.opentelemetry.io/otel/codes"
 
 	rts "github.com/ory/keto/proto/ory/keto/relation_tuples/v1alpha2"
 	px "github.com/ory/x/pointerx"
@@ -14,15 +16,28 @@ import (
 
 // Get all the ObservabilityTenants has permissions for based on direct bindings and group memberships
 func (h *Handler) getUserTenants(ctx context.Context, subject string) ([]string, error) {
+	log := h.Log.WithName("getUserTenants").WithValues("Subject", subject)
+
+	ctx, span := h.C.Tracer.Start(ctx, "getUserTenants")
+	defer span.End()
+
+	if span.IsRecording() {
+		span.SetAttributes(
+			attribute.String("user_id", subject),
+		)
+	}
+
 	// get all the groups a user is a member of
 	groups, err := h.getUserGroups(ctx, subject)
 	if err != nil {
+		log.Error(err, "Failed to get user groups")
 		return []string{}, err
 	}
 
 	// get all the tenants a user has permissions for
 	tenants, err := h.getUserDirectTenants(ctx, subject)
 	if err != nil {
+		log.Error(err, "Failed to get user direct tenants")
 		return []string{}, err
 	}
 
@@ -53,6 +68,17 @@ func (h *Handler) getUserTenants(ctx context.Context, subject string) ([]string,
 
 // Check in which organizations a user is an admin
 func (h *Handler) isOrgAdmin(ctx context.Context, subject string) ([]string, error) {
+	log := h.Log.WithName("isOrgAdmin").WithValues("Subject", subject)
+
+	ctx, span := h.C.Tracer.Start(ctx, "isOrgAdmin")
+	defer span.End()
+
+	if span.IsRecording() {
+		span.SetAttributes(
+			attribute.String("user_id", subject),
+		)
+	}
+
 	query := rts.RelationQuery{
 		Namespace: px.Ptr(consts.OrganizationNamespace.String()),
 		Relation:  px.Ptr(consts.OrganizationRelationAdmins.String()),
@@ -60,6 +86,9 @@ func (h *Handler) isOrgAdmin(ctx context.Context, subject string) ([]string, err
 	}
 	respTuples, err := h.C.KetoClient.QueryAllTuples(ctx, &query, 100)
 	if err != nil {
+		log.Error(err, "Failed to query tuples")
+		span.RecordError(err)
+		span.SetStatus(codes.Error, err.Error())
 		return []string{}, err
 	}
 
@@ -76,12 +105,26 @@ func (h *Handler) isOrgAdmin(ctx context.Context, subject string) ([]string, err
 
 // Get all the ObservabilityTenants that belong to an organization
 func (h *Handler) getOrgTenants(ctx context.Context, org string) ([]string, error) {
+	log := h.Log.WithName("getOrgTenants").WithValues("Organization", org)
+
+	ctx, span := h.C.Tracer.Start(ctx, "getOrgTenants")
+	defer span.End()
+
+	if span.IsRecording() {
+		span.SetAttributes(
+			attribute.String("organization", org),
+		)
+	}
+
 	query := rts.RelationQuery{
 		Namespace: px.Ptr(consts.ObservabilityTenantNamespace.String()),
 		Subject:   rts.NewSubjectSet("Organization", org, ""),
 	}
 	respTuples, err := h.C.KetoClient.QueryAllTuples(ctx, &query, 100)
 	if err != nil {
+		log.Error(err, "Failed to query tuples")
+		span.RecordError(err)
+		span.SetStatus(codes.Error, err.Error())
 		return []string{}, err
 	}
 
@@ -98,6 +141,17 @@ func (h *Handler) getOrgTenants(ctx context.Context, org string) ([]string, erro
 
 // Get the groups a user is a member of
 func (h *Handler) getUserGroups(ctx context.Context, subject string) ([]string, error) {
+	log := h.Log.WithName("getUserGroups").WithValues("Subject", subject)
+
+	ctx, span := h.C.Tracer.Start(ctx, "getUserGroups")
+	defer span.End()
+
+	if span.IsRecording() {
+		span.SetAttributes(
+			attribute.String("user_id", subject),
+		)
+	}
+
 	query := rts.RelationQuery{
 		Namespace: px.Ptr("Group"),
 		Relation:  px.Ptr("members"),
@@ -105,6 +159,9 @@ func (h *Handler) getUserGroups(ctx context.Context, subject string) ([]string, 
 	}
 	respTuples, err := h.C.KetoClient.QueryAllTuples(ctx, &query, 100)
 	if err != nil {
+		log.Error(err, "Failed to query tuples")
+		span.RecordError(err)
+		span.SetStatus(codes.Error, err.Error())
 		return []string{}, err
 	}
 
@@ -121,12 +178,26 @@ func (h *Handler) getUserGroups(ctx context.Context, subject string) ([]string, 
 
 // Get the ObservabilityTenants a user has permissions for
 func (h *Handler) getUserDirectTenants(ctx context.Context, subject string) ([]string, error) {
+	log := h.Log.WithName("getUserDirectTenants").WithValues("Subject", subject)
+
+	ctx, span := h.C.Tracer.Start(ctx, "getUserDirectTenants")
+	defer span.End()
+
+	if span.IsRecording() {
+		span.SetAttributes(
+			attribute.String("user_id", subject),
+		)
+	}
+
 	query := rts.RelationQuery{
 		Namespace: px.Ptr(consts.ObservabilityTenantNamespace.String()),
 		Subject:   rts.NewSubjectSet("User", subject, ""),
 	}
 	respTuples, err := h.C.KetoClient.QueryAllTuples(ctx, &query, 100)
 	if err != nil {
+		log.Error(err, "Failed to query tuples")
+		span.RecordError(err)
+		span.SetStatus(codes.Error, err.Error())
 		return []string{}, err
 	}
 
@@ -143,12 +214,26 @@ func (h *Handler) getUserDirectTenants(ctx context.Context, subject string) ([]s
 
 // Get the ObservabilityTenants a group has permissions for
 func (h *Handler) getGroupTenants(ctx context.Context, group string) ([]string, error) {
+	log := h.Log.WithName("getGroupTenants").WithValues("Group", group)
+
+	ctx, span := h.C.Tracer.Start(ctx, "getGroupTenants")
+	defer span.End()
+
+	if span.IsRecording() {
+		span.SetAttributes(
+			attribute.String("group_id", group),
+		)
+	}
+
 	query := rts.RelationQuery{
 		Namespace: px.Ptr(consts.ObservabilityTenantNamespace.String()),
 		Subject:   rts.NewSubjectSet("Group", group, "members"),
 	}
 	respTuples, err := h.C.KetoClient.QueryAllTuples(ctx, &query, 100)
 	if err != nil {
+		log.Error(err, "Failed to query tuples")
+		span.RecordError(err)
+		span.SetStatus(codes.Error, err.Error())
 		return []string{}, err
 	}
 

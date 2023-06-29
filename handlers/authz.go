@@ -3,6 +3,7 @@ package handlers
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"strings"
 
@@ -10,6 +11,8 @@ import (
 	px "github.com/ory/x/pointerx"
 	"github.com/pluralsh/trace-shield/consts"
 	"github.com/pluralsh/trace-shield/utils"
+	"go.opentelemetry.io/otel/attribute"
+	"go.opentelemetry.io/otel/codes"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
@@ -24,21 +27,31 @@ type PolicyRequest struct {
 func (h *Handler) ObservabilityTenantPolicyCheck(w http.ResponseWriter, r *http.Request) {
 	log := h.Log.WithName("ObservabilityTenantPolicyCheck")
 
+	ctx := r.Context()
+
+	ctx, span := h.C.Tracer.Start(ctx, "ObservabilityTenantPolicyCheck")
+	defer span.End()
+
 	p := &PolicyRequest{}
 
 	// Try to decode the request body into the struct. If there is an error,
 	// respond to the client with the error message and a 400 status code.
 	err := json.NewDecoder(r.Body).Decode(p)
 	if err != nil {
+		span.RecordError(err)
+		span.SetStatus(codes.Error, err.Error())
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
-	json, _ := json.Marshal(p)
-	log.Info("Post", "body", string(json)) // TODO: remove debug log query since it leaks tokens
+	// json, _ := json.Marshal(p)
+	log.Info("Checking permissions", "Subject", p.Subject, "IsOauth2Client", p.IsOAuth2Client, "RequestedPermission", p.RequestedPermission) // TODO: remove debug log query since it leaks tokens
 
 	permission, err := consts.ParseObservabilityTenantPermission(p.RequestedPermission)
 	if err != nil {
+		log.Error(err, "Failed to parse permission")
+		span.RecordError(err)
+		span.SetStatus(codes.Error, err.Error())
 		http.Error(w, err.Error(), http.StatusForbidden)
 		return
 	}
@@ -46,10 +59,23 @@ func (h *Handler) ObservabilityTenantPolicyCheck(w http.ResponseWriter, r *http.
 
 	relation, err := p.permission.GetRelation()
 	if err != nil {
+		log.Error(err, "Failed to get relation")
+		span.RecordError(err)
+		span.SetStatus(codes.Error, err.Error())
 		http.Error(w, err.Error(), http.StatusForbidden)
 		return
 	}
 	p.relation = relation
+
+	if span.IsRecording() {
+		span.SetAttributes(
+			attribute.String("subject", p.Subject),
+			attribute.Bool("isOAuth2Client", p.IsOAuth2Client),
+			attribute.String("requestedPermission", p.RequestedPermission),
+			attribute.String("permission", p.permission.String()),
+			attribute.String("relation", p.relation.String()),
+		)
+	}
 
 	tenantHeader := r.Header.Get(consts.TenantHeader)
 
@@ -57,19 +83,26 @@ func (h *Handler) ObservabilityTenantPolicyCheck(w http.ResponseWriter, r *http.
 		// If the tenant header is already set, we will check the permission directly against the tenant
 		// This is to allow the user to access the tenant they are already in
 
-		hasAccess, err := h.C.KetoClient.Check(r.Context(), p.GetRelationTuple(tenantHeader))
+		log.Info("Checking if subject has access to tenant", "subject", p.Subject, "tenant", tenantHeader, "permission", p.permission)
+
+		hasAccess, err := h.C.KetoClient.Check(ctx, p.GetRelationTuple(tenantHeader))
 		if err != nil {
-			log.Error(err, "Failed to check if subject has access to the tenant")
+			log.Error(err, "Failed to check if subject has access to the tenant", "subject", p.Subject, "tenant", tenantHeader, "permission", p.permission)
+			span.RecordError(err)
+			span.SetStatus(codes.Error, err.Error())
 			http.Error(w, err.Error(), http.StatusForbidden)
 			return
 		}
 
 		if hasAccess {
-			log.Info("Subject accessing tenant", "subject", p.Subject, "tenant", tenantHeader, "permission", p.permission)
+			log.Info("Subject has access to tenant", "subject", p.Subject, "tenant", tenantHeader, "permission", p.permission)
 			return
 		} else {
-			log.Info("Subject does not have access to tenant", "subject", p.Subject, "tenant", tenantHeader, "permission", p.permission)
-			http.Error(w, "Subject does not have access to tenant", http.StatusForbidden)
+			err := fmt.Errorf("Subject does not have access to tenant")
+			log.Error(err, "Permission check failed", "subject", p.Subject, "tenant", tenantHeader, "permission", p.permission)
+			span.RecordError(err)
+			span.SetStatus(codes.Error, err.Error())
+			http.Error(w, err.Error(), http.StatusForbidden)
 			return
 		}
 	}
@@ -88,14 +121,18 @@ func (h *Handler) ObservabilityTenantPolicyCheck(w http.ResponseWriter, r *http.
 			),
 		}
 
-		isOrgAdmin, err := h.C.KetoClient.Check(r.Context(), orgAdminTuple)
+		isOrgAdmin, err := h.C.KetoClient.Check(ctx, orgAdminTuple)
 		if err != nil {
+			span.RecordError(err)
+			span.SetStatus(codes.Error, err.Error())
 			log.Error(err, "Failed to check if user is org admin")
 		}
 
 		if isOrgAdmin {
-			gottenTenants, err := h.C.ControllerClient.ObservabilityV1alpha1().Tenants().List(r.Context(), metav1.ListOptions{})
+			gottenTenants, err := h.C.ControllerClient.ObservabilityV1alpha1().Tenants().List(ctx, metav1.ListOptions{})
 			if err != nil {
+				span.RecordError(err)
+				span.SetStatus(codes.Error, err.Error())
 				log.Error(err, "Failed to list observability tenants")
 			}
 
@@ -104,14 +141,14 @@ func (h *Handler) ObservabilityTenantPolicyCheck(w http.ResponseWriter, r *http.
 			}
 		} else {
 			// get all the groups a user is a member of
-			groups, err := h.getUserGroups(r.Context(), p.Subject)
+			groups, err := h.getUserGroups(ctx, p.Subject)
 			if err != nil {
 				log.Error(err, "Failed to get user groups")
 			}
 
 			// get all the tenants a user has permissions for via group membership
 			for _, group := range groups {
-				groupTenants, err := h.getGroupPolicyTenants(r.Context(), p, group)
+				groupTenants, err := h.getGroupPolicyTenants(ctx, p, group)
 				if err != nil {
 					log.Error(err, "Failed to get group tenants", "group", group)
 				}
@@ -121,18 +158,26 @@ func (h *Handler) ObservabilityTenantPolicyCheck(w http.ResponseWriter, r *http.
 
 	}
 	// get all the tenants a client has permissions for
-	clientTenants, err := h.getDirectTenants(r.Context(), p)
+	clientTenants, err := h.getDirectTenants(ctx, p)
 	if err != nil {
 		log.Error(err, "Failed to get client tenants")
 	}
 	tenants = append(tenants, clientTenants...)
 
 	if len(tenants) == 0 {
-		http.Error(w, "No tenants that can be accessed", http.StatusForbidden)
+		err := fmt.Errorf("No tenants that can be accessed")
+		log.Error(err, "Permission check failed", "subject", p.Subject, "permission", p.permission)
+		span.RecordError(err)
+		span.SetStatus(codes.Error, err.Error())
+		http.Error(w, err.Error(), http.StatusForbidden)
 		return
 	} else {
 		if p.IsOAuth2Client && len(tenants) > 1 {
-			http.Error(w, "OAuth2 clients can only have access to one tenant. Please contact your administrator to resolve the issue.", http.StatusForbidden)
+			err := fmt.Errorf("OAuth2 clients can only have access to one tenant. Please contact your administrator to resolve the issue.")
+			log.Error(err, "Permission check failed", "subject", p.Subject, "permission", p.permission)
+			span.RecordError(err)
+			span.SetStatus(codes.Error, err.Error())
+			http.Error(w, err.Error(), http.StatusForbidden)
 			return
 		}
 		w.Header().Set(consts.TenantHeader, strings.Join(utils.DedupeList(tenants), "|"))
@@ -189,9 +234,27 @@ func (p *PolicyRequest) GetRelationTuple(tenantId string) *rts.RelationTuple {
 
 // Get the ObservabilityTenants a user has permissions for
 func (h *Handler) getDirectTenants(ctx context.Context, p *PolicyRequest) ([]string, error) {
+	log := h.Log.WithName("getDirectTenants")
+
+	ctx, span := h.C.Tracer.Start(ctx, "getDirectTenants")
+	defer span.End()
+
+	if span.IsRecording() {
+		span.SetAttributes(
+			attribute.String("subject", p.Subject),
+			attribute.Bool("isOAuth2Client", p.IsOAuth2Client),
+			attribute.String("requestedPermission", p.RequestedPermission),
+			attribute.String("permission", p.permission.String()),
+			attribute.String("relation", p.relation.String()),
+		)
+	}
+
 	query := p.GetRelationQuery()
 	respTuples, err := h.C.KetoClient.QueryAllTuples(ctx, query, 100)
 	if err != nil {
+		log.Error(err, "Failed to query tuples")
+		span.RecordError(err)
+		span.SetStatus(codes.Error, err.Error())
 		return []string{}, err
 	}
 
@@ -208,6 +271,22 @@ func (h *Handler) getDirectTenants(ctx context.Context, p *PolicyRequest) ([]str
 
 // Get the ObservabilityTenants a group has permissions for
 func (h *Handler) getGroupPolicyTenants(ctx context.Context, p *PolicyRequest, group string) ([]string, error) {
+	log := h.Log.WithName("getGroupPolicyTenants")
+
+	ctx, span := h.C.Tracer.Start(ctx, "getGroupPolicyTenants")
+	defer span.End()
+
+	if span.IsRecording() {
+		span.SetAttributes(
+			attribute.String("subject", p.Subject),
+			attribute.Bool("isOAuth2Client", p.IsOAuth2Client),
+			attribute.String("requestedPermission", p.RequestedPermission),
+			attribute.String("permission", p.permission.String()),
+			attribute.String("relation", p.relation.String()),
+			attribute.String("group", group),
+		)
+	}
+
 	query := rts.RelationQuery{
 		Namespace: px.Ptr(consts.ObservabilityTenantNamespace.String()),
 		Relation:  px.Ptr(p.relation.String()),
@@ -215,6 +294,9 @@ func (h *Handler) getGroupPolicyTenants(ctx context.Context, p *PolicyRequest, g
 	}
 	respTuples, err := h.C.KetoClient.QueryAllTuples(ctx, &query, 100)
 	if err != nil {
+		log.Error(err, "Failed to query tuples")
+		span.RecordError(err)
+		span.SetStatus(codes.Error, err.Error())
 		return []string{}, err
 	}
 

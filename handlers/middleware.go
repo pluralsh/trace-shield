@@ -9,8 +9,9 @@ import (
 	kratosClient "github.com/ory/kratos-client-go"
 
 	"github.com/pluralsh/trace-shield/consts"
+	"go.opentelemetry.io/otel/attribute"
+	"go.opentelemetry.io/otel/codes"
 	"go.opentelemetry.io/otel/propagation"
-	"go.opentelemetry.io/otel/trace"
 )
 
 // A private key for context that only this package can access. This is important
@@ -50,9 +51,7 @@ func (h *Handler) Middleware() func(http.Handler) http.Handler {
 
 			// ctx := h.Propagators.Extract(r.Context(), propagation.HeaderCarrier(r.Header))
 			ctx := r.Context()
-			span := trace.SpanFromContext(ctx)
-			// bag := baggage.FromContext(ctx)
-			span.AddEvent("handling request...")
+			ctx, span := h.C.Tracer.Start(ctx, "AuthenticationMiddleware")
 			defer span.End()
 
 			cookie, err := r.Cookie("ory_kratos_session") // TODO: make this compatible with bearer token
@@ -69,6 +68,8 @@ func (h *Handler) Middleware() func(http.Handler) http.Handler {
 				// TODO: should we return here?
 				log.Error(err, fmt.Sprintf("Error when calling `V0alpha2Api.ToSession``: %v\n", err))
 				log.Error(err, fmt.Sprintf("Full HTTP response: %v\n", req))
+				span.RecordError(err)
+				span.SetStatus(codes.Error, err.Error())
 				next.ServeHTTP(w, r) // TODO: find proper way to handle unauthenticated response?
 				return
 			}
@@ -82,6 +83,8 @@ func (h *Handler) Middleware() func(http.Handler) http.Handler {
 				if foundEmail, ok := val.(string); ok {
 					email = foundEmail
 				} else {
+					span.RecordError(err)
+					span.SetStatus(codes.Error, err.Error())
 					log.Error(err, "Error when parsing email")
 				}
 			}
@@ -124,11 +127,20 @@ func (h *Handler) Middleware() func(http.Handler) http.Handler {
 
 			isAdmin, err := h.C.KetoClient.Check(ctx, &adminQuery)
 			if err != nil {
+				span.RecordError(err)
+				span.SetStatus(codes.Error, err.Error())
 				log.Error(err, "Error when checking if user is admin")
 			}
 
 			log.Info("Admin check", "user", user.Email, "admin", isAdmin)
 			user.IsAdmin = isAdmin
+
+			if span.IsRecording() {
+				span.SetAttributes(
+					attribute.String("user_id", user.Id),
+					attribute.String("email", user.Email),
+				)
+			}
 
 			// for _, adminEmail := range kubricksConfig.Spec.Admins {
 			// 	if adminEmail == email {
