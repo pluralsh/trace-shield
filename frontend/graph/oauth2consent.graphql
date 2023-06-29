@@ -40,8 +40,8 @@ query OAuth2ConsentRequest($challenge: String!) {
   }
 }
 
-mutation AcceptOAuth2ConsentRequest($challenge: String!, $grantScope: [String!], $remember: Boolean, $rememberFor: Int, $session: AcceptOAuth2ConsentRequestSession) {
-  acceptOAuth2ConsentRequest(challenge: $challenge, grantScope: $grantScope, remember: $remember, rememberFor: $rememberFor, session: $session) {
+mutation AcceptOAuth2ConsentRequest($challenge: String!, $grantScope: [String!], $remember: Boolean, $rememberFor: Int) {
+  acceptOAuth2ConsentRequest(challenge: $challenge, grantScope: $grantScope, remember: $remember, rememberFor: $rememberFor) {
     redirectTo
   }
 }

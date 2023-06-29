@@ -56,6 +56,20 @@
     handler: allow
   mutators:
     - handler: noop
+- id: api-server:consent:public
+  upstream:
+    url: http://api-server.default.svc.cluster.local:8082
+    preserve_host: true
+  match:
+    url: <http|https>://localhost.pluraldev.sh:4455/oauth2/consent
+    methods:
+      - POST
+  authenticators:
+    - handler: noop
+  authorizer:
+    handler: allow
+  mutators:
+    - handler: noop
 - id: ory:kratos:public
   upstream:
     url: http://kratos-public.kratos

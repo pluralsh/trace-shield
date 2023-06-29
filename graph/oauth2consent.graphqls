@@ -36,7 +36,7 @@ type OAuth2ConsentRequest {
   "Skip is true when the client has requested the same scopes from the same user before. If this is true, you can skip asking the user to grant the requested scopes, or you can force showing the UI by setting this value to false."
   skip: Boolean
 
-  "Subject is the user ID of the end-user that authenticated. This value will be set to the \"sub\" claim in the ID Token."
+  "Subject is the user ID of the end-user that authenticated. This value will be set to the 'sub' claim in the ID Token."
   subject: String!
 
   "The URL to redirect to if an error occurred."
@@ -99,9 +99,6 @@ extend type Mutation {
 
     "RememberFor sets how long the consent authorization should be remembered for in seconds. If set to 0, the authorization will be remembered indefinitely."
     rememberFor: Int
-
-    "The session to set for the granted OAuth 2.0 request."
-    session: AcceptOAuth2ConsentRequestSession
   ): OAuth2RedirectTo!
 
   "RejectOAuth2ConsentRequest rejects an OAuth 2.0 consent request."

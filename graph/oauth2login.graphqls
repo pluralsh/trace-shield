@@ -1,0 +1,72 @@
+"OAuth2LoginRequest represents an OAuth 2.0 login request."
+type OAuth2LoginRequest {
+  "The challenge is a random string which is used to identify the consent request."
+  challenge: String!
+
+  "The client is the OAuth 2.0 Client requesting the OAuth 2.0 Authorization."
+  client: OAuth2Client!
+
+  "OIDCContext contains the OIDC context of the request. If the OAuth 2.0 Authorization request was not an OpenID Connect request, this value will be nil."
+  oidcContext: OidcContext
+
+  "RequestURL is the original OAuth 2.0 Authorization URL requested by the OAuth 2.0 client. It is the URL which initiates the OAuth 2.0 Authorization Code or OAuth 2.0 Implicit flow. This URL is typically not needed, but might come in handy if you want to deal with additional request parameters."
+  requestUrl: String
+
+  "RequestedAccessTokenAudience contains the audience (client) that the OAuth 2.0 Client requested the OAuth 2.0 Access Token to be issued for."
+  requestedAccessTokenAudience: [String!]
+
+  "RequestedScope contains the OAuth 2.0 Scope requested by the OAuth 2.0 Client."
+  requestedScope: [String!]
+
+  "SessionID is the login session ID. If the user-agent reuses a login session (via cookie / remember flag) this ID will remain the same. If the user-agent did not have an existing authentication session (e.g. remember is false) this will be a new random value. This value is used as the 'sid' parameter in the ID Token and in OIDC Front-/Back- channel logout. It's value can generally be used to associate consecutive login requests by a certain user."
+  sessionId: String
+
+  "Skip is true when the client has requested the same scopes from the same user before. If this is true, you can skip asking the user to grant the requested scopes, or you can force showing the UI by setting this value to false."
+  skip: Boolean
+
+  "Subject is the user ID of the end-user that authenticated. This value will be set to the 'sub' claim in the ID Token."
+  subject: String!
+
+  "The URL to redirect to if an error occurred."
+  redirectTo: String
+}
+
+extend type Query {
+  "OAuth2LoginRequest returns the OAuth 2.0 login request information."
+  oauth2LoginRequest(
+    "The challenge to fetch the login request for."
+    challenge: String!
+  ): OAuth2LoginRequest
+}
+
+extend type Mutation {
+  "AcceptOAuth2LoginRequest accepts an OAuth 2.0 login request. If the request was granted, a code or access token will be issued. If the request was denied, the request will be rejected."
+  acceptOAuth2LoginRequest(
+    "The challenge to accept."
+    challenge: String!
+
+    "ACR represents the Authentication AuthorizationContext Class Reference value for this authentication session. You can use it to express that, for example, a user authenticated using two factor authentication."
+    acr: String
+
+    "AMR represents the Authentication Methods References. It lists the method used to authenticate the end-user. For instance, if the end-user authenticated using password and OTP, the AMR value would be ['pwd', 'otp']."
+    amr: [String!]
+
+    "Context contains arbitrary context that is forwarded from the login request. This is useful if you want to pass data from the login request to the consent request."
+    context: Map
+
+    "Remember, if set to true, tells ORY Hydra to remember this login authorization and reuse it if the same client asks the same user for the same, or a subset of, scope."
+    remember: Boolean
+
+    "RememberFor sets how long the login authorization should be remembered for in seconds. If set to 0, the authorization will be remembered indefinitely."
+    rememberFor: Int
+
+    "Subject is the user ID of the end-user that authenticated."
+    subject: String!
+  ): OAuth2RedirectTo!
+
+  "RejectOAuth2LoginRequest rejects an OAuth 2.0 login request."
+  rejectOAuth2LoginRequest(
+    "The challenge to reject."
+    challenge: String!
+  ): OAuth2RedirectTo!
+}

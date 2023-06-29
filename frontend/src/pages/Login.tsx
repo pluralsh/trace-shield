@@ -1,28 +1,23 @@
-import { LoginFlow, UpdateLoginFlowBody } from "@ory/client"
-import { UserAuthCard } from "@ory/elements"
-import { useCallback, useEffect, useState } from "react"
-import { useNavigate, useSearchParams } from "react-router-dom"
-import { CircularProgress } from '@mui/material'
-import { sdk, sdkError } from "../apis/ory"
+import {CircularProgress} from '@mui/material'
+import {LoginFlow} from "@ory/client"
+import {UserAuthCard} from "@ory/elements"
+import {useCallback, useEffect, useState} from "react"
+import {useNavigate, useSearchParams} from "react-router-dom"
+import {sdk, sdkError} from "../apis/ory"
 
 export const Login = (): JSX.Element => {
-  const [flow, setFlow] = useState<LoginFlow | null>(null)
-  const [searchParams, setSearchParams] = useSearchParams()
-
   const navigate = useNavigate()
 
-  // Get the flow based on the flowId in the URL (.e.g redirect to this page after flow initialized)
-  const getFlow = useCallback(
-    (flowId: string) =>
-      sdk
-        // the flow data contains the form fields, error messages and csrf token
-        .getLoginFlow({ id: flowId })
-        .then(({ data: flow }) => setFlow(flow))
-        .catch(sdkErrorHandler),
-    [],
-  )
+  const [flow, setFlow] = useState<LoginFlow>()
+  const [searchParams, setSearchParams] = useSearchParams()
 
-  // initialize the sdkError for generic handling of errors
+  const getFlow = useCallback((flowId: string) => {
+      return sdk.getLoginFlow({id: flowId})
+        .then(({data: flow}) => setFlow(flow))
+        .catch(sdkErrorHandler)
+    }
+    , [])
+
   const sdkErrorHandler = sdkError(getFlow, setFlow, "/login", true)
 
   // Create a new login flow
@@ -36,35 +31,26 @@ export const Login = (): JSX.Element => {
       // aal2 is a query parameter that can be used to request Two-Factor authentication
       // aal1 is the default authentication level (Single-Factor)
       // we always pass refresh (true) on login so that the session can be refreshed when there is already an active session
-      .createBrowserLoginFlow({ refresh: (refresh === 'true'), aal: aal2 ? "aal2" : "aal1", returnTo: return_to, loginChallenge: loginChallenge })
+      .createBrowserLoginFlow({
+        refresh: refresh === 'true',
+        aal: aal2 ? "aal2" : "aal1",
+        returnTo: return_to,
+        loginChallenge: loginChallenge
+      })
       // flow contains the form fields and csrf token
-      .then(({ data: flow }) => {
+      .then((response) => {
+        const redirectURI = response?.request?.requestURL ?? response?.request?.responseURL
+
+        // If loginChallenge is present then redirect to kratos to handle the OAuth flow
+        if(loginChallenge && redirectURI) {
+          window.location = redirectURI
+          return
+        }
+
         // Update URI query params to include flow id
         setSearchParams({})
         // Set the flow data
-        setFlow(flow)
-      })
-      .catch(sdkErrorHandler)
-  }
-
-  // submit the login form data to Ory
-  const submitFlow = (body: UpdateLoginFlowBody) => {
-    // something unexpected went wrong and the flow was not set
-    if (!flow) return navigate("/login", { replace: true })
-    // we submit the flow to Ory with the form data
-    sdk
-      .updateLoginFlow({ flow: flow.id, updateLoginFlowBody: body })
-      .then(({ status: status, data: resp }) => {
-        console.log(flow)
-        console.log(resp)
-        console.log(status)
-        // we successfully submitted the login flow, so lets redirect to the dashboard
-
-        if (flow?.return_to) {
-          window.location.href = flow?.return_to
-        }
-
-        navigate("/", { replace: true })
+        setFlow(response?.data)
       })
       .catch(sdkErrorHandler)
   }
@@ -82,25 +68,29 @@ export const Login = (): JSX.Element => {
     createFlow()
   }, [])
 
-  // we check if the flow is set, if not we show a loading indicator
+  const title = flow?.refresh
+    ? `Confirm it's you`
+    : flow?.requested_aal === 'aal2'
+      ? 'Sign in'
+      : 'Two-Factor Authentication'
+
+  const subtitle = flow?.oauth2_login_request
+    ? `To authenticate ${flow.oauth2_login_request.client.client_name ?? flow.oauth2_login_request.client.client_id}`
+    : undefined
+
   return flow ? (
-    // we render the login form using Ory Elements
     <UserAuthCard
-      title={"Login"}
+      title={title}
+      subtitle={subtitle}
       flowType={"login"}
-      // we always need the flow data which populates the form fields and error messages dynamically
       flow={flow}
-      // the login card should allow the user to go to the registration page and the recovery page
       additionalProps={{
         forgotPasswordURL: "/recovery",
         signupURL: "/registration",
       }}
-      // we might need webauthn support which requires additional js
       includeScripts={true}
-      // we submit the form data to Ory
-      onSubmit={({ body }) => submitFlow(body as UpdateLoginFlowBody)}
     />
   ) : (
-    <CircularProgress />
+    <CircularProgress/>
   )
 }

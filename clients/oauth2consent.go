@@ -33,10 +33,14 @@ func (c *ClientWrapper) GetOAuth2ConsentRequest(ctx context.Context, challenge s
 			fmt.Println("It's gone")
 			return &model.OAuth2ConsentRequest{RedirectTo: &r.RedirectTo}, err
 		default:
-			r, ok := err.(*hydra.GenericOpenAPIError).Model().(hydra.ErrorOAuth2)
+			r, ok := err.(*hydra.GenericOpenAPIError)
 			if ok {
-				log.Error(err, "Error getting consent request", "error", r.Error, "hint", r.ErrorHint, "description", r.ErrorDescription)
+				r, ok := err.(*hydra.GenericOpenAPIError).Model().(hydra.ErrorOAuth2)
+				if ok {
+					log.Error(err, "Error getting consent request", "error", r.Error, "hint", r.ErrorHint, "description", r.ErrorDescription)
+				}
 			}
+			log.Error(err, "Error when calling `OAuth2Api.GetOAuth2ConsentRequest", "request", r)
 			return nil, err
 		}
 	}
@@ -64,23 +68,15 @@ func (c *ClientWrapper) GetOAuth2ConsentRequest(ctx context.Context, challenge s
 		OidcContext:                  oidcContext,
 		RequestURL:                   consent.RequestUrl,
 		RequestedAccessTokenAudience: consent.RequestedAccessTokenAudience,
+		RequestedScope:               consent.RequestedScope,
 		Skip:                         consent.Skip,
 		Subject:                      *consent.Subject,
 	}, nil
 }
 
 // AcceptOAuth2ConsentRequest accepts the OAuth2 consent request for the given challenge.
-func (c *ClientWrapper) AcceptOAuth2ConsentRequest(ctx context.Context, challenge string, grantAccessTokenAudience []string, grantScope []string, remember *bool, rememberFor *int64, session *model.AcceptOAuth2ConsentRequestSession) (*model.OAuth2RedirectTo, error) {
+func (c *ClientWrapper) AcceptOAuth2ConsentRequest(ctx context.Context, challenge string, grantAccessTokenAudience []string, grantScope []string, remember *bool, rememberFor *int64, session *hydra.AcceptOAuth2ConsentRequestSession) (*model.OAuth2RedirectTo, error) {
 	log := c.Log.WithName("AcceptOAuth2ConsentRequest").WithValues("challenge", challenge)
-
-	var outSession *hydra.AcceptOAuth2ConsentRequestSession
-
-	if session != nil {
-		outSession = &hydra.AcceptOAuth2ConsentRequestSession{
-			AccessToken: session.AccessToken,
-			IdToken:     session.IDToken,
-		}
-	}
 
 	consent, resp, err := c.HydraClient.OAuth2Api.AcceptOAuth2ConsentRequest(ctx).
 		ConsentChallenge(challenge).
@@ -89,7 +85,7 @@ func (c *ClientWrapper) AcceptOAuth2ConsentRequest(ctx context.Context, challeng
 			GrantScope:               grantScope,
 			Remember:                 remember,
 			RememberFor:              rememberFor,
-			Session:                  outSession,
+			Session:                  session,
 		}).
 		Execute()
 	if err != nil || resp.StatusCode != 200 {

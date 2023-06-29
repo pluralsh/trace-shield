@@ -1,10 +1,11 @@
 import { gql } from '@apollo/client';
 import * as Apollo from '@apollo/client';
 export type Maybe<T> = T | null;
+export type InputMaybe<T> = Maybe<T>;
 export type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };
 export type MakeOptional<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]?: Maybe<T[SubKey]> };
 export type MakeMaybe<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]: Maybe<T[SubKey]> };
-const defaultOptions =  {}
+const defaultOptions = {} as const;
 /** All built-in and custom scalars, mapped to their actual values */
 export type Scalars = {
   ID: string;
@@ -12,21 +13,30 @@ export type Scalars = {
   Boolean: boolean;
   Int: number;
   Float: number;
-  Map: any;
-  Time: any;
+  Duration: string;
+  FloatMap: Map<string, number>;
+  ForwardingRuleMap: Map<string, ForwardingRule>;
+  Map: Map<string, unknown>;
+  Time: string;
 };
 
 export type AcceptOAuth2ConsentRequestSession = {
   /** AccessToken sets session data for the access and refresh token, as well as any future tokens issued by the refresh grant. Keep in mind that this data will be available to anyone performing OAuth 2.0 Challenge Introspection. If only your services can perform OAuth 2.0 Challenge Introspection, this is usually fine. But if third parties can access that endpoint as well, sensitive data from the session might be exposed to them. Use with care! */
-  accessToken?: Maybe<Scalars['Map']>;
+  accessToken?: InputMaybe<Scalars['Map']>;
   /** IDToken sets session data for the OpenID Connect ID token. Keep in mind that the session'id payloads are readable by anyone that has access to the ID Challenge. Use with care! */
-  idToken?: Maybe<Scalars['Map']>;
+  idToken?: InputMaybe<Scalars['Map']>;
 };
 
 /** Input for adding a user to an organization as an administrator. */
 export type Admin = {
   /** The ID of the user to add as an admin. */
   id: Scalars['ID'];
+};
+
+export type ForwardingRule = {
+  __typename?: 'ForwardingRule';
+  /** Ingest defines whether a metric should still be pushed to the Ingesters despite it being forwarded. */
+  ingest?: Maybe<Scalars['Boolean']>;
 };
 
 /** Representation a group of users. */
@@ -51,17 +61,187 @@ export type LoginBindings = {
 
 export type LoginBindingsInput = {
   /** The groups that are allowed to login with this OAuth2 Client. */
-  groups?: Maybe<Array<Scalars['ID']>>;
+  groups?: InputMaybe<Array<Scalars['ID']>>;
   /** The users that are allowed to login with this OAuth2 Client. */
-  users?: Maybe<Array<Scalars['ID']>>;
+  users?: InputMaybe<Array<Scalars['ID']>>;
+};
+
+/** Representation of the limits for Loki for a tenant. */
+export type LokiLimits = {
+  __typename?: 'LokiLimits';
+  requestRate?: Maybe<Scalars['Float']>;
+};
+
+/** Representation of the limits for Mimir for a tenant. */
+export type MimirLimits = {
+  __typename?: 'MimirLimits';
+  acceptHASamples?: Maybe<Scalars['Boolean']>;
+  alertmanagerMaxAlertsCount?: Maybe<Scalars['Int']>;
+  alertmanagerMaxAlertsSizeBytes?: Maybe<Scalars['Int']>;
+  alertmanagerMaxConfigSizeBytes?: Maybe<Scalars['Int']>;
+  alertmanagerMaxDispatcherAggregationGroups?: Maybe<Scalars['Int']>;
+  alertmanagerMaxTemplateSizeBytes?: Maybe<Scalars['Int']>;
+  alertmanagerMaxTemplatesCount?: Maybe<Scalars['Int']>;
+  alertmanagerReceiversBlockCIDRNetworks?: Maybe<Scalars['String']>;
+  alertmanagerReceiversBlockPrivateAddresses?: Maybe<Scalars['Boolean']>;
+  cardinalityAnalysisEnabled?: Maybe<Scalars['Boolean']>;
+  compactorBlockUploadEnabled?: Maybe<Scalars['Boolean']>;
+  compactorBlockUploadValidationEnabled?: Maybe<Scalars['Boolean']>;
+  compactorBlockUploadVerifyChunks?: Maybe<Scalars['Boolean']>;
+  compactorBlocksRetentionPeriod?: Maybe<Scalars['Duration']>;
+  compactorPartialBlockDeletionDelay?: Maybe<Scalars['Duration']>;
+  compactorSplitAndMergeShards?: Maybe<Scalars['Int']>;
+  compactorSplitGroups?: Maybe<Scalars['Int']>;
+  compactorTenantShardSize?: Maybe<Scalars['Int']>;
+  creationGracePeriod?: Maybe<Scalars['Duration']>;
+  dropLabels?: Maybe<Array<Maybe<Scalars['String']>>>;
+  enforceMetadataMetricName?: Maybe<Scalars['Boolean']>;
+  forwardingDropOlderThan?: Maybe<Scalars['Duration']>;
+  forwardingEndpoint?: Maybe<Scalars['String']>;
+  forwardingRules?: Maybe<Scalars['ForwardingRuleMap']>;
+  haClusterLabel?: Maybe<Scalars['String']>;
+  haMaxClusters?: Maybe<Scalars['Int']>;
+  haReplicaLabel?: Maybe<Scalars['String']>;
+  ingestionBurstSize?: Maybe<Scalars['Int']>;
+  ingestionRate?: Maybe<Scalars['Float']>;
+  ingestionTenantShardSize?: Maybe<Scalars['Int']>;
+  labelNamesAndValuesResultsMaxSizeBytes?: Maybe<Scalars['Int']>;
+  labelValuesMaxCardinalityLabelNamesPerRequest?: Maybe<Scalars['Int']>;
+  maxCacheFreshness?: Maybe<Scalars['Duration']>;
+  maxChunksPerQuery?: Maybe<Scalars['Int']>;
+  maxFetchedChunkBytesPerQuery?: Maybe<Scalars['Int']>;
+  maxFetchedSeriesPerQuery?: Maybe<Scalars['Int']>;
+  maxGlobalExemplarsPerUser?: Maybe<Scalars['Int']>;
+  maxGlobalMetadataPerMetric?: Maybe<Scalars['Int']>;
+  maxGlobalMetricsWithMetadataPerUser?: Maybe<Scalars['Int']>;
+  maxGlobalSeriesPerMetric?: Maybe<Scalars['Int']>;
+  maxGlobalSeriesPerUser?: Maybe<Scalars['Int']>;
+  maxLabelNameLength?: Maybe<Scalars['Int']>;
+  maxLabelNamesPerSeries?: Maybe<Scalars['Int']>;
+  maxLabelValueLength?: Maybe<Scalars['Int']>;
+  maxLabelsQueryLength?: Maybe<Scalars['Duration']>;
+  maxMetadataLength?: Maybe<Scalars['Int']>;
+  maxPartialQueryLength?: Maybe<Scalars['Duration']>;
+  maxQueriersPerTenant?: Maybe<Scalars['Int']>;
+  maxQueryExpressionSizeBytes?: Maybe<Scalars['Int']>;
+  maxQueryLookback?: Maybe<Scalars['Duration']>;
+  maxQueryParallelism?: Maybe<Scalars['Int']>;
+  maxTotalQueryLength?: Maybe<Scalars['Duration']>;
+  nativeHistogramsIngestionEnabled?: Maybe<Scalars['Boolean']>;
+  notificationRateLimit?: Maybe<Scalars['Float']>;
+  notificationRateLimitPerIntegration?: Maybe<Scalars['FloatMap']>;
+  outOfOrderBlocksExternalLabelEnabled?: Maybe<Scalars['Boolean']>;
+  outOfOrderTimeWindow?: Maybe<Scalars['Duration']>;
+  queryShardingMaxRegexpSizeBytes?: Maybe<Scalars['Int']>;
+  queryShardingMaxShardedQueries?: Maybe<Scalars['Int']>;
+  queryShardingTotalShards?: Maybe<Scalars['Int']>;
+  requestBurstSize?: Maybe<Scalars['Int']>;
+  requestRate?: Maybe<Scalars['Float']>;
+  resultsCacheTTL?: Maybe<Scalars['Duration']>;
+  resultsCacheTTLForOutOfOrderTimeWindow?: Maybe<Scalars['Duration']>;
+  rulerAlertingRulesEvaluationEnabled?: Maybe<Scalars['Boolean']>;
+  rulerEvaluationDelay?: Maybe<Scalars['Duration']>;
+  rulerMaxRuleGroupsPerTenant?: Maybe<Scalars['Int']>;
+  rulerMaxRulesPerRuleGroup?: Maybe<Scalars['Int']>;
+  rulerRecordingRulesEvaluationEnabled?: Maybe<Scalars['Boolean']>;
+  rulerTenantShardSize?: Maybe<Scalars['Int']>;
+  s3SSEKMSEncryptionContext?: Maybe<Scalars['String']>;
+  s3SSEKMSKeyID?: Maybe<Scalars['String']>;
+  s3SSEType?: Maybe<Scalars['String']>;
+  separateMetricsGroupLabel?: Maybe<Scalars['String']>;
+  splitInstantQueriesByInterval?: Maybe<Scalars['Duration']>;
+  storeGatewayTenantShardSize?: Maybe<Scalars['Int']>;
+};
+
+export type MimirLimitsInput = {
+  acceptHASamples?: InputMaybe<Scalars['Boolean']>;
+  alertmanagerMaxAlertsCount?: InputMaybe<Scalars['Int']>;
+  alertmanagerMaxAlertsSizeBytes?: InputMaybe<Scalars['Int']>;
+  alertmanagerMaxConfigSizeBytes?: InputMaybe<Scalars['Int']>;
+  alertmanagerMaxDispatcherAggregationGroups?: InputMaybe<Scalars['Int']>;
+  alertmanagerMaxTemplateSizeBytes?: InputMaybe<Scalars['Int']>;
+  alertmanagerMaxTemplatesCount?: InputMaybe<Scalars['Int']>;
+  alertmanagerReceiversBlockCIDRNetworks?: InputMaybe<Scalars['String']>;
+  alertmanagerReceiversBlockPrivateAddresses?: InputMaybe<Scalars['Boolean']>;
+  cardinalityAnalysisEnabled?: InputMaybe<Scalars['Boolean']>;
+  compactorBlockUploadEnabled?: InputMaybe<Scalars['Boolean']>;
+  compactorBlockUploadValidationEnabled?: InputMaybe<Scalars['Boolean']>;
+  compactorBlockUploadVerifyChunks?: InputMaybe<Scalars['Boolean']>;
+  compactorBlocksRetentionPeriod?: InputMaybe<Scalars['Duration']>;
+  compactorPartialBlockDeletionDelay?: InputMaybe<Scalars['Duration']>;
+  compactorSplitAndMergeShards?: InputMaybe<Scalars['Int']>;
+  compactorSplitGroups?: InputMaybe<Scalars['Int']>;
+  compactorTenantShardSize?: InputMaybe<Scalars['Int']>;
+  creationGracePeriod?: InputMaybe<Scalars['Duration']>;
+  dropLabels?: InputMaybe<Array<InputMaybe<Scalars['String']>>>;
+  enforceMetadataMetricName?: InputMaybe<Scalars['Boolean']>;
+  forwardingDropOlderThan?: InputMaybe<Scalars['Duration']>;
+  forwardingEndpoint?: InputMaybe<Scalars['String']>;
+  forwardingRules?: InputMaybe<Scalars['ForwardingRuleMap']>;
+  haClusterLabel?: InputMaybe<Scalars['String']>;
+  haMaxClusters?: InputMaybe<Scalars['Int']>;
+  haReplicaLabel?: InputMaybe<Scalars['String']>;
+  ingestionBurstSize?: InputMaybe<Scalars['Int']>;
+  ingestionRate?: InputMaybe<Scalars['Float']>;
+  ingestionTenantShardSize?: InputMaybe<Scalars['Int']>;
+  labelNamesAndValuesResultsMaxSizeBytes?: InputMaybe<Scalars['Int']>;
+  labelValuesMaxCardinalityLabelNamesPerRequest?: InputMaybe<Scalars['Int']>;
+  maxCacheFreshness?: InputMaybe<Scalars['Duration']>;
+  maxChunksPerQuery?: InputMaybe<Scalars['Int']>;
+  maxFetchedChunkBytesPerQuery?: InputMaybe<Scalars['Int']>;
+  maxFetchedSeriesPerQuery?: InputMaybe<Scalars['Int']>;
+  maxGlobalExemplarsPerUser?: InputMaybe<Scalars['Int']>;
+  maxGlobalMetadataPerMetric?: InputMaybe<Scalars['Int']>;
+  maxGlobalMetricsWithMetadataPerUser?: InputMaybe<Scalars['Int']>;
+  maxGlobalSeriesPerMetric?: InputMaybe<Scalars['Int']>;
+  maxGlobalSeriesPerUser?: InputMaybe<Scalars['Int']>;
+  maxLabelNameLength?: InputMaybe<Scalars['Int']>;
+  maxLabelNamesPerSeries?: InputMaybe<Scalars['Int']>;
+  maxLabelValueLength?: InputMaybe<Scalars['Int']>;
+  maxLabelsQueryLength?: InputMaybe<Scalars['Duration']>;
+  maxMetadataLength?: InputMaybe<Scalars['Int']>;
+  maxPartialQueryLength?: InputMaybe<Scalars['Duration']>;
+  maxQueriersPerTenant?: InputMaybe<Scalars['Int']>;
+  maxQueryExpressionSizeBytes?: InputMaybe<Scalars['Int']>;
+  maxQueryLookback?: InputMaybe<Scalars['Duration']>;
+  maxQueryParallelism?: InputMaybe<Scalars['Int']>;
+  maxTotalQueryLength?: InputMaybe<Scalars['Duration']>;
+  nativeHistogramsIngestionEnabled?: InputMaybe<Scalars['Boolean']>;
+  notificationRateLimit?: InputMaybe<Scalars['Float']>;
+  notificationRateLimitPerIntegration?: InputMaybe<Scalars['FloatMap']>;
+  outOfOrderBlocksExternalLabelEnabled?: InputMaybe<Scalars['Boolean']>;
+  outOfOrderTimeWindow?: InputMaybe<Scalars['Duration']>;
+  queryShardingMaxRegexpSizeBytes?: InputMaybe<Scalars['Int']>;
+  queryShardingMaxShardedQueries?: InputMaybe<Scalars['Int']>;
+  queryShardingTotalShards?: InputMaybe<Scalars['Int']>;
+  requestBurstSize?: InputMaybe<Scalars['Int']>;
+  requestRate?: InputMaybe<Scalars['Float']>;
+  resultsCacheTTL?: InputMaybe<Scalars['Duration']>;
+  resultsCacheTTLForOutOfOrderTimeWindow?: InputMaybe<Scalars['Duration']>;
+  rulerAlertingRulesEvaluationEnabled?: InputMaybe<Scalars['Boolean']>;
+  rulerEvaluationDelay?: InputMaybe<Scalars['Duration']>;
+  rulerMaxRuleGroupsPerTenant?: InputMaybe<Scalars['Int']>;
+  rulerMaxRulesPerRuleGroup?: InputMaybe<Scalars['Int']>;
+  rulerRecordingRulesEvaluationEnabled?: InputMaybe<Scalars['Boolean']>;
+  rulerTenantShardSize?: InputMaybe<Scalars['Int']>;
+  s3SSEKMSEncryptionContext?: InputMaybe<Scalars['String']>;
+  s3SSEKMSKeyID?: InputMaybe<Scalars['String']>;
+  s3SSEType?: InputMaybe<Scalars['String']>;
+  separateMetricsGroupLabel?: InputMaybe<Scalars['String']>;
+  splitInstantQueriesByInterval?: InputMaybe<Scalars['Duration']>;
+  storeGatewayTenantShardSize?: InputMaybe<Scalars['Int']>;
 };
 
 export type Mutation = {
   __typename?: 'Mutation';
   /** AcceptOAuth2ConsentRequest accepts an OAuth 2.0 consent request. If the request was granted, a code or access token will be issued. If the request was denied, the request will be rejected. */
   acceptOAuth2ConsentRequest: OAuth2RedirectTo;
+  /** AcceptOAuth2LoginRequest accepts an OAuth 2.0 login request. If the request was granted, a code or access token will be issued. If the request was denied, the request will be rejected. */
+  acceptOAuth2LoginRequest: OAuth2RedirectTo;
   /** Create a new OAuth2 Client. */
   createOAuth2Client: OAuth2Client;
+  /** Create an observability tenant. */
+  createObservabilityTenant: ObservabilityTenant;
   /** Create a new user. */
   createUser: User;
   /** Delete a group. */
@@ -74,69 +254,105 @@ export type Mutation = {
   deleteUser: User;
   /** Create or update a group. */
   group: Group;
-  /** Create or update an observability tenant. */
-  observabilityTenant: ObservabilityTenant;
   /** Create a new organization. */
   organization: Organization;
   /** RejectOAuth2ConsentRequest rejects an OAuth 2.0 consent request. */
   rejectOAuth2ConsentRequest: OAuth2RedirectTo;
+  /** RejectOAuth2LoginRequest rejects an OAuth 2.0 login request. */
+  rejectOAuth2LoginRequest: OAuth2RedirectTo;
   /** Update an OAuth 2 Client. */
   updateOAuth2Client: OAuth2Client;
+  /** Update an observability tenant. */
+  updateObservabilityTenant: ObservabilityTenant;
 };
 
 
 export type MutationAcceptOAuth2ConsentRequestArgs = {
   challenge: Scalars['String'];
-  grantAccessTokenAudience?: Maybe<Array<Scalars['String']>>;
-  grantScope?: Maybe<Array<Scalars['String']>>;
-  remember?: Maybe<Scalars['Boolean']>;
-  rememberFor?: Maybe<Scalars['Int']>;
-  session?: Maybe<AcceptOAuth2ConsentRequestSession>;
+  grantAccessTokenAudience?: InputMaybe<Array<Scalars['String']>>;
+  grantScope?: InputMaybe<Array<Scalars['String']>>;
+  remember?: InputMaybe<Scalars['Boolean']>;
+  rememberFor?: InputMaybe<Scalars['Int']>;
+};
+
+
+export type MutationAcceptOAuth2LoginRequestArgs = {
+  acr?: InputMaybe<Scalars['String']>;
+  amr?: InputMaybe<Array<Scalars['String']>>;
+  challenge: Scalars['String'];
+  context?: InputMaybe<Scalars['Map']>;
+  remember?: InputMaybe<Scalars['Boolean']>;
+  rememberFor?: InputMaybe<Scalars['Int']>;
+  subject: Scalars['String'];
 };
 
 
 export type MutationCreateOAuth2ClientArgs = {
-  ClientSecretExpiresAt?: Maybe<Scalars['Int']>;
-  allowedCorsOrigins?: Maybe<Array<Scalars['String']>>;
-  audience?: Maybe<Array<Scalars['String']>>;
-  authorizationCodeGrantAccessTokenLifespan?: Maybe<Scalars['String']>;
-  authorizationCodeGrantIdTokenLifespan?: Maybe<Scalars['String']>;
-  authorizationCodeGrantRefreshTokenLifespan?: Maybe<Scalars['String']>;
-  backChannelLogoutSessionRequired?: Maybe<Scalars['Boolean']>;
-  backChannelLogoutUri?: Maybe<Scalars['String']>;
-  clientCredentialsGrantAccessTokenLifespan?: Maybe<Scalars['String']>;
-  clientName?: Maybe<Scalars['String']>;
-  clientSecret?: Maybe<Scalars['String']>;
-  clientUri?: Maybe<Scalars['String']>;
-  contacts?: Maybe<Array<Scalars['String']>>;
-  frontchannelLogoutSessionRequired?: Maybe<Scalars['Boolean']>;
-  frontchannelLogoutUri?: Maybe<Scalars['String']>;
-  grantTypes?: Maybe<Array<Scalars['String']>>;
-  implicitGrantAccessTokenLifespan?: Maybe<Scalars['String']>;
-  implicitGrantIdTokenLifespan?: Maybe<Scalars['String']>;
-  jwks?: Maybe<Scalars['Map']>;
-  jwksUri?: Maybe<Scalars['String']>;
-  jwtBearerGrantAccessTokenLifespan?: Maybe<Scalars['String']>;
-  loginBindings?: Maybe<LoginBindingsInput>;
-  logoUri?: Maybe<Scalars['String']>;
-  metadata?: Maybe<Scalars['Map']>;
-  policyUri?: Maybe<Scalars['String']>;
-  postLogoutRedirectUris?: Maybe<Array<Scalars['String']>>;
-  redirectUris?: Maybe<Array<Scalars['String']>>;
-  responseTypes?: Maybe<Array<Scalars['String']>>;
-  scope?: Maybe<Scalars['String']>;
-  sectorIdentifierUri?: Maybe<Scalars['String']>;
-  subjectType?: Maybe<Scalars['String']>;
-  tokenEndpointAuthMethod?: Maybe<Scalars['String']>;
-  tokenEndpointAuthSigningAlgorithm?: Maybe<Scalars['String']>;
-  tosUri?: Maybe<Scalars['String']>;
-  userinfoSignedResponseAlgorithm?: Maybe<Scalars['String']>;
+  ClientSecretExpiresAt?: InputMaybe<Scalars['Int']>;
+  allowedCorsOrigins?: InputMaybe<Array<Scalars['String']>>;
+  audience?: InputMaybe<Array<Scalars['String']>>;
+  authorizationCodeGrantAccessTokenLifespan?: InputMaybe<Scalars['String']>;
+  authorizationCodeGrantIdTokenLifespan?: InputMaybe<Scalars['String']>;
+  authorizationCodeGrantRefreshTokenLifespan?: InputMaybe<Scalars['String']>;
+  backChannelLogoutSessionRequired?: InputMaybe<Scalars['Boolean']>;
+  backChannelLogoutUri?: InputMaybe<Scalars['String']>;
+  clientCredentialsGrantAccessTokenLifespan?: InputMaybe<Scalars['String']>;
+  clientName?: InputMaybe<Scalars['String']>;
+  clientSecret?: InputMaybe<Scalars['String']>;
+  clientUri?: InputMaybe<Scalars['String']>;
+  contacts?: InputMaybe<Array<Scalars['String']>>;
+  frontchannelLogoutSessionRequired?: InputMaybe<Scalars['Boolean']>;
+  frontchannelLogoutUri?: InputMaybe<Scalars['String']>;
+  grantTypes?: InputMaybe<Array<Scalars['String']>>;
+  implicitGrantAccessTokenLifespan?: InputMaybe<Scalars['String']>;
+  implicitGrantIdTokenLifespan?: InputMaybe<Scalars['String']>;
+  jwks?: InputMaybe<Scalars['Map']>;
+  jwksUri?: InputMaybe<Scalars['String']>;
+  jwtBearerGrantAccessTokenLifespan?: InputMaybe<Scalars['String']>;
+  loginBindings?: InputMaybe<LoginBindingsInput>;
+  logoUri?: InputMaybe<Scalars['String']>;
+  metadata?: InputMaybe<Scalars['Map']>;
+  policyUri?: InputMaybe<Scalars['String']>;
+  postLogoutRedirectUris?: InputMaybe<Array<Scalars['String']>>;
+  redirectUris?: InputMaybe<Array<Scalars['String']>>;
+  responseTypes?: InputMaybe<Array<Scalars['String']>>;
+  scope?: InputMaybe<Scalars['String']>;
+  sectorIdentifierUri?: InputMaybe<Scalars['String']>;
+  subjectType?: InputMaybe<Scalars['String']>;
+  tokenEndpointAuthMethod?: InputMaybe<Scalars['String']>;
+  tokenEndpointAuthSigningAlgorithm?: InputMaybe<Scalars['String']>;
+  tosUri?: InputMaybe<Scalars['String']>;
+  userinfoSignedResponseAlgorithm?: InputMaybe<Scalars['String']>;
+};
+
+
+export type MutationCreateObservabilityTenantArgs = {
+  admins?: InputMaybe<ObservabilityTenantPermissionBindingsInput>;
+  id: Scalars['String'];
+  limits?: InputMaybe<ObservabilityTenantLimitsInput>;
+  logsDeleters?: InputMaybe<ObservabilityTenantPermissionBindingsInput>;
+  logsReaders?: InputMaybe<ObservabilityTenantPermissionBindingsInput>;
+  logsRulesDeleters?: InputMaybe<ObservabilityTenantPermissionBindingsInput>;
+  logsRulesReaders?: InputMaybe<ObservabilityTenantPermissionBindingsInput>;
+  logsRulesWriters?: InputMaybe<ObservabilityTenantPermissionBindingsInput>;
+  logsWriters?: InputMaybe<ObservabilityTenantPermissionBindingsInput>;
+  metricsAlertsReaders?: InputMaybe<ObservabilityTenantPermissionBindingsInput>;
+  metricsAlertsWriters?: InputMaybe<ObservabilityTenantPermissionBindingsInput>;
+  metricsDeleters?: InputMaybe<ObservabilityTenantPermissionBindingsInput>;
+  metricsReaders?: InputMaybe<ObservabilityTenantPermissionBindingsInput>;
+  metricsRulesDeleters?: InputMaybe<ObservabilityTenantPermissionBindingsInput>;
+  metricsRulesReaders?: InputMaybe<ObservabilityTenantPermissionBindingsInput>;
+  metricsRulesWriters?: InputMaybe<ObservabilityTenantPermissionBindingsInput>;
+  metricsWriters?: InputMaybe<ObservabilityTenantPermissionBindingsInput>;
+  name?: InputMaybe<Scalars['String']>;
+  tracesReaders?: InputMaybe<ObservabilityTenantPermissionBindingsInput>;
+  tracesWriters?: InputMaybe<ObservabilityTenantPermissionBindingsInput>;
 };
 
 
 export type MutationCreateUserArgs = {
   email: Scalars['String'];
-  name?: Maybe<NameInput>;
+  name?: InputMaybe<NameInput>;
 };
 
 
@@ -151,7 +367,7 @@ export type MutationDeleteOAuth2ClientArgs = {
 
 
 export type MutationDeleteObservabilityTenantArgs = {
-  name: Scalars['String'];
+  id: Scalars['String'];
 };
 
 
@@ -161,15 +377,8 @@ export type MutationDeleteUserArgs = {
 
 
 export type MutationGroupArgs = {
-  members?: Maybe<Array<Scalars['String']>>;
+  members?: InputMaybe<Array<Scalars['String']>>;
   name: Scalars['String'];
-};
-
-
-export type MutationObservabilityTenantArgs = {
-  editors?: Maybe<ObservabilityTenantEditorsInput>;
-  name: Scalars['String'];
-  viewers?: Maybe<ObservabilityTenantViewersInput>;
 };
 
 
@@ -184,43 +393,72 @@ export type MutationRejectOAuth2ConsentRequestArgs = {
 };
 
 
+export type MutationRejectOAuth2LoginRequestArgs = {
+  challenge: Scalars['String'];
+};
+
+
 export type MutationUpdateOAuth2ClientArgs = {
-  ClientSecretExpiresAt?: Maybe<Scalars['Int']>;
-  allowedCorsOrigins?: Maybe<Array<Scalars['String']>>;
-  audience?: Maybe<Array<Scalars['String']>>;
-  authorizationCodeGrantAccessTokenLifespan?: Maybe<Scalars['String']>;
-  authorizationCodeGrantIdTokenLifespan?: Maybe<Scalars['String']>;
-  authorizationCodeGrantRefreshTokenLifespan?: Maybe<Scalars['String']>;
-  backChannelLogoutSessionRequired?: Maybe<Scalars['Boolean']>;
-  backChannelLogoutUri?: Maybe<Scalars['String']>;
-  clientCredentialsGrantAccessTokenLifespan?: Maybe<Scalars['String']>;
+  ClientSecretExpiresAt?: InputMaybe<Scalars['Int']>;
+  allowedCorsOrigins?: InputMaybe<Array<Scalars['String']>>;
+  audience?: InputMaybe<Array<Scalars['String']>>;
+  authorizationCodeGrantAccessTokenLifespan?: InputMaybe<Scalars['String']>;
+  authorizationCodeGrantIdTokenLifespan?: InputMaybe<Scalars['String']>;
+  authorizationCodeGrantRefreshTokenLifespan?: InputMaybe<Scalars['String']>;
+  backChannelLogoutSessionRequired?: InputMaybe<Scalars['Boolean']>;
+  backChannelLogoutUri?: InputMaybe<Scalars['String']>;
+  clientCredentialsGrantAccessTokenLifespan?: InputMaybe<Scalars['String']>;
   clientId: Scalars['String'];
-  clientName?: Maybe<Scalars['String']>;
-  clientSecret?: Maybe<Scalars['String']>;
-  clientUri?: Maybe<Scalars['String']>;
-  contacts?: Maybe<Array<Scalars['String']>>;
-  frontchannelLogoutSessionRequired?: Maybe<Scalars['Boolean']>;
-  frontchannelLogoutUri?: Maybe<Scalars['String']>;
-  grantTypes?: Maybe<Array<Scalars['String']>>;
-  implicitGrantAccessTokenLifespan?: Maybe<Scalars['String']>;
-  implicitGrantIdTokenLifespan?: Maybe<Scalars['String']>;
-  jwks?: Maybe<Scalars['Map']>;
-  jwksUri?: Maybe<Scalars['String']>;
-  jwtBearerGrantAccessTokenLifespan?: Maybe<Scalars['String']>;
-  loginBindings?: Maybe<LoginBindingsInput>;
-  logoUri?: Maybe<Scalars['String']>;
-  metadata?: Maybe<Scalars['Map']>;
-  policyUri?: Maybe<Scalars['String']>;
-  postLogoutRedirectUris?: Maybe<Array<Scalars['String']>>;
-  redirectUris?: Maybe<Array<Scalars['String']>>;
-  responseTypes?: Maybe<Array<Scalars['String']>>;
-  scope?: Maybe<Scalars['String']>;
-  sectorIdentifierUri?: Maybe<Scalars['String']>;
-  subjectType?: Maybe<Scalars['String']>;
-  tokenEndpointAuthMethod?: Maybe<Scalars['String']>;
-  tokenEndpointAuthSigningAlgorithm?: Maybe<Scalars['String']>;
-  tosUri?: Maybe<Scalars['String']>;
-  userinfoSignedResponseAlgorithm?: Maybe<Scalars['String']>;
+  clientName?: InputMaybe<Scalars['String']>;
+  clientSecret?: InputMaybe<Scalars['String']>;
+  clientUri?: InputMaybe<Scalars['String']>;
+  contacts?: InputMaybe<Array<Scalars['String']>>;
+  frontchannelLogoutSessionRequired?: InputMaybe<Scalars['Boolean']>;
+  frontchannelLogoutUri?: InputMaybe<Scalars['String']>;
+  grantTypes?: InputMaybe<Array<Scalars['String']>>;
+  implicitGrantAccessTokenLifespan?: InputMaybe<Scalars['String']>;
+  implicitGrantIdTokenLifespan?: InputMaybe<Scalars['String']>;
+  jwks?: InputMaybe<Scalars['Map']>;
+  jwksUri?: InputMaybe<Scalars['String']>;
+  jwtBearerGrantAccessTokenLifespan?: InputMaybe<Scalars['String']>;
+  loginBindings?: InputMaybe<LoginBindingsInput>;
+  logoUri?: InputMaybe<Scalars['String']>;
+  metadata?: InputMaybe<Scalars['Map']>;
+  policyUri?: InputMaybe<Scalars['String']>;
+  postLogoutRedirectUris?: InputMaybe<Array<Scalars['String']>>;
+  redirectUris?: InputMaybe<Array<Scalars['String']>>;
+  responseTypes?: InputMaybe<Array<Scalars['String']>>;
+  scope?: InputMaybe<Scalars['String']>;
+  sectorIdentifierUri?: InputMaybe<Scalars['String']>;
+  subjectType?: InputMaybe<Scalars['String']>;
+  tokenEndpointAuthMethod?: InputMaybe<Scalars['String']>;
+  tokenEndpointAuthSigningAlgorithm?: InputMaybe<Scalars['String']>;
+  tosUri?: InputMaybe<Scalars['String']>;
+  userinfoSignedResponseAlgorithm?: InputMaybe<Scalars['String']>;
+};
+
+
+export type MutationUpdateObservabilityTenantArgs = {
+  admins?: InputMaybe<ObservabilityTenantPermissionBindingsInput>;
+  id: Scalars['String'];
+  limits?: InputMaybe<ObservabilityTenantLimitsInput>;
+  logsDeleters?: InputMaybe<ObservabilityTenantPermissionBindingsInput>;
+  logsReaders?: InputMaybe<ObservabilityTenantPermissionBindingsInput>;
+  logsRulesDeleters?: InputMaybe<ObservabilityTenantPermissionBindingsInput>;
+  logsRulesReaders?: InputMaybe<ObservabilityTenantPermissionBindingsInput>;
+  logsRulesWriters?: InputMaybe<ObservabilityTenantPermissionBindingsInput>;
+  logsWriters?: InputMaybe<ObservabilityTenantPermissionBindingsInput>;
+  metricsAlertsReaders?: InputMaybe<ObservabilityTenantPermissionBindingsInput>;
+  metricsAlertsWriters?: InputMaybe<ObservabilityTenantPermissionBindingsInput>;
+  metricsDeleters?: InputMaybe<ObservabilityTenantPermissionBindingsInput>;
+  metricsReaders?: InputMaybe<ObservabilityTenantPermissionBindingsInput>;
+  metricsRulesDeleters?: InputMaybe<ObservabilityTenantPermissionBindingsInput>;
+  metricsRulesReaders?: InputMaybe<ObservabilityTenantPermissionBindingsInput>;
+  metricsRulesWriters?: InputMaybe<ObservabilityTenantPermissionBindingsInput>;
+  metricsWriters?: InputMaybe<ObservabilityTenantPermissionBindingsInput>;
+  name?: InputMaybe<Scalars['String']>;
+  tracesReaders?: InputMaybe<ObservabilityTenantPermissionBindingsInput>;
+  tracesWriters?: InputMaybe<ObservabilityTenantPermissionBindingsInput>;
 };
 
 /** The first and last name of a user. */
@@ -234,9 +472,9 @@ export type Name = {
 
 export type NameInput = {
   /** The user's first name. */
-  first?: Maybe<Scalars['String']>;
+  first?: InputMaybe<Scalars['String']>;
   /** The user's last name. */
-  last?: Maybe<Scalars['String']>;
+  last?: InputMaybe<Scalars['String']>;
 };
 
 /** Representation of the information about an OAuth2 Client sourced from Hydra. */
@@ -352,7 +590,32 @@ export type OAuth2ConsentRequest = {
   requestedScope?: Maybe<Array<Scalars['String']>>;
   /** Skip is true when the client has requested the same scopes from the same user before. If this is true, you can skip asking the user to grant the requested scopes, or you can force showing the UI by setting this value to false. */
   skip?: Maybe<Scalars['Boolean']>;
-  /** Subject is the user ID of the end-user that authenticated. This value will be set to the "sub" claim in the ID Token. */
+  /** Subject is the user ID of the end-user that authenticated. This value will be set to the 'sub' claim in the ID Token. */
+  subject: Scalars['String'];
+};
+
+/** OAuth2LoginRequest represents an OAuth 2.0 login request. */
+export type OAuth2LoginRequest = {
+  __typename?: 'OAuth2LoginRequest';
+  /** The challenge is a random string which is used to identify the consent request. */
+  challenge: Scalars['String'];
+  /** The client is the OAuth 2.0 Client requesting the OAuth 2.0 Authorization. */
+  client: OAuth2Client;
+  /** OIDCContext contains the OIDC context of the request. If the OAuth 2.0 Authorization request was not an OpenID Connect request, this value will be nil. */
+  oidcContext?: Maybe<OidcContext>;
+  /** The URL to redirect to if an error occurred. */
+  redirectTo?: Maybe<Scalars['String']>;
+  /** RequestURL is the original OAuth 2.0 Authorization URL requested by the OAuth 2.0 client. It is the URL which initiates the OAuth 2.0 Authorization Code or OAuth 2.0 Implicit flow. This URL is typically not needed, but might come in handy if you want to deal with additional request parameters. */
+  requestUrl?: Maybe<Scalars['String']>;
+  /** RequestedAccessTokenAudience contains the audience (client) that the OAuth 2.0 Client requested the OAuth 2.0 Access Token to be issued for. */
+  requestedAccessTokenAudience?: Maybe<Array<Scalars['String']>>;
+  /** RequestedScope contains the OAuth 2.0 Scope requested by the OAuth 2.0 Client. */
+  requestedScope?: Maybe<Array<Scalars['String']>>;
+  /** SessionID is the login session ID. If the user-agent reuses a login session (via cookie / remember flag) this ID will remain the same. If the user-agent did not have an existing authentication session (e.g. remember is false) this will be a new random value. This value is used as the 'sid' parameter in the ID Token and in OIDC Front-/Back- channel logout. It's value can generally be used to associate consecutive login requests by a certain user. */
+  sessionId?: Maybe<Scalars['String']>;
+  /** Skip is true when the client has requested the same scopes from the same user before. If this is true, you can skip asking the user to grant the requested scopes, or you can force showing the UI by setting this value to false. */
+  skip?: Maybe<Scalars['Boolean']>;
+  /** Subject is the user ID of the end-user that authenticated. This value will be set to the 'sub' claim in the ID Token. */
   subject: Scalars['String'];
 };
 
@@ -365,50 +628,79 @@ export type OAuth2RedirectTo = {
 /** Representation a tenant in the Grafana observability stack where metrics, logs and traces can be sent to or retrieved from. */
 export type ObservabilityTenant = {
   __typename?: 'ObservabilityTenant';
-  /** The users and groups that can edit a tenant to add users, groups or oauth2 clients to it. */
-  editors?: Maybe<ObservabilityTenantEditors>;
-  /** The unique name of the tenant. */
-  name: Scalars['String'];
-  /** The organization that the tenant belongs to. */
-  organization: Organization;
-  /** The users that are admins of the organization. */
-  viewers?: Maybe<ObservabilityTenantViewers>;
+  /** The users, groups or clients that are admins of the observability tenant and can change its permissions. */
+  admins?: Maybe<ObservabilityTenantPermissionBindings>;
+  /** The unique id of the tenant. */
+  id: Scalars['String'];
+  /** The limits of the tenant. */
+  limits?: Maybe<ObservabilityTenantLimits>;
+  /** The users, groups or clients that can delete logs from the tenant. */
+  logsDeleters?: Maybe<ObservabilityTenantPermissionBindings>;
+  /** The users, groups or clients that can read logs from the tenant. */
+  logsReaders?: Maybe<ObservabilityTenantPermissionBindings>;
+  /** The users, groups or clients that can delete log rules from the tenant. */
+  logsRulesDeleters?: Maybe<ObservabilityTenantPermissionBindings>;
+  /** The users, groups or clients that can read log rules from the tenant. */
+  logsRulesReaders?: Maybe<ObservabilityTenantPermissionBindings>;
+  /** The users, groups or clients that can write log rules to the tenant. */
+  logsRulesWriters?: Maybe<ObservabilityTenantPermissionBindings>;
+  /** The users, groups or clients that can write logs to the tenant. */
+  logsWriters?: Maybe<ObservabilityTenantPermissionBindings>;
+  /** The users, groups or clients that can view the Alertmanager UI and get the Alertmanager configuration for a tenant. */
+  metricsAlertsReaders?: Maybe<ObservabilityTenantPermissionBindings>;
+  /** The users, groups or clients that can create silences in the Alertmanager UI and create and delete the Alertmanager configuration for a tenant. */
+  metricsAlertsWriters?: Maybe<ObservabilityTenantPermissionBindings>;
+  /** The users, groups or clients that can delete metrics from the tenant. */
+  metricsDeleters?: Maybe<ObservabilityTenantPermissionBindings>;
+  /** The users, groups or clients that can read metrics from the tenant. */
+  metricsReaders?: Maybe<ObservabilityTenantPermissionBindings>;
+  /** The users, groups or clients that can delete metric rules from the tenant. */
+  metricsRulesDeleters?: Maybe<ObservabilityTenantPermissionBindings>;
+  /** The users, groups or clients that can read metric rules from the tenant. */
+  metricsRulesReaders?: Maybe<ObservabilityTenantPermissionBindings>;
+  /** The users, groups or clients that can write metric rules to the tenant. */
+  metricsRulesWriters?: Maybe<ObservabilityTenantPermissionBindings>;
+  /** The users, groups or clients that can write metrics to the tenant. */
+  metricsWriters?: Maybe<ObservabilityTenantPermissionBindings>;
+  /** The display name of the tenant. */
+  name?: Maybe<Scalars['String']>;
+  /** The users, groups or clients that can read traces from the tenant. */
+  tracesReaders?: Maybe<ObservabilityTenantPermissionBindings>;
+  /** The users, groups or clients that can write traces to the tenant. */
+  tracesWriters?: Maybe<ObservabilityTenantPermissionBindings>;
 };
 
-/** Representation of the users and groups that can edit a tenant. */
-export type ObservabilityTenantEditors = {
-  __typename?: 'ObservabilityTenantEditors';
-  /** The groups that can edit a tenant. */
+/** Representation of the limits of a tenant. */
+export type ObservabilityTenantLimits = {
+  __typename?: 'ObservabilityTenantLimits';
+  /** The limits for Mimir for the tenant. */
+  mimir?: Maybe<MimirLimits>;
+};
+
+/** Inputs for the limits of a tenant. */
+export type ObservabilityTenantLimitsInput = {
+  /** The limits for Mimir for the tenant. */
+  mimir?: InputMaybe<MimirLimitsInput>;
+};
+
+/** Representation of the users, groups and oauth2 clients that have a set of permissions on a tenant. */
+export type ObservabilityTenantPermissionBindings = {
+  __typename?: 'ObservabilityTenantPermissionBindings';
+  /** The groups have a particular permission on a tenant. */
   groups?: Maybe<Array<Group>>;
-  /** The users that can edit a tenant. */
-  users?: Maybe<Array<User>>;
-};
-
-export type ObservabilityTenantEditorsInput = {
-  /** The names of groups that can edit a tenant. */
-  groups?: Maybe<Array<Scalars['String']>>;
-  /** The IDs of users that can edit a tenant. */
-  users?: Maybe<Array<Scalars['String']>>;
-};
-
-/** Representation of the users, groups and oauth2 clients that can view or send data a tenant. */
-export type ObservabilityTenantViewers = {
-  __typename?: 'ObservabilityTenantViewers';
-  /** The groups that can view a tenant. */
-  groups?: Maybe<Array<Group>>;
-  /** The oauth2 clients that can send data a tenant. */
+  /** The oauth2 clients  have a particular permission on a tenant. */
   oauth2Clients?: Maybe<Array<OAuth2Client>>;
-  /** The users that can view a tenant. */
+  /** The users that have a particular permission on a tenant. */
   users?: Maybe<Array<User>>;
 };
 
-export type ObservabilityTenantViewersInput = {
+export type ObservabilityTenantPermissionBindingsInput = {
   /** The names of groups that can view a tenant. */
-  groups?: Maybe<Array<Scalars['String']>>;
+  groups?: InputMaybe<Array<Scalars['String']>>;
   /** The clientIDs oauth2 clients that can send data a tenant. */
-  oauth2Clients?: Maybe<Array<Scalars['String']>>;
+  oauth2Clients?: InputMaybe<Array<Scalars['String']>>;
   /** The IDs of users that can view a tenant. */
-  users?: Maybe<Array<Scalars['String']>>;
+  users?: InputMaybe<Array<Scalars['String']>>;
 };
 
 /** OIDC Context for a consent request. */
@@ -454,6 +746,10 @@ export type Query = {
   listUsers: Array<User>;
   /** OAuth2ConsentRequest returns the OAuth 2.0 consent request information. */
   oauth2ConsentRequest?: Maybe<OAuth2ConsentRequest>;
+  /** OAuth2LoginRequest returns the OAuth 2.0 login request information. */
+  oauth2LoginRequest?: Maybe<OAuth2LoginRequest>;
+  /** Get a single organization by name. */
+  organization: Organization;
 };
 
 
@@ -463,7 +759,7 @@ export type QueryGetOAuth2ClientArgs = {
 
 
 export type QueryGetObservabilityTenantArgs = {
-  name: Scalars['String'];
+  id: Scalars['String'];
 };
 
 
@@ -474,6 +770,22 @@ export type QueryGetUserArgs = {
 
 export type QueryOauth2ConsentRequestArgs = {
   challenge: Scalars['String'];
+};
+
+
+export type QueryOauth2LoginRequestArgs = {
+  challenge: Scalars['String'];
+};
+
+
+export type QueryOrganizationArgs = {
+  name: Scalars['String'];
+};
+
+/** Representation of the limits for Tempo for a tenant. */
+export type TempoLimits = {
+  __typename?: 'TempoLimits';
+  requestRate?: Maybe<Scalars['Float']>;
 };
 
 /** Representation of the information about a user sourced from Kratos. */
@@ -493,14 +805,14 @@ export type User = {
   recoveryLink?: Maybe<Scalars['String']>;
 };
 
-export type GroupInfoFragment = { __typename?: 'Group', name: string, members?: Array<{ __typename?: 'User', id: string, email: string, name?: { __typename?: 'Name', first?: string | null | undefined, last?: string | null | undefined } | null | undefined }> | null | undefined };
+export type GroupInfoFragment = { __typename?: 'Group', name: string, members?: Array<{ __typename?: 'User', id: string, email: string, name?: { __typename?: 'Name', first?: string | null, last?: string | null } | null }> | null };
 
-export type GroupUserInfoFragment = { __typename?: 'User', id: string, email: string, name?: { __typename?: 'Name', first?: string | null | undefined, last?: string | null | undefined } | null | undefined };
+export type GroupUserInfoFragment = { __typename?: 'User', id: string, email: string, name?: { __typename?: 'Name', first?: string | null, last?: string | null } | null };
 
 export type ListGroupsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type ListGroupsQuery = { __typename?: 'Query', listGroups?: Array<{ __typename?: 'Group', name: string, members?: Array<{ __typename?: 'User', id: string, email: string, name?: { __typename?: 'Name', first?: string | null | undefined, last?: string | null | undefined } | null | undefined }> | null | undefined }> | null | undefined };
+export type ListGroupsQuery = { __typename?: 'Query', listGroups?: Array<{ __typename?: 'Group', name: string, members?: Array<{ __typename?: 'User', id: string, email: string, name?: { __typename?: 'Name', first?: string | null, last?: string | null } | null }> | null }> | null };
 
 export type DeleteGroupMutationVariables = Exact<{
   name: Scalars['String'];
@@ -511,31 +823,30 @@ export type DeleteGroupMutation = { __typename?: 'Mutation', deleteGroup: { __ty
 
 export type GroupMutationVariables = Exact<{
   name: Scalars['String'];
-  members?: Maybe<Array<Scalars['String']> | Scalars['String']>;
+  members?: InputMaybe<Array<Scalars['String']> | Scalars['String']>;
 }>;
 
 
-export type GroupMutation = { __typename?: 'Mutation', group: { __typename?: 'Group', name: string, members?: Array<{ __typename?: 'User', id: string, email: string, name?: { __typename?: 'Name', first?: string | null | undefined, last?: string | null | undefined } | null | undefined }> | null | undefined } };
+export type GroupMutation = { __typename?: 'Mutation', group: { __typename?: 'Group', name: string, members?: Array<{ __typename?: 'User', id: string, email: string, name?: { __typename?: 'Name', first?: string | null, last?: string | null } | null }> | null } };
 
-export type OAuth2ConsentRequestFragment = { __typename?: 'OAuth2ConsentRequest', challenge: string, context?: any | null | undefined, loginChallenge?: string | null | undefined, loginSessionId?: string | null | undefined, requestUrl?: string | null | undefined, requestedAccessTokenAudience?: Array<string> | null | undefined, requestedScope?: Array<string> | null | undefined, skip?: boolean | null | undefined, subject: string, redirectTo?: string | null | undefined, client: { __typename?: 'OAuth2Client', clientId?: string | null | undefined, clientName?: string | null | undefined, logoUri?: string | null | undefined, policyUri?: string | null | undefined, scope?: string | null | undefined, tosUri?: string | null | undefined }, oidcContext?: { __typename?: 'OidcContext', acrValues?: Array<string> | null | undefined, display?: string | null | undefined, idTokenHintClaims?: any | null | undefined, loginHint?: string | null | undefined, uiLocales?: Array<string> | null | undefined } | null | undefined };
+export type OAuth2ConsentRequestFragment = { __typename?: 'OAuth2ConsentRequest', challenge: string, context?: Map<string, unknown> | null, loginChallenge?: string | null, loginSessionId?: string | null, requestUrl?: string | null, requestedAccessTokenAudience?: Array<string> | null, requestedScope?: Array<string> | null, skip?: boolean | null, subject: string, redirectTo?: string | null, client: { __typename?: 'OAuth2Client', clientId?: string | null, clientName?: string | null, logoUri?: string | null, policyUri?: string | null, scope?: string | null, tosUri?: string | null }, oidcContext?: { __typename?: 'OidcContext', acrValues?: Array<string> | null, display?: string | null, idTokenHintClaims?: Map<string, unknown> | null, loginHint?: string | null, uiLocales?: Array<string> | null } | null };
 
-export type OAuthConsentOidcContextFragment = { __typename?: 'OidcContext', acrValues?: Array<string> | null | undefined, display?: string | null | undefined, idTokenHintClaims?: any | null | undefined, loginHint?: string | null | undefined, uiLocales?: Array<string> | null | undefined };
+export type OAuthConsentOidcContextFragment = { __typename?: 'OidcContext', acrValues?: Array<string> | null, display?: string | null, idTokenHintClaims?: Map<string, unknown> | null, loginHint?: string | null, uiLocales?: Array<string> | null };
 
-export type OAuth2ConsentClientFragment = { __typename?: 'OAuth2Client', clientId?: string | null | undefined, clientName?: string | null | undefined, logoUri?: string | null | undefined, policyUri?: string | null | undefined, scope?: string | null | undefined, tosUri?: string | null | undefined };
+export type OAuth2ConsentClientFragment = { __typename?: 'OAuth2Client', clientId?: string | null, clientName?: string | null, logoUri?: string | null, policyUri?: string | null, scope?: string | null, tosUri?: string | null };
 
 export type OAuth2ConsentRequestQueryVariables = Exact<{
   challenge: Scalars['String'];
 }>;
 
 
-export type OAuth2ConsentRequestQuery = { __typename?: 'Query', oauth2ConsentRequest?: { __typename?: 'OAuth2ConsentRequest', challenge: string, context?: any | null | undefined, loginChallenge?: string | null | undefined, loginSessionId?: string | null | undefined, requestUrl?: string | null | undefined, requestedAccessTokenAudience?: Array<string> | null | undefined, requestedScope?: Array<string> | null | undefined, skip?: boolean | null | undefined, subject: string, redirectTo?: string | null | undefined, client: { __typename?: 'OAuth2Client', clientId?: string | null | undefined, clientName?: string | null | undefined, logoUri?: string | null | undefined, policyUri?: string | null | undefined, scope?: string | null | undefined, tosUri?: string | null | undefined }, oidcContext?: { __typename?: 'OidcContext', acrValues?: Array<string> | null | undefined, display?: string | null | undefined, idTokenHintClaims?: any | null | undefined, loginHint?: string | null | undefined, uiLocales?: Array<string> | null | undefined } | null | undefined } | null | undefined };
+export type OAuth2ConsentRequestQuery = { __typename?: 'Query', oauth2ConsentRequest?: { __typename?: 'OAuth2ConsentRequest', challenge: string, context?: Map<string, unknown> | null, loginChallenge?: string | null, loginSessionId?: string | null, requestUrl?: string | null, requestedAccessTokenAudience?: Array<string> | null, requestedScope?: Array<string> | null, skip?: boolean | null, subject: string, redirectTo?: string | null, client: { __typename?: 'OAuth2Client', clientId?: string | null, clientName?: string | null, logoUri?: string | null, policyUri?: string | null, scope?: string | null, tosUri?: string | null }, oidcContext?: { __typename?: 'OidcContext', acrValues?: Array<string> | null, display?: string | null, idTokenHintClaims?: Map<string, unknown> | null, loginHint?: string | null, uiLocales?: Array<string> | null } | null } | null };
 
 export type AcceptOAuth2ConsentRequestMutationVariables = Exact<{
   challenge: Scalars['String'];
-  grantScope?: Maybe<Array<Scalars['String']> | Scalars['String']>;
-  remember?: Maybe<Scalars['Boolean']>;
-  rememberFor?: Maybe<Scalars['Int']>;
-  session?: Maybe<AcceptOAuth2ConsentRequestSession>;
+  grantScope?: InputMaybe<Array<Scalars['String']> | Scalars['String']>;
+  remember?: InputMaybe<Scalars['Boolean']>;
+  rememberFor?: InputMaybe<Scalars['Int']>;
 }>;
 
 
@@ -548,14 +859,47 @@ export type RejectOAuth2ConsentRequestMutationVariables = Exact<{
 
 export type RejectOAuth2ConsentRequestMutation = { __typename?: 'Mutation', rejectOAuth2ConsentRequest: { __typename?: 'OAuth2RedirectTo', redirectTo: string } };
 
-export type UserInfoFragment = { __typename?: 'User', id: string, email: string, name?: { __typename?: 'Name', first?: string | null | undefined, last?: string | null | undefined } | null | undefined, groups?: Array<{ __typename?: 'Group', name: string }> | null | undefined };
+export type OAuth2LoginRequestFragment = { __typename?: 'OAuth2LoginRequest', challenge: string, requestUrl?: string | null, requestedAccessTokenAudience?: Array<string> | null, requestedScope?: Array<string> | null, sessionId?: string | null, skip?: boolean | null, subject: string, redirectTo?: string | null, client: { __typename?: 'OAuth2Client', clientId?: string | null, clientName?: string | null, logoUri?: string | null, policyUri?: string | null, scope?: string | null, tosUri?: string | null }, oidcContext?: { __typename?: 'OidcContext', acrValues?: Array<string> | null, display?: string | null, idTokenHintClaims?: Map<string, unknown> | null, loginHint?: string | null, uiLocales?: Array<string> | null } | null };
+
+export type OAuthLoginOidcContextFragment = { __typename?: 'OidcContext', acrValues?: Array<string> | null, display?: string | null, idTokenHintClaims?: Map<string, unknown> | null, loginHint?: string | null, uiLocales?: Array<string> | null };
+
+export type OAuth2LoginClientFragment = { __typename?: 'OAuth2Client', clientId?: string | null, clientName?: string | null, logoUri?: string | null, policyUri?: string | null, scope?: string | null, tosUri?: string | null };
+
+export type OAuth2LoginRequestQueryVariables = Exact<{
+  challenge: Scalars['String'];
+}>;
+
+
+export type OAuth2LoginRequestQuery = { __typename?: 'Query', oauth2LoginRequest?: { __typename?: 'OAuth2LoginRequest', challenge: string, requestUrl?: string | null, requestedAccessTokenAudience?: Array<string> | null, requestedScope?: Array<string> | null, sessionId?: string | null, skip?: boolean | null, subject: string, redirectTo?: string | null, client: { __typename?: 'OAuth2Client', clientId?: string | null, clientName?: string | null, logoUri?: string | null, policyUri?: string | null, scope?: string | null, tosUri?: string | null }, oidcContext?: { __typename?: 'OidcContext', acrValues?: Array<string> | null, display?: string | null, idTokenHintClaims?: Map<string, unknown> | null, loginHint?: string | null, uiLocales?: Array<string> | null } | null } | null };
+
+export type AcceptOAuth2LoginRequestMutationVariables = Exact<{
+  challenge: Scalars['String'];
+  acr?: InputMaybe<Scalars['String']>;
+  amr?: InputMaybe<Array<Scalars['String']> | Scalars['String']>;
+  context?: InputMaybe<Scalars['Map']>;
+  remember?: InputMaybe<Scalars['Boolean']>;
+  rememberFor?: InputMaybe<Scalars['Int']>;
+  subject: Scalars['String'];
+}>;
+
+
+export type AcceptOAuth2LoginRequestMutation = { __typename?: 'Mutation', acceptOAuth2LoginRequest: { __typename?: 'OAuth2RedirectTo', redirectTo: string } };
+
+export type RejectOAuth2LoginRequestMutationVariables = Exact<{
+  challenge: Scalars['String'];
+}>;
+
+
+export type RejectOAuth2LoginRequestMutation = { __typename?: 'Mutation', rejectOAuth2LoginRequest: { __typename?: 'OAuth2RedirectTo', redirectTo: string } };
+
+export type UserInfoFragment = { __typename?: 'User', id: string, email: string, name?: { __typename?: 'Name', first?: string | null, last?: string | null } | null, groups?: Array<{ __typename?: 'Group', name: string }> | null };
 
 export type UserGroupInfoFragment = { __typename?: 'Group', name: string };
 
 export type ListUsersQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type ListUsersQuery = { __typename?: 'Query', listUsers: Array<{ __typename?: 'User', id: string, email: string, name?: { __typename?: 'Name', first?: string | null | undefined, last?: string | null | undefined } | null | undefined, groups?: Array<{ __typename?: 'Group', name: string }> | null | undefined }> };
+export type ListUsersQuery = { __typename?: 'Query', listUsers: Array<{ __typename?: 'User', id: string, email: string, name?: { __typename?: 'Name', first?: string | null, last?: string | null } | null, groups?: Array<{ __typename?: 'Group', name: string }> | null }> };
 
 export const GroupUserInfoFragmentDoc = gql`
     fragment GroupUserInfo on User {
@@ -615,6 +959,44 @@ export const OAuth2ConsentRequestFragmentDoc = gql`
 }
     ${OAuth2ConsentClientFragmentDoc}
 ${OAuthConsentOidcContextFragmentDoc}`;
+export const OAuth2LoginClientFragmentDoc = gql`
+    fragment OAuth2LoginClient on OAuth2Client {
+  clientId
+  clientName
+  logoUri
+  policyUri
+  scope
+  tosUri
+}
+    `;
+export const OAuthLoginOidcContextFragmentDoc = gql`
+    fragment OAuthLoginOIDCContext on OidcContext {
+  acrValues
+  display
+  idTokenHintClaims
+  loginHint
+  uiLocales
+}
+    `;
+export const OAuth2LoginRequestFragmentDoc = gql`
+    fragment OAuth2LoginRequest on OAuth2LoginRequest {
+  challenge
+  client {
+    ...OAuth2LoginClient
+  }
+  oidcContext {
+    ...OAuthLoginOIDCContext
+  }
+  requestUrl
+  requestedAccessTokenAudience
+  requestedScope
+  sessionId
+  skip
+  subject
+  redirectTo
+}
+    ${OAuth2LoginClientFragmentDoc}
+${OAuthLoginOidcContextFragmentDoc}`;
 export const UserGroupInfoFragmentDoc = gql`
     fragment UserGroupInfo on Group {
   name
@@ -770,13 +1152,12 @@ export type OAuth2ConsentRequestQueryHookResult = ReturnType<typeof useOAuth2Con
 export type OAuth2ConsentRequestLazyQueryHookResult = ReturnType<typeof useOAuth2ConsentRequestLazyQuery>;
 export type OAuth2ConsentRequestQueryResult = Apollo.QueryResult<OAuth2ConsentRequestQuery, OAuth2ConsentRequestQueryVariables>;
 export const AcceptOAuth2ConsentRequestDocument = gql`
-    mutation AcceptOAuth2ConsentRequest($challenge: String!, $grantScope: [String!], $remember: Boolean, $rememberFor: Int, $session: AcceptOAuth2ConsentRequestSession) {
+    mutation AcceptOAuth2ConsentRequest($challenge: String!, $grantScope: [String!], $remember: Boolean, $rememberFor: Int) {
   acceptOAuth2ConsentRequest(
     challenge: $challenge
     grantScope: $grantScope
     remember: $remember
     rememberFor: $rememberFor
-    session: $session
   ) {
     redirectTo
   }
@@ -801,7 +1182,6 @@ export type AcceptOAuth2ConsentRequestMutationFn = Apollo.MutationFunction<Accep
  *      grantScope: // value for 'grantScope'
  *      remember: // value for 'remember'
  *      rememberFor: // value for 'rememberFor'
- *      session: // value for 'session'
  *   },
  * });
  */
@@ -845,6 +1225,121 @@ export function useRejectOAuth2ConsentRequestMutation(baseOptions?: Apollo.Mutat
 export type RejectOAuth2ConsentRequestMutationHookResult = ReturnType<typeof useRejectOAuth2ConsentRequestMutation>;
 export type RejectOAuth2ConsentRequestMutationResult = Apollo.MutationResult<RejectOAuth2ConsentRequestMutation>;
 export type RejectOAuth2ConsentRequestMutationOptions = Apollo.BaseMutationOptions<RejectOAuth2ConsentRequestMutation, RejectOAuth2ConsentRequestMutationVariables>;
+export const OAuth2LoginRequestDocument = gql`
+    query OAuth2LoginRequest($challenge: String!) {
+  oauth2LoginRequest(challenge: $challenge) {
+    ...OAuth2LoginRequest
+  }
+}
+    ${OAuth2LoginRequestFragmentDoc}`;
+
+/**
+ * __useOAuth2LoginRequestQuery__
+ *
+ * To run a query within a React component, call `useOAuth2LoginRequestQuery` and pass it any options that fit your needs.
+ * When your component renders, `useOAuth2LoginRequestQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useOAuth2LoginRequestQuery({
+ *   variables: {
+ *      challenge: // value for 'challenge'
+ *   },
+ * });
+ */
+export function useOAuth2LoginRequestQuery(baseOptions: Apollo.QueryHookOptions<OAuth2LoginRequestQuery, OAuth2LoginRequestQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<OAuth2LoginRequestQuery, OAuth2LoginRequestQueryVariables>(OAuth2LoginRequestDocument, options);
+      }
+export function useOAuth2LoginRequestLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<OAuth2LoginRequestQuery, OAuth2LoginRequestQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<OAuth2LoginRequestQuery, OAuth2LoginRequestQueryVariables>(OAuth2LoginRequestDocument, options);
+        }
+export type OAuth2LoginRequestQueryHookResult = ReturnType<typeof useOAuth2LoginRequestQuery>;
+export type OAuth2LoginRequestLazyQueryHookResult = ReturnType<typeof useOAuth2LoginRequestLazyQuery>;
+export type OAuth2LoginRequestQueryResult = Apollo.QueryResult<OAuth2LoginRequestQuery, OAuth2LoginRequestQueryVariables>;
+export const AcceptOAuth2LoginRequestDocument = gql`
+    mutation AcceptOAuth2LoginRequest($challenge: String!, $acr: String, $amr: [String!], $context: Map, $remember: Boolean, $rememberFor: Int, $subject: String!) {
+  acceptOAuth2LoginRequest(
+    challenge: $challenge
+    acr: $acr
+    amr: $amr
+    context: $context
+    remember: $remember
+    rememberFor: $rememberFor
+    subject: $subject
+  ) {
+    redirectTo
+  }
+}
+    `;
+export type AcceptOAuth2LoginRequestMutationFn = Apollo.MutationFunction<AcceptOAuth2LoginRequestMutation, AcceptOAuth2LoginRequestMutationVariables>;
+
+/**
+ * __useAcceptOAuth2LoginRequestMutation__
+ *
+ * To run a mutation, you first call `useAcceptOAuth2LoginRequestMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useAcceptOAuth2LoginRequestMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [acceptOAuth2LoginRequestMutation, { data, loading, error }] = useAcceptOAuth2LoginRequestMutation({
+ *   variables: {
+ *      challenge: // value for 'challenge'
+ *      acr: // value for 'acr'
+ *      amr: // value for 'amr'
+ *      context: // value for 'context'
+ *      remember: // value for 'remember'
+ *      rememberFor: // value for 'rememberFor'
+ *      subject: // value for 'subject'
+ *   },
+ * });
+ */
+export function useAcceptOAuth2LoginRequestMutation(baseOptions?: Apollo.MutationHookOptions<AcceptOAuth2LoginRequestMutation, AcceptOAuth2LoginRequestMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<AcceptOAuth2LoginRequestMutation, AcceptOAuth2LoginRequestMutationVariables>(AcceptOAuth2LoginRequestDocument, options);
+      }
+export type AcceptOAuth2LoginRequestMutationHookResult = ReturnType<typeof useAcceptOAuth2LoginRequestMutation>;
+export type AcceptOAuth2LoginRequestMutationResult = Apollo.MutationResult<AcceptOAuth2LoginRequestMutation>;
+export type AcceptOAuth2LoginRequestMutationOptions = Apollo.BaseMutationOptions<AcceptOAuth2LoginRequestMutation, AcceptOAuth2LoginRequestMutationVariables>;
+export const RejectOAuth2LoginRequestDocument = gql`
+    mutation RejectOAuth2LoginRequest($challenge: String!) {
+  rejectOAuth2LoginRequest(challenge: $challenge) {
+    redirectTo
+  }
+}
+    `;
+export type RejectOAuth2LoginRequestMutationFn = Apollo.MutationFunction<RejectOAuth2LoginRequestMutation, RejectOAuth2LoginRequestMutationVariables>;
+
+/**
+ * __useRejectOAuth2LoginRequestMutation__
+ *
+ * To run a mutation, you first call `useRejectOAuth2LoginRequestMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useRejectOAuth2LoginRequestMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [rejectOAuth2LoginRequestMutation, { data, loading, error }] = useRejectOAuth2LoginRequestMutation({
+ *   variables: {
+ *      challenge: // value for 'challenge'
+ *   },
+ * });
+ */
+export function useRejectOAuth2LoginRequestMutation(baseOptions?: Apollo.MutationHookOptions<RejectOAuth2LoginRequestMutation, RejectOAuth2LoginRequestMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<RejectOAuth2LoginRequestMutation, RejectOAuth2LoginRequestMutationVariables>(RejectOAuth2LoginRequestDocument, options);
+      }
+export type RejectOAuth2LoginRequestMutationHookResult = ReturnType<typeof useRejectOAuth2LoginRequestMutation>;
+export type RejectOAuth2LoginRequestMutationResult = Apollo.MutationResult<RejectOAuth2LoginRequestMutation>;
+export type RejectOAuth2LoginRequestMutationOptions = Apollo.BaseMutationOptions<RejectOAuth2LoginRequestMutation, RejectOAuth2LoginRequestMutationVariables>;
 export const ListUsersDocument = gql`
     query ListUsers {
   listUsers {
@@ -883,13 +1378,16 @@ export const namedOperations = {
   Query: {
     ListGroups: 'ListGroups',
     OAuth2ConsentRequest: 'OAuth2ConsentRequest',
+    OAuth2LoginRequest: 'OAuth2LoginRequest',
     ListUsers: 'ListUsers'
   },
   Mutation: {
     DeleteGroup: 'DeleteGroup',
     Group: 'Group',
     AcceptOAuth2ConsentRequest: 'AcceptOAuth2ConsentRequest',
-    RejectOAuth2ConsentRequest: 'RejectOAuth2ConsentRequest'
+    RejectOAuth2ConsentRequest: 'RejectOAuth2ConsentRequest',
+    AcceptOAuth2LoginRequest: 'AcceptOAuth2LoginRequest',
+    RejectOAuth2LoginRequest: 'RejectOAuth2LoginRequest'
   },
   Fragment: {
     GroupInfo: 'GroupInfo',
@@ -897,6 +1395,9 @@ export const namedOperations = {
     OAuth2ConsentRequest: 'OAuth2ConsentRequest',
     OAuthConsentOIDCContext: 'OAuthConsentOIDCContext',
     OAuth2ConsentClient: 'OAuth2ConsentClient',
+    OAuth2LoginRequest: 'OAuth2LoginRequest',
+    OAuthLoginOIDCContext: 'OAuthLoginOIDCContext',
+    OAuth2LoginClient: 'OAuth2LoginClient',
     UserInfo: 'UserInfo',
     UserGroupInfo: 'UserGroupInfo'
   }

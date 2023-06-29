@@ -42,6 +42,13 @@ export const sdkError = (
 
       switch (error.response?.status) {
         case 400: {
+          if (error.response?.data?.error?.id === "session_already_available") {
+            console.warn(
+              "sdkError 400: `session_already_available`. Navigate to /",
+            )
+            navigate("/", { replace: true })
+            return Promise.resolve()
+          }
           // the request could contain invalid parameters which would set error messages in the flow
           if (setFlow !== undefined) {
             console.warn("sdkError 400: update flow data")
@@ -159,8 +166,6 @@ export const sdkError = (
           }
         }
       }
-
-      console.error(error)
 
       if (fatalToDash) {
         console.warn("sdkError: fatal error redirect to dashboard")

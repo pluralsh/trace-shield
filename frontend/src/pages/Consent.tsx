@@ -1,69 +1,62 @@
-import { LoginFlow, UpdateLoginFlowBody, OAuth2Client, OAuth2ConsentRequest } from "@ory/client"
-import { UserAuthCard, UserConsentCard } from "@ory/elements"
-import { useCallback, useEffect, useState } from "react"
-import { useNavigate, useSearchParams } from "react-router-dom"
-import { CircularProgress } from '@mui/material'
-import { sdk, sdkError } from "../apis/ory"
-import { useOAuth2ConsentRequestQuery, useAcceptOAuth2ConsentRequestMutation } from "../generated/graphql"
+import {CircularProgress} from '@mui/material'
+import {OAuth2Client, OAuth2ConsentRequest} from "@ory/client"
+import {UserConsentCard} from "@ory/elements"
+import {useEffect, useMemo} from "react";
+import {useSearchParams} from "react-router-dom"
+import {useAcceptOAuth2ConsentRequestMutation, useOAuth2ConsentRequestQuery} from "../generated/graphql"
 
 export const Consent = (): JSX.Element => {
-  // const [flow, setFlow] = useState<LoginFlow | null>(null)
-  const [searchParams, setSearchParams] = useSearchParams()
-  const win: Window = window;
+  const [searchParams] = useSearchParams()
 
-  const navigate = useNavigate()
+  const challenge = useMemo(() => searchParams.get("consent_challenge") ?? '', [searchParams])
+  const csrfCookie = useMemo(() => document.cookie.replace(/(?:(?:^|.*;\s*)_csrf\s*=\s*([^;]*).*$)|^.*$/, "$1"), [])
 
-  const challenge = searchParams.get("consent_challenge")
+  const {data} = useOAuth2ConsentRequestQuery(
+    {
+      variables: {challenge},
+      skip: !challenge
+    })
 
-  if (!challenge) {
-    return <div>There is no consent challenge</div>
-  }
+  const [mutation, {loading, called}] = useAcceptOAuth2ConsentRequestMutation()
+  const skip = useMemo(() => data?.oauth2ConsentRequest?.skip ?? false, [data])
 
-  const { data } = useOAuth2ConsentRequestQuery({
-    variables: {
-      challenge: challenge
+  useEffect(() => {
+    if (!skip || loading || called) {
+      return
     }
-  })
 
-  const [mutation, { loading, error }] = useAcceptOAuth2ConsentRequestMutation({
-    variables: {
-      challenge,
-      grantScope: data?.oauth2ConsentRequest?.requestedScope || ['profile', 'openid'],
-      remember: data?.oauth2ConsentRequest?.skip,
-      // rememberFor: 3600,
-      // session: // TODO: need to parse using the subject and scopes. See https://github.com/ory/kratos-selfservice-ui-node/pull/248/files#diff-f55c47595a4b4dc1dc448defc15f0157e124c1f8241c25474835948ca51be903R24
-    },
-    onCompleted: ({ acceptOAuth2ConsentRequest: { redirectTo } }) => {
-      win.location = redirectTo
-    },
-  })
-
-  if (data?.oauth2ConsentRequest?.skip) {
     mutation(
       {
         variables: {
           challenge,
           grantScope: data?.oauth2ConsentRequest?.requestedScope,
           remember: data?.oauth2ConsentRequest?.skip,
-
         },
       },
-    )
+    ).then((response) => {
+      if (response?.data?.acceptOAuth2ConsentRequest?.redirectTo) {
+        (window as Window).location = response.data.acceptOAuth2ConsentRequest.redirectTo
+      } else {
+        console.error("Could not redirect to redirectTo for acceptOAuth2ConsentRequest")
+      }
+    })
+  }, [data])
+
+  if (!challenge) {
+    return <div>There is no consent challenge</div>
   }
 
+  if (!data?.oauth2ConsentRequest || skip) {
+    return <CircularProgress/>
+  }
 
-  // we check if the flow is set, if not we show a loading indicator
-  return data?.oauth2ConsentRequest ? (
-    <UserConsentCard
-      csrfToken="csrfToken"
-      consent={data.oauth2ConsentRequest as OAuth2ConsentRequest}
-      cardImage={data?.oauth2ConsentRequest?.client?.logoUri || "/logo192.png"}
-      client_name="Ory Kratos"
-      requested_scope={data?.oauth2ConsentRequest?.requestedScope || []}
-      client={data?.oauth2ConsentRequest?.client as OAuth2Client}
-      action={(process.env.BASE_URL || "") + "/consent"}
-      />
-  ) : (
-    <CircularProgress />
-  )
+  return <UserConsentCard
+    csrfToken={csrfCookie}
+    consent={data.oauth2ConsentRequest as OAuth2ConsentRequest}
+    cardImage={data?.oauth2ConsentRequest?.client?.logoUri || "/logo192.png"}
+    client_name={data?.oauth2ConsentRequest?.client?.clientName || 'unknown client'}
+    requested_scope={data?.oauth2ConsentRequest?.requestedScope || []}
+    client={data?.oauth2ConsentRequest?.client as OAuth2Client}
+    action={(process.env.BASE_URL || "") + "/oauth2/consent"}
+  />
 }

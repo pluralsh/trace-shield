@@ -7,15 +7,8 @@ import (
 
 	rts "github.com/ory/keto/proto/ory/keto/relation_tuples/v1alpha2"
 	kratosClient "github.com/ory/kratos-client-go"
-	"github.com/pluralsh/trace-shield/consts"
-)
 
-const (
-	ProjectKey         = "projects.platform.kubricks.io/name"
-	ProjectNSKey       = "projects.platform.kubricks.io/namespace"
-	ParentProjectKey   = "projects.platform.kubricks.io/parent-project"
-	ParentProjectNSKey = "projects.platform.kubricks.io/parent-project-namespace"
-	PersonalKey        = "environment.platform.kubricks.io/personal-namespace"
+	"github.com/pluralsh/trace-shield/consts"
 )
 
 // A private key for context that only this package can access. This is important

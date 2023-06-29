@@ -12,12 +12,13 @@ import (
 	"github.com/99designs/gqlgen/graphql/handler/apollotracing"
 	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/go-chi/chi/v5"
+	"github.com/rs/cors"
+
 	"github.com/pluralsh/trace-shield/clients"
 	"github.com/pluralsh/trace-shield/graph/directives"
 	"github.com/pluralsh/trace-shield/graph/generated"
 	"github.com/pluralsh/trace-shield/graph/resolvers"
 	"github.com/pluralsh/trace-shield/handlers"
-	"github.com/rs/cors"
 
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
@@ -145,6 +146,7 @@ func serve(ctx context.Context, resolver *resolvers.Resolver, directives *direct
 	router.Post("/tenant-hydrator", handlers.HydrateObservabilityTenants) // TODO: remove this since we now use the check endpoint
 	router.Post("/user-webhook", handlers.BootstrapAdmin)
 	router.Post("/check", handlers.ObservabilityTenantPolicyCheck)
+	router.Post("/oauth2/consent", handlers.Consent)
 
 	srv := &http.Server{
 		Addr:    ":" + port,

@@ -1,0 +1,51 @@
+fragment OAuth2LoginRequest on OAuth2LoginRequest {
+  challenge
+  client {
+    ...OAuth2LoginClient
+  }
+  oidcContext {
+    ...OAuthLoginOIDCContext
+  }
+  requestUrl
+  requestedAccessTokenAudience
+  requestedScope
+  sessionId
+  skip
+  subject
+  redirectTo
+}
+
+fragment OAuthLoginOIDCContext on OidcContext {
+  acrValues
+  display
+  idTokenHintClaims
+  loginHint
+  uiLocales
+}
+
+fragment OAuth2LoginClient on OAuth2Client {
+  clientId
+  clientName
+  logoUri
+  policyUri
+  scope
+  tosUri
+}
+
+query OAuth2LoginRequest($challenge: String!) {
+  oauth2LoginRequest(challenge: $challenge) {
+    ...OAuth2LoginRequest
+  }
+}
+
+mutation AcceptOAuth2LoginRequest($challenge: String!, $acr: String, $amr: [String!], $context: Map, $remember: Boolean, $rememberFor: Int, $subject: String!) {
+  acceptOAuth2LoginRequest(challenge: $challenge, acr: $acr, amr: $amr, context: $context, remember: $remember, rememberFor: $rememberFor, subject: $subject) {
+    redirectTo
+  }
+}
+
+mutation RejectOAuth2LoginRequest($challenge: String!) {
+  rejectOAuth2LoginRequest(challenge: $challenge) {
+    redirectTo
+  }
+}
