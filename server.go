@@ -96,7 +96,8 @@ func main() {
 	}
 
 	resolver := &resolvers.Resolver{
-		C: clientWrapper,
+		C:      clientWrapper,
+		Tracer: tracer,
 	}
 
 	directives := &directives.Directive{
