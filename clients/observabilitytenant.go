@@ -509,12 +509,18 @@ func (c *ClientWrapper) ListTenants(ctx context.Context) ([]*model.Observability
 	var outputTenants []*model.ObservabilityTenant
 
 	for _, tenant := range tenants.Items {
-		outputTenants = append(outputTenants, &model.ObservabilityTenant{
+		outTenant := &model.ObservabilityTenant{
 			ID: tenant.Name,
-			Limits: &model.ObservabilityTenantLimits{ //TODO: can error
-				Mimir: tenant.Spec.Limits.Mimir, //TODO: can error
-			},
-		})
+		}
+		if tenant.Spec.DisplayName != "" {
+			outTenant.Name = &tenant.Spec.DisplayName
+		}
+		if tenant.Spec.Limits != nil && tenant.Spec.Limits.Mimir != nil {
+			outTenant.Limits = &model.ObservabilityTenantLimits{
+				Mimir: tenant.Spec.Limits.Mimir,
+			}
+		}
+		outputTenants = append(outputTenants, outTenant)
 	}
 
 	log.Info("Success listing observability tenants")
