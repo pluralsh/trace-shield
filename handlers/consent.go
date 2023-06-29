@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"context"
 	"io"
 	"net/http"
 	"strings"
@@ -42,7 +41,7 @@ func (h *Handler) Consent(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	consent, _, err := h.C.HydraClient.OAuth2Api.GetOAuth2ConsentRequest(context.Background()).ConsentChallenge(consentRequest.Challenge).Execute()
+	consent, _, err := h.C.HydraClient.OAuth2Api.GetOAuth2ConsentRequest(r.Context()).ConsentChallenge(consentRequest.Challenge).Execute()
 	if err != nil {
 		log.Error(err, "error during getting consent request")
 		w.WriteHeader(http.StatusInternalServerError)
@@ -73,7 +72,7 @@ func (h *Handler) Consent(w http.ResponseWriter, r *http.Request) {
 
 	if consentRequest.Action == ConsentActionAccept {
 		var rememberFor int64 = 3600
-		acceptConsent, _, err := h.C.HydraClient.OAuth2Api.AcceptOAuth2ConsentRequest(context.Background()).
+		acceptConsent, _, err := h.C.HydraClient.OAuth2Api.AcceptOAuth2ConsentRequest(r.Context()).
 			ConsentChallenge(consentRequest.Challenge).
 			AcceptOAuth2ConsentRequest(hydra.AcceptOAuth2ConsentRequest{
 				GrantAccessTokenAudience: consent.RequestedAccessTokenAudience,
@@ -93,7 +92,7 @@ func (h *Handler) Consent(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	rejectConsent, _, err := h.C.HydraClient.OAuth2Api.RejectOAuth2ConsentRequest(context.Background()).
+	rejectConsent, _, err := h.C.HydraClient.OAuth2Api.RejectOAuth2ConsentRequest(r.Context()).
 		ConsentChallenge(consentRequest.Challenge).
 		RejectOAuth2Request(hydra.RejectOAuth2Request{
 			Error:            nil,
