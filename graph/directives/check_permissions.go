@@ -14,7 +14,7 @@ func (d *Directive) CheckPermissions(ctx context.Context, obj interface{}, next 
 
 	log := d.C.Log.WithName("CheckPermissions")
 
-	ctx, span := d.C.Tracer.Start(ctx, "CheckPermissions")
+	_, span := d.C.Tracer.Start(ctx, "CheckPermissions")
 	defer span.End()
 
 	// setupLog.Info("Scope directive", "object", graphql.GetFieldContext(ctx).Parent)

@@ -14,7 +14,7 @@ import (
 func (d *Directive) IsAuthenticated(ctx context.Context, obj interface{}, next graphql.Resolver) (interface{}, error) {
 	log := d.C.Log.WithName("IsAuthenticated")
 
-	ctx, span := d.C.Tracer.Start(ctx, "IsAuthenticated")
+	_, span := d.C.Tracer.Start(ctx, "IsAuthenticated")
 	defer span.End()
 
 	userCtx := handlers.ForContext(ctx)
