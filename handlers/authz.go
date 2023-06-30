@@ -139,6 +139,7 @@ func (h *Handler) ObservabilityTenantPolicyCheck(w http.ResponseWriter, r *http.
 			for _, tenant := range gottenTenants.Items {
 				tenants = append(tenants, tenant.Name)
 			}
+			log.Info("Subject is an admin and has access to all tenants", "subject", p.Subject, "tenants", tenants, "permission", p.permission)
 		} else {
 			// get all the groups a user is a member of
 			groups, err := h.getUserGroups(ctx, p.Subject)
@@ -180,6 +181,7 @@ func (h *Handler) ObservabilityTenantPolicyCheck(w http.ResponseWriter, r *http.
 			http.Error(w, err.Error(), http.StatusForbidden)
 			return
 		}
+		log.Info("Subject granted access to the following tenants", "subject", p.Subject, "tenants", tenants, "permission", p.permission)
 		w.Header().Set(consts.TenantHeader, strings.Join(utils.DedupeList(tenants), "|"))
 		return
 	}
