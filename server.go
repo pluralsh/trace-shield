@@ -126,8 +126,6 @@ func serve(ctx context.Context, resolver *resolvers.Resolver, directives *direct
 
 	router := chi.NewRouter()
 
-	router.Use(handlers.Middleware())
-
 	// Add CORS middleware around every request
 	// See https://github.com/rs/cors for full option listing
 	router.Use(cors.New(cors.Options{
@@ -157,11 +155,14 @@ func serve(ctx context.Context, resolver *resolvers.Resolver, directives *direct
 	//     },
 	// })
 
-	router.Handle("/graphiql", playground.Handler("GraphQL playground", "/graphql"))
-	router.Handle("/graphql", gqlSrv)
-	router.Post("/user-webhook", handlers.BootstrapAdmin)
+	authGroup := router.Group(nil)
+	authGroup.Use(handlers.Middleware())
+
+	authGroup.Handle("/graphiql", playground.Handler("GraphQL playground", "/graphql"))
+	authGroup.Handle("/graphql", gqlSrv)
+	authGroup.Post("/user-webhook", handlers.BootstrapAdmin)
+	authGroup.Post("/oauth2/consent", handlers.Consent)
 	router.Post("/check", handlers.ObservabilityTenantPolicyCheck)
-	router.Post("/oauth2/consent", handlers.Consent)
 
 	otelHandler := otelhttp.NewHandler(router, "Router")
 
