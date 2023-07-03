@@ -204,15 +204,20 @@ func serve(ctx context.Context, resolver *resolvers.Resolver, directives *direct
 }
 
 func initTracer(ctx context.Context) {
-	client := otlptracehttp.NewClient()
-	exp, err := otlptrace.New(ctx, client)
-	if err != nil {
-		log.Fatalf("failed to initialize otlp export pipeline: %v", err)
+
+	opts := []sdktrace.TracerProviderOption{}
+
+	if os.Getenv("OTEL_EXPORTER_OTLP_ENDPOINT") != "" {
+		client := otlptracehttp.NewClient()
+		exp, err := otlptrace.New(ctx, client)
+		if err != nil {
+			log.Fatalf("failed to initialize otlp export pipeline: %v", err)
+		}
+		opts = append(opts, sdktrace.WithSyncer(exp))
 	}
 
 	tp := sdktrace.NewTracerProvider(
-		sdktrace.WithSampler(sdktrace.AlwaysSample()),
-		sdktrace.WithSyncer(exp),
+		opts...,
 	)
 
 	otel.SetTracerProvider(tp)
