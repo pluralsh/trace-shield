@@ -2,100 +2,48 @@ package handlers
 
 import (
 	"context"
-	"encoding/json"
-	"errors"
 	"net/http"
-	"strings"
 
 	"github.com/go-chi/render"
-	"github.com/ory/oathkeeper/pipeline/authn"
 	"github.com/pluralsh/trace-shield/consts"
 	"github.com/pluralsh/trace-shield/utils"
+	"go.opentelemetry.io/otel/attribute"
+	"go.opentelemetry.io/otel/codes"
 
 	rts "github.com/ory/keto/proto/ory/keto/relation_tuples/v1alpha2"
 	px "github.com/ory/x/pointerx"
 )
 
-type AuthenticationSessionRequest struct {
-	*authn.AuthenticationSession
-
-	// User *UserPayload `json:"user,omitempty"`
-
-	// ProtectedID string `json:"id"` // override 'id' json to have more control
-}
-
-func (a *AuthenticationSessionRequest) Bind(r *http.Request) error {
-	// a.Article is nil if no Article fields are sent in the request. Return an
-	// error to avoid a nil pointer dereference.
-	if a.Subject == "" {
-		return errors.New("missing required Article fields.")
-	}
-
-	// a.User is nil if no Userpayload fields are sent in the request. In this app
-	// this won't cause a panic, but checks in this Bind method may be required if
-	// a.User or further nested fields like a.User.Name are accessed elsewhere.
-
-	// just a post-process after a decode..
-	// a.ProtectedID = ""                                 // unset the protected ID
-	// a.Article.Title = strings.ToLower(a.Article.Title) // as an example, we down-case
-	return nil
-}
-
-func (a *AuthenticationSessionRequest) Render(w http.ResponseWriter, r *http.Request) error {
-	// Pre-processing before a response is marshalled and sent across the wire
-	// a.Elapsed = 10
-	return nil
-}
-
-func (h *Handler) HydrateObservabilityTenants(w http.ResponseWriter, r *http.Request) {
-	log := h.Log.WithName("HydrateObservabilityTenants")
-	data := &AuthenticationSessionRequest{}
-	if err := render.Bind(r, data); err != nil {
-		render.Render(w, r, ErrInvalidRequest(err))
-		return
-	}
-
-	// article := data.Subject
-	// dbNewArticle(article)
-
-	json, _ := json.Marshal(data.AuthenticationSession)
-	log.Info("Post", "body", string(json)) // TODO: remove debug log query since it leaks tokens
-
-	render.Status(r, http.StatusOK) // TODO: we should probably do error checking above so we can return a 400 if something goes wrong
-	render.Render(w, r, h.NewAuthenticationSessionResponse(data))
-}
-
-func (h *Handler) NewAuthenticationSessionResponse(session *AuthenticationSessionRequest) *AuthenticationSessionRequest {
-	log := h.Log.WithName("NewAuthenticationSessionResponse")
-	tenants, err := h.getUserTenants(session.Subject)
-	if err != nil {
-		log.Error(err, "Error getting tenants")
-	}
-	log.Info("Success getting tenants", "Tenants", tenants)
-
-	session.Header = map[string][]string{
-		"X-Scope-OrgID": {strings.Join(tenants, "|")},
-	}
-	return session
-}
-
 // Get all the ObservabilityTenants has permissions for based on direct bindings and group memberships
-func (h *Handler) getUserTenants(subject string) ([]string, error) {
+func (h *Handler) getUserTenants(ctx context.Context, subject string) ([]string, error) {
+	log := h.Log.WithName("getUserTenants").WithValues("Subject", subject)
+
+	ctx, span := h.C.Tracer.Start(ctx, "getUserTenants")
+	defer span.End()
+
+	if span.IsRecording() {
+		span.SetAttributes(
+			attribute.String("user_id", subject),
+		)
+	}
+
 	// get all the groups a user is a member of
-	groups, err := h.getUserGroups(subject)
+	groups, err := h.getUserGroups(ctx, subject)
 	if err != nil {
+		log.Error(err, "Failed to get user groups")
 		return []string{}, err
 	}
 
 	// get all the tenants a user has permissions for
-	tenants, err := h.getUserDirectTenants(subject)
+	tenants, err := h.getUserDirectTenants(ctx, subject)
 	if err != nil {
+		log.Error(err, "Failed to get user direct tenants")
 		return []string{}, err
 	}
 
 	// get all the tenants a user has permissions for via group membership
 	for _, group := range groups {
-		groupTenants, err := h.getGroupTenants(group)
+		groupTenants, err := h.getGroupTenants(ctx, group)
 		if err != nil {
 			return []string{}, err
 		}
@@ -103,12 +51,12 @@ func (h *Handler) getUserTenants(subject string) ([]string, error) {
 	}
 
 	// get all the tenants a user has permissions for via organization admin permissions
-	orgs, err := h.isOrgAdmin(subject)
+	orgs, err := h.isOrgAdmin(ctx, subject)
 	if err != nil {
 		return []string{}, err
 	}
 	for _, org := range orgs {
-		orgTenants, err := h.getOrgTenants(org)
+		orgTenants, err := h.getOrgTenants(ctx, org)
 		if err != nil {
 			return []string{}, err
 		}
@@ -119,14 +67,28 @@ func (h *Handler) getUserTenants(subject string) ([]string, error) {
 }
 
 // Check in which organizations a user is an admin
-func (h *Handler) isOrgAdmin(subject string) ([]string, error) {
+func (h *Handler) isOrgAdmin(ctx context.Context, subject string) ([]string, error) {
+	log := h.Log.WithName("isOrgAdmin").WithValues("Subject", subject)
+
+	ctx, span := h.C.Tracer.Start(ctx, "isOrgAdmin")
+	defer span.End()
+
+	if span.IsRecording() {
+		span.SetAttributes(
+			attribute.String("user_id", subject),
+		)
+	}
+
 	query := rts.RelationQuery{
 		Namespace: px.Ptr(consts.OrganizationNamespace.String()),
 		Relation:  px.Ptr(consts.OrganizationRelationAdmins.String()),
 		Subject:   rts.NewSubjectSet(consts.UserNamespace.String(), subject, ""),
 	}
-	respTuples, err := h.C.KetoClient.QueryAllTuples(context.Background(), &query, 100)
+	respTuples, err := h.C.KetoClient.QueryAllTuples(ctx, &query, 100)
 	if err != nil {
+		log.Error(err, "Failed to query tuples")
+		span.RecordError(err)
+		span.SetStatus(codes.Error, err.Error())
 		return []string{}, err
 	}
 
@@ -142,13 +104,27 @@ func (h *Handler) isOrgAdmin(subject string) ([]string, error) {
 }
 
 // Get all the ObservabilityTenants that belong to an organization
-func (h *Handler) getOrgTenants(org string) ([]string, error) {
+func (h *Handler) getOrgTenants(ctx context.Context, org string) ([]string, error) {
+	log := h.Log.WithName("getOrgTenants").WithValues("Organization", org)
+
+	ctx, span := h.C.Tracer.Start(ctx, "getOrgTenants")
+	defer span.End()
+
+	if span.IsRecording() {
+		span.SetAttributes(
+			attribute.String("organization", org),
+		)
+	}
+
 	query := rts.RelationQuery{
 		Namespace: px.Ptr(consts.ObservabilityTenantNamespace.String()),
 		Subject:   rts.NewSubjectSet("Organization", org, ""),
 	}
-	respTuples, err := h.C.KetoClient.QueryAllTuples(context.Background(), &query, 100)
+	respTuples, err := h.C.KetoClient.QueryAllTuples(ctx, &query, 100)
 	if err != nil {
+		log.Error(err, "Failed to query tuples")
+		span.RecordError(err)
+		span.SetStatus(codes.Error, err.Error())
 		return []string{}, err
 	}
 
@@ -164,14 +140,28 @@ func (h *Handler) getOrgTenants(org string) ([]string, error) {
 }
 
 // Get the groups a user is a member of
-func (h *Handler) getUserGroups(subject string) ([]string, error) {
+func (h *Handler) getUserGroups(ctx context.Context, subject string) ([]string, error) {
+	log := h.Log.WithName("getUserGroups").WithValues("Subject", subject)
+
+	ctx, span := h.C.Tracer.Start(ctx, "getUserGroups")
+	defer span.End()
+
+	if span.IsRecording() {
+		span.SetAttributes(
+			attribute.String("user_id", subject),
+		)
+	}
+
 	query := rts.RelationQuery{
 		Namespace: px.Ptr("Group"),
 		Relation:  px.Ptr("members"),
 		Subject:   rts.NewSubjectSet("User", subject, ""),
 	}
-	respTuples, err := h.C.KetoClient.QueryAllTuples(context.Background(), &query, 100)
+	respTuples, err := h.C.KetoClient.QueryAllTuples(ctx, &query, 100)
 	if err != nil {
+		log.Error(err, "Failed to query tuples")
+		span.RecordError(err)
+		span.SetStatus(codes.Error, err.Error())
 		return []string{}, err
 	}
 
@@ -187,13 +177,27 @@ func (h *Handler) getUserGroups(subject string) ([]string, error) {
 }
 
 // Get the ObservabilityTenants a user has permissions for
-func (h *Handler) getUserDirectTenants(subject string) ([]string, error) {
+func (h *Handler) getUserDirectTenants(ctx context.Context, subject string) ([]string, error) {
+	log := h.Log.WithName("getUserDirectTenants").WithValues("Subject", subject)
+
+	ctx, span := h.C.Tracer.Start(ctx, "getUserDirectTenants")
+	defer span.End()
+
+	if span.IsRecording() {
+		span.SetAttributes(
+			attribute.String("user_id", subject),
+		)
+	}
+
 	query := rts.RelationQuery{
 		Namespace: px.Ptr(consts.ObservabilityTenantNamespace.String()),
 		Subject:   rts.NewSubjectSet("User", subject, ""),
 	}
-	respTuples, err := h.C.KetoClient.QueryAllTuples(context.Background(), &query, 100)
+	respTuples, err := h.C.KetoClient.QueryAllTuples(ctx, &query, 100)
 	if err != nil {
+		log.Error(err, "Failed to query tuples")
+		span.RecordError(err)
+		span.SetStatus(codes.Error, err.Error())
 		return []string{}, err
 	}
 
@@ -209,13 +213,27 @@ func (h *Handler) getUserDirectTenants(subject string) ([]string, error) {
 }
 
 // Get the ObservabilityTenants a group has permissions for
-func (h *Handler) getGroupTenants(group string) ([]string, error) {
+func (h *Handler) getGroupTenants(ctx context.Context, group string) ([]string, error) {
+	log := h.Log.WithName("getGroupTenants").WithValues("Group", group)
+
+	ctx, span := h.C.Tracer.Start(ctx, "getGroupTenants")
+	defer span.End()
+
+	if span.IsRecording() {
+		span.SetAttributes(
+			attribute.String("group_id", group),
+		)
+	}
+
 	query := rts.RelationQuery{
 		Namespace: px.Ptr(consts.ObservabilityTenantNamespace.String()),
 		Subject:   rts.NewSubjectSet("Group", group, "members"),
 	}
-	respTuples, err := h.C.KetoClient.QueryAllTuples(context.Background(), &query, 100)
+	respTuples, err := h.C.KetoClient.QueryAllTuples(ctx, &query, 100)
 	if err != nil {
+		log.Error(err, "Failed to query tuples")
+		span.RecordError(err)
+		span.SetStatus(codes.Error, err.Error())
 		return []string{}, err
 	}
 

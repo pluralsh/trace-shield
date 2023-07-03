@@ -3,13 +3,13 @@ package main
 import (
 	"context"
 	"flag"
+	"log"
 	"net/http"
 	"os"
 	"os/signal"
 	"time"
 
 	gqlHandler "github.com/99designs/gqlgen/graphql/handler"
-	"github.com/99designs/gqlgen/graphql/handler/apollotracing"
 	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/go-chi/chi/v5"
 	"github.com/rs/cors"
@@ -19,12 +19,24 @@ import (
 	"github.com/pluralsh/trace-shield/graph/generated"
 	"github.com/pluralsh/trace-shield/graph/resolvers"
 	"github.com/pluralsh/trace-shield/handlers"
+	"github.com/ravilushqa/otelgqlgen"
+	"go.opentelemetry.io/otel"
+
+	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
+	"go.opentelemetry.io/contrib/propagators/b3"
+	jaegerProp "go.opentelemetry.io/contrib/propagators/jaeger"
+	"go.opentelemetry.io/otel/exporters/otlp/otlptrace"
+	"go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracehttp"
+	"go.opentelemetry.io/otel/propagation"
+	sdktrace "go.opentelemetry.io/otel/sdk/trace"
 
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
 )
 
 const defaultPort = "8082"
+
+var tracer = otel.Tracer("trace-shield-server")
 
 var (
 	setupLog = ctrl.Log.WithName("setup")
@@ -43,6 +55,8 @@ func main() {
 
 	ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt)
 	defer cancel()
+
+	initTracer(ctx)
 
 	kratosAdminClient, err := clients.NewKratosAdminClient()
 	if err != nil {
@@ -81,6 +95,7 @@ func main() {
 		KratosPublicClient: kratosPublicClient,
 		KetoClient:         ketoClient,
 		HydraClient:        hydraAdminClient,
+		Tracer:             tracer,
 		Log:                ctrl.Log.WithName("clients"),
 	}
 
@@ -93,8 +108,9 @@ func main() {
 	}
 
 	handlers := &handlers.Handler{
-		C:   clientWrapper,
-		Log: ctrl.Log.WithName("handlers"),
+		C:           clientWrapper,
+		Propagators: otel.GetTextMapPropagator(),
+		Log:         ctrl.Log.WithName("handlers"),
 	}
 
 	if err := serve(ctx, resolver, directives, handlers); err != nil {
@@ -109,8 +125,6 @@ func serve(ctx context.Context, resolver *resolvers.Resolver, directives *direct
 	}
 
 	router := chi.NewRouter()
-
-	router.Use(handlers.Middleware())
 
 	// Add CORS middleware around every request
 	// See https://github.com/rs/cors for full option listing
@@ -128,7 +142,7 @@ func serve(ctx context.Context, resolver *resolvers.Resolver, directives *direct
 	gqlConfig.Directives.CheckPermissions = directives.CheckPermissions
 
 	gqlSrv := gqlHandler.NewDefaultServer(generated.NewExecutableSchema(gqlConfig))
-	gqlSrv.Use(apollotracing.Tracer{})
+	gqlSrv.Use(otelgqlgen.Middleware())
 	// gqlSrv.AddTransport(&transport.Websocket{
 	//     Upgrader: websocket.Upgrader{
 	//         CheckOrigin: func(r *http.Request) bool {
@@ -141,16 +155,20 @@ func serve(ctx context.Context, resolver *resolvers.Resolver, directives *direct
 	//     },
 	// })
 
-	router.Handle("/graphiql", playground.Handler("GraphQL playground", "/graphql"))
-	router.Handle("/graphql", gqlSrv)
-	router.Post("/tenant-hydrator", handlers.HydrateObservabilityTenants) // TODO: remove this since we now use the check endpoint
-	router.Post("/user-webhook", handlers.BootstrapAdmin)
+	authGroup := router.Group(nil)
+	authGroup.Use(handlers.Middleware())
+
+	authGroup.Handle("/graphiql", playground.Handler("GraphQL playground", "/graphql"))
+	authGroup.Handle("/graphql", gqlSrv)
+	authGroup.Post("/user-webhook", handlers.BootstrapAdmin)
+	authGroup.Post("/oauth2/consent", handlers.Consent)
 	router.Post("/check", handlers.ObservabilityTenantPolicyCheck)
-	router.Post("/oauth2/consent", handlers.Consent)
+
+	otelHandler := otelhttp.NewHandler(router, "Router")
 
 	srv := &http.Server{
 		Addr:    ":" + port,
-		Handler: router,
+		Handler: otelHandler,
 	}
 
 	go func() {
@@ -183,4 +201,25 @@ func serve(ctx context.Context, resolver *resolvers.Resolver, directives *direct
 
 	return
 
+}
+
+func initTracer(ctx context.Context) {
+
+	opts := []sdktrace.TracerProviderOption{}
+
+	if os.Getenv("OTEL_EXPORTER_OTLP_ENDPOINT") != "" {
+		client := otlptracehttp.NewClient()
+		exp, err := otlptrace.New(ctx, client)
+		if err != nil {
+			log.Fatalf("failed to initialize otlp export pipeline: %v", err)
+		}
+		opts = append(opts, sdktrace.WithSyncer(exp))
+	}
+
+	tp := sdktrace.NewTracerProvider(
+		opts...,
+	)
+
+	otel.SetTracerProvider(tp)
+	otel.SetTextMapPropagator(propagation.NewCompositeTextMapPropagator(propagation.TraceContext{}, b3.New(b3.WithInjectEncoding(b3.B3MultipleHeader|b3.B3SingleHeader)), jaegerProp.Jaeger{}, propagation.Baggage{}))
 }

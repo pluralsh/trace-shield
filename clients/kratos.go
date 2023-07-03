@@ -2,9 +2,11 @@ package clients
 
 import (
 	"fmt"
+	"net/http"
 	"os"
 
 	kratos "github.com/ory/kratos-client-go"
+	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
 )
 
 const (
@@ -19,12 +21,14 @@ func NewKratosAdminClient() (*kratos.APIClient, error) {
 	if kratosAdminUrl == "" {
 		return nil, fmt.Errorf("No admin address configured for kratos")
 	}
+	client := http.Client{Transport: otelhttp.NewTransport(http.DefaultTransport)}
 	kratosAdminConfiguration := kratos.NewConfiguration()
 	kratosAdminConfiguration.Servers = []kratos.ServerConfiguration{
 		{
 			URL: kratosAdminUrl, // Kratos Public API
 		},
 	}
+	kratosAdminConfiguration.HTTPClient = &client
 	kratosAdminClient := kratos.NewAPIClient(kratosAdminConfiguration)
 	return kratosAdminClient, nil
 }
@@ -34,12 +38,14 @@ func NewKratosPublicClient() (*kratos.APIClient, error) {
 	if kratosPublicUrl == "" {
 		return nil, fmt.Errorf("No public address configured for kratos")
 	}
+	client := http.Client{Transport: otelhttp.NewTransport(http.DefaultTransport)}
 	kratosPublicConfiguration := kratos.NewConfiguration()
 	kratosPublicConfiguration.Servers = []kratos.ServerConfiguration{
 		{
 			URL: kratosPublicUrl, // Kratos Public API
 		},
 	}
+	kratosPublicConfiguration.HTTPClient = &client
 	kratosPublicClient := kratos.NewAPIClient(kratosPublicConfiguration)
 	return kratosPublicClient, nil
 }

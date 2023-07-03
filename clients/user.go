@@ -10,19 +10,32 @@ import (
 	px "github.com/ory/x/pointerx"
 	"github.com/pluralsh/trace-shield/consts"
 	"github.com/pluralsh/trace-shield/graph/model"
+	"go.opentelemetry.io/otel/attribute"
+	"go.opentelemetry.io/otel/codes"
 )
 
 // function that gets a user from the Kratos API
 func (c *ClientWrapper) GetUserFromId(ctx context.Context, id string) (*model.User, error) {
 	log := c.Log.WithName("User").WithValues("ID", id)
 
+	ctx, span := c.Tracer.Start(ctx, "GetUserFromId")
+	defer span.End()
+
+	if span.IsRecording() {
+		span.SetAttributes(
+			attribute.String("user_id", id),
+		)
+	}
+
 	user, resp, err := c.KratosAdminClient.IdentityApi.GetIdentity(ctx, id).Execute()
 	if err != nil || resp.StatusCode != 200 {
 		log.Error(err, "failed to get user")
+		span.RecordError(err)
+		span.SetStatus(codes.Error, err.Error())
 		return nil, err
 	}
 
-	outUser, err := c.UnmarshalUserTraits(user)
+	outUser, err := c.UnmarshalUserTraits(ctx, user)
 	if err != nil {
 		log.Error(err, "Error when unmarshalling user")
 		return nil, err
@@ -36,9 +49,15 @@ func (c *ClientWrapper) GetUserFromId(ctx context.Context, id string) (*model.Us
 // function that will list all users using the kratos api
 func (c *ClientWrapper) ListUsers(ctx context.Context) ([]*model.User, error) {
 	log := c.Log.WithName("ListUsers")
+
+	ctx, span := c.Tracer.Start(ctx, "ListUsers")
+	defer span.End()
+
 	users, resp, err := c.KratosAdminClient.IdentityApi.ListIdentities(ctx).Execute()
 	if err != nil || resp.StatusCode != 200 {
 		log.Error(err, "failed to list users")
+		span.RecordError(err)
+		span.SetStatus(codes.Error, err.Error())
 		return nil, fmt.Errorf("failed to list users: %w", err)
 	}
 
@@ -46,7 +65,7 @@ func (c *ClientWrapper) ListUsers(ctx context.Context) ([]*model.User, error) {
 
 	for _, user := range users {
 
-		user, err := c.UnmarshalUserTraits(&user)
+		user, err := c.UnmarshalUserTraits(ctx, &user)
 		if err != nil {
 			log.Error(err, "Error when unmarshalling user", "ID", user.ID)
 			continue
@@ -61,13 +80,24 @@ func (c *ClientWrapper) ListUsers(ctx context.Context) ([]*model.User, error) {
 // UnmarshalUserTraits unmarshals the user traits from the Kratos Identity.
 // It expects that the user traits are in the format of the model.User struct.
 
-func (c *ClientWrapper) UnmarshalUserTraits(user *kratos.Identity) (*model.User, error) {
+func (c *ClientWrapper) UnmarshalUserTraits(ctx context.Context, user *kratos.Identity) (*model.User, error) {
 	log := c.Log.WithName("UnmarshalUserTraits")
+
+	ctx, span := c.Tracer.Start(ctx, "UnmarshalUserTraits")
+	defer span.End()
+
+	if span.IsRecording() {
+		span.SetAttributes(
+			attribute.String("id", user.Id),
+		)
+	}
 
 	outUser := &model.User{}
 
 	byteData, err := json.Marshal(user.Traits)
 	if err != nil {
+		span.RecordError(err)
+		span.SetStatus(codes.Error, err.Error())
 		log.Error(err, "Error when marshalling user traits")
 		return nil, err
 	}
@@ -75,6 +105,8 @@ func (c *ClientWrapper) UnmarshalUserTraits(user *kratos.Identity) (*model.User,
 	err = json.Unmarshal(byteData, outUser)
 	if err != nil {
 		log.Error(err, "Error when unmarshalling user traits")
+		span.RecordError(err)
+		span.SetStatus(codes.Error, err.Error())
 		return nil, err
 	}
 
@@ -87,7 +119,14 @@ func (c *ClientWrapper) UnmarshalUserTraits(user *kratos.Identity) (*model.User,
 func (c *ClientWrapper) CreateUser(ctx context.Context, email string, name *model.NameInput) (*model.User, error) {
 	log := c.Log.WithName("CreateUser").WithValues("Email", email)
 
-	// test := "password12345"
+	ctx, span := c.Tracer.Start(ctx, "CreateUser")
+	defer span.End()
+
+	if span.IsRecording() {
+		span.SetAttributes(
+			attribute.String("email", email),
+		)
+	}
 
 	traits := map[string]interface{}{
 		"email": email,
@@ -125,6 +164,8 @@ func (c *ClientWrapper) CreateUser(ctx context.Context, email string, name *mode
 
 	if err != nil || resp.StatusCode != 201 {
 		log.Error(err, "failed to create user")
+		span.RecordError(err)
+		span.SetStatus(codes.Error, err.Error())
 		return nil, err
 	}
 
@@ -148,7 +189,7 @@ func (c *ClientWrapper) CreateUser(ctx context.Context, email string, name *mode
 		}
 	}
 
-	outUser, err := c.UnmarshalUserTraits(kratosUser)
+	outUser, err := c.UnmarshalUserTraits(ctx, kratosUser)
 	if err != nil {
 		log.Error(err, "failed to unmarshal user traits")
 		return nil, err
@@ -166,10 +207,21 @@ func (c *ClientWrapper) CreateUser(ctx context.Context, email string, name *mode
 func (c *ClientWrapper) DeleteUser(ctx context.Context, id string) (*model.User, error) {
 	log := c.Log.WithName("DeleteUser").WithValues("ID", id)
 
+	ctx, span := c.Tracer.Start(ctx, "DeleteUser")
+	defer span.End()
+
+	if span.IsRecording() {
+		span.SetAttributes(
+			attribute.String("user_id", id),
+		)
+	}
+
 	resp, err := c.KratosAdminClient.IdentityApi.DeleteIdentity(ctx, id).Execute()
 
 	if err != nil || resp.StatusCode != 204 {
 		log.Error(err, "failed to delete user")
+		span.RecordError(err)
+		span.SetStatus(codes.Error, err.Error())
 		return nil, err
 	}
 
@@ -201,6 +253,15 @@ func (c *ClientWrapper) DeleteUser(ctx context.Context, id string) (*model.User,
 func (c *ClientWrapper) UserExistsInKeto(ctx context.Context, id string) (bool, error) {
 	log := c.Log.WithName("UserExistsInKeto").WithValues("ID", id)
 
+	ctx, span := c.Tracer.Start(ctx, "UserExistsInKeto")
+	defer span.End()
+
+	if span.IsRecording() {
+		span.SetAttributes(
+			attribute.String("user_id", id),
+		)
+	}
+
 	query := rts.RelationQuery{
 		Namespace: px.Ptr(consts.UserNamespace.String()),
 		Object:    px.Ptr(id),
@@ -215,6 +276,8 @@ func (c *ClientWrapper) UserExistsInKeto(ctx context.Context, id string) (bool, 
 	respTuples, err := c.KetoClient.QueryAllTuples(ctx, &query, 100)
 	if err != nil {
 		log.Error(err, "Failed to query tuples")
+		span.RecordError(err)
+		span.SetStatus(codes.Error, err.Error())
 		return false, fmt.Errorf("failed to query tuples: %w", err)
 	}
 
@@ -229,6 +292,15 @@ func (c *ClientWrapper) UserExistsInKeto(ctx context.Context, id string) (bool, 
 func (c *ClientWrapper) CreateRecoveryLinkForIdentity(ctx context.Context, id string) (*string, error) {
 	log := c.Log.WithName("CreateRecoveryLinkForIdentity").WithValues("ID", id)
 
+	ctx, span := c.Tracer.Start(ctx, "CreateRecoveryLinkForIdentity")
+	defer span.End()
+
+	if span.IsRecording() {
+		span.SetAttributes(
+			attribute.String("user_id", id),
+		)
+	}
+
 	link, resp, err := c.KratosAdminClient.IdentityApi.CreateRecoveryLinkForIdentity(ctx).CreateRecoveryLinkForIdentityBody(
 		kratos.CreateRecoveryLinkForIdentityBody{
 			IdentityId: id,
@@ -236,6 +308,8 @@ func (c *ClientWrapper) CreateRecoveryLinkForIdentity(ctx context.Context, id st
 	).Execute()
 	if err != nil || resp.StatusCode != 200 {
 		log.Error(err, "failed to create recovery link for identity")
+		span.RecordError(err)
+		span.SetStatus(codes.Error, err.Error())
 		return nil, err
 	}
 
@@ -247,10 +321,22 @@ func (c *ClientWrapper) CreateRecoveryLinkForIdentity(ctx context.Context, id st
 func (c *ClientWrapper) CreateUserInKeto(ctx context.Context, id string) error {
 	log := c.Log.WithName("CreateUserInKeto").WithValues("ID", id)
 
+	ctx, span := c.Tracer.Start(ctx, "CreateUserInKeto")
+	defer span.End()
+
+	if span.IsRecording() {
+		span.SetAttributes(
+			attribute.String("user_id", id),
+		)
+	}
+
 	user := model.NewUser(id)
 
 	err := c.KetoClient.CreateTuple(ctx, user.GetOrganizationTuple())
 	if err != nil {
+		log.Error(err, "failed to create tuple")
+		span.RecordError(err)
+		span.SetStatus(codes.Error, err.Error())
 		return fmt.Errorf("failed to create tuple: %w", err)
 	}
 
@@ -262,11 +348,22 @@ func (c *ClientWrapper) CreateUserInKeto(ctx context.Context, id string) error {
 func (c *ClientWrapper) DeleteUserInKeto(ctx context.Context, id string) error {
 	log := c.Log.WithName("DeleteUserInKeto").WithValues("ID", id)
 
+	ctx, span := c.Tracer.Start(ctx, "DeleteUserInKeto")
+	defer span.End()
+
+	if span.IsRecording() {
+		span.SetAttributes(
+			attribute.String("user_id", id),
+		)
+	}
+
 	user := model.NewUser(id)
 
 	err := c.KetoClient.DeleteTuple(ctx, user.GetOrganizationTuple())
 	if err != nil {
 		log.Error(err, "failed to delete tuple")
+		span.RecordError(err)
+		span.SetStatus(codes.Error, err.Error())
 		return fmt.Errorf("failed to delete tuple: %w", err)
 	}
 
@@ -278,12 +375,24 @@ func (c *ClientWrapper) DeleteUserInKeto(ctx context.Context, id string) error {
 func (c *ClientWrapper) GetUserGroups(ctx context.Context, id string) ([]*model.Group, error) {
 	log := c.Log.WithName("GetUserGroups").WithValues("ID", id)
 
+	ctx, span := c.Tracer.Start(ctx, "GetUserGroups")
+	defer span.End()
+
+	if span.IsRecording() {
+		span.SetAttributes(
+			attribute.String("user_id", id),
+		)
+	}
+
 	respTuples, err := c.KetoClient.QueryAllTuples(ctx, &rts.RelationQuery{
 		Namespace: px.Ptr(consts.GroupNamespace.String()),
 		Relation:  px.Ptr(consts.GroupRelationMembers.String()),
 		Subject:   rts.NewSubjectSet(consts.UserNamespace.String(), id, ""),
 	}, 100)
 	if err != nil {
+		log.Error(err, "Failed to get tuples")
+		span.RecordError(err)
+		span.SetStatus(codes.Error, err.Error())
 		return nil, fmt.Errorf("failed to get tuples: %w", err)
 	}
 

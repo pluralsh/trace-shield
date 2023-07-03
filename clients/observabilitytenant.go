@@ -8,6 +8,9 @@ import (
 	observabilityv1alpha1 "github.com/pluralsh/trace-shield-controller/api/observability/v1alpha1"
 	"github.com/pluralsh/trace-shield/consts"
 	"github.com/pluralsh/trace-shield/graph/model"
+	"github.com/pluralsh/trace-shield/utils"
+	"go.opentelemetry.io/otel/attribute"
+	"go.opentelemetry.io/otel/codes"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
@@ -18,6 +21,15 @@ type ObservabilityTenantRelation struct {
 
 func (c *ClientWrapper) CreateObservabilityTenant(ctx context.Context, id string, name *string, admins *model.ObservabilityTenantPermissionBindingsInput, metricsReaders *model.ObservabilityTenantPermissionBindingsInput, metricsWriters *model.ObservabilityTenantPermissionBindingsInput, metricsDeleters *model.ObservabilityTenantPermissionBindingsInput, metricsRulesReaders *model.ObservabilityTenantPermissionBindingsInput, metricsRulesWriters *model.ObservabilityTenantPermissionBindingsInput, metricsRulesDeleters *model.ObservabilityTenantPermissionBindingsInput, metricsAlertsReaders *model.ObservabilityTenantPermissionBindingsInput, metricsAlertsWriters *model.ObservabilityTenantPermissionBindingsInput, logsReaders *model.ObservabilityTenantPermissionBindingsInput, logsWriters *model.ObservabilityTenantPermissionBindingsInput, logsDeleters *model.ObservabilityTenantPermissionBindingsInput, logsRulesReaders *model.ObservabilityTenantPermissionBindingsInput, logsRulesWriters *model.ObservabilityTenantPermissionBindingsInput, logsRulesDeleters *model.ObservabilityTenantPermissionBindingsInput, tracesReaders *model.ObservabilityTenantPermissionBindingsInput, tracesWriters *model.ObservabilityTenantPermissionBindingsInput, limits *model.ObservabilityTenantLimitsInput) (*model.ObservabilityTenant, error) {
 	log := c.Log.WithName("CreateObservabilityTenant").WithValues("Name", name)
+
+	ctx, span := c.Tracer.Start(ctx, "CreateObservabilityTenant")
+	defer span.End()
+
+	if span.IsRecording() {
+		span.SetAttributes(
+			attribute.String("tenant_id", id),
+		)
+	}
 
 	var mimirLimits *observabilityv1alpha1.MimirLimits
 
@@ -39,6 +51,11 @@ func (c *ClientWrapper) CreateObservabilityTenant(ctx context.Context, id string
 
 	if name != nil {
 		tenantStruct.Spec.DisplayName = *name
+		if span.IsRecording() {
+			span.SetAttributes(
+				attribute.String("name", *name),
+			)
+		}
 	}
 
 	var tenantRelations []ObservabilityTenantRelation
@@ -166,6 +183,8 @@ func (c *ClientWrapper) CreateObservabilityTenant(ctx context.Context, id string
 	tenant, err := c.ControllerClient.ObservabilityV1alpha1().Tenants().Create(ctx, tenantStruct, metav1.CreateOptions{})
 	if err != nil {
 		log.Error(err, "Failed to create observability tenant")
+		span.RecordError(err)
+		span.SetStatus(codes.Error, err.Error())
 		return nil, err
 	}
 
@@ -185,6 +204,15 @@ func (c *ClientWrapper) CreateObservabilityTenant(ctx context.Context, id string
 func (c *ClientWrapper) UpdateObservabilityTenant(ctx context.Context, id string, name *string, admins *model.ObservabilityTenantPermissionBindingsInput, metricsReaders *model.ObservabilityTenantPermissionBindingsInput, metricsWriters *model.ObservabilityTenantPermissionBindingsInput, metricsDeleters *model.ObservabilityTenantPermissionBindingsInput, metricsRulesReaders *model.ObservabilityTenantPermissionBindingsInput, metricsRulesWriters *model.ObservabilityTenantPermissionBindingsInput, metricsRulesDeleters *model.ObservabilityTenantPermissionBindingsInput, metricsAlertsReaders *model.ObservabilityTenantPermissionBindingsInput, metricsAlertsWriters *model.ObservabilityTenantPermissionBindingsInput, logsReaders *model.ObservabilityTenantPermissionBindingsInput, logsWriters *model.ObservabilityTenantPermissionBindingsInput, logsDeleters *model.ObservabilityTenantPermissionBindingsInput, logsRulesReaders *model.ObservabilityTenantPermissionBindingsInput, logsRulesWriters *model.ObservabilityTenantPermissionBindingsInput, logsRulesDeleters *model.ObservabilityTenantPermissionBindingsInput, tracesReaders *model.ObservabilityTenantPermissionBindingsInput, tracesWriters *model.ObservabilityTenantPermissionBindingsInput, limits *model.ObservabilityTenantLimitsInput) (*model.ObservabilityTenant, error) {
 	log := c.Log.WithName("UpdateObservabilityTenant").WithValues("Name", name)
 
+	ctx, span := c.Tracer.Start(ctx, "UpdateObservabilityTenant")
+	defer span.End()
+
+	if span.IsRecording() {
+		span.SetAttributes(
+			attribute.String("tenant_id", id),
+		)
+	}
+
 	var mimirLimits *observabilityv1alpha1.MimirLimits
 
 	if limits != nil && limits.Mimir != nil {
@@ -195,23 +223,20 @@ func (c *ClientWrapper) UpdateObservabilityTenant(ctx context.Context, id string
 	existingTenant, err := c.ControllerClient.ObservabilityV1alpha1().Tenants().Get(ctx, id, metav1.GetOptions{})
 	if err != nil {
 		log.Error(err, "Failed to get observability tenant")
+		span.RecordError(err)
+		span.SetStatus(codes.Error, err.Error())
 		return nil, err
 	}
 
-	tenantStruct := &observabilityv1alpha1.Tenant{
-		ObjectMeta: metav1.ObjectMeta{
-			Name:            id,
-			ResourceVersion: existingTenant.GetResourceVersion(),
-		},
-		Spec: observabilityv1alpha1.TenantSpec{
-			Limits: &observabilityv1alpha1.LimitSpec{
-				Mimir: mimirLimits,
-			},
-		},
-	}
+	mimirLimits.DeepCopyInto(existingTenant.Spec.Limits.Mimir)
 
 	if name != nil {
-		tenantStruct.Spec.DisplayName = *name
+		existingTenant.Spec.DisplayName = *name
+		if span.IsRecording() {
+			span.SetAttributes(
+				attribute.String("name", *name),
+			)
+		}
 	}
 
 	var tenantRelations []ObservabilityTenantRelation
@@ -336,7 +361,7 @@ func (c *ClientWrapper) UpdateObservabilityTenant(ctx context.Context, id string
 		tenantRelations = append(tenantRelations, relation)
 	}
 
-	tenant, err := c.ControllerClient.ObservabilityV1alpha1().Tenants().Update(ctx, tenantStruct, metav1.UpdateOptions{})
+	tenant, err := c.ControllerClient.ObservabilityV1alpha1().Tenants().Update(ctx, existingTenant, metav1.UpdateOptions{})
 	if err != nil {
 		log.Error(err, "Failed to update observability tenant")
 		return nil, err
@@ -358,6 +383,15 @@ func (c *ClientWrapper) UpdateObservabilityTenant(ctx context.Context, id string
 func (c *ClientWrapper) MutateObservabilityTenantInKeto(ctx context.Context, id string, tenantRelations []ObservabilityTenantRelation) error {
 	log := c.Log.WithName("ObservabilityTenant").WithValues("ID", id)
 
+	ctx, span := c.Tracer.Start(ctx, "MutateObservabilityTenantInKeto")
+	defer span.End()
+
+	if span.IsRecording() {
+		span.SetAttributes(
+			attribute.String("tenant_id", id),
+		)
+	}
+
 	toAdd := make([]*rts.RelationTuple, 0)
 	toRemove := make([]*rts.RelationTuple, 0)
 
@@ -377,10 +411,21 @@ func (c *ClientWrapper) MutateObservabilityTenantInKeto(ctx context.Context, id 
 
 // function that determines which users or groups to add or remove from the observability tenant of an oauth2 client
 func (c *ClientWrapper) OsTenantChangeset(ctx context.Context, id string, bindings *model.ObservabilityTenantPermissionBindingsInput, relation consts.ObservabilityTenantRelation) (toAdd []*rts.RelationTuple, toRemove []*rts.RelationTuple, err error) {
+	log := c.Log.WithName("ObservabilityTenantChangeset").WithValues("ID", id)
+
+	ctx, span := c.Tracer.Start(ctx, "ObservabilityTenantChangeset")
+	defer span.End()
+
+	if span.IsRecording() {
+		span.SetAttributes(
+			attribute.String("tenant_id", id),
+		)
+	}
 
 	currentUsers, currentGroups, currentClients, err := c.ExpandTenantRelation(ctx, id, relation)
 	if err != nil {
-		return nil, nil, fmt.Errorf("failed to get current viewers: %w", err)
+		log.Error(err, "Failed to expand tenant relation")
+		return nil, nil, err
 	}
 
 	if bindings != nil {
@@ -392,7 +437,7 @@ func (c *ClientWrapper) OsTenantChangeset(ctx context.Context, id string, bindin
 		}
 
 		for _, user := range currentUsers {
-			if !stringContains(bindings.Users, user.ID) {
+			if !utils.StringContains(bindings.Users, user.ID) {
 				toRemove = append(toRemove, user.GetTenantTuple(id, relation))
 			}
 		}
@@ -405,7 +450,7 @@ func (c *ClientWrapper) OsTenantChangeset(ctx context.Context, id string, bindin
 		}
 
 		for _, group := range currentGroups {
-			if !stringContains(bindings.Groups, group.Name) {
+			if !utils.StringContains(bindings.Groups, group.Name) {
 				toRemove = append(toRemove, group.GetTenantTuple(id, relation))
 			}
 		}
@@ -418,7 +463,7 @@ func (c *ClientWrapper) OsTenantChangeset(ctx context.Context, id string, bindin
 		}
 
 		for _, client := range currentClients {
-			if !stringContains(bindings.Oauth2Clients, *client.ClientID) {
+			if !utils.StringContains(bindings.Oauth2Clients, *client.ClientID) {
 				toRemove = append(toRemove, client.GetTenantTuple(id, relation))
 			}
 		}
@@ -430,6 +475,15 @@ func (c *ClientWrapper) OsTenantChangeset(ctx context.Context, id string, bindin
 // function that resolves an ObservabilityTenantPermissionBindings
 func (c *ClientWrapper) ResolveTenantBindings(ctx context.Context, id string, relation consts.ObservabilityTenantRelation) (bindings *model.ObservabilityTenantPermissionBindings, err error) {
 	log := c.Log.WithName("ResolveTenantBindings").WithValues("ID", id)
+
+	ctx, span := c.Tracer.Start(ctx, "ResolveTenantBindings")
+	defer span.End()
+
+	if span.IsRecording() {
+		span.SetAttributes(
+			attribute.String("tenant_id", id),
+		)
+	}
 
 	users, groups, clients, err := c.ExpandTenantRelation(ctx, id, relation)
 	if err != nil {
@@ -460,12 +514,23 @@ func (c *ClientWrapper) ResolveTenantBindings(ctx context.Context, id string, re
 func (c *ClientWrapper) ExpandTenantRelation(ctx context.Context, id string, relation consts.ObservabilityTenantRelation) (users []*model.User, groups []*model.Group, clients []*model.OAuth2Client, err error) {
 	log := c.Log.WithName("ExpandTenantRelation").WithValues("ID", id)
 
+	ctx, span := c.Tracer.Start(ctx, "ExpandTenantRelation")
+	defer span.End()
+
+	if span.IsRecording() {
+		span.SetAttributes(
+			attribute.String("tenant_id", id),
+		)
+	}
+
 	ss := rts.NewSubjectSet("ObservabilityTenant", id, relation.String())
 
 	respTuples, err := c.KetoClient.Expand(ctx, ss, 100)
 	if err != nil {
 		log.Error(err, "Failed to query tuples")
-		return nil, nil, nil, fmt.Errorf("failed to query tuples: %w", err)
+		span.RecordError(err)
+		span.SetStatus(codes.Error, err.Error())
+		return nil, nil, nil, err
 	}
 
 	log.Info("Success expanding tenant relation", "relation", relation, "tuples", respTuples)
@@ -510,21 +575,32 @@ func (c *ClientWrapper) processRelation(tree *rts.SubjectTree) (user *model.User
 func (c *ClientWrapper) ListTenants(ctx context.Context) ([]*model.ObservabilityTenant, error) {
 	log := c.Log.WithName("ListTenants")
 
+	ctx, span := c.Tracer.Start(ctx, "ListTenants")
+	defer span.End()
+
 	tenants, err := c.ControllerClient.ObservabilityV1alpha1().Tenants().List(ctx, metav1.ListOptions{})
 	if err != nil {
 		log.Error(err, "Failed to list observability tenants")
+		span.RecordError(err)
+		span.SetStatus(codes.Error, err.Error())
 		return nil, err
 	}
 
 	var outputTenants []*model.ObservabilityTenant
 
 	for _, tenant := range tenants.Items {
-		outputTenants = append(outputTenants, &model.ObservabilityTenant{
+		outTenant := &model.ObservabilityTenant{
 			ID: tenant.Name,
-			Limits: &model.ObservabilityTenantLimits{ //TODO: can error
-				Mimir: tenant.Spec.Limits.Mimir, //TODO: can error
-			},
-		})
+		}
+		if tenant.Spec.DisplayName != "" {
+			outTenant.Name = &tenant.Spec.DisplayName
+		}
+		if tenant.Spec.Limits != nil && tenant.Spec.Limits.Mimir != nil {
+			outTenant.Limits = &model.ObservabilityTenantLimits{
+				Mimir: tenant.Spec.Limits.Mimir,
+			}
+		}
+		outputTenants = append(outputTenants, outTenant)
 	}
 
 	log.Info("Success listing observability tenants")
@@ -532,16 +608,31 @@ func (c *ClientWrapper) ListTenants(ctx context.Context) ([]*model.Observability
 }
 
 // function that gets an observability tenant using the controller client
-func (c *ClientWrapper) GetTenant(ctx context.Context, name string) (*model.ObservabilityTenant, error) {
-	log := c.Log.WithName("GetTenant").WithValues("Name", name)
+func (c *ClientWrapper) GetTenant(ctx context.Context, id string) (*model.ObservabilityTenant, error) {
+	log := c.Log.WithName("GetTenant").WithValues("ID", id)
 
-	if name == "" {
-		return nil, fmt.Errorf("observability tenant name cannot be empty")
+	ctx, span := c.Tracer.Start(ctx, "GetTenant")
+	defer span.End()
+
+	if span.IsRecording() {
+		span.SetAttributes(
+			attribute.String("tenant_id", id),
+		)
 	}
 
-	tenant, err := c.ControllerClient.ObservabilityV1alpha1().Tenants().Get(ctx, name, metav1.GetOptions{})
+	if id == "" {
+		err := fmt.Errorf("observability tenant id cannot be empty")
+		log.Error(err, "Failed to get observability tenant")
+		span.RecordError(err)
+		span.SetStatus(codes.Error, err.Error())
+		return nil, err
+	}
+
+	tenant, err := c.ControllerClient.ObservabilityV1alpha1().Tenants().Get(ctx, id, metav1.GetOptions{})
 	if err != nil {
 		log.Error(err, "Failed to get observability tenant")
+		span.RecordError(err)
+		span.SetStatus(codes.Error, err.Error())
 		return nil, err
 	}
 
@@ -559,22 +650,37 @@ func (c *ClientWrapper) GetTenant(ctx context.Context, name string) (*model.Obse
 }
 
 // function that deletes an observability tenant using the controller client
-func (c *ClientWrapper) DeleteTenant(ctx context.Context, name string) (*model.ObservabilityTenant, error) {
-	log := c.Log.WithName("DeleteTenant").WithValues("Name", name)
+func (c *ClientWrapper) DeleteTenant(ctx context.Context, id string) (*model.ObservabilityTenant, error) {
+	log := c.Log.WithName("DeleteTenant").WithValues("ID", id)
 
-	if name == "" {
-		return nil, fmt.Errorf("observability tenant name cannot be empty")
+	ctx, span := c.Tracer.Start(ctx, "DeleteTenant")
+	defer span.End()
+
+	if span.IsRecording() {
+		span.SetAttributes(
+			attribute.String("tenant_id", id),
+		)
 	}
 
-	err := c.ControllerClient.ObservabilityV1alpha1().Tenants().Delete(ctx, name, metav1.DeleteOptions{})
+	if id == "" {
+		err := fmt.Errorf("observability tenant id cannot be empty")
+		log.Error(err, "Failed to delete observability tenant")
+		span.RecordError(err)
+		span.SetStatus(codes.Error, err.Error())
+		return nil, err
+	}
+
+	err := c.ControllerClient.ObservabilityV1alpha1().Tenants().Delete(ctx, id, metav1.DeleteOptions{})
 	if err != nil {
 		log.Error(err, "Failed to delete observability tenant")
+		span.RecordError(err)
+		span.SetStatus(codes.Error, err.Error())
 		return nil, err
 	}
 
 	log.Info("Success deleting observability tenant")
 	return &model.ObservabilityTenant{
-		ID: name,
+		ID: id,
 	}, nil
 }
 
@@ -582,6 +688,9 @@ func (c *ClientWrapper) DeleteTenant(ctx context.Context, name string) (*model.O
 func (c *ClientWrapper) GetObservabilityTenantUsers(ctx context.Context, users []*model.User) ([]*model.User, error) {
 	log := c.Log.WithName("GetObservabilityTenantUsers")
 	//TODO: dedupe with GetOAuth2ClientUserLoginBindings
+
+	ctx, span := c.Tracer.Start(ctx, "GetObservabilityTenantUsers")
+	defer span.End()
 
 	var output []*model.User
 
@@ -601,6 +710,9 @@ func (c *ClientWrapper) GetObservabilityTenantGroups(ctx context.Context, groups
 	log := c.Log.WithName("GetObservabilityTenantGroups")
 	// TODO: dedupe with GetOAuth2ClientGroupLoginBindings
 
+	ctx, span := c.Tracer.Start(ctx, "GetObservabilityTenantGroups")
+	defer span.End()
+
 	var output []*model.Group
 
 	for _, inGroup := range groups {
@@ -618,6 +730,9 @@ func (c *ClientWrapper) GetObservabilityTenantGroups(ctx context.Context, groups
 func (c *ClientWrapper) GetObservabilityTenantOauth2Clients(ctx context.Context, clients []*model.OAuth2Client) ([]*model.OAuth2Client, error) {
 	log := c.Log.WithName("GetObservabilityTenantOauth2Clients")
 	// TODO: turn this into a more generic function that can be used for all the Get*From* functions
+
+	ctx, span := c.Tracer.Start(ctx, "GetObservabilityTenantOauth2Clients")
+	defer span.End()
 
 	var output []*model.OAuth2Client
 

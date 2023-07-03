@@ -10,6 +10,9 @@ import (
 	px "github.com/ory/x/pointerx"
 	"github.com/pluralsh/trace-shield/format"
 	"github.com/pluralsh/trace-shield/graph/model"
+	"github.com/pluralsh/trace-shield/utils"
+	"go.opentelemetry.io/otel/attribute"
+	"go.opentelemetry.io/otel/codes"
 )
 
 type HydraOperation string
@@ -22,9 +25,15 @@ const (
 // ListOAuth2Clients is the resolver for the listOAuth2Clients field.
 func (c *ClientWrapper) ListOAuth2Clients(ctx context.Context) ([]*model.OAuth2Client, error) {
 	log := c.Log.WithName("ListOAuth2Clients")
+
+	ctx, span := c.Tracer.Start(ctx, "ListOAuth2Clients")
+	defer span.End()
+
 	clients, resp, err := c.HydraClient.OAuth2Api.ListOAuth2Clients(ctx).Execute()
 	if err != nil || resp.StatusCode != 200 {
 		log.Error(err, "failed to list oauth2 clients")
+		span.RecordError(err)
+		span.SetStatus(codes.Error, err.Error())
 		return nil, fmt.Errorf("failed to list oauth2 clients: %w", err)
 	}
 	var output []*model.OAuth2Client
@@ -36,21 +45,40 @@ func (c *ClientWrapper) ListOAuth2Clients(ctx context.Context) ([]*model.OAuth2C
 
 // GetOAuth2Client is the resolver for the listOAuth2Clients field.
 func (c *ClientWrapper) GetOAuth2Client(ctx context.Context, id string) (*model.OAuth2Client, error) {
-	log := c.Log.WithName("ListOAuth2Clients")
+	log := c.Log.WithName("GetOAuth2Client")
+
+	ctx, span := c.Tracer.Start(ctx, "GetOAuth2Client")
+	defer span.End()
+
+	if span.IsRecording() {
+		span.SetAttributes(
+			attribute.String("client_id", id),
+		)
+	}
+
 	client, resp, err := c.HydraClient.OAuth2Api.GetOAuth2Client(ctx, id).Execute()
 	if err != nil || resp.StatusCode != 200 {
 		log.Error(err, "failed to list oauth2 clients")
+		span.RecordError(err)
+		span.SetStatus(codes.Error, err.Error())
 		return nil, fmt.Errorf("failed to list oauth2 clients: %w", err)
 	}
 	if client == nil {
-		return nil, fmt.Errorf("client not found")
+		err = fmt.Errorf("client not found")
+		span.RecordError(err)
+		span.SetStatus(codes.Error, err.Error())
+		return nil, err
 	}
+
 	return format.HydraOAuth2ClientToGraphQL(*client), nil
 }
 
 // function that gets all users that can login to the oauth2 client
 func (c *ClientWrapper) GetOAuth2ClientUserLoginBindings(ctx context.Context, obj *model.LoginBindings) ([]*model.User, error) {
 	log := c.Log.WithName("GetOAuth2ClientUserLoginBindings")
+
+	ctx, span := c.Tracer.Start(ctx, "GetOAuth2ClientUserLoginBindings")
+	defer span.End()
 
 	var output []*model.User
 
@@ -67,7 +95,10 @@ func (c *ClientWrapper) GetOAuth2ClientUserLoginBindings(ctx context.Context, ob
 
 // function that gets all groups that can login to the oauth2 client
 func (c *ClientWrapper) GetOAuth2ClientGroupLoginBindings(ctx context.Context, obj *model.LoginBindings) ([]*model.Group, error) {
-	log := c.Log.WithName("GetOAuth2ClientUserLoginBindings")
+	log := c.Log.WithName("GetOAuth2ClientGroupLoginBindings")
+
+	ctx, span := c.Tracer.Start(ctx, "GetOAuth2ClientGroupLoginBindings")
+	defer span.End()
 
 	var output []*model.Group
 
@@ -86,6 +117,15 @@ func (c *ClientWrapper) GetOAuth2ClientGroupLoginBindings(ctx context.Context, o
 func (c *ClientWrapper) GetOAuth2ClientLoginBindings(ctx context.Context, id string) (*model.LoginBindings, error) {
 	log := c.Log.WithName("GetOAuth2ClientLoginBindings").WithValues("ID", id)
 
+	ctx, span := c.Tracer.Start(ctx, "GetOAuth2ClientLoginBindings")
+	defer span.End()
+
+	if span.IsRecording() {
+		span.SetAttributes(
+			attribute.String("client_id", id),
+		)
+	}
+
 	query := rts.RelationQuery{
 		Namespace: px.Ptr("OAuth2Client"),
 		Object:    px.Ptr(id),
@@ -95,6 +135,8 @@ func (c *ClientWrapper) GetOAuth2ClientLoginBindings(ctx context.Context, id str
 
 	respTuples, err := c.KetoClient.QueryAllTuples(context.Background(), &query, 100)
 	if err != nil {
+		span.RecordError(err)
+		span.SetStatus(codes.Error, err.Error())
 		return nil, fmt.Errorf("failed to query tuples: %w", err)
 	}
 
@@ -128,6 +170,9 @@ func (c *ClientWrapper) GetOAuth2ClientLoginBindings(ctx context.Context, id str
 func (c *ClientWrapper) CreateOAuth2Client(ctx context.Context, mode HydraOperation, allowedCorsOrigins []string, audience []string, authorizationCodeGrantAccessTokenLifespan *string, authorizationCodeGrantIDTokenLifespan *string, authorizationCodeGrantRefreshTokenLifespan *string, backChannelLogoutSessionRequired *bool, backChannelLogoutURI *string, clientCredentialsGrantAccessTokenLifespan *string, clientID *string, clientName *string, clientSecret *string, clientSecretExpiresAt *int64, clientURI *string, contacts []string, frontchannelLogoutSessionRequired *bool, frontchannelLogoutURI *string, grantTypes []string, implicitGrantAccessTokenLifespan *string, implicitGrantIDTokenLifespan *string, jwks map[string]interface{}, jwksURI *string, jwtBearerGrantAccessTokenLifespan *string, logoURI *string, metadata map[string]interface{}, policyURI *string, postLogoutRedirectUris []string, redirectUris []string, responseTypes []string, scope *string, sectorIdentifierURI *string, subjectType *string, tokenEndpointAuthMethod *string, tokenEndpointAuthSigningAlgorithm *string, tosURI *string, userinfoSignedResponseAlgorithm *string, loginBindings *model.LoginBindingsInput) (*model.OAuth2Client, error) {
 	log := c.Log.WithName("CreateOAuth2Client").WithValues("Name", clientName, "ID", clientID, "Mode", mode)
 
+	ctx, span := c.Tracer.Start(ctx, "CreateOAuth2Client")
+	defer span.End()
+
 	client := format.GraphQLNewOAuth2ClientToHydra(allowedCorsOrigins, audience, authorizationCodeGrantAccessTokenLifespan, authorizationCodeGrantIDTokenLifespan, authorizationCodeGrantRefreshTokenLifespan, backChannelLogoutSessionRequired, backChannelLogoutURI, clientCredentialsGrantAccessTokenLifespan, clientID, clientName, clientSecret, clientSecretExpiresAt, clientURI, contacts, frontchannelLogoutSessionRequired, frontchannelLogoutURI, grantTypes, implicitGrantAccessTokenLifespan, implicitGrantIDTokenLifespan, jwks, jwksURI, jwtBearerGrantAccessTokenLifespan, logoURI, metadata, policyURI, postLogoutRedirectUris, redirectUris, responseTypes, scope, sectorIdentifierURI, subjectType, tokenEndpointAuthMethod, tokenEndpointAuthSigningAlgorithm, tosURI, userinfoSignedResponseAlgorithm, loginBindings)
 
 	// TODO: add bound observability tenant as owner of the client so we can ensure that a client is only bound to one tenant
@@ -140,11 +185,16 @@ func (c *ClientWrapper) CreateOAuth2Client(ctx context.Context, mode HydraOperat
 		createdClient, resp, err = c.HydraClient.OAuth2Api.CreateOAuth2Client(ctx).OAuth2Client(client).Execute()
 		if err != nil || resp.StatusCode != 201 {
 			log.Error(err, "failed to create oauth2 client")
+			span.RecordError(err)
+			span.SetStatus(codes.Error, err.Error())
 			return nil, fmt.Errorf("failed to create oauth2 client: %w", err)
 		}
 	} else if mode == HydraOperationUpdate {
 		if clientID == nil || *clientID == "" {
-			return nil, fmt.Errorf("clientID is required for update")
+			err = fmt.Errorf("clientID is required for update")
+			span.RecordError(err)
+			span.SetStatus(codes.Error, err.Error())
+			return nil, err
 		}
 		createdClient, resp, err = c.HydraClient.OAuth2Api.SetOAuth2Client(ctx, *clientID).OAuth2Client(client).Execute()
 		if err != nil || resp.StatusCode != 200 {
@@ -154,7 +204,16 @@ func (c *ClientWrapper) CreateOAuth2Client(ctx context.Context, mode HydraOperat
 	}
 
 	if createdClient == nil {
-		return nil, fmt.Errorf("failed to create oauth2 client")
+		err = fmt.Errorf("failed to create oauth2 client")
+		span.RecordError(err)
+		span.SetStatus(codes.Error, err.Error())
+		return nil, err
+	}
+
+	if span.IsRecording() {
+		span.SetAttributes(
+			attribute.String("client_id", *createdClient.ClientId),
+		)
 	}
 
 	exist, err := c.OAuth2ClientExistsInKeto(ctx, *createdClient.ClientId)
@@ -209,9 +268,20 @@ func (c *ClientWrapper) CreateOAuth2Client(ctx context.Context, mode HydraOperat
 func (c *ClientWrapper) DeleteOAuth2Client(ctx context.Context, clientID string) (*model.OAuth2Client, error) {
 	log := c.Log.WithName("DeleteOAuth2Client").WithValues("ID", clientID)
 
+	ctx, span := c.Tracer.Start(ctx, "DeleteOAuth2Client")
+	defer span.End()
+
+	if span.IsRecording() {
+		span.SetAttributes(
+			attribute.String("client_id", clientID),
+		)
+	}
+
 	resp, err := c.HydraClient.OAuth2Api.DeleteOAuth2Client(ctx, clientID).Execute()
 	if err != nil || resp.StatusCode != 204 {
 		log.Error(err, "failed to delete oauth2 client")
+		span.RecordError(err)
+		span.SetStatus(codes.Error, err.Error())
 		return nil, fmt.Errorf("failed to delete oauth2 client: %w", err)
 	}
 
@@ -240,6 +310,15 @@ func (c *ClientWrapper) DeleteOAuth2Client(ctx context.Context, clientID string)
 func (c *ClientWrapper) OAuth2ClientExistsInKeto(ctx context.Context, id string) (bool, error) {
 	log := c.Log.WithName("OAuth2ClientExistsInKeto").WithValues("ID", id)
 
+	ctx, span := c.Tracer.Start(ctx, "OAuth2ClientExistsInKeto")
+	defer span.End()
+
+	if span.IsRecording() {
+		span.SetAttributes(
+			attribute.String("client_id", id),
+		)
+	}
+
 	query := rts.RelationQuery{
 		Namespace: px.Ptr("OAuth2Client"),
 		Object:    px.Ptr(id),
@@ -254,6 +333,8 @@ func (c *ClientWrapper) OAuth2ClientExistsInKeto(ctx context.Context, id string)
 	respTuples, err := c.KetoClient.QueryAllTuples(context.Background(), &query, 100)
 	if err != nil {
 		log.Error(err, "Failed to query tuples")
+		span.RecordError(err)
+		span.SetStatus(codes.Error, err.Error())
 		return false, fmt.Errorf("failed to query tuples: %w", err)
 	}
 
@@ -268,10 +349,22 @@ func (c *ClientWrapper) OAuth2ClientExistsInKeto(ctx context.Context, id string)
 func (c *ClientWrapper) CreateOAuth2ClientInKeto(ctx context.Context, id string) error {
 	log := c.Log.WithName("CreateOAuth2ClientInKeto").WithValues("ID", id)
 
+	ctx, span := c.Tracer.Start(ctx, "CreateOAuth2ClientInKeto")
+	defer span.End()
+
+	if span.IsRecording() {
+		span.SetAttributes(
+			attribute.String("client_id", id),
+		)
+	}
+
 	client := model.NewOAuth2Client(id)
 
 	err := c.KetoClient.CreateTuple(ctx, client.GetOrganizationTuple())
 	if err != nil {
+		log.Error(err, "Failed to create tuple")
+		span.RecordError(err)
+		span.SetStatus(codes.Error, err.Error())
 		return fmt.Errorf("failed to create tuple: %w", err)
 	}
 
@@ -283,10 +376,22 @@ func (c *ClientWrapper) CreateOAuth2ClientInKeto(ctx context.Context, id string)
 func (c *ClientWrapper) DeleteOAuth2ClientInKeto(ctx context.Context, id string) error {
 	log := c.Log.WithName("DeleteOAuth2ClientInKeto").WithValues("ID", id)
 
+	ctx, span := c.Tracer.Start(ctx, "DeleteOAuth2ClientInKeto")
+	defer span.End()
+
+	if span.IsRecording() {
+		span.SetAttributes(
+			attribute.String("client_id", id),
+		)
+	}
+
 	client := model.NewOAuth2Client(id)
 
 	err := c.KetoClient.DeleteTuple(ctx, client.GetOrganizationTuple())
 	if err != nil {
+		log.Error(err, "Failed to delete tuple")
+		span.RecordError(err)
+		span.SetStatus(codes.Error, err.Error())
 		return fmt.Errorf("failed to delete tuple: %w", err)
 	}
 
@@ -296,34 +401,45 @@ func (c *ClientWrapper) DeleteOAuth2ClientInKeto(ctx context.Context, id string)
 
 // function that determines which users or groups to add or remove from the login bindings of an oauth2 client
 func (c *ClientWrapper) LoginBindingsChangeset(ctx context.Context, clientId string, bindings *model.LoginBindingsInput) (usersToAdd []string, usersToRemove []string, groupsToAdd []string, groupsToRemove []string, err error) {
-	if bindings != nil {
-		currentUsers, currentGroups, err := c.GetLoginBindingsInKeto(ctx, clientId) // TODO: replace with GetOAuth2ClientLoginBindings
+	log := c.Log.WithName("LoginBindingsChangeset").WithValues("ClientID", clientId)
 
+	ctx, span := c.Tracer.Start(ctx, "LoginBindingsChangeset")
+	defer span.End()
+
+	if span.IsRecording() {
+		span.SetAttributes(
+			attribute.String("client_id", clientId),
+		)
+	}
+
+	if bindings != nil {
+		currentBindings, err := c.GetOAuth2ClientLoginBindings(ctx, clientId)
 		if err != nil {
+			log.Error(err, "Failed to get current login bindings")
 			return nil, nil, nil, nil, fmt.Errorf("failed to get current members: %w", err)
 		}
 
 		for _, user := range bindings.Users {
-			if !stringContains(currentUsers, user) {
+			if !userIdInListOfUsers(currentBindings.Users, user) {
 				usersToAdd = append(usersToAdd, user)
 			}
 		}
 
-		for _, user := range currentUsers {
-			if !stringContains(bindings.Users, user) {
-				usersToRemove = append(usersToRemove, user)
+		for _, user := range currentBindings.Users {
+			if !utils.StringContains(bindings.Users, user.ID) {
+				usersToRemove = append(usersToRemove, user.ID)
 			}
 		}
 
 		for _, group := range bindings.Groups {
-			if !stringContains(currentGroups, group) {
+			if !groupNameInListOfGroups(currentBindings.Groups, group) {
 				groupsToAdd = append(groupsToAdd, group)
 			}
 		}
 
-		for _, group := range currentGroups {
-			if !stringContains(bindings.Groups, group) {
-				groupsToRemove = append(groupsToRemove, group)
+		for _, group := range currentBindings.Groups {
+			if !utils.StringContains(bindings.Groups, group.Name) {
+				groupsToRemove = append(groupsToRemove, group.Name)
 			}
 		}
 	}
@@ -334,6 +450,16 @@ func (c *ClientWrapper) LoginBindingsChangeset(ctx context.Context, clientId str
 // function that adds users to the login bindings of an oauth2 client
 func (c *ClientWrapper) AddUsersToLoginBindings(ctx context.Context, clientID string, users []string) error {
 	log := c.Log.WithName("AddUsersToLoginBindings").WithValues("ClientID", clientID, "Users", users)
+
+	ctx, span := c.Tracer.Start(ctx, "AddUsersToLoginBindings")
+	defer span.End()
+
+	if span.IsRecording() {
+		span.SetAttributes(
+			attribute.String("client_id", clientID),
+			attribute.StringSlice("users", users),
+		)
+	}
 
 	for _, user := range users {
 		err := c.AddUserToLoginBindings(ctx, clientID, user)
@@ -352,10 +478,23 @@ func (c *ClientWrapper) AddUsersToLoginBindings(ctx context.Context, clientID st
 func (c *ClientWrapper) AddUserToLoginBindings(ctx context.Context, clientID string, userId string) error {
 	log := c.Log.WithName("AddUserToLoginBindings").WithValues("ClientID", clientID, "User", userId)
 
+	ctx, span := c.Tracer.Start(ctx, "AddUserToLoginBindings")
+	defer span.End()
+
+	if span.IsRecording() {
+		span.SetAttributes(
+			attribute.String("client_id", clientID),
+			attribute.String("user_id", userId),
+		)
+	}
+
 	client := model.NewOAuth2Client(clientID)
 
 	err := c.KetoClient.CreateTuple(ctx, client.GetUserTuple(userId))
 	if err != nil {
+		log.Error(err, "Failed to create tuple")
+		span.RecordError(err)
+		span.SetStatus(codes.Error, err.Error())
 		return fmt.Errorf("failed to create tuple: %w", err)
 	}
 
@@ -366,6 +505,16 @@ func (c *ClientWrapper) AddUserToLoginBindings(ctx context.Context, clientID str
 // function that removes users from the login bindings of an oauth2 client
 func (c *ClientWrapper) RemoveUsersFromLoginBindings(ctx context.Context, clientID string, users []string) error {
 	log := c.Log.WithName("RemoveUsersFromLoginBindings").WithValues("ClientID", clientID, "Users", users)
+
+	ctx, span := c.Tracer.Start(ctx, "RemoveUsersFromLoginBindings")
+	defer span.End()
+
+	if span.IsRecording() {
+		span.SetAttributes(
+			attribute.String("client_id", clientID),
+			attribute.StringSlice("users", users),
+		)
+	}
 
 	for _, user := range users {
 		err := c.RemoveUserFromLoginBindings(ctx, clientID, user)
@@ -384,10 +533,23 @@ func (c *ClientWrapper) RemoveUsersFromLoginBindings(ctx context.Context, client
 func (c *ClientWrapper) RemoveUserFromLoginBindings(ctx context.Context, clientID string, userId string) error {
 	log := c.Log.WithName("RemoveUserFromLoginBindings").WithValues("ClientID", clientID, "User", userId)
 
+	ctx, span := c.Tracer.Start(ctx, "RemoveUserFromLoginBindings")
+	defer span.End()
+
+	if span.IsRecording() {
+		span.SetAttributes(
+			attribute.String("client_id", clientID),
+			attribute.String("user_id", userId),
+		)
+	}
+
 	client := model.NewOAuth2Client(clientID)
 
 	err := c.KetoClient.DeleteTuple(ctx, client.GetUserTuple(userId))
 	if err != nil {
+		log.Error(err, "Failed to delete tuple")
+		span.RecordError(err)
+		span.SetStatus(codes.Error, err.Error())
 		return fmt.Errorf("failed to delete tuple: %w", err)
 	}
 
@@ -398,6 +560,16 @@ func (c *ClientWrapper) RemoveUserFromLoginBindings(ctx context.Context, clientI
 // function that adds groups to the login bindings of an oauth2 client
 func (c *ClientWrapper) AddGroupsToLoginBindings(ctx context.Context, clientID string, groups []string) error {
 	log := c.Log.WithName("AddGroupsToLoginBindings").WithValues("ClientID", clientID, "Groups", groups)
+
+	ctx, span := c.Tracer.Start(ctx, "AddGroupsToLoginBindings")
+	defer span.End()
+
+	if span.IsRecording() {
+		span.SetAttributes(
+			attribute.String("client_id", clientID),
+			attribute.StringSlice("groups", groups),
+		)
+	}
 
 	for _, group := range groups {
 		err := c.AddGroupToLoginBindings(ctx, clientID, group)
@@ -415,10 +587,23 @@ func (c *ClientWrapper) AddGroupsToLoginBindings(ctx context.Context, clientID s
 func (c *ClientWrapper) AddGroupToLoginBindings(ctx context.Context, clientID string, group string) error {
 	log := c.Log.WithName("AddGroupToLoginBindings").WithValues("ClientID", clientID, "Group", group)
 
+	ctx, span := c.Tracer.Start(ctx, "AddGroupToLoginBindings")
+	defer span.End()
+
+	if span.IsRecording() {
+		span.SetAttributes(
+			attribute.String("client_id", clientID),
+			attribute.String("group", group),
+		)
+	}
+
 	client := model.NewOAuth2Client(clientID)
 
 	err := c.KetoClient.CreateTuple(ctx, client.GetGroupTuple(group))
 	if err != nil {
+		log.Error(err, "Failed to create tuple")
+		span.RecordError(err)
+		span.SetStatus(codes.Error, err.Error())
 		return fmt.Errorf("failed to create tuple: %w", err)
 	}
 
@@ -429,6 +614,16 @@ func (c *ClientWrapper) AddGroupToLoginBindings(ctx context.Context, clientID st
 // function that removes groups from the login bindings of an oauth2 client
 func (c *ClientWrapper) RemoveGroupsFromLoginBindings(ctx context.Context, clientID string, groups []string) error {
 	log := c.Log.WithName("RemoveGroupsFromLoginBindings").WithValues("ClientID", clientID, "Groups", groups)
+
+	ctx, span := c.Tracer.Start(ctx, "RemoveGroupsFromLoginBindings")
+	defer span.End()
+
+	if span.IsRecording() {
+		span.SetAttributes(
+			attribute.String("client_id", clientID),
+			attribute.StringSlice("groups", groups),
+		)
+	}
 
 	for _, group := range groups {
 		err := c.RemoveGroupFromLoginBindings(ctx, clientID, group)
@@ -446,50 +641,28 @@ func (c *ClientWrapper) RemoveGroupsFromLoginBindings(ctx context.Context, clien
 func (c *ClientWrapper) RemoveGroupFromLoginBindings(ctx context.Context, clientID string, group string) error {
 	log := c.Log.WithName("RemoveGroupFromLoginBindings").WithValues("ClientID", clientID, "Group", group)
 
+	ctx, span := c.Tracer.Start(ctx, "RemoveGroupFromLoginBindings")
+	defer span.End()
+
+	if span.IsRecording() {
+		span.SetAttributes(
+			attribute.String("client_id", clientID),
+			attribute.String("group", group),
+		)
+	}
+
 	client := model.NewOAuth2Client(clientID)
 
 	err := c.KetoClient.DeleteTuple(ctx, client.GetGroupTuple(group))
 	if err != nil {
+		log.Error(err, "Failed to delete tuple")
+		span.RecordError(err)
+		span.SetStatus(codes.Error, err.Error())
 		return fmt.Errorf("failed to delete tuple: %w", err)
 	}
 
 	log.Info("Success removing group from login bindings")
 	return nil
-}
-
-// function that get the current users and groups in the login bindings of an oauth2 client
-func (c *ClientWrapper) GetLoginBindingsInKeto(ctx context.Context, clientID string) ([]string, []string, error) {
-	log := c.Log.WithName("GetLoginBindingsInKeto").WithValues("ClientID", clientID)
-
-	// TODO: remove since it is a duplicate of GetOAuth2ClientLoginBindings
-
-	query := rts.RelationQuery{
-		Namespace: px.Ptr("OAuth2Client"),
-		Object:    px.Ptr(clientID),
-		Relation:  px.Ptr("login"),
-		Subject:   nil,
-	}
-
-	respTuples, err := c.KetoClient.QueryAllTuples(context.Background(), &query, 100)
-	if err != nil {
-		return nil, nil, fmt.Errorf("failed to query tuples: %w", err)
-	}
-
-	var users []string
-	var groups []string
-	for _, tuple := range respTuples {
-		subjectSet := tuple.Subject.GetSet()
-		if subjectSet.Namespace == "User" && subjectSet.Object != "" {
-			users = append(users, subjectSet.Object)
-		} else if subjectSet.Namespace == "Group" && subjectSet.Object != "" {
-			groups = append(groups, subjectSet.Object)
-		} else {
-			continue
-		}
-	}
-
-	log.Info("Success getting users in login bindings")
-	return users, groups, nil
 }
 
 // function that checks if a client id is in a []*model.OAuth2Client

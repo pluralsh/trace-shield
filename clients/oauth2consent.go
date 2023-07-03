@@ -9,15 +9,28 @@ import (
 	"github.com/pluralsh/trace-shield/format"
 	"github.com/pluralsh/trace-shield/graph/model"
 	"github.com/pluralsh/trace-shield/utils"
+	"go.opentelemetry.io/otel/attribute"
+	"go.opentelemetry.io/otel/codes"
 )
 
 // GetOAuth2ConsentRequest returns the OAuth2 consent request for the given challenge.
 func (c *ClientWrapper) GetOAuth2ConsentRequest(ctx context.Context, challenge string) (*model.OAuth2ConsentRequest, error) {
 	log := c.Log.WithName("GetOAuth2ConsentRequest").WithValues("challenge", challenge)
 
+	ctx, span := c.Tracer.Start(ctx, "GetOAuth2ConsentRequest")
+	defer span.End()
+
+	if span.IsRecording() {
+		span.SetAttributes(
+			attribute.String("challenge", challenge),
+		)
+	}
+
 	consent, resp, err := c.HydraClient.OAuth2Api.GetOAuth2ConsentRequest(ctx).ConsentChallenge(challenge).Execute()
 	if err != nil || resp.StatusCode != 200 {
 		log.Error(err, "Error getting consent request")
+		span.RecordError(err)
+		span.SetStatus(codes.Error, err.Error())
 		switch resp.StatusCode {
 		// case http.StatusNotFound:
 		// 	// Accessing to response details
@@ -40,9 +53,17 @@ func (c *ClientWrapper) GetOAuth2ConsentRequest(ctx context.Context, challenge s
 					log.Error(err, "Error getting consent request", "error", r.Error, "hint", r.ErrorHint, "description", r.ErrorDescription)
 				}
 			}
+			span.RecordError(err)
+			span.SetStatus(codes.Error, err.Error())
 			log.Error(err, "Error when calling `OAuth2Api.GetOAuth2ConsentRequest", "request", r)
 			return nil, err
 		}
+	}
+
+	if span.IsRecording() {
+		span.SetAttributes(
+			attribute.String("subject", *consent.Subject),
+		)
 	}
 
 	var oidcContext *model.OidcContext
@@ -78,6 +99,16 @@ func (c *ClientWrapper) GetOAuth2ConsentRequest(ctx context.Context, challenge s
 func (c *ClientWrapper) AcceptOAuth2ConsentRequest(ctx context.Context, challenge string, grantAccessTokenAudience []string, grantScope []string, remember *bool, rememberFor *int64, session *hydra.AcceptOAuth2ConsentRequestSession) (*model.OAuth2RedirectTo, error) {
 	log := c.Log.WithName("AcceptOAuth2ConsentRequest").WithValues("challenge", challenge)
 
+	ctx, span := c.Tracer.Start(ctx, "AcceptOAuth2ConsentRequest")
+	defer span.End()
+
+	if span.IsRecording() {
+		span.SetAttributes(
+			attribute.String("challenge", challenge),
+			attribute.StringSlice("grant_scope", grantScope),
+		)
+	}
+
 	consent, resp, err := c.HydraClient.OAuth2Api.AcceptOAuth2ConsentRequest(ctx).
 		ConsentChallenge(challenge).
 		AcceptOAuth2ConsentRequest(hydra.AcceptOAuth2ConsentRequest{
@@ -89,6 +120,8 @@ func (c *ClientWrapper) AcceptOAuth2ConsentRequest(ctx context.Context, challeng
 		}).
 		Execute()
 	if err != nil || resp.StatusCode != 200 {
+		span.RecordError(err)
+		span.SetStatus(codes.Error, err.Error())
 		r, ok := err.(*hydra.GenericOpenAPIError).Model().(hydra.ErrorOAuth2)
 		if ok {
 			log.Error(err, "Error accepting consent request", "error", r.Error, "hint", r.ErrorHint, "description", r.ErrorDescription)
@@ -105,10 +138,21 @@ func (c *ClientWrapper) AcceptOAuth2ConsentRequest(ctx context.Context, challeng
 func (c *ClientWrapper) RejectOAuth2ConsentRequest(ctx context.Context, challenge string) (*model.OAuth2RedirectTo, error) {
 	log := c.Log.WithName("RejectOAuth2ConsentRequest").WithValues("challenge", challenge)
 
+	ctx, span := c.Tracer.Start(ctx, "RejectOAuth2ConsentRequest")
+	defer span.End()
+
+	if span.IsRecording() {
+		span.SetAttributes(
+			attribute.String("challenge", challenge),
+		)
+	}
+
 	consent, resp, err := c.HydraClient.OAuth2Api.RejectOAuth2ConsentRequest(ctx).
 		ConsentChallenge(challenge).
 		Execute()
 	if err != nil || resp.StatusCode != 200 {
+		span.RecordError(err)
+		span.SetStatus(codes.Error, err.Error())
 		r, ok := err.(*hydra.GenericOpenAPIError).Model().(hydra.ErrorOAuth2)
 		if ok {
 			log.Error(err, "Error rejecting consent request", "error", r.Error, "hint", r.ErrorHint, "description", r.ErrorDescription)
