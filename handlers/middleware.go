@@ -54,23 +54,43 @@ func (h *Handler) Middleware() func(http.Handler) http.Handler {
 			ctx, span := h.C.Tracer.Start(ctx, "AuthenticationMiddleware")
 			defer span.End()
 
-			cookie, err := r.Cookie("ory_kratos_session") // TODO: make this compatible with bearer token
+			cookie, err := r.Cookie("ory_kratos_session")
 			// Allow unauthenticated users in
-			if err != nil || cookie == nil {
+			if err != nil {
 				next.ServeHTTP(w, r)
 				return
 			}
 
-			// log.Info(fmt.Sprintf("Cookie: %s", cookie.String()))
+			sessionHeader := r.Header.Get("X-Session-Token")
 
-			resp, req, err := h.C.KratosPublicClient.FrontendApi.ToSession(ctx).Cookie(cookie.String()).Execute()
-			if err != nil {
-				// TODO: should we return here?
-				log.Error(err, fmt.Sprintf("Error when calling `V0alpha2Api.ToSession``: %v\n", err))
-				log.Error(err, fmt.Sprintf("Full HTTP response: %v\n", req))
-				span.RecordError(err)
-				span.SetStatus(codes.Error, err.Error())
-				next.ServeHTTP(w, r) // TODO: find proper way to handle unauthenticated response?
+			// log.Info(fmt.Sprintf("Cookie: %s", cookie.String()))
+			var resp *kratosClient.Session
+			if cookie != nil {
+				clientResp, req, err := h.C.KratosPublicClient.FrontendApi.ToSession(ctx).Cookie(cookie.String()).Execute()
+				if err != nil {
+					// TODO: should we return here?
+					log.Error(err, fmt.Sprintf("Error when calling `V0alpha2Api.ToSession``: %v\n", err))
+					log.Error(err, fmt.Sprintf("Full HTTP response: %v\n", req))
+					span.RecordError(err)
+					span.SetStatus(codes.Error, err.Error())
+					next.ServeHTTP(w, r) // TODO: find proper way to handle unauthenticated response?
+					return
+				}
+				resp = clientResp
+			} else if sessionHeader != "" {
+				clientResp, req, err := h.C.KratosPublicClient.FrontendApi.ToSession(ctx).XSessionToken(sessionHeader).Execute()
+				if err != nil {
+					// TODO: should we return here?
+					log.Error(err, fmt.Sprintf("Error when calling `V0alpha2Api.ToSession``: %v\n", err))
+					log.Error(err, fmt.Sprintf("Full HTTP response: %v\n", req))
+					span.RecordError(err)
+					span.SetStatus(codes.Error, err.Error())
+					next.ServeHTTP(w, r) // TODO: find proper way to handle unauthenticated response?
+					return
+				}
+				resp = clientResp
+			} else {
+				next.ServeHTTP(w, r)
 				return
 			}
 			// response from `ToSession`: Session
