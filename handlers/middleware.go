@@ -56,7 +56,10 @@ func (h *Handler) Middleware() func(http.Handler) http.Handler {
 
 			cookie, err := r.Cookie("ory_kratos_session")
 			// Allow unauthenticated users in
-			if err != nil {
+			if err != nil && err != http.ErrNoCookie {
+				log.Error(err, "Error when getting cookie")
+				span.RecordError(err)
+				span.SetStatus(codes.Error, err.Error())
 				next.ServeHTTP(w, r)
 				return
 			}
@@ -90,6 +93,11 @@ func (h *Handler) Middleware() func(http.Handler) http.Handler {
 				}
 				resp = clientResp
 			} else {
+				// TODO: re-enable below once we have a proper health and/or metrics endpoint
+				// err := fmt.Errorf("No session cookie or header found")
+				// log.Error(err, "Error while authenticating user", "path", r.URL.Path, "method", r.Method, "request", r)
+				// span.RecordError(err)
+				// span.SetStatus(codes.Error, err.Error())
 				next.ServeHTTP(w, r)
 				return
 			}

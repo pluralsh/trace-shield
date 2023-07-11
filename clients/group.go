@@ -71,9 +71,9 @@ func (c *ClientWrapper) MutateGroup(ctx context.Context, name string, members []
 
 	return &model.Group{
 		Name: name,
-		Organization: &model.Organization{
-			Name: consts.MainOrganizationName, //TODO: decide whether to hardcode this or not
-		},
+		// Organization: &model.Organization{
+		// 	Name: consts.MainOrganizationName, //TODO: decide whether to hardcode this or not
+		// },
 	}, nil
 }
 
@@ -324,9 +324,9 @@ func (c *ClientWrapper) GetGroupFromName(ctx context.Context, groupName string) 
 
 	return &model.Group{
 		Name: groupName,
-		Organization: &model.Organization{
-			Name: consts.MainOrganizationName, //TODO: decide whether to hardcode this or not
-		},
+		// Organization: &model.Organization{
+		// 	Name: consts.MainOrganizationName, //TODO: decide whether to hardcode this or not
+		// },
 	}, nil
 }
 
@@ -439,8 +439,8 @@ func (c *ClientWrapper) DeleteGroup(ctx context.Context, groupName string) (*mod
 	log.Info("Success deleting group in keto")
 	return &model.Group{
 		Name: groupName,
-		Organization: &model.Organization{
-			Name: consts.MainOrganizationName, //TODO: decide whether to hardcode this or not
-		},
+		// Organization: &model.Organization{
+		// 	Name: consts.MainOrganizationName, //TODO: decide whether to hardcode this or not
+		// },
 	}, nil
 }

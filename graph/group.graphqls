@@ -6,8 +6,8 @@ type Group {
   "The users that are admins of the organization."
   members: [User!]
 
-  "The organization that the group belongs to."
-  organization: Organization!
+  # "The organization that the group belongs to."
+  # organization: Organization!
 }
 
 extend type Query {

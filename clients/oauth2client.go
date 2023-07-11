@@ -257,9 +257,9 @@ func (c *ClientWrapper) CreateOAuth2Client(ctx context.Context, mode HydraOperat
 
 	output := format.HydraOAuth2ClientToGraphQL(*createdClient)
 
-	output.Organization = &model.Organization{
-		Name: "main", //TODO: decide whether to hardcode this or not
-	}
+	// output.Organization = &model.Organization{
+	// 	Name: "main", //TODO: decide whether to hardcode this or not
+	// }
 
 	return output, nil
 }
@@ -300,9 +300,9 @@ func (c *ClientWrapper) DeleteOAuth2Client(ctx context.Context, clientID string)
 
 	return &model.OAuth2Client{
 		ClientID: px.Ptr(clientID),
-		Organization: &model.Organization{
-			Name: "main", //TODO: decide whether to hardcode this or not
-		},
+		// Organization: &model.Organization{
+		// 	Name: "main", //TODO: decide whether to hardcode this or not
+		// },
 	}, nil
 }
 

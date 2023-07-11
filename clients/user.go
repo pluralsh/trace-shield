@@ -243,9 +243,9 @@ func (c *ClientWrapper) DeleteUser(ctx context.Context, id string) (*model.User,
 	return &model.User{
 		ID:    id,
 		Email: "deleted",
-		Organization: &model.Organization{
-			Name: consts.MainOrganizationName, //TODO: decide whether to hardcode this or not
-		},
+		// Organization: &model.Organization{
+		// 	Name: consts.MainOrganizationName, //TODO: decide whether to hardcode this or not
+		// },
 	}, nil
 }
 
