@@ -13,7 +13,7 @@ import (
 	"go.opentelemetry.io/otel/codes"
 )
 
-func (c *ClientWrapper) UpdateOrganization(ctx context.Context, admins *model.UsersInput) (*model.Organization, error) {
+func (c *ClientWrapper) UpdateOrganization(ctx context.Context, admins []*model.UserInput) (*model.Organization, error) {
 
 	// TODO: figure out which admins to add or remove
 	// TODO: create separate functions for adding and removing admins from an organization
@@ -34,7 +34,13 @@ func (c *ClientWrapper) UpdateOrganization(ctx context.Context, admins *model.Us
 	// 	return nil, fmt.Errorf("Organization does not exist in keto. Having multiple organizations is not yet supported.")
 	// }
 
-	toAdd, toRemove, err := c.OrgAdminChangeset(ctx, admins.Ids)
+	ids, err := c.GetUserIdsFromUserInputs(ctx, admins)
+	if err != nil {
+		log.Error(err, "Failed to get user ids from user inputs")
+		return nil, err
+	}
+
+	toAdd, toRemove, err := c.OrgAdminChangeset(ctx, ids)
 	if err != nil {
 		log.Error(err, "Failed to get organization admin changeset")
 		return nil, err

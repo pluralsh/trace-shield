@@ -12,7 +12,7 @@ import (
 )
 
 // Organization is the resolver for the organization field.
-func (r *mutationResolver) Organization(ctx context.Context, admins *model.UsersInput) (*model.Organization, error) {
+func (r *mutationResolver) Organization(ctx context.Context, admins []*model.UserInput) (*model.Organization, error) {
 	return r.C.UpdateOrganization(ctx, admins)
 }
 

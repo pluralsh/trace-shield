@@ -42,10 +42,10 @@ export type Group = {
   name: Scalars['String'];
 };
 
-/** Input for a list of group names. */
-export type GroupsInput = {
-  /** The names of the groups. */
-  names?: InputMaybe<Array<Scalars['String']>>;
+/** Input for a group using its name. */
+export type GroupInput = {
+  /** The name of the group. */
+  name: Scalars['String'];
 };
 
 /** Representation of users and groups that are allowed to login with through OAuth2 Client. */
@@ -59,9 +59,9 @@ export type LoginBindings = {
 
 export type LoginBindingsInput = {
   /** The groups that are allowed to login with this OAuth2 Client. */
-  groups?: InputMaybe<GroupsInput>;
-  /** The IDs of the users that are allowed to login with this OAuth2 Client. */
-  users?: InputMaybe<UsersInput>;
+  groups?: InputMaybe<Array<GroupInput>>;
+  /** The IDs or email addresses of the users that are allowed to login with this OAuth2 Client. */
+  users?: InputMaybe<Array<UserInput>>;
 };
 
 /** Representation of the limits for Loki for a tenant. */
@@ -375,13 +375,13 @@ export type MutationDeleteUserArgs = {
 
 
 export type MutationGroupArgs = {
-  members?: InputMaybe<UsersInput>;
+  members?: InputMaybe<Array<UserInput>>;
   name: Scalars['String'];
 };
 
 
 export type MutationOrganizationArgs = {
-  admins?: InputMaybe<UsersInput>;
+  admins?: InputMaybe<Array<UserInput>>;
 };
 
 
@@ -556,10 +556,10 @@ export type OAuth2Client = {
   userinfoSignedResponseAlgorithm?: Maybe<Scalars['String']>;
 };
 
-/** Input for a list of OAuth2Client clientIds. */
-export type OAuth2ClientsInput = {
+/** Input an OAuth2Client using its clientId. */
+export type OAuth2ClientInput = {
   /** The ID of the OAuth2 Client. */
-  clientIds?: InputMaybe<Array<Scalars['ID']>>;
+  clientId: Scalars['ID'];
 };
 
 /** OAuth2ConsentRequest represents an OAuth 2.0 consent request. */
@@ -697,11 +697,11 @@ export type ObservabilityTenantPermissionBindings = {
 
 export type ObservabilityTenantPermissionBindingsInput = {
   /** The names of groups that can view a tenant. */
-  groups?: InputMaybe<GroupsInput>;
+  groups?: InputMaybe<Array<GroupInput>>;
   /** The clientIDs oauth2 clients that can send data a tenant. */
-  oauth2Clients?: InputMaybe<OAuth2ClientsInput>;
-  /** The IDs of users that can view a tenant. */
-  users?: InputMaybe<UsersInput>;
+  oauth2Clients?: InputMaybe<Array<OAuth2ClientInput>>;
+  /** The IDs or email addresses of users that can view a tenant. */
+  users?: InputMaybe<Array<UserInput>>;
 };
 
 /** OIDC Context for a consent request. */
@@ -731,7 +731,7 @@ export type Query = {
   /** Get a single OAuth2 Client by ID. */
   getOAuth2Client?: Maybe<OAuth2Client>;
   getObservabilityTenant: ObservabilityTenant;
-  /** Get a user by ID. */
+  /** Get a user by ID or email. */
   getUser: User;
   /** Get a list of all users. */
   listGroups?: Maybe<Array<Group>>;
@@ -761,7 +761,8 @@ export type QueryGetObservabilityTenantArgs = {
 
 
 export type QueryGetUserArgs = {
-  id: Scalars['ID'];
+  email?: InputMaybe<Scalars['String']>;
+  id?: InputMaybe<Scalars['ID']>;
 };
 
 
@@ -795,10 +796,12 @@ export type User = {
   recoveryLink?: Maybe<Scalars['String']>;
 };
 
-/** Input for a list of user IDs. */
-export type UsersInput = {
+/** Input for a user using either ID or email. */
+export type UserInput = {
+  /** The user's email address. */
+  email?: InputMaybe<Scalars['String']>;
   /** The user IDs. */
-  ids?: InputMaybe<Array<Scalars['ID']>>;
+  id?: InputMaybe<Scalars['ID']>;
 };
 
 export type ListGroupsQueryVariables = Exact<{ [key: string]: never; }>;
@@ -808,7 +811,7 @@ export type ListGroupsQuery = { __typename?: 'Query', listGroups?: Array<{ __typ
 
 export type UpdateGroupMutationVariables = Exact<{
   name: Scalars['String'];
-  members?: InputMaybe<UsersInput>;
+  members?: InputMaybe<Array<UserInput> | UserInput>;
 }>;
 
 
@@ -1440,7 +1443,7 @@ export type ListGroupsQueryHookResult = ReturnType<typeof useListGroupsQuery>;
 export type ListGroupsLazyQueryHookResult = ReturnType<typeof useListGroupsLazyQuery>;
 export type ListGroupsQueryResult = Apollo.QueryResult<ListGroupsQuery, ListGroupsQueryVariables>;
 export const UpdateGroupDocument = gql`
-    mutation UpdateGroup($name: String!, $members: UsersInput) {
+    mutation UpdateGroup($name: String!, $members: [UserInput!]) {
   group(name: $name, members: $members) {
     ...GroupFragment
   }

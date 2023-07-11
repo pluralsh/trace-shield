@@ -270,8 +270,8 @@ github.com/ory/hydra-client-go/v2 v2.0.3 h1:jIx968J9RBnjRuaQ21QMLCwZoa28FPvzYWAQ
 github.com/ory/hydra-client-go/v2 v2.0.3/go.mod h1:FRuayIF1H/HD2umlad8c3h7RuHpcmsjBDpW0/R2OQ/U=
 github.com/ory/keto/proto v0.11.1-alpha.0 h1:xVpFRnnIAGGvP9lYIUwjSWmrO7qVoLn20bT6NxzYQy4=
 github.com/ory/keto/proto v0.11.1-alpha.0/go.mod h1:M9J/kybmyLKRmvvSqYzmRVYx2avY3yDMdUPinsck1q0=
-github.com/ory/kratos-client-go v0.11.1 h1:2f+WZ94NReAUQlxdV/pp1ipScy5o5gYLHt2ThSNHHeA=
-github.com/ory/kratos-client-go v0.11.1/go.mod h1:G31LzGZxgtMblK36qaTPWjG5OqnUWrncO1MjKkHsFUE=
+github.com/ory/kratos-client-go v0.13.1 h1:o+pFV9ZRMFSBa4QeNJYbJeLz036UWU4p+7yfKghK+0E=
+github.com/ory/kratos-client-go v0.13.1/go.mod h1:hkrFJuHSBQw+qN6Ks0faOAYhAKwtpjvhCZzsQ7g/Ufc=
 github.com/ory/x v0.0.547 h1:zDuxCi8xpnhSon/2qjjXw9xeYoBwckzV6UdM4dW4sls=
 github.com/ory/x v0.0.547/go.mod h1:sjmOyekJtJrlrq6wtYAKolLruBptf/qUrZ2oMrLEZkM=
 github.com/pelletier/go-toml/v2 v2.0.7 h1:muncTPStnKRos5dpVKULv2FVd4bMOhNePj9CjgDb8Us=
@@ -481,8 +481,8 @@ golang.org/x/oauth2 v0.0.0-20201208152858-08078c50e5b5/go.mod h1:KelEdhl1UZF7XfJ
 golang.org/x/oauth2 v0.0.0-20210218202405-ba52d332ba99/go.mod h1:KelEdhl1UZF7XfJ4dDtk6s++YSgaE7mD/BuKKDLBl4A=
 golang.org/x/oauth2 v0.0.0-20210323180902-22b0adad7558/go.mod h1:KelEdhl1UZF7XfJ4dDtk6s++YSgaE7mD/BuKKDLBl4A=
 golang.org/x/oauth2 v0.0.0-20211104180415-d3ed0bb246c8/go.mod h1:KelEdhl1UZF7XfJ4dDtk6s++YSgaE7mD/BuKKDLBl4A=
-golang.org/x/oauth2 v0.6.0 h1:Lh8GPgSKBfWSwFvtuWOfeI3aAAnbXTSutYxJiOJFgIw=
-golang.org/x/oauth2 v0.6.0/go.mod h1:ycmewcwgD4Rpr3eZJLSB4Kyyljb3qDh40vJ8STE5HKw=
+golang.org/x/oauth2 v0.7.0 h1:qe6s0zUXlPX80/dITx3440hWZ7GwMwgDDyrSGTPJG/g=
+golang.org/x/oauth2 v0.7.0/go.mod h1:hPLQkd9LyjfXTiRohC/41GhcFqxisoUQ99sCUOHO9x4=
 golang.org/x/sync v0.0.0-20180314180146-1d60e4601c6f/go.mod h1:RxMgew5VJxzue5/jJTE5uejpjVlOe/izrB70Jof72aM=
 golang.org/x/sync v0.0.0-20181108010431-42b317875d0f/go.mod h1:RxMgew5VJxzue5/jJTE5uejpjVlOe/izrB70Jof72aM=
 golang.org/x/sync v0.0.0-20181221193216-37e7f081c4d4/go.mod h1:RxMgew5VJxzue5/jJTE5uejpjVlOe/izrB70Jof72aM=

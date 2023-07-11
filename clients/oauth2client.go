@@ -419,26 +419,35 @@ func (c *ClientWrapper) LoginBindingsChangeset(ctx context.Context, clientId str
 			return nil, nil, nil, nil, fmt.Errorf("failed to get current members: %w", err)
 		}
 
-		for _, userId := range bindings.Users.Ids {
+		userBindings, err := c.GetUserIdsFromUserInputs(ctx, bindings.Users)
+		if err != nil {
+			log.Error(err, "Failed to get user ids from user inputs")
+		}
+
+		for _, userId := range userBindings {
 			if !userIdInListOfUsers(currentBindings.Users, userId) {
 				usersToAdd = append(usersToAdd, userId)
 			}
 		}
 
 		for _, user := range currentBindings.Users {
-			if !utils.StringContains(bindings.Users.Ids, user.ID) {
+			if !utils.StringContains(userBindings, user.ID) {
 				usersToRemove = append(usersToRemove, user.ID)
 			}
 		}
 
-		for _, groupName := range bindings.Groups.Names {
-			if !groupNameInListOfGroups(currentBindings.Groups, groupName) {
-				groupsToAdd = append(groupsToAdd, groupName)
+		for _, group := range bindings.Groups {
+			if !groupNameInListOfGroups(currentBindings.Groups, group.Name) {
+				groupsToAdd = append(groupsToAdd, group.Name)
 			}
 		}
 
 		for _, group := range currentBindings.Groups {
-			if !utils.StringContains(bindings.Groups.Names, group.Name) {
+			var groupBindings []string
+			for _, group := range bindings.Groups {
+				groupBindings = append(groupBindings, group.Name)
+			}
+			if !utils.StringContains(groupBindings, group.Name) {
 				groupsToRemove = append(groupsToRemove, group.Name)
 			}
 		}

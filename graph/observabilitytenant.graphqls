@@ -505,14 +505,14 @@ type ObservabilityTenantPermissionBindings {
 }
 
 input ObservabilityTenantPermissionBindingsInput {
-  "The IDs of users that can view a tenant."
-  users: UsersInput
+  "The IDs or email addresses of users that can view a tenant."
+  users: [UserInput!]
 
   "The names of groups that can view a tenant."
-  groups: GroupsInput
+  groups: [GroupInput!]
 
   "The clientIDs oauth2 clients that can send data a tenant."
-  oauth2Clients: OAuth2ClientsInput
+  oauth2Clients: [OAuth2ClientInput!]
 }
 
 extend type Query {

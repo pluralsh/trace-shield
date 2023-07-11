@@ -23,10 +23,10 @@ type Group struct {
 	Members []*User `json:"members,omitempty"`
 }
 
-// Input for a list of group names.
-type GroupsInput struct {
-	// The names of the groups.
-	Names []string `json:"names,omitempty"`
+// Input for a group using its name.
+type GroupInput struct {
+	// The name of the group.
+	Name string `json:"name"`
 }
 
 // Representation of users and groups that are allowed to login with through OAuth2 Client.
@@ -38,10 +38,10 @@ type LoginBindings struct {
 }
 
 type LoginBindingsInput struct {
-	// The IDs of the users that are allowed to login with this OAuth2 Client.
-	Users *UsersInput `json:"users,omitempty"`
+	// The IDs or email addresses of the users that are allowed to login with this OAuth2 Client.
+	Users []*UserInput `json:"users,omitempty"`
 	// The groups that are allowed to login with this OAuth2 Client.
-	Groups *GroupsInput `json:"groups,omitempty"`
+	Groups []*GroupInput `json:"groups,omitempty"`
 }
 
 // Representation of the limits for Loki for a tenant.
@@ -145,10 +145,10 @@ type OAuth2Client struct {
 	LoginBindings *LoginBindings `json:"loginBindings,omitempty"`
 }
 
-// Input for a list of OAuth2Client clientIds.
-type OAuth2ClientsInput struct {
+// Input an OAuth2Client using its clientId.
+type OAuth2ClientInput struct {
 	// The ID of the OAuth2 Client.
-	ClientIds []string `json:"clientIds,omitempty"`
+	ClientID string `json:"clientId"`
 }
 
 // OAuth2ConsentRequest represents an OAuth 2.0 consent request.
@@ -279,12 +279,12 @@ type ObservabilityTenantPermissionBindings struct {
 }
 
 type ObservabilityTenantPermissionBindingsInput struct {
-	// The IDs of users that can view a tenant.
-	Users *UsersInput `json:"users,omitempty"`
+	// The IDs or email addresses of users that can view a tenant.
+	Users []*UserInput `json:"users,omitempty"`
 	// The names of groups that can view a tenant.
-	Groups *GroupsInput `json:"groups,omitempty"`
+	Groups []*GroupInput `json:"groups,omitempty"`
 	// The clientIDs oauth2 clients that can send data a tenant.
-	Oauth2Clients *OAuth2ClientsInput `json:"oauth2Clients,omitempty"`
+	Oauth2Clients []*OAuth2ClientInput `json:"oauth2Clients,omitempty"`
 }
 
 // OIDC Context for a consent request.
@@ -326,8 +326,10 @@ type User struct {
 	RecoveryLink *string `json:"recoveryLink,omitempty"`
 }
 
-// Input for a list of user IDs.
-type UsersInput struct {
+// Input for a user using either ID or email.
+type UserInput struct {
 	// The user IDs.
-	Ids []string `json:"ids,omitempty"`
+	ID *string `json:"id,omitempty"`
+	// The user's email address.
+	Email *string `json:"email,omitempty"`
 }

@@ -16,7 +16,7 @@ import {
   Select
 } from '@mui/material';
 import { SelectChangeEvent } from '@mui/material/Select';
-import { useUpdateGroupMutation, namedOperations, useListUsersQuery, UserFragment, UsersInput } from '../generated/graphql';
+import { useUpdateGroupMutation, namedOperations, useListUsersQuery, UserFragment, UserInput } from '../generated/graphql';
 
 const ITEM_HEIGHT = 48;
 const ITEM_PADDING_TOP = 8;
@@ -29,10 +29,11 @@ const MenuProps = {
   }
 };
 
-function getStyles(name: string, names: string[], theme: Theme) {
+function getStyles(name: string, names: UserInput[], theme: Theme) {
+  const ids = names.map((n) => n.id);
   return {
     fontWeight:
-      names.indexOf(name) === -1
+    ids.indexOf(name) === -1
         ? theme.typography.fontWeightRegular
         : theme.typography.fontWeightMedium
   };
@@ -42,7 +43,7 @@ function CreateGroupDialog() {
   const theme = useTheme();
   const [open, setOpen] = useState(false);
   const [groupName, setGroupName] = useState('');
-  const [users, setUsers] = useState<string[]>([]);
+  const [users, setUsers] = useState<UserInput[]>([]);
 
   const {
     data: usersData,
@@ -55,7 +56,7 @@ function CreateGroupDialog() {
   ] = useUpdateGroupMutation({
     variables: {
       name: groupName,
-      members: ({ ids: users })
+      members: users
     },
     refetchQueries: [namedOperations.Query.ListGroups]
   });
@@ -87,9 +88,22 @@ function CreateGroupDialog() {
     const {
       target: { value }
     } = event;
+    const input: UserInput[] = [];
+    if (value) {
+      if (typeof value === 'string') {
+        const ids = value.split(',')
+        for (let i = 0; i < ids.length; i++) {
+          input.push({ id: ids[i] });
+        }
+      } else {
+        for (let i = 0; i < value.length; i++) {
+          input.push({ id: value[i].id });
+        }
+      }
+    }
     setUsers(
       // On autofill we get a stringified value.
-      typeof value === 'string' ? value.split(',') : value
+      input
     );
   };
 

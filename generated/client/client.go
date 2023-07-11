@@ -14,7 +14,7 @@ import (
 
 type TraceShieldGraphQLClient interface {
 	ListGroups(ctx context.Context, interceptors ...clientv2.RequestInterceptor) (*ListGroups, error)
-	UpdateGroup(ctx context.Context, name string, members *UsersInput, interceptors ...clientv2.RequestInterceptor) (*UpdateGroup, error)
+	UpdateGroup(ctx context.Context, name string, members []*UserInput, interceptors ...clientv2.RequestInterceptor) (*UpdateGroup, error)
 	DeleteGroup(ctx context.Context, name string, interceptors ...clientv2.RequestInterceptor) (*DeleteGroup, error)
 	ListOAuth2Clients(ctx context.Context, interceptors ...clientv2.RequestInterceptor) (*ListOAuth2Clients, error)
 	GetOAuth2Client(ctx context.Context, clientID string, interceptors ...clientv2.RequestInterceptor) (*GetOAuth2Client, error)
@@ -11239,7 +11239,7 @@ func (c *Client) ListGroups(ctx context.Context, interceptors ...clientv2.Reques
 	return &res, nil
 }
 
-const UpdateGroupDocument = `mutation UpdateGroup ($name: String!, $members: UsersInput) {
+const UpdateGroupDocument = `mutation UpdateGroup ($name: String!, $members: [UserInput!]) {
 	# TODO: for consistency we should probably split create and update mutations
 	group(name: $name, members: $members) {
 		... GroupFragment
@@ -11261,7 +11261,7 @@ fragment UserFragmentNoGroups on User {
 }
 `
 
-func (c *Client) UpdateGroup(ctx context.Context, name string, members *UsersInput, interceptors ...clientv2.RequestInterceptor) (*UpdateGroup, error) {
+func (c *Client) UpdateGroup(ctx context.Context, name string, members []*UserInput, interceptors ...clientv2.RequestInterceptor) (*UpdateGroup, error) {
 	vars := map[string]interface{}{
 		"name":    name,
 		"members": members,
