@@ -442,7 +442,7 @@ func (c *ClientWrapper) OsTenantChangeset(ctx context.Context, id string, bindin
 			}
 		}
 
-		for _, groupName := range bindings.Groups {
+		for _, groupName := range bindings.Groups.Names {
 			if !groupNameInListOfGroups(currentGroups, groupName) {
 				group := model.NewGroup(groupName)
 				toAdd = append(toAdd, group.GetTenantTuple(id, relation))
@@ -450,7 +450,7 @@ func (c *ClientWrapper) OsTenantChangeset(ctx context.Context, id string, bindin
 		}
 
 		for _, group := range currentGroups {
-			if !utils.StringContains(bindings.Groups, group.Name) {
+			if !utils.StringContains(bindings.Groups.Names, group.Name) {
 				toRemove = append(toRemove, group.GetTenantTuple(id, relation))
 			}
 		}

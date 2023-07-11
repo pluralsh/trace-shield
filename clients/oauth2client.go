@@ -431,14 +431,14 @@ func (c *ClientWrapper) LoginBindingsChangeset(ctx context.Context, clientId str
 			}
 		}
 
-		for _, group := range bindings.Groups {
-			if !groupNameInListOfGroups(currentBindings.Groups, group) {
-				groupsToAdd = append(groupsToAdd, group)
+		for _, groupName := range bindings.Groups.Names {
+			if !groupNameInListOfGroups(currentBindings.Groups, groupName) {
+				groupsToAdd = append(groupsToAdd, groupName)
 			}
 		}
 
 		for _, group := range currentBindings.Groups {
-			if !utils.StringContains(bindings.Groups, group.Name) {
+			if !utils.StringContains(bindings.Groups.Names, group.Name) {
 				groupsToRemove = append(groupsToRemove, group.Name)
 			}
 		}

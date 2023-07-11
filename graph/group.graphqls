@@ -10,6 +10,12 @@ type Group {
   # organization: Organization!
 }
 
+"Input for a list of group names."
+input GroupsInput {
+  "The names of the groups."
+  names: [String!]
+}
+
 extend type Query {
   "Get a list of all users."
   listGroups: [Group!] @checkPermissions @isAuthenticated

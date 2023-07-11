@@ -29,6 +29,12 @@ type Group struct {
 	Members []*User `json:"members,omitempty"`
 }
 
+// Input for a list of group names.
+type GroupsInput struct {
+	// The names of the groups.
+	Names []string `json:"names,omitempty"`
+}
+
 // Representation of users and groups that are allowed to login with through OAuth2 Client.
 type LoginBindings struct {
 	// The users that are allowed to login with this OAuth2 Client.
@@ -41,7 +47,7 @@ type LoginBindingsInput struct {
 	// The IDs of the users that are allowed to login with this OAuth2 Client.
 	Users *UsersInput `json:"users,omitempty"`
 	// The groups that are allowed to login with this OAuth2 Client.
-	Groups []string `json:"groups,omitempty"`
+	Groups *GroupsInput `json:"groups,omitempty"`
 }
 
 // Representation of the limits for Loki for a tenant.
@@ -441,7 +447,7 @@ type ObservabilityTenantPermissionBindingsInput struct {
 	// The IDs of users that can view a tenant.
 	Users *UsersInput `json:"users,omitempty"`
 	// The names of groups that can view a tenant.
-	Groups []string `json:"groups,omitempty"`
+	Groups *GroupsInput `json:"groups,omitempty"`
 	// The clientIDs oauth2 clients that can send data a tenant.
 	Oauth2Clients *OAuth2ClientsInput `json:"oauth2Clients,omitempty"`
 }
@@ -487,6 +493,6 @@ type User struct {
 
 // Input for a list of user IDs.
 type UsersInput struct {
-	// The ID of a user.
+	// The user IDs.
 	Ids []string `json:"ids,omitempty"`
 }

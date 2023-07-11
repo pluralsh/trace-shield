@@ -138,7 +138,7 @@ input LoginBindingsInput {
   users: UsersInput
 
   "The groups that are allowed to login with this OAuth2 Client."
-  groups: [String!]
+  groups: GroupsInput
 }
 
 "Input for a list of OAuth2Client clientIds."

@@ -509,7 +509,7 @@ input ObservabilityTenantPermissionBindingsInput {
   users: UsersInput
 
   "The names of groups that can view a tenant."
-  groups: [String!]
+  groups: GroupsInput
 
   "The clientIDs oauth2 clients that can send data a tenant."
   oauth2Clients: OAuth2ClientsInput

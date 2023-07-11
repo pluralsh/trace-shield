@@ -42,6 +42,12 @@ export type Group = {
   name: Scalars['String'];
 };
 
+/** Input for a list of group names. */
+export type GroupsInput = {
+  /** The names of the groups. */
+  names?: InputMaybe<Array<Scalars['String']>>;
+};
+
 /** Representation of users and groups that are allowed to login with through OAuth2 Client. */
 export type LoginBindings = {
   __typename?: 'LoginBindings';
@@ -53,7 +59,7 @@ export type LoginBindings = {
 
 export type LoginBindingsInput = {
   /** The groups that are allowed to login with this OAuth2 Client. */
-  groups?: InputMaybe<Array<Scalars['String']>>;
+  groups?: InputMaybe<GroupsInput>;
   /** The IDs of the users that are allowed to login with this OAuth2 Client. */
   users?: InputMaybe<UsersInput>;
 };
@@ -691,7 +697,7 @@ export type ObservabilityTenantPermissionBindings = {
 
 export type ObservabilityTenantPermissionBindingsInput = {
   /** The names of groups that can view a tenant. */
-  groups?: InputMaybe<Array<Scalars['String']>>;
+  groups?: InputMaybe<GroupsInput>;
   /** The clientIDs oauth2 clients that can send data a tenant. */
   oauth2Clients?: InputMaybe<OAuth2ClientsInput>;
   /** The IDs of users that can view a tenant. */
@@ -791,7 +797,7 @@ export type User = {
 
 /** Input for a list of user IDs. */
 export type UsersInput = {
-  /** The ID of a user. */
+  /** The user IDs. */
   ids?: InputMaybe<Array<Scalars['ID']>>;
 };
 

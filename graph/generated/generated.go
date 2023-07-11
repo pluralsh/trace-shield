@@ -1983,6 +1983,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 	ec := executionContext{rc, e, 0, 0, make(chan graphql.DeferredResult)}
 	inputUnmarshalMap := graphql.BuildUnmarshalerMap(
 		ec.unmarshalInputAcceptOAuth2ConsentRequestSession,
+		ec.unmarshalInputGroupsInput,
 		ec.unmarshalInputLoginBindingsInput,
 		ec.unmarshalInputMimirLimitsInput,
 		ec.unmarshalInputNameInput,
@@ -2107,6 +2108,12 @@ type Group {
 
   # "The organization that the group belongs to."
   # organization: Organization!
+}
+
+"Input for a list of group names."
+input GroupsInput {
+  "The names of the groups."
+  names: [String!]
 }
 
 extend type Query {
@@ -2271,7 +2278,7 @@ input LoginBindingsInput {
   users: UsersInput
 
   "The groups that are allowed to login with this OAuth2 Client."
-  groups: [String!]
+  groups: GroupsInput
 }
 
 "Input for a list of OAuth2Client clientIds."
@@ -3210,7 +3217,7 @@ input ObservabilityTenantPermissionBindingsInput {
   users: UsersInput
 
   "The names of groups that can view a tenant."
-  groups: [String!]
+  groups: GroupsInput
 
   "The clientIDs oauth2 clients that can send data a tenant."
   oauth2Clients: OAuth2ClientsInput
@@ -3390,7 +3397,7 @@ input NameInput {
 
 "Input for a list of user IDs."
 input UsersInput {
-  "The ID of a user."
+  "The user IDs."
   ids: [ID!]
 }
 
@@ -16920,6 +16927,35 @@ func (ec *executionContext) unmarshalInputAcceptOAuth2ConsentRequestSession(ctx 
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputGroupsInput(ctx context.Context, obj interface{}) (model.GroupsInput, error) {
+	var it model.GroupsInput
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"names"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "names":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("names"))
+			data, err := ec.unmarshalOString2ᚕstringᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Names = data
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputLoginBindingsInput(ctx context.Context, obj interface{}) (model.LoginBindingsInput, error) {
 	var it model.LoginBindingsInput
 	asMap := map[string]interface{}{}
@@ -16947,7 +16983,7 @@ func (ec *executionContext) unmarshalInputLoginBindingsInput(ctx context.Context
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("groups"))
-			data, err := ec.unmarshalOString2ᚕstringᚄ(ctx, v)
+			data, err := ec.unmarshalOGroupsInput2ᚖgithubᚗcomᚋpluralshᚋtraceᚑshieldᚋgraphᚋmodelᚐGroupsInput(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -17785,7 +17821,7 @@ func (ec *executionContext) unmarshalInputObservabilityTenantPermissionBindingsI
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("groups"))
-			data, err := ec.unmarshalOString2ᚕstringᚄ(ctx, v)
+			data, err := ec.unmarshalOGroupsInput2ᚖgithubᚗcomᚋpluralshᚋtraceᚑshieldᚋgraphᚋmodelᚐGroupsInput(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -21038,6 +21074,14 @@ func (ec *executionContext) marshalOGroup2ᚕᚖgithubᚗcomᚋpluralshᚋtrace�
 	}
 
 	return ret
+}
+
+func (ec *executionContext) unmarshalOGroupsInput2ᚖgithubᚗcomᚋpluralshᚋtraceᚑshieldᚋgraphᚋmodelᚐGroupsInput(ctx context.Context, v interface{}) (*model.GroupsInput, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputGroupsInput(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) unmarshalOID2ᚕstringᚄ(ctx context.Context, v interface{}) ([]string, error) {

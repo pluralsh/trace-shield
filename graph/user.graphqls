@@ -38,7 +38,7 @@ input NameInput {
 
 "Input for a list of user IDs."
 input UsersInput {
-  "The ID of a user."
+  "The user IDs."
   ids: [ID!]
 }
 
