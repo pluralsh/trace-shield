@@ -7,6 +7,7 @@ generate:
 
 generate-client:
 	go run github.com/Yamashou/gqlgenc
+	cd frontend && yarn graphql-codegen
 
 generate-db:
 	go generate ./ent

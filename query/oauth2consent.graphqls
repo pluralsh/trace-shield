@@ -1,4 +1,4 @@
-fragment OAuth2ConsentRequest on OAuth2ConsentRequest {
+fragment OAuth2ConsentRequestFragment on OAuth2ConsentRequest {
   challenge
   client {
     ...OAuth2ConsentClient
@@ -34,9 +34,9 @@ fragment OAuth2ConsentClient on OAuth2Client {
   tosUri
 }
 
-query OAuth2ConsentRequest($challenge: String!) {
+query GetOAuth2ConsentRequest($challenge: String!) {
   oauth2ConsentRequest(challenge: $challenge) {
-    ...OAuth2ConsentRequest
+    ...OAuth2ConsentRequestFragment
   }
 }
 

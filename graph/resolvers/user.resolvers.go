@@ -6,6 +6,7 @@ package resolvers
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/pluralsh/trace-shield/graph/generated"
 	"github.com/pluralsh/trace-shield/graph/model"
@@ -27,8 +28,13 @@ func (r *queryResolver) ListUsers(ctx context.Context) ([]*model.User, error) {
 }
 
 // GetUser is the resolver for the getUser field.
-func (r *queryResolver) GetUser(ctx context.Context, id string) (*model.User, error) {
-	return r.C.GetUserFromId(ctx, id)
+func (r *queryResolver) GetUser(ctx context.Context, id *string, email *string) (*model.User, error) {
+	if id != nil {
+		return r.C.GetUserFromId(ctx, *id)
+	} else if email != nil {
+		return r.C.GetUserFromEmail(ctx, *email)
+	}
+	return nil, fmt.Errorf("id or email must be provided")
 }
 
 // Groups is the resolver for the groups field.

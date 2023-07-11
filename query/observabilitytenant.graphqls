@@ -1,17 +1,17 @@
-query ListObservabilityTenants() {
+query ListObservabilityTenants {
     listObservabilityTenants {
         ...ObservabilityTenantFragment
     }
 }
 
-query GetObservabilityTenant($id: String!) {
+query GetObservabilityTenant($id: ID!) {
     getObservabilityTenant(id: $id) {
         ...ObservabilityTenantFragment
     }
 }
 
 mutation CreateObservabilityTenant(
-    $id: String!
+    $id: ID!
     $name: String
     $admins: ObservabilityTenantPermissionBindingsInput
     $metricsReaders: ObservabilityTenantPermissionBindingsInput
@@ -55,7 +55,7 @@ mutation CreateObservabilityTenant(
 }
 
 mutation UpdateObservabilityTenant(
-    $id: String!
+    $id: ID!
     $name: String
     $admins: ObservabilityTenantPermissionBindingsInput
     $metricsReaders: ObservabilityTenantPermissionBindingsInput
@@ -98,7 +98,7 @@ mutation UpdateObservabilityTenant(
     }
 }
 
-mutation DeleteObservabilityTenant($id: String!) {
+mutation DeleteObservabilityTenant($id: ID!) {
     deleteObservabilityTenant(id: $id) {
       id
     }
@@ -106,7 +106,7 @@ mutation DeleteObservabilityTenant($id: String!) {
 
 fragment ObservabilityTenantFragment on ObservabilityTenant {
   id
-  name
+  displayName
   admins {
     ...ObservabilityTenantPermissionBindingsFragment
   }

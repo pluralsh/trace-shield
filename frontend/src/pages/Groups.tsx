@@ -12,7 +12,7 @@ import {
 } from '@mui/material';
 import CreateGroupDialog from '../components/CreateGroupDialog';
 import GroupRow from '../components/GroupRow';
-import { GroupInfoFragment, useListGroupsQuery } from '../generated/graphql';
+import { GroupFragment, useListGroupsQuery } from '../generated/graphql';
 
 function Groups() {
   const { loading, error, data } = useListGroupsQuery();
@@ -36,7 +36,7 @@ function Groups() {
               </TableRow>
             </TableHead>
             <TableBody>
-              {data.listGroups?.map((group: GroupInfoFragment ) => (
+              {data.listGroups?.map((group: GroupFragment ) => (
                   <GroupRow key={group.name} group={group} />
                 ))}
             </TableBody>

@@ -1,6 +1,7 @@
 overwrite: true
 schema: "../graph/*.graphqls"
-documents: './graph/**/*.graphql'
+documents: '../query/*.graphqls'
+dedupeOperationSuffix: true
 generates:
   src/generated/graphql.tsx:
     plugins:
@@ -8,6 +9,9 @@ generates:
       - "typescript-operations"
       - "typescript-react-apollo"
       - "named-operations-object"
+    config: {
+        dedupeOperationSuffix: true
+      }
       # - add:
       #     content: "import { TimestampTypeDefinition, GraphQLTimestamp } from 'graphql-scalars';"
           # content: '/* eslint-disable */'

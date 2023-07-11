@@ -429,7 +429,13 @@ func (c *ClientWrapper) OsTenantChangeset(ctx context.Context, id string, bindin
 	}
 
 	if bindings != nil {
-		for _, userId := range bindings.Users {
+
+		userBindings, err := c.GetUserIdsFromUserInputs(ctx, bindings.Users)
+		if err != nil {
+			log.Error(err, "Failed to get user ids from user inputs")
+		}
+
+		for _, userId := range userBindings {
 			if !userIdInListOfUsers(currentUsers, userId) {
 				user := model.NewUser(userId)
 				toAdd = append(toAdd, user.GetTenantTuple(id, relation))
@@ -437,33 +443,41 @@ func (c *ClientWrapper) OsTenantChangeset(ctx context.Context, id string, bindin
 		}
 
 		for _, user := range currentUsers {
-			if !utils.StringContains(bindings.Users, user.ID) {
+			if !utils.StringContains(userBindings, user.ID) {
 				toRemove = append(toRemove, user.GetTenantTuple(id, relation))
 			}
 		}
 
-		for _, groupName := range bindings.Groups {
-			if !groupNameInListOfGroups(currentGroups, groupName) {
-				group := model.NewGroup(groupName)
+		for _, group := range bindings.Groups {
+			if !groupNameInListOfGroups(currentGroups, group.Name) {
+				group := model.NewGroup(group.Name)
 				toAdd = append(toAdd, group.GetTenantTuple(id, relation))
 			}
 		}
 
 		for _, group := range currentGroups {
-			if !utils.StringContains(bindings.Groups, group.Name) {
+			var groupBindings []string
+			for _, group := range bindings.Groups {
+				groupBindings = append(groupBindings, group.Name)
+			}
+			if !utils.StringContains(groupBindings, group.Name) {
 				toRemove = append(toRemove, group.GetTenantTuple(id, relation))
 			}
 		}
 
-		for _, clientId := range bindings.Oauth2Clients {
-			if !ClientIDInListOfOAuth2Clients(currentClients, clientId) {
-				client := model.NewOAuth2Client(clientId)
+		for _, client := range bindings.Oauth2Clients {
+			if !ClientIDInListOfOAuth2Clients(currentClients, client.ClientID) {
+				client := model.NewOAuth2Client(client.ClientID)
 				toAdd = append(toAdd, client.GetTenantTuple(id, relation))
 			}
 		}
 
 		for _, client := range currentClients {
-			if !utils.StringContains(bindings.Oauth2Clients, *client.ClientID) {
+			var clientBindings []string
+			for _, client := range bindings.Oauth2Clients {
+				clientBindings = append(clientBindings, client.ClientID)
+			}
+			if !utils.StringContains(clientBindings, *client.ClientID) {
 				toRemove = append(toRemove, client.GetTenantTuple(id, relation))
 			}
 		}
@@ -593,7 +607,7 @@ func (c *ClientWrapper) ListTenants(ctx context.Context) ([]*model.Observability
 			ID: tenant.Name,
 		}
 		if tenant.Spec.DisplayName != "" {
-			outTenant.Name = &tenant.Spec.DisplayName
+			outTenant.DisplayName = &tenant.Spec.DisplayName
 		}
 		if tenant.Spec.Limits != nil && tenant.Spec.Limits.Mimir != nil {
 			outTenant.Limits = &model.ObservabilityTenantLimits{

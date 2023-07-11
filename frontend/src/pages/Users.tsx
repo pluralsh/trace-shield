@@ -15,9 +15,9 @@ import Typography from '@mui/material/Typography';
 import Paper from '@mui/material/Paper';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
-import { useListUsersQuery, UserInfoFragment, UserGroupInfoFragment } from '../generated/graphql';
+import { useListUsersQuery, UserFragment } from '../generated/graphql';
 
-function Row(props: { user: UserInfoFragment }) {
+function Row(props: { user: UserFragment }) {
   const { user } = props;
   const [open, setOpen] = useState(false);
 
@@ -54,7 +54,7 @@ function Row(props: { user: UserInfoFragment }) {
                 </TableHead>
                 <TableBody>
                   {user.groups
-                    ? user.groups.map((group: UserGroupInfoFragment) => (
+                    ? user.groups.map((group) => (
                         <TableRow key={group.name}>
                           <TableCell component="th" scope="row">
                             {group.name}
@@ -117,7 +117,7 @@ function Users() {
             <TableBody>
               {data.listUsers
                 .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                .map((user: UserInfoFragment) => (
+                .map((user: UserFragment) => (
                   <Row key={user.email} user={user} />
                 ))}
             </TableBody>

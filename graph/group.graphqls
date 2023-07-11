@@ -10,6 +10,12 @@ type Group {
   # organization: Organization!
 }
 
+"Input for a group using its name."
+input GroupInput {
+  "The name of the group."
+  name: String!
+}
+
 extend type Query {
   "Get a list of all users."
   listGroups: [Group!] @checkPermissions @isAuthenticated
@@ -21,8 +27,8 @@ extend type Mutation {
     "The unique name of the group."
     name: String!
 
-    "The IDs of the users that are members of the group."
-    members: [String!]
+    "The IDs or email addresses of the users that are members of the group."
+    members: [UserInput!]
   ): Group! @checkPermissions @isAuthenticated
 
   "Delete a group."

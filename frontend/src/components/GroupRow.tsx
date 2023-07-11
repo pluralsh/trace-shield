@@ -16,9 +16,9 @@ import {
   KeyboardArrowUp,
   Delete
 } from '@mui/icons-material';
-import { namedOperations, GroupInfoFragment, useDeleteGroupMutation, User } from '../generated/graphql';
+import { namedOperations, GroupFragment, useDeleteGroupMutation, User } from '../generated/graphql';
 
-function GroupRow({ group }: { group: GroupInfoFragment }) {
+function GroupRow({ group }: { group: GroupFragment }) {
   const [open, setOpen] = useState(false);
   const [deleteGroup, { loading, error }] = useDeleteGroupMutation({
     variables: {

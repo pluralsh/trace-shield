@@ -46,6 +46,77 @@ func (c *ClientWrapper) GetUserFromId(ctx context.Context, id string) (*model.Us
 	return outUser, nil
 }
 
+// function that gets a user using their email from the Kratos API
+func (c *ClientWrapper) GetUserFromEmail(ctx context.Context, email string) (*model.User, error) {
+	log := c.Log.WithName("User").WithValues("email", email)
+
+	ctx, span := c.Tracer.Start(ctx, "GetUserFromEmail")
+	defer span.End()
+
+	if span.IsRecording() {
+		span.SetAttributes(
+			attribute.String("user_email", email),
+		)
+	}
+
+	users, resp, err := c.KratosAdminClient.IdentityApi.ListIdentities(ctx).CredentialsIdentifier(email).Execute()
+	if err != nil || resp.StatusCode != 200 {
+		log.Error(err, "failed to get user")
+		span.RecordError(err)
+		span.SetStatus(codes.Error, err.Error())
+		return nil, err
+	}
+
+	if len(users) == 0 {
+		return nil, nil
+	} else if len(users) > 1 {
+		err := fmt.Errorf("multiple users found with email %s", email)
+		log.Error(err, "failed to get user")
+		span.RecordError(err)
+		span.SetStatus(codes.Error, err.Error())
+		return nil, err
+	} else if len(users) == 1 {
+		outUser, err := c.UnmarshalUserTraits(ctx, &users[0])
+		if err != nil {
+			log.Error(err, "Error when unmarshalling user")
+			return nil, err
+		}
+
+		log.Info("Success getting User")
+
+		return outUser, nil
+	}
+	return nil, nil
+}
+
+// function that returns a list of user IDs from a []*model.UserInput
+func (c *ClientWrapper) GetUserIdsFromUserInputs(ctx context.Context, users []*model.UserInput) ([]string, error) {
+	log := c.Log.WithName("GetUserIdsFromUserInputs")
+
+	ctx, span := c.Tracer.Start(ctx, "GetUserIdsFromUserInputs")
+	defer span.End()
+
+	var ids []string
+
+	for _, inputUser := range users {
+		if inputUser.ID != nil {
+			if *inputUser.ID != "" {
+				ids = append(ids, *inputUser.ID)
+			}
+		} else if inputUser.Email != nil {
+			if *inputUser.Email != "" {
+				user, err := c.GetUserFromEmail(ctx, *inputUser.Email)
+				if err != nil {
+					log.Error(err, "failed to get user from email", "Email", *inputUser.Email)
+					continue
+				}
+				ids = append(ids, user.ID)
+			}
+		}
+	}
+	return ids, nil
+}
+
 // function that will list all users using the kratos api
 func (c *ClientWrapper) ListUsers(ctx context.Context) ([]*model.User, error) {
 	log := c.Log.WithName("ListUsers")

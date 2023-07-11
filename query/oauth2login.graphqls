@@ -1,4 +1,4 @@
-fragment OAuth2LoginRequest on OAuth2LoginRequest {
+fragment OAuth2LoginRequestFragment on OAuth2LoginRequest {
   challenge
   client {
     ...OAuth2LoginClient
@@ -32,9 +32,9 @@ fragment OAuth2LoginClient on OAuth2Client {
   tosUri
 }
 
-query OAuth2LoginRequest($challenge: String!) {
+query GetOAuth2LoginRequest($challenge: String!) {
   oauth2LoginRequest(challenge: $challenge) {
-    ...OAuth2LoginRequest
+    ...OAuth2LoginRequestFragment
   }
 }
 

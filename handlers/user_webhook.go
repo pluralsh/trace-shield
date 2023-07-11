@@ -68,7 +68,7 @@ func (h *Handler) BootstrapAdmin(w http.ResponseWriter, r *http.Request) {
 		)
 	}
 
-	currentAdmins, err := h.C.GetOrganizationAdmins(ctx, "main") // TODO: decide if we want to harcode this
+	currentAdmins, err := h.C.GetOrganizationAdmins(ctx)
 	if err != nil {
 		log.Error(err, "failed to get current admins")
 		render.Render(w, r, ErrFailedToGetAdmins(err))
@@ -77,7 +77,7 @@ func (h *Handler) BootstrapAdmin(w http.ResponseWriter, r *http.Request) {
 
 	if len(currentAdmins) == 0 {
 		log.Info("No current admins, adding initial user as admin", "user", data.UserID)
-		err = h.C.AddAdminToOrganization(ctx, "main", data.UserID)
+		err = h.C.AddAdminToOrganization(ctx, data.UserID)
 		if err != nil {
 			log.Error(err, "failed to add bootstrap user")
 			render.Render(w, r, ErrFailedToSetInitialAdmin(err))
