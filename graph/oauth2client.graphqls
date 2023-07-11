@@ -134,11 +134,17 @@ type LoginBindings {
 }
 
 input LoginBindingsInput {
-  "The users that are allowed to login with this OAuth2 Client."
-  users: [ID!]
+  "The IDs of the users that are allowed to login with this OAuth2 Client."
+  users: UsersInput
 
   "The groups that are allowed to login with this OAuth2 Client."
-  groups: [ID!]
+  groups: [String!]
+}
+
+"Input for a list of OAuth2Client clientIds."
+input OAuth2ClientsInput {
+  "The ID of the OAuth2 Client."
+  clientIds: [ID!]
 }
 
 extend type Query {

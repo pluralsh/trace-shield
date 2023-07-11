@@ -429,7 +429,7 @@ func (c *ClientWrapper) OsTenantChangeset(ctx context.Context, id string, bindin
 	}
 
 	if bindings != nil {
-		for _, userId := range bindings.Users {
+		for _, userId := range bindings.Users.Ids {
 			if !userIdInListOfUsers(currentUsers, userId) {
 				user := model.NewUser(userId)
 				toAdd = append(toAdd, user.GetTenantTuple(id, relation))
@@ -437,7 +437,7 @@ func (c *ClientWrapper) OsTenantChangeset(ctx context.Context, id string, bindin
 		}
 
 		for _, user := range currentUsers {
-			if !utils.StringContains(bindings.Users, user.ID) {
+			if !utils.StringContains(bindings.Users.Ids, user.ID) {
 				toRemove = append(toRemove, user.GetTenantTuple(id, relation))
 			}
 		}
@@ -455,7 +455,7 @@ func (c *ClientWrapper) OsTenantChangeset(ctx context.Context, id string, bindin
 			}
 		}
 
-		for _, clientId := range bindings.Oauth2Clients {
+		for _, clientId := range bindings.Oauth2Clients.ClientIds {
 			if !ClientIDInListOfOAuth2Clients(currentClients, clientId) {
 				client := model.NewOAuth2Client(clientId)
 				toAdd = append(toAdd, client.GetTenantTuple(id, relation))
@@ -463,7 +463,7 @@ func (c *ClientWrapper) OsTenantChangeset(ctx context.Context, id string, bindin
 		}
 
 		for _, client := range currentClients {
-			if !utils.StringContains(bindings.Oauth2Clients, *client.ClientID) {
+			if !utils.StringContains(bindings.Oauth2Clients.ClientIds, *client.ClientID) {
 				toRemove = append(toRemove, client.GetTenantTuple(id, relation))
 			}
 		}
@@ -593,7 +593,7 @@ func (c *ClientWrapper) ListTenants(ctx context.Context) ([]*model.Observability
 			ID: tenant.Name,
 		}
 		if tenant.Spec.DisplayName != "" {
-			outTenant.Name = &tenant.Spec.DisplayName
+			outTenant.DisplayName = &tenant.Spec.DisplayName
 		}
 		if tenant.Spec.Limits != nil && tenant.Spec.Limits.Mimir != nil {
 			outTenant.Limits = &model.ObservabilityTenantLimits{

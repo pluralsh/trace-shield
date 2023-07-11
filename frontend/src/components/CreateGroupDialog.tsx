@@ -16,7 +16,7 @@ import {
   Select
 } from '@mui/material';
 import { SelectChangeEvent } from '@mui/material/Select';
-import { useGroupMutation, namedOperations, useListUsersQuery, UserInfoFragment } from '../generated/graphql';
+import { useUpdateGroupMutation, namedOperations, useListUsersQuery, UserFragment, UsersInput } from '../generated/graphql';
 
 const ITEM_HEIGHT = 48;
 const ITEM_PADDING_TOP = 8;
@@ -52,10 +52,10 @@ function CreateGroupDialog() {
   const [
     createGroup,
     { data: groupsData, loading: groupsLoading, error: groupsError }
-  ] = useGroupMutation({
+  ] = useUpdateGroupMutation({
     variables: {
       name: groupName,
-      members: users
+      members: ({ ids: users })
     },
     refetchQueries: [namedOperations.Query.ListGroups]
   });
@@ -130,7 +130,7 @@ function CreateGroupDialog() {
               MenuProps={MenuProps}
             >
               {usersData
-                ? usersData.listUsers.map((user: UserInfoFragment) => (
+                ? usersData.listUsers.map((user: UserFragment) => (
                     <MenuItem
                       key={user.email}
                       value={user.id}

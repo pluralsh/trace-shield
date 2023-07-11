@@ -3,7 +3,7 @@ import {OAuth2Client, OAuth2ConsentRequest} from "@ory/client"
 import {UserConsentCard} from "@ory/elements"
 import {useEffect, useMemo} from "react";
 import {useSearchParams} from "react-router-dom"
-import {useAcceptOAuth2ConsentRequestMutation, useOAuth2ConsentRequestQuery} from "../generated/graphql"
+import {useAcceptOAuth2ConsentRequestMutation, useGetOAuth2ConsentRequestQuery} from "../generated/graphql"
 
 export const Consent = (): JSX.Element => {
   const [searchParams] = useSearchParams()
@@ -11,7 +11,7 @@ export const Consent = (): JSX.Element => {
   const challenge = useMemo(() => searchParams.get("consent_challenge") ?? '', [searchParams])
   const csrfCookie = useMemo(() => document.cookie.replace(/(?:(?:^|.*;\s*)_csrf\s*=\s*([^;]*).*$)|^.*$/, "$1"), [])
 
-  const {data} = useOAuth2ConsentRequestQuery(
+  const {data} = useGetOAuth2ConsentRequestQuery(
     {
       variables: {challenge},
       skip: !challenge

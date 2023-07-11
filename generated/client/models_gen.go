@@ -16,12 +16,6 @@ type AcceptOAuth2ConsentRequestSession struct {
 	IDToken map[string]interface{} `json:"idToken,omitempty"`
 }
 
-// Input for adding a user to an organization as an administrator.
-type Admin struct {
-	// The ID of the user to add as an admin.
-	ID string `json:"id"`
-}
-
 type ForwardingRule struct {
 	// Ingest defines whether a metric should still be pushed to the Ingesters despite it being forwarded.
 	Ingest *bool `json:"ingest,omitempty"`
@@ -44,8 +38,8 @@ type LoginBindings struct {
 }
 
 type LoginBindingsInput struct {
-	// The users that are allowed to login with this OAuth2 Client.
-	Users []string `json:"users,omitempty"`
+	// The IDs of the users that are allowed to login with this OAuth2 Client.
+	Users *UsersInput `json:"users,omitempty"`
 	// The groups that are allowed to login with this OAuth2 Client.
 	Groups []string `json:"groups,omitempty"`
 }
@@ -310,6 +304,12 @@ type OAuth2Client struct {
 	LoginBindings *LoginBindings `json:"loginBindings,omitempty"`
 }
 
+// Input for a list of OAuth2Client clientIds.
+type OAuth2ClientsInput struct {
+	// The ID of the OAuth2 Client.
+	ClientIds []string `json:"clientIds,omitempty"`
+}
+
 // OAuth2ConsentRequest represents an OAuth 2.0 consent request.
 type OAuth2ConsentRequest struct {
 	// ACR represents the Authentication AuthorizationContext Class Reference value for this authentication session. You can use it to express that, for example, a user authenticated using two factor authentication.
@@ -376,7 +376,7 @@ type ObservabilityTenant struct {
 	// The unique id of the tenant.
 	ID string `json:"id"`
 	// The display name of the tenant.
-	Name *string `json:"name,omitempty"`
+	DisplayName *string `json:"displayName,omitempty"`
 	// The users, groups or clients that are admins of the observability tenant and can change its permissions.
 	Admins *ObservabilityTenantPermissionBindings `json:"admins,omitempty"`
 	// The users, groups or clients that can read metrics from the tenant.
@@ -439,11 +439,11 @@ type ObservabilityTenantPermissionBindings struct {
 
 type ObservabilityTenantPermissionBindingsInput struct {
 	// The IDs of users that can view a tenant.
-	Users []string `json:"users,omitempty"`
+	Users *UsersInput `json:"users,omitempty"`
 	// The names of groups that can view a tenant.
 	Groups []string `json:"groups,omitempty"`
 	// The clientIDs oauth2 clients that can send data a tenant.
-	Oauth2Clients []string `json:"oauth2Clients,omitempty"`
+	Oauth2Clients *OAuth2ClientsInput `json:"oauth2Clients,omitempty"`
 }
 
 // OIDC Context for a consent request.
@@ -462,8 +462,6 @@ type OidcContext struct {
 
 // Representation an Organization in the auth stack.
 type Organization struct {
-	// The unique name of the organization.
-	Name string `json:"name"`
 	// The users that are admins of the organization.
 	Admins []*User `json:"admins,omitempty"`
 }
@@ -485,4 +483,10 @@ type User struct {
 	Groups []*Group `json:"groups,omitempty"`
 	// The link a user can use to recover their account.
 	RecoveryLink *string `json:"recoveryLink,omitempty"`
+}
+
+// Input for a list of user IDs.
+type UsersInput struct {
+	// The ID of a user.
+	Ids []string `json:"ids,omitempty"`
 }

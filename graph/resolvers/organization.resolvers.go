@@ -12,23 +12,18 @@ import (
 )
 
 // Organization is the resolver for the organization field.
-func (r *mutationResolver) Organization(ctx context.Context, name string, admins []string) (*model.Organization, error) {
-	return r.C.UpdateOrganization(ctx, name, admins)
+func (r *mutationResolver) Organization(ctx context.Context, admins *model.UsersInput) (*model.Organization, error) {
+	return r.C.UpdateOrganization(ctx, admins)
 }
 
 // Admins is the resolver for the admins field.
 func (r *organizationResolver) Admins(ctx context.Context, obj *model.Organization) ([]*model.User, error) {
-	return r.C.GetOrganizationAdmins(ctx, obj.Name)
-}
-
-// ListOrganizations is the resolver for the listOrganizations field.
-func (r *queryResolver) ListOrganizations(ctx context.Context) ([]*model.Organization, error) {
-	return r.C.ListOrganizations(ctx)
+	return r.C.GetOrganizationAdmins(ctx)
 }
 
 // Organization is the resolver for the organization field.
-func (r *queryResolver) Organization(ctx context.Context, name string) (*model.Organization, error) {
-	return r.C.GetOrganization(ctx, name)
+func (r *queryResolver) Organization(ctx context.Context) (*model.Organization, error) {
+	return r.C.GetOrganization(ctx)
 }
 
 // Organization returns generated.OrganizationResolver implementation.

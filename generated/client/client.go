@@ -14,13 +14,19 @@ import (
 
 type TraceShieldGraphQLClient interface {
 	ListGroups(ctx context.Context, interceptors ...clientv2.RequestInterceptor) (*ListGroups, error)
-	UpdateGroup(ctx context.Context, name string, members []string, interceptors ...clientv2.RequestInterceptor) (*UpdateGroup, error)
+	UpdateGroup(ctx context.Context, name string, members *UsersInput, interceptors ...clientv2.RequestInterceptor) (*UpdateGroup, error)
 	DeleteGroup(ctx context.Context, name string, interceptors ...clientv2.RequestInterceptor) (*DeleteGroup, error)
 	ListOAuth2Clients(ctx context.Context, interceptors ...clientv2.RequestInterceptor) (*ListOAuth2Clients, error)
 	GetOAuth2Client(ctx context.Context, clientID string, interceptors ...clientv2.RequestInterceptor) (*GetOAuth2Client, error)
 	DeleteOAuth2Client(ctx context.Context, clientID string, interceptors ...clientv2.RequestInterceptor) (*DeleteOAuth2Client, error)
 	UpdateOAuth2Client(ctx context.Context, allowedCorsOrigins []string, audience []string, authorizationCodeGrantAccessTokenLifespan *string, authorizationCodeGrantIDTokenLifespan *string, authorizationCodeGrantRefreshTokenLifespan *string, backChannelLogoutSessionRequired *bool, backChannelLogoutURI *string, clientCredentialsGrantAccessTokenLifespan *string, clientID string, clientName *string, clientSecret *string, clientSecretExpiresAt *int64, clientURI *string, contacts []string, frontchannelLogoutSessionRequired *bool, frontchannelLogoutURI *string, grantTypes []string, implicitGrantAccessTokenLifespan *string, implicitGrantIDTokenLifespan *string, jwks map[string]interface{}, jwksURI *string, jwtBearerGrantAccessTokenLifespan *string, logoURI *string, metadata map[string]interface{}, policyURI *string, postLogoutRedirectUris []string, redirectUris []string, responseTypes []string, scope *string, sectorIdentifierURI *string, subjectType *string, tokenEndpointAuthMethod *string, tokenEndpointAuthSigningAlgorithm *string, tosURI *string, userinfoSignedResponseAlgorithm *string, loginBindings *LoginBindingsInput, interceptors ...clientv2.RequestInterceptor) (*UpdateOAuth2Client, error)
 	CreateOAuth2Client(ctx context.Context, allowedCorsOrigins []string, audience []string, authorizationCodeGrantAccessTokenLifespan *string, authorizationCodeGrantIDTokenLifespan *string, authorizationCodeGrantRefreshTokenLifespan *string, backChannelLogoutSessionRequired *bool, backChannelLogoutURI *string, clientCredentialsGrantAccessTokenLifespan *string, clientName *string, clientSecret *string, clientSecretExpiresAt *int64, clientURI *string, contacts []string, frontchannelLogoutSessionRequired *bool, frontchannelLogoutURI *string, grantTypes []string, implicitGrantAccessTokenLifespan *string, implicitGrantIDTokenLifespan *string, jwks map[string]interface{}, jwksURI *string, jwtBearerGrantAccessTokenLifespan *string, logoURI *string, metadata map[string]interface{}, policyURI *string, postLogoutRedirectUris []string, redirectUris []string, responseTypes []string, scope *string, sectorIdentifierURI *string, subjectType *string, tokenEndpointAuthMethod *string, tokenEndpointAuthSigningAlgorithm *string, tosURI *string, userinfoSignedResponseAlgorithm *string, loginBindings *LoginBindingsInput, interceptors ...clientv2.RequestInterceptor) (*CreateOAuth2Client, error)
+	GetOAuth2ConsentRequest(ctx context.Context, challenge string, interceptors ...clientv2.RequestInterceptor) (*GetOAuth2ConsentRequest, error)
+	AcceptOAuth2ConsentRequest(ctx context.Context, challenge string, grantScope []string, remember *bool, rememberFor *int64, interceptors ...clientv2.RequestInterceptor) (*AcceptOAuth2ConsentRequest, error)
+	RejectOAuth2ConsentRequest(ctx context.Context, challenge string, interceptors ...clientv2.RequestInterceptor) (*RejectOAuth2ConsentRequest, error)
+	GetOAuth2LoginRequest(ctx context.Context, challenge string, interceptors ...clientv2.RequestInterceptor) (*GetOAuth2LoginRequest, error)
+	AcceptOAuth2LoginRequest(ctx context.Context, challenge string, acr *string, amr []string, context map[string]interface{}, remember *bool, rememberFor *int64, subject string, interceptors ...clientv2.RequestInterceptor) (*AcceptOAuth2LoginRequest, error)
+	RejectOAuth2LoginRequest(ctx context.Context, challenge string, interceptors ...clientv2.RequestInterceptor) (*RejectOAuth2LoginRequest, error)
 	ListObservabilityTenants(ctx context.Context, interceptors ...clientv2.RequestInterceptor) (*ListObservabilityTenants, error)
 	GetObservabilityTenant(ctx context.Context, id string, interceptors ...clientv2.RequestInterceptor) (*GetObservabilityTenant, error)
 	CreateObservabilityTenant(ctx context.Context, id string, name *string, admins *ObservabilityTenantPermissionBindingsInput, metricsReaders *ObservabilityTenantPermissionBindingsInput, metricsWriters *ObservabilityTenantPermissionBindingsInput, metricsRulesReaders *ObservabilityTenantPermissionBindingsInput, metricsRulesWriters *ObservabilityTenantPermissionBindingsInput, metricsRulesDeleters *ObservabilityTenantPermissionBindingsInput, metricsAlertsReaders *ObservabilityTenantPermissionBindingsInput, metricsAlertsWriters *ObservabilityTenantPermissionBindingsInput, logsReaders *ObservabilityTenantPermissionBindingsInput, logsWriters *ObservabilityTenantPermissionBindingsInput, logsRulesReaders *ObservabilityTenantPermissionBindingsInput, logsRulesWriters *ObservabilityTenantPermissionBindingsInput, logsRulesDeleters *ObservabilityTenantPermissionBindingsInput, tracesReaders *ObservabilityTenantPermissionBindingsInput, tracesWriters *ObservabilityTenantPermissionBindingsInput, limits *ObservabilityTenantLimitsInput, interceptors ...clientv2.RequestInterceptor) (*CreateObservabilityTenant, error)
@@ -50,7 +56,6 @@ type Query struct {
 	Oauth2LoginRequest       *OAuth2LoginRequest    "json:\"oauth2LoginRequest,omitempty\" graphql:\"oauth2LoginRequest\""
 	ListObservabilityTenants []*ObservabilityTenant "json:\"listObservabilityTenants\" graphql:\"listObservabilityTenants\""
 	GetObservabilityTenant   ObservabilityTenant    "json:\"getObservabilityTenant\" graphql:\"getObservabilityTenant\""
-	ListOrganizations        []*Organization        "json:\"listOrganizations\" graphql:\"listOrganizations\""
 	Organization             Organization           "json:\"organization\" graphql:\"organization\""
 }
 type Mutation struct {
@@ -358,9 +363,341 @@ func (t *OAuth2ClientFragment) GetLoginBindings() *OAuth2ClientFragment_LoginBin
 	return t.LoginBindings
 }
 
+type OAuth2ConsentRequestFragment struct {
+	Challenge                    string                   "json:\"challenge\" graphql:\"challenge\""
+	Client                       *OAuth2ConsentClient     "json:\"client\" graphql:\"client\""
+	Context                      map[string]interface{}   "json:\"context,omitempty\" graphql:\"context\""
+	LoginChallenge               *string                  "json:\"loginChallenge,omitempty\" graphql:\"loginChallenge\""
+	LoginSessionID               *string                  "json:\"loginSessionId,omitempty\" graphql:\"loginSessionId\""
+	OidcContext                  *OAuthConsentOIDCContext "json:\"oidcContext,omitempty\" graphql:\"oidcContext\""
+	RequestURL                   *string                  "json:\"requestUrl,omitempty\" graphql:\"requestUrl\""
+	RequestedAccessTokenAudience []string                 "json:\"requestedAccessTokenAudience,omitempty\" graphql:\"requestedAccessTokenAudience\""
+	RequestedScope               []string                 "json:\"requestedScope,omitempty\" graphql:\"requestedScope\""
+	Skip                         *bool                    "json:\"skip,omitempty\" graphql:\"skip\""
+	Subject                      string                   "json:\"subject\" graphql:\"subject\""
+	RedirectTo                   *string                  "json:\"redirectTo,omitempty\" graphql:\"redirectTo\""
+}
+
+func (t *OAuth2ConsentRequestFragment) GetChallenge() string {
+	if t == nil {
+		t = &OAuth2ConsentRequestFragment{}
+	}
+	return t.Challenge
+}
+func (t *OAuth2ConsentRequestFragment) GetClient() *OAuth2ConsentClient {
+	if t == nil {
+		t = &OAuth2ConsentRequestFragment{}
+	}
+	return t.Client
+}
+func (t *OAuth2ConsentRequestFragment) GetContext() map[string]interface{} {
+	if t == nil {
+		t = &OAuth2ConsentRequestFragment{}
+	}
+	return t.Context
+}
+func (t *OAuth2ConsentRequestFragment) GetLoginChallenge() *string {
+	if t == nil {
+		t = &OAuth2ConsentRequestFragment{}
+	}
+	return t.LoginChallenge
+}
+func (t *OAuth2ConsentRequestFragment) GetLoginSessionID() *string {
+	if t == nil {
+		t = &OAuth2ConsentRequestFragment{}
+	}
+	return t.LoginSessionID
+}
+func (t *OAuth2ConsentRequestFragment) GetOidcContext() *OAuthConsentOIDCContext {
+	if t == nil {
+		t = &OAuth2ConsentRequestFragment{}
+	}
+	return t.OidcContext
+}
+func (t *OAuth2ConsentRequestFragment) GetRequestURL() *string {
+	if t == nil {
+		t = &OAuth2ConsentRequestFragment{}
+	}
+	return t.RequestURL
+}
+func (t *OAuth2ConsentRequestFragment) GetRequestedAccessTokenAudience() []string {
+	if t == nil {
+		t = &OAuth2ConsentRequestFragment{}
+	}
+	return t.RequestedAccessTokenAudience
+}
+func (t *OAuth2ConsentRequestFragment) GetRequestedScope() []string {
+	if t == nil {
+		t = &OAuth2ConsentRequestFragment{}
+	}
+	return t.RequestedScope
+}
+func (t *OAuth2ConsentRequestFragment) GetSkip() *bool {
+	if t == nil {
+		t = &OAuth2ConsentRequestFragment{}
+	}
+	return t.Skip
+}
+func (t *OAuth2ConsentRequestFragment) GetSubject() string {
+	if t == nil {
+		t = &OAuth2ConsentRequestFragment{}
+	}
+	return t.Subject
+}
+func (t *OAuth2ConsentRequestFragment) GetRedirectTo() *string {
+	if t == nil {
+		t = &OAuth2ConsentRequestFragment{}
+	}
+	return t.RedirectTo
+}
+
+type OAuthConsentOIDCContext struct {
+	AcrValues         []string               "json:\"acrValues,omitempty\" graphql:\"acrValues\""
+	Display           *string                "json:\"display,omitempty\" graphql:\"display\""
+	IDTokenHintClaims map[string]interface{} "json:\"idTokenHintClaims,omitempty\" graphql:\"idTokenHintClaims\""
+	LoginHint         *string                "json:\"loginHint,omitempty\" graphql:\"loginHint\""
+	UILocales         []string               "json:\"uiLocales,omitempty\" graphql:\"uiLocales\""
+}
+
+func (t *OAuthConsentOIDCContext) GetAcrValues() []string {
+	if t == nil {
+		t = &OAuthConsentOIDCContext{}
+	}
+	return t.AcrValues
+}
+func (t *OAuthConsentOIDCContext) GetDisplay() *string {
+	if t == nil {
+		t = &OAuthConsentOIDCContext{}
+	}
+	return t.Display
+}
+func (t *OAuthConsentOIDCContext) GetIDTokenHintClaims() map[string]interface{} {
+	if t == nil {
+		t = &OAuthConsentOIDCContext{}
+	}
+	return t.IDTokenHintClaims
+}
+func (t *OAuthConsentOIDCContext) GetLoginHint() *string {
+	if t == nil {
+		t = &OAuthConsentOIDCContext{}
+	}
+	return t.LoginHint
+}
+func (t *OAuthConsentOIDCContext) GetUILocales() []string {
+	if t == nil {
+		t = &OAuthConsentOIDCContext{}
+	}
+	return t.UILocales
+}
+
+type OAuth2ConsentClient struct {
+	ClientID   *string "json:\"clientId,omitempty\" graphql:\"clientId\""
+	ClientName *string "json:\"clientName,omitempty\" graphql:\"clientName\""
+	LogoURI    *string "json:\"logoUri,omitempty\" graphql:\"logoUri\""
+	PolicyURI  *string "json:\"policyUri,omitempty\" graphql:\"policyUri\""
+	Scope      *string "json:\"scope,omitempty\" graphql:\"scope\""
+	TosURI     *string "json:\"tosUri,omitempty\" graphql:\"tosUri\""
+}
+
+func (t *OAuth2ConsentClient) GetClientID() *string {
+	if t == nil {
+		t = &OAuth2ConsentClient{}
+	}
+	return t.ClientID
+}
+func (t *OAuth2ConsentClient) GetClientName() *string {
+	if t == nil {
+		t = &OAuth2ConsentClient{}
+	}
+	return t.ClientName
+}
+func (t *OAuth2ConsentClient) GetLogoURI() *string {
+	if t == nil {
+		t = &OAuth2ConsentClient{}
+	}
+	return t.LogoURI
+}
+func (t *OAuth2ConsentClient) GetPolicyURI() *string {
+	if t == nil {
+		t = &OAuth2ConsentClient{}
+	}
+	return t.PolicyURI
+}
+func (t *OAuth2ConsentClient) GetScope() *string {
+	if t == nil {
+		t = &OAuth2ConsentClient{}
+	}
+	return t.Scope
+}
+func (t *OAuth2ConsentClient) GetTosURI() *string {
+	if t == nil {
+		t = &OAuth2ConsentClient{}
+	}
+	return t.TosURI
+}
+
+type OAuth2LoginRequestFragment struct {
+	Challenge                    string                 "json:\"challenge\" graphql:\"challenge\""
+	Client                       *OAuth2LoginClient     "json:\"client\" graphql:\"client\""
+	OidcContext                  *OAuthLoginOIDCContext "json:\"oidcContext,omitempty\" graphql:\"oidcContext\""
+	RequestURL                   *string                "json:\"requestUrl,omitempty\" graphql:\"requestUrl\""
+	RequestedAccessTokenAudience []string               "json:\"requestedAccessTokenAudience,omitempty\" graphql:\"requestedAccessTokenAudience\""
+	RequestedScope               []string               "json:\"requestedScope,omitempty\" graphql:\"requestedScope\""
+	SessionID                    *string                "json:\"sessionId,omitempty\" graphql:\"sessionId\""
+	Skip                         *bool                  "json:\"skip,omitempty\" graphql:\"skip\""
+	Subject                      string                 "json:\"subject\" graphql:\"subject\""
+	RedirectTo                   *string                "json:\"redirectTo,omitempty\" graphql:\"redirectTo\""
+}
+
+func (t *OAuth2LoginRequestFragment) GetChallenge() string {
+	if t == nil {
+		t = &OAuth2LoginRequestFragment{}
+	}
+	return t.Challenge
+}
+func (t *OAuth2LoginRequestFragment) GetClient() *OAuth2LoginClient {
+	if t == nil {
+		t = &OAuth2LoginRequestFragment{}
+	}
+	return t.Client
+}
+func (t *OAuth2LoginRequestFragment) GetOidcContext() *OAuthLoginOIDCContext {
+	if t == nil {
+		t = &OAuth2LoginRequestFragment{}
+	}
+	return t.OidcContext
+}
+func (t *OAuth2LoginRequestFragment) GetRequestURL() *string {
+	if t == nil {
+		t = &OAuth2LoginRequestFragment{}
+	}
+	return t.RequestURL
+}
+func (t *OAuth2LoginRequestFragment) GetRequestedAccessTokenAudience() []string {
+	if t == nil {
+		t = &OAuth2LoginRequestFragment{}
+	}
+	return t.RequestedAccessTokenAudience
+}
+func (t *OAuth2LoginRequestFragment) GetRequestedScope() []string {
+	if t == nil {
+		t = &OAuth2LoginRequestFragment{}
+	}
+	return t.RequestedScope
+}
+func (t *OAuth2LoginRequestFragment) GetSessionID() *string {
+	if t == nil {
+		t = &OAuth2LoginRequestFragment{}
+	}
+	return t.SessionID
+}
+func (t *OAuth2LoginRequestFragment) GetSkip() *bool {
+	if t == nil {
+		t = &OAuth2LoginRequestFragment{}
+	}
+	return t.Skip
+}
+func (t *OAuth2LoginRequestFragment) GetSubject() string {
+	if t == nil {
+		t = &OAuth2LoginRequestFragment{}
+	}
+	return t.Subject
+}
+func (t *OAuth2LoginRequestFragment) GetRedirectTo() *string {
+	if t == nil {
+		t = &OAuth2LoginRequestFragment{}
+	}
+	return t.RedirectTo
+}
+
+type OAuthLoginOIDCContext struct {
+	AcrValues         []string               "json:\"acrValues,omitempty\" graphql:\"acrValues\""
+	Display           *string                "json:\"display,omitempty\" graphql:\"display\""
+	IDTokenHintClaims map[string]interface{} "json:\"idTokenHintClaims,omitempty\" graphql:\"idTokenHintClaims\""
+	LoginHint         *string                "json:\"loginHint,omitempty\" graphql:\"loginHint\""
+	UILocales         []string               "json:\"uiLocales,omitempty\" graphql:\"uiLocales\""
+}
+
+func (t *OAuthLoginOIDCContext) GetAcrValues() []string {
+	if t == nil {
+		t = &OAuthLoginOIDCContext{}
+	}
+	return t.AcrValues
+}
+func (t *OAuthLoginOIDCContext) GetDisplay() *string {
+	if t == nil {
+		t = &OAuthLoginOIDCContext{}
+	}
+	return t.Display
+}
+func (t *OAuthLoginOIDCContext) GetIDTokenHintClaims() map[string]interface{} {
+	if t == nil {
+		t = &OAuthLoginOIDCContext{}
+	}
+	return t.IDTokenHintClaims
+}
+func (t *OAuthLoginOIDCContext) GetLoginHint() *string {
+	if t == nil {
+		t = &OAuthLoginOIDCContext{}
+	}
+	return t.LoginHint
+}
+func (t *OAuthLoginOIDCContext) GetUILocales() []string {
+	if t == nil {
+		t = &OAuthLoginOIDCContext{}
+	}
+	return t.UILocales
+}
+
+type OAuth2LoginClient struct {
+	ClientID   *string "json:\"clientId,omitempty\" graphql:\"clientId\""
+	ClientName *string "json:\"clientName,omitempty\" graphql:\"clientName\""
+	LogoURI    *string "json:\"logoUri,omitempty\" graphql:\"logoUri\""
+	PolicyURI  *string "json:\"policyUri,omitempty\" graphql:\"policyUri\""
+	Scope      *string "json:\"scope,omitempty\" graphql:\"scope\""
+	TosURI     *string "json:\"tosUri,omitempty\" graphql:\"tosUri\""
+}
+
+func (t *OAuth2LoginClient) GetClientID() *string {
+	if t == nil {
+		t = &OAuth2LoginClient{}
+	}
+	return t.ClientID
+}
+func (t *OAuth2LoginClient) GetClientName() *string {
+	if t == nil {
+		t = &OAuth2LoginClient{}
+	}
+	return t.ClientName
+}
+func (t *OAuth2LoginClient) GetLogoURI() *string {
+	if t == nil {
+		t = &OAuth2LoginClient{}
+	}
+	return t.LogoURI
+}
+func (t *OAuth2LoginClient) GetPolicyURI() *string {
+	if t == nil {
+		t = &OAuth2LoginClient{}
+	}
+	return t.PolicyURI
+}
+func (t *OAuth2LoginClient) GetScope() *string {
+	if t == nil {
+		t = &OAuth2LoginClient{}
+	}
+	return t.Scope
+}
+func (t *OAuth2LoginClient) GetTosURI() *string {
+	if t == nil {
+		t = &OAuth2LoginClient{}
+	}
+	return t.TosURI
+}
+
 type ObservabilityTenantFragment struct {
 	ID                   string                                         "json:\"id\" graphql:\"id\""
-	Name                 *string                                        "json:\"name,omitempty\" graphql:\"name\""
+	DisplayName          *string                                        "json:\"displayName,omitempty\" graphql:\"displayName\""
 	Admins               *ObservabilityTenantPermissionBindingsFragment "json:\"admins,omitempty\" graphql:\"admins\""
 	MetricsReaders       *ObservabilityTenantPermissionBindingsFragment "json:\"metricsReaders,omitempty\" graphql:\"metricsReaders\""
 	MetricsWriters       *ObservabilityTenantPermissionBindingsFragment "json:\"metricsWriters,omitempty\" graphql:\"metricsWriters\""
@@ -385,11 +722,11 @@ func (t *ObservabilityTenantFragment) GetID() string {
 	}
 	return t.ID
 }
-func (t *ObservabilityTenantFragment) GetName() *string {
+func (t *ObservabilityTenantFragment) GetDisplayName() *string {
 	if t == nil {
 		t = &ObservabilityTenantFragment{}
 	}
-	return t.Name
+	return t.DisplayName
 }
 func (t *ObservabilityTenantFragment) GetAdmins() *ObservabilityTenantPermissionBindingsFragment {
 	if t == nil {
@@ -3337,6 +3674,50 @@ func (t *CreateOAuth2Client_CreateOAuth2Client_OAuth2ClientFragment_LoginBinding
 		t = &CreateOAuth2Client_CreateOAuth2Client_OAuth2ClientFragment_LoginBindings{}
 	}
 	return t.Groups
+}
+
+type AcceptOAuth2ConsentRequest_AcceptOAuth2ConsentRequest struct {
+	RedirectTo string "json:\"redirectTo\" graphql:\"redirectTo\""
+}
+
+func (t *AcceptOAuth2ConsentRequest_AcceptOAuth2ConsentRequest) GetRedirectTo() string {
+	if t == nil {
+		t = &AcceptOAuth2ConsentRequest_AcceptOAuth2ConsentRequest{}
+	}
+	return t.RedirectTo
+}
+
+type RejectOAuth2ConsentRequest_RejectOAuth2ConsentRequest struct {
+	RedirectTo string "json:\"redirectTo\" graphql:\"redirectTo\""
+}
+
+func (t *RejectOAuth2ConsentRequest_RejectOAuth2ConsentRequest) GetRedirectTo() string {
+	if t == nil {
+		t = &RejectOAuth2ConsentRequest_RejectOAuth2ConsentRequest{}
+	}
+	return t.RedirectTo
+}
+
+type AcceptOAuth2LoginRequest_AcceptOAuth2LoginRequest struct {
+	RedirectTo string "json:\"redirectTo\" graphql:\"redirectTo\""
+}
+
+func (t *AcceptOAuth2LoginRequest_AcceptOAuth2LoginRequest) GetRedirectTo() string {
+	if t == nil {
+		t = &AcceptOAuth2LoginRequest_AcceptOAuth2LoginRequest{}
+	}
+	return t.RedirectTo
+}
+
+type RejectOAuth2LoginRequest_RejectOAuth2LoginRequest struct {
+	RedirectTo string "json:\"redirectTo\" graphql:\"redirectTo\""
+}
+
+func (t *RejectOAuth2LoginRequest_RejectOAuth2LoginRequest) GetRedirectTo() string {
+	if t == nil {
+		t = &RejectOAuth2LoginRequest_RejectOAuth2LoginRequest{}
+	}
+	return t.RedirectTo
 }
 
 type ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Admins_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name struct {
@@ -10660,6 +11041,72 @@ func (t *CreateOAuth2Client) GetCreateOAuth2Client() *OAuth2ClientFragment {
 	return t.CreateOAuth2Client
 }
 
+type GetOAuth2ConsentRequest struct {
+	Oauth2ConsentRequest *OAuth2ConsentRequestFragment "json:\"oauth2ConsentRequest,omitempty\" graphql:\"oauth2ConsentRequest\""
+}
+
+func (t *GetOAuth2ConsentRequest) GetOauth2ConsentRequest() *OAuth2ConsentRequestFragment {
+	if t == nil {
+		t = &GetOAuth2ConsentRequest{}
+	}
+	return t.Oauth2ConsentRequest
+}
+
+type AcceptOAuth2ConsentRequest struct {
+	AcceptOAuth2ConsentRequest AcceptOAuth2ConsentRequest_AcceptOAuth2ConsentRequest "json:\"acceptOAuth2ConsentRequest\" graphql:\"acceptOAuth2ConsentRequest\""
+}
+
+func (t *AcceptOAuth2ConsentRequest) GetAcceptOAuth2ConsentRequest() *AcceptOAuth2ConsentRequest_AcceptOAuth2ConsentRequest {
+	if t == nil {
+		t = &AcceptOAuth2ConsentRequest{}
+	}
+	return &t.AcceptOAuth2ConsentRequest
+}
+
+type RejectOAuth2ConsentRequest struct {
+	RejectOAuth2ConsentRequest RejectOAuth2ConsentRequest_RejectOAuth2ConsentRequest "json:\"rejectOAuth2ConsentRequest\" graphql:\"rejectOAuth2ConsentRequest\""
+}
+
+func (t *RejectOAuth2ConsentRequest) GetRejectOAuth2ConsentRequest() *RejectOAuth2ConsentRequest_RejectOAuth2ConsentRequest {
+	if t == nil {
+		t = &RejectOAuth2ConsentRequest{}
+	}
+	return &t.RejectOAuth2ConsentRequest
+}
+
+type GetOAuth2LoginRequest struct {
+	Oauth2LoginRequest *OAuth2LoginRequestFragment "json:\"oauth2LoginRequest,omitempty\" graphql:\"oauth2LoginRequest\""
+}
+
+func (t *GetOAuth2LoginRequest) GetOauth2LoginRequest() *OAuth2LoginRequestFragment {
+	if t == nil {
+		t = &GetOAuth2LoginRequest{}
+	}
+	return t.Oauth2LoginRequest
+}
+
+type AcceptOAuth2LoginRequest struct {
+	AcceptOAuth2LoginRequest AcceptOAuth2LoginRequest_AcceptOAuth2LoginRequest "json:\"acceptOAuth2LoginRequest\" graphql:\"acceptOAuth2LoginRequest\""
+}
+
+func (t *AcceptOAuth2LoginRequest) GetAcceptOAuth2LoginRequest() *AcceptOAuth2LoginRequest_AcceptOAuth2LoginRequest {
+	if t == nil {
+		t = &AcceptOAuth2LoginRequest{}
+	}
+	return &t.AcceptOAuth2LoginRequest
+}
+
+type RejectOAuth2LoginRequest struct {
+	RejectOAuth2LoginRequest RejectOAuth2LoginRequest_RejectOAuth2LoginRequest "json:\"rejectOAuth2LoginRequest\" graphql:\"rejectOAuth2LoginRequest\""
+}
+
+func (t *RejectOAuth2LoginRequest) GetRejectOAuth2LoginRequest() *RejectOAuth2LoginRequest_RejectOAuth2LoginRequest {
+	if t == nil {
+		t = &RejectOAuth2LoginRequest{}
+	}
+	return &t.RejectOAuth2LoginRequest
+}
+
 type ListObservabilityTenants struct {
 	ListObservabilityTenants []*ObservabilityTenantFragment "json:\"listObservabilityTenants\" graphql:\"listObservabilityTenants\""
 }
@@ -10792,7 +11239,7 @@ func (c *Client) ListGroups(ctx context.Context, interceptors ...clientv2.Reques
 	return &res, nil
 }
 
-const UpdateGroupDocument = `mutation UpdateGroup ($name: String!, $members: [String!]) {
+const UpdateGroupDocument = `mutation UpdateGroup ($name: String!, $members: UsersInput) {
 	# TODO: for consistency we should probably split create and update mutations
 	group(name: $name, members: $members) {
 		... GroupFragment
@@ -10814,7 +11261,7 @@ fragment UserFragmentNoGroups on User {
 }
 `
 
-func (c *Client) UpdateGroup(ctx context.Context, name string, members []string, interceptors ...clientv2.RequestInterceptor) (*UpdateGroup, error) {
+func (c *Client) UpdateGroup(ctx context.Context, name string, members *UsersInput, interceptors ...clientv2.RequestInterceptor) (*UpdateGroup, error) {
 	vars := map[string]interface{}{
 		"name":    name,
 		"members": members,
@@ -11207,6 +11654,199 @@ func (c *Client) CreateOAuth2Client(ctx context.Context, allowedCorsOrigins []st
 	return &res, nil
 }
 
+const GetOAuth2ConsentRequestDocument = `query GetOAuth2ConsentRequest ($challenge: String!) {
+	oauth2ConsentRequest(challenge: $challenge) {
+		... OAuth2ConsentRequestFragment
+	}
+}
+fragment OAuth2ConsentRequestFragment on OAuth2ConsentRequest {
+	challenge
+	client {
+		... OAuth2ConsentClient
+	}
+	context
+	loginChallenge
+	loginSessionId
+	oidcContext {
+		... OAuthConsentOIDCContext
+	}
+	requestUrl
+	requestedAccessTokenAudience
+	requestedScope
+	skip
+	subject
+	redirectTo
+}
+fragment OAuth2ConsentClient on OAuth2Client {
+	clientId
+	clientName
+	logoUri
+	policyUri
+	scope
+	tosUri
+}
+fragment OAuthConsentOIDCContext on OidcContext {
+	acrValues
+	display
+	idTokenHintClaims
+	loginHint
+	uiLocales
+}
+`
+
+func (c *Client) GetOAuth2ConsentRequest(ctx context.Context, challenge string, interceptors ...clientv2.RequestInterceptor) (*GetOAuth2ConsentRequest, error) {
+	vars := map[string]interface{}{
+		"challenge": challenge,
+	}
+
+	var res GetOAuth2ConsentRequest
+	if err := c.Client.Post(ctx, "GetOAuth2ConsentRequest", GetOAuth2ConsentRequestDocument, &res, vars, interceptors...); err != nil {
+		return nil, err
+	}
+
+	return &res, nil
+}
+
+const AcceptOAuth2ConsentRequestDocument = `mutation AcceptOAuth2ConsentRequest ($challenge: String!, $grantScope: [String!], $remember: Boolean, $rememberFor: Int) {
+	acceptOAuth2ConsentRequest(challenge: $challenge, grantScope: $grantScope, remember: $remember, rememberFor: $rememberFor) {
+		redirectTo
+	}
+}
+`
+
+func (c *Client) AcceptOAuth2ConsentRequest(ctx context.Context, challenge string, grantScope []string, remember *bool, rememberFor *int64, interceptors ...clientv2.RequestInterceptor) (*AcceptOAuth2ConsentRequest, error) {
+	vars := map[string]interface{}{
+		"challenge":   challenge,
+		"grantScope":  grantScope,
+		"remember":    remember,
+		"rememberFor": rememberFor,
+	}
+
+	var res AcceptOAuth2ConsentRequest
+	if err := c.Client.Post(ctx, "AcceptOAuth2ConsentRequest", AcceptOAuth2ConsentRequestDocument, &res, vars, interceptors...); err != nil {
+		return nil, err
+	}
+
+	return &res, nil
+}
+
+const RejectOAuth2ConsentRequestDocument = `mutation RejectOAuth2ConsentRequest ($challenge: String!) {
+	rejectOAuth2ConsentRequest(challenge: $challenge) {
+		redirectTo
+	}
+}
+`
+
+func (c *Client) RejectOAuth2ConsentRequest(ctx context.Context, challenge string, interceptors ...clientv2.RequestInterceptor) (*RejectOAuth2ConsentRequest, error) {
+	vars := map[string]interface{}{
+		"challenge": challenge,
+	}
+
+	var res RejectOAuth2ConsentRequest
+	if err := c.Client.Post(ctx, "RejectOAuth2ConsentRequest", RejectOAuth2ConsentRequestDocument, &res, vars, interceptors...); err != nil {
+		return nil, err
+	}
+
+	return &res, nil
+}
+
+const GetOAuth2LoginRequestDocument = `query GetOAuth2LoginRequest ($challenge: String!) {
+	oauth2LoginRequest(challenge: $challenge) {
+		... OAuth2LoginRequestFragment
+	}
+}
+fragment OAuth2LoginRequestFragment on OAuth2LoginRequest {
+	challenge
+	client {
+		... OAuth2LoginClient
+	}
+	oidcContext {
+		... OAuthLoginOIDCContext
+	}
+	requestUrl
+	requestedAccessTokenAudience
+	requestedScope
+	sessionId
+	skip
+	subject
+	redirectTo
+}
+fragment OAuth2LoginClient on OAuth2Client {
+	clientId
+	clientName
+	logoUri
+	policyUri
+	scope
+	tosUri
+}
+fragment OAuthLoginOIDCContext on OidcContext {
+	acrValues
+	display
+	idTokenHintClaims
+	loginHint
+	uiLocales
+}
+`
+
+func (c *Client) GetOAuth2LoginRequest(ctx context.Context, challenge string, interceptors ...clientv2.RequestInterceptor) (*GetOAuth2LoginRequest, error) {
+	vars := map[string]interface{}{
+		"challenge": challenge,
+	}
+
+	var res GetOAuth2LoginRequest
+	if err := c.Client.Post(ctx, "GetOAuth2LoginRequest", GetOAuth2LoginRequestDocument, &res, vars, interceptors...); err != nil {
+		return nil, err
+	}
+
+	return &res, nil
+}
+
+const AcceptOAuth2LoginRequestDocument = `mutation AcceptOAuth2LoginRequest ($challenge: String!, $acr: String, $amr: [String!], $context: Map, $remember: Boolean, $rememberFor: Int, $subject: String!) {
+	acceptOAuth2LoginRequest(challenge: $challenge, acr: $acr, amr: $amr, context: $context, remember: $remember, rememberFor: $rememberFor, subject: $subject) {
+		redirectTo
+	}
+}
+`
+
+func (c *Client) AcceptOAuth2LoginRequest(ctx context.Context, challenge string, acr *string, amr []string, context map[string]interface{}, remember *bool, rememberFor *int64, subject string, interceptors ...clientv2.RequestInterceptor) (*AcceptOAuth2LoginRequest, error) {
+	vars := map[string]interface{}{
+		"challenge":   challenge,
+		"acr":         acr,
+		"amr":         amr,
+		"context":     context,
+		"remember":    remember,
+		"rememberFor": rememberFor,
+		"subject":     subject,
+	}
+
+	var res AcceptOAuth2LoginRequest
+	if err := c.Client.Post(ctx, "AcceptOAuth2LoginRequest", AcceptOAuth2LoginRequestDocument, &res, vars, interceptors...); err != nil {
+		return nil, err
+	}
+
+	return &res, nil
+}
+
+const RejectOAuth2LoginRequestDocument = `mutation RejectOAuth2LoginRequest ($challenge: String!) {
+	rejectOAuth2LoginRequest(challenge: $challenge) {
+		redirectTo
+	}
+}
+`
+
+func (c *Client) RejectOAuth2LoginRequest(ctx context.Context, challenge string, interceptors ...clientv2.RequestInterceptor) (*RejectOAuth2LoginRequest, error) {
+	vars := map[string]interface{}{
+		"challenge": challenge,
+	}
+
+	var res RejectOAuth2LoginRequest
+	if err := c.Client.Post(ctx, "RejectOAuth2LoginRequest", RejectOAuth2LoginRequestDocument, &res, vars, interceptors...); err != nil {
+		return nil, err
+	}
+
+	return &res, nil
+}
+
 const ListObservabilityTenantsDocument = `query ListObservabilityTenants {
 	listObservabilityTenants {
 		... ObservabilityTenantFragment
@@ -11214,7 +11854,7 @@ const ListObservabilityTenantsDocument = `query ListObservabilityTenants {
 }
 fragment ObservabilityTenantFragment on ObservabilityTenant {
 	id
-	name
+	displayName
 	admins {
 		... ObservabilityTenantPermissionBindingsFragment
 	}
@@ -11430,14 +12070,14 @@ func (c *Client) ListObservabilityTenants(ctx context.Context, interceptors ...c
 	return &res, nil
 }
 
-const GetObservabilityTenantDocument = `query GetObservabilityTenant ($id: String!) {
+const GetObservabilityTenantDocument = `query GetObservabilityTenant ($id: ID!) {
 	getObservabilityTenant(id: $id) {
 		... ObservabilityTenantFragment
 	}
 }
 fragment ObservabilityTenantFragment on ObservabilityTenant {
 	id
-	name
+	displayName
 	admins {
 		... ObservabilityTenantPermissionBindingsFragment
 	}
@@ -11655,14 +12295,14 @@ func (c *Client) GetObservabilityTenant(ctx context.Context, id string, intercep
 	return &res, nil
 }
 
-const CreateObservabilityTenantDocument = `mutation CreateObservabilityTenant ($id: String!, $name: String, $admins: ObservabilityTenantPermissionBindingsInput, $metricsReaders: ObservabilityTenantPermissionBindingsInput, $metricsWriters: ObservabilityTenantPermissionBindingsInput, $metricsRulesReaders: ObservabilityTenantPermissionBindingsInput, $metricsRulesWriters: ObservabilityTenantPermissionBindingsInput, $metricsRulesDeleters: ObservabilityTenantPermissionBindingsInput, $metricsAlertsReaders: ObservabilityTenantPermissionBindingsInput, $metricsAlertsWriters: ObservabilityTenantPermissionBindingsInput, $logsReaders: ObservabilityTenantPermissionBindingsInput, $logsWriters: ObservabilityTenantPermissionBindingsInput, $logsRulesReaders: ObservabilityTenantPermissionBindingsInput, $logsRulesWriters: ObservabilityTenantPermissionBindingsInput, $logsRulesDeleters: ObservabilityTenantPermissionBindingsInput, $tracesReaders: ObservabilityTenantPermissionBindingsInput, $tracesWriters: ObservabilityTenantPermissionBindingsInput, $limits: ObservabilityTenantLimitsInput) {
+const CreateObservabilityTenantDocument = `mutation CreateObservabilityTenant ($id: ID!, $name: String, $admins: ObservabilityTenantPermissionBindingsInput, $metricsReaders: ObservabilityTenantPermissionBindingsInput, $metricsWriters: ObservabilityTenantPermissionBindingsInput, $metricsRulesReaders: ObservabilityTenantPermissionBindingsInput, $metricsRulesWriters: ObservabilityTenantPermissionBindingsInput, $metricsRulesDeleters: ObservabilityTenantPermissionBindingsInput, $metricsAlertsReaders: ObservabilityTenantPermissionBindingsInput, $metricsAlertsWriters: ObservabilityTenantPermissionBindingsInput, $logsReaders: ObservabilityTenantPermissionBindingsInput, $logsWriters: ObservabilityTenantPermissionBindingsInput, $logsRulesReaders: ObservabilityTenantPermissionBindingsInput, $logsRulesWriters: ObservabilityTenantPermissionBindingsInput, $logsRulesDeleters: ObservabilityTenantPermissionBindingsInput, $tracesReaders: ObservabilityTenantPermissionBindingsInput, $tracesWriters: ObservabilityTenantPermissionBindingsInput, $limits: ObservabilityTenantLimitsInput) {
 	createObservabilityTenant(id: $id, name: $name, admins: $admins, metricsReaders: $metricsReaders, metricsWriters: $metricsWriters, metricsRulesReaders: $metricsRulesReaders, metricsRulesWriters: $metricsRulesWriters, metricsRulesDeleters: $metricsRulesDeleters, metricsAlertsReaders: $metricsAlertsReaders, metricsAlertsWriters: $metricsAlertsWriters, logsReaders: $logsReaders, logsWriters: $logsWriters, logsRulesReaders: $logsRulesReaders, logsRulesWriters: $logsRulesWriters, logsRulesDeleters: $logsRulesDeleters, tracesReaders: $tracesReaders, tracesWriters: $tracesWriters, limits: $limits) {
 		... ObservabilityTenantFragment
 	}
 }
 fragment ObservabilityTenantFragment on ObservabilityTenant {
 	id
-	name
+	displayName
 	admins {
 		... ObservabilityTenantPermissionBindingsFragment
 	}
@@ -11897,14 +12537,14 @@ func (c *Client) CreateObservabilityTenant(ctx context.Context, id string, name 
 	return &res, nil
 }
 
-const UpdateObservabilityTenantDocument = `mutation UpdateObservabilityTenant ($id: String!, $name: String, $admins: ObservabilityTenantPermissionBindingsInput, $metricsReaders: ObservabilityTenantPermissionBindingsInput, $metricsWriters: ObservabilityTenantPermissionBindingsInput, $metricsRulesReaders: ObservabilityTenantPermissionBindingsInput, $metricsRulesWriters: ObservabilityTenantPermissionBindingsInput, $metricsRulesDeleters: ObservabilityTenantPermissionBindingsInput, $metricsAlertsReaders: ObservabilityTenantPermissionBindingsInput, $metricsAlertsWriters: ObservabilityTenantPermissionBindingsInput, $logsReaders: ObservabilityTenantPermissionBindingsInput, $logsWriters: ObservabilityTenantPermissionBindingsInput, $logsRulesReaders: ObservabilityTenantPermissionBindingsInput, $logsRulesWriters: ObservabilityTenantPermissionBindingsInput, $logsRulesDeleters: ObservabilityTenantPermissionBindingsInput, $tracesReaders: ObservabilityTenantPermissionBindingsInput, $tracesWriters: ObservabilityTenantPermissionBindingsInput, $limits: ObservabilityTenantLimitsInput) {
+const UpdateObservabilityTenantDocument = `mutation UpdateObservabilityTenant ($id: ID!, $name: String, $admins: ObservabilityTenantPermissionBindingsInput, $metricsReaders: ObservabilityTenantPermissionBindingsInput, $metricsWriters: ObservabilityTenantPermissionBindingsInput, $metricsRulesReaders: ObservabilityTenantPermissionBindingsInput, $metricsRulesWriters: ObservabilityTenantPermissionBindingsInput, $metricsRulesDeleters: ObservabilityTenantPermissionBindingsInput, $metricsAlertsReaders: ObservabilityTenantPermissionBindingsInput, $metricsAlertsWriters: ObservabilityTenantPermissionBindingsInput, $logsReaders: ObservabilityTenantPermissionBindingsInput, $logsWriters: ObservabilityTenantPermissionBindingsInput, $logsRulesReaders: ObservabilityTenantPermissionBindingsInput, $logsRulesWriters: ObservabilityTenantPermissionBindingsInput, $logsRulesDeleters: ObservabilityTenantPermissionBindingsInput, $tracesReaders: ObservabilityTenantPermissionBindingsInput, $tracesWriters: ObservabilityTenantPermissionBindingsInput, $limits: ObservabilityTenantLimitsInput) {
 	updateObservabilityTenant(id: $id, name: $name, admins: $admins, metricsReaders: $metricsReaders, metricsWriters: $metricsWriters, metricsRulesReaders: $metricsRulesReaders, metricsRulesWriters: $metricsRulesWriters, metricsRulesDeleters: $metricsRulesDeleters, metricsAlertsReaders: $metricsAlertsReaders, metricsAlertsWriters: $metricsAlertsWriters, logsReaders: $logsReaders, logsWriters: $logsWriters, logsRulesReaders: $logsRulesReaders, logsRulesWriters: $logsRulesWriters, logsRulesDeleters: $logsRulesDeleters, tracesReaders: $tracesReaders, tracesWriters: $tracesWriters, limits: $limits) {
 		... ObservabilityTenantFragment
 	}
 }
 fragment ObservabilityTenantFragment on ObservabilityTenant {
 	id
-	name
+	displayName
 	admins {
 		... ObservabilityTenantPermissionBindingsFragment
 	}
@@ -12139,7 +12779,7 @@ func (c *Client) UpdateObservabilityTenant(ctx context.Context, id string, name 
 	return &res, nil
 }
 
-const DeleteObservabilityTenantDocument = `mutation DeleteObservabilityTenant ($id: String!) {
+const DeleteObservabilityTenantDocument = `mutation DeleteObservabilityTenant ($id: ID!) {
 	deleteObservabilityTenant(id: $id) {
 		id
 	}

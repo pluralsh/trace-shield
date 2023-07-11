@@ -4,7 +4,7 @@ query ListGroups { # TODO: we should also support getting a single group
   }
 }
 
-mutation UpdateGroup($name: String!, $members: [String!]) { # TODO: for consistency we should probably split create and update mutations
+mutation UpdateGroup($name: String!, $members: UsersInput) { # TODO: for consistency we should probably split create and update mutations
   group(name: $name, members: $members) {
     ...GroupFragment
   }

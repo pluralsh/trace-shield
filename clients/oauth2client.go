@@ -419,14 +419,14 @@ func (c *ClientWrapper) LoginBindingsChangeset(ctx context.Context, clientId str
 			return nil, nil, nil, nil, fmt.Errorf("failed to get current members: %w", err)
 		}
 
-		for _, user := range bindings.Users {
-			if !userIdInListOfUsers(currentBindings.Users, user) {
-				usersToAdd = append(usersToAdd, user)
+		for _, userId := range bindings.Users.Ids {
+			if !userIdInListOfUsers(currentBindings.Users, userId) {
+				usersToAdd = append(usersToAdd, userId)
 			}
 		}
 
 		for _, user := range currentBindings.Users {
-			if !utils.StringContains(bindings.Users, user.ID) {
+			if !utils.StringContains(bindings.Users.Ids, user.ID) {
 				usersToRemove = append(usersToRemove, user.ID)
 			}
 		}
