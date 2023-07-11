@@ -62,9 +62,8 @@ type ComplexityRoot struct {
 	}
 
 	Group struct {
-		Members      func(childComplexity int) int
-		Name         func(childComplexity int) int
-		Organization func(childComplexity int) int
+		Members func(childComplexity int) int
+		Name    func(childComplexity int) int
 	}
 
 	LoginBindings struct {
@@ -205,7 +204,6 @@ type ComplexityRoot struct {
 		LoginBindings                              func(childComplexity int) int
 		LogoURI                                    func(childComplexity int) int
 		Metadata                                   func(childComplexity int) int
-		Organization                               func(childComplexity int) int
 		Owner                                      func(childComplexity int) int
 		PolicyURI                                  func(childComplexity int) int
 		PostLogoutRedirectUris                     func(childComplexity int) int
@@ -324,7 +322,6 @@ type ComplexityRoot struct {
 		Groups       func(childComplexity int) int
 		ID           func(childComplexity int) int
 		Name         func(childComplexity int) int
-		Organization func(childComplexity int) int
 		RecoveryLink func(childComplexity int) int
 	}
 }
@@ -437,13 +434,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Group.Name(childComplexity), true
-
-	case "Group.organization":
-		if e.complexity.Group.Organization == nil {
-			break
-		}
-
-		return e.complexity.Group.Organization(childComplexity), true
 
 	case "LoginBindings.groups":
 		if e.complexity.LoginBindings.Groups == nil {
@@ -1374,13 +1364,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.OAuth2Client.Metadata(childComplexity), true
 
-	case "OAuth2Client.organization":
-		if e.complexity.OAuth2Client.Organization == nil {
-			break
-		}
-
-		return e.complexity.OAuth2Client.Organization(childComplexity), true
-
 	case "OAuth2Client.owner":
 		if e.complexity.OAuth2Client.Owner == nil {
 			break
@@ -2006,13 +1989,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.User.Name(childComplexity), true
 
-	case "User.organization":
-		if e.complexity.User.Organization == nil {
-			break
-		}
-
-		return e.complexity.User.Organization(childComplexity), true
-
 	case "User.recoveryLink":
 		if e.complexity.User.RecoveryLink == nil {
 			break
@@ -2150,8 +2126,8 @@ type Group {
   "The users that are admins of the organization."
   members: [User!]
 
-  "The organization that the group belongs to."
-  organization: Organization!
+  # "The organization that the group belongs to."
+  # organization: Organization!
 }
 
 extend type Query {
@@ -2295,8 +2271,8 @@ type OAuth2Client {
   "OpenID Connect Userinfo Signed Response Algorithm. UserInfoSignedResponseAlg is a string containing the JWS signing algorithm (alg) parameter required for signing UserInfo Responses. The value none MAY be used, which indicates that the UserInfo Response will not be signed. The alg value RS256 MUST be used unless support for RS256 has been explicitly disabled. If support for RS256 has been disabled, the value none MUST be used."
   userinfoSignedResponseAlgorithm: String
 
-  "The organization that owns this OAuth2 Client."
-  organization: Organization!
+  # "The organization that owns this OAuth2 Client."
+  # organization: Organization!
 
   "The users and groups that are allowed to login with this OAuth2 Client."
   loginBindings: LoginBindings
@@ -3412,8 +3388,8 @@ type User {
   "The groups the user belongs to."
   groups: [Group!]
 
-  "The organization the user belongs to."
-  organization: Organization!
+  # "The organization the user belongs to."
+  # organization: Organization!
 
   "The link a user can use to recover their account."
   recoveryLink: String
@@ -5137,59 +5113,10 @@ func (ec *executionContext) fieldContext_Group_members(ctx context.Context, fiel
 				return ec.fieldContext_User_email(ctx, field)
 			case "groups":
 				return ec.fieldContext_User_groups(ctx, field)
-			case "organization":
-				return ec.fieldContext_User_organization(ctx, field)
 			case "recoveryLink":
 				return ec.fieldContext_User_recoveryLink(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type User", field.Name)
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _Group_organization(ctx context.Context, field graphql.CollectedField, obj *model.Group) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Group_organization(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp := ec._fieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Organization, nil
-	})
-
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(*model.Organization)
-	fc.Result = res
-	return ec.marshalNOrganization2ᚖgithubᚗcomᚋpluralshᚋtraceᚑshieldᚋgraphᚋmodelᚐOrganization(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Group_organization(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Group",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "name":
-				return ec.fieldContext_Organization_name(ctx, field)
-			case "admins":
-				return ec.fieldContext_Organization_admins(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type Organization", field.Name)
 		},
 	}
 	return fc, nil
@@ -5236,8 +5163,6 @@ func (ec *executionContext) fieldContext_LoginBindings_users(ctx context.Context
 				return ec.fieldContext_User_email(ctx, field)
 			case "groups":
 				return ec.fieldContext_User_groups(ctx, field)
-			case "organization":
-				return ec.fieldContext_User_organization(ctx, field)
 			case "recoveryLink":
 				return ec.fieldContext_User_recoveryLink(ctx, field)
 			}
@@ -5284,8 +5209,6 @@ func (ec *executionContext) fieldContext_LoginBindings_groups(ctx context.Contex
 				return ec.fieldContext_Group_name(ctx, field)
 			case "members":
 				return ec.fieldContext_Group_members(ctx, field)
-			case "organization":
-				return ec.fieldContext_Group_organization(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Group", field.Name)
 		},
@@ -8289,8 +8212,6 @@ func (ec *executionContext) fieldContext_Mutation_createUser(ctx context.Context
 				return ec.fieldContext_User_email(ctx, field)
 			case "groups":
 				return ec.fieldContext_User_groups(ctx, field)
-			case "organization":
-				return ec.fieldContext_User_organization(ctx, field)
 			case "recoveryLink":
 				return ec.fieldContext_User_recoveryLink(ctx, field)
 			}
@@ -8381,8 +8302,6 @@ func (ec *executionContext) fieldContext_Mutation_deleteUser(ctx context.Context
 				return ec.fieldContext_User_email(ctx, field)
 			case "groups":
 				return ec.fieldContext_User_groups(ctx, field)
-			case "organization":
-				return ec.fieldContext_User_organization(ctx, field)
 			case "recoveryLink":
 				return ec.fieldContext_User_recoveryLink(ctx, field)
 			}
@@ -8469,8 +8388,6 @@ func (ec *executionContext) fieldContext_Mutation_group(ctx context.Context, fie
 				return ec.fieldContext_Group_name(ctx, field)
 			case "members":
 				return ec.fieldContext_Group_members(ctx, field)
-			case "organization":
-				return ec.fieldContext_Group_organization(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Group", field.Name)
 		},
@@ -8555,8 +8472,6 @@ func (ec *executionContext) fieldContext_Mutation_deleteGroup(ctx context.Contex
 				return ec.fieldContext_Group_name(ctx, field)
 			case "members":
 				return ec.fieldContext_Group_members(ctx, field)
-			case "organization":
-				return ec.fieldContext_Group_organization(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Group", field.Name)
 		},
@@ -8713,8 +8628,6 @@ func (ec *executionContext) fieldContext_Mutation_createOAuth2Client(ctx context
 				return ec.fieldContext_OAuth2Client_updatedAt(ctx, field)
 			case "userinfoSignedResponseAlgorithm":
 				return ec.fieldContext_OAuth2Client_userinfoSignedResponseAlgorithm(ctx, field)
-			case "organization":
-				return ec.fieldContext_OAuth2Client_organization(ctx, field)
 			case "loginBindings":
 				return ec.fieldContext_OAuth2Client_loginBindings(ctx, field)
 			}
@@ -8873,8 +8786,6 @@ func (ec *executionContext) fieldContext_Mutation_updateOAuth2Client(ctx context
 				return ec.fieldContext_OAuth2Client_updatedAt(ctx, field)
 			case "userinfoSignedResponseAlgorithm":
 				return ec.fieldContext_OAuth2Client_userinfoSignedResponseAlgorithm(ctx, field)
-			case "organization":
-				return ec.fieldContext_OAuth2Client_organization(ctx, field)
 			case "loginBindings":
 				return ec.fieldContext_OAuth2Client_loginBindings(ctx, field)
 			}
@@ -9033,8 +8944,6 @@ func (ec *executionContext) fieldContext_Mutation_deleteOAuth2Client(ctx context
 				return ec.fieldContext_OAuth2Client_updatedAt(ctx, field)
 			case "userinfoSignedResponseAlgorithm":
 				return ec.fieldContext_OAuth2Client_userinfoSignedResponseAlgorithm(ctx, field)
-			case "organization":
-				return ec.fieldContext_OAuth2Client_organization(ctx, field)
 			case "loginBindings":
 				return ec.fieldContext_OAuth2Client_loginBindings(ctx, field)
 			}
@@ -11243,53 +11152,6 @@ func (ec *executionContext) fieldContext_OAuth2Client_userinfoSignedResponseAlgo
 	return fc, nil
 }
 
-func (ec *executionContext) _OAuth2Client_organization(ctx context.Context, field graphql.CollectedField, obj *model.OAuth2Client) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_OAuth2Client_organization(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp := ec._fieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Organization, nil
-	})
-
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(*model.Organization)
-	fc.Result = res
-	return ec.marshalNOrganization2ᚖgithubᚗcomᚋpluralshᚋtraceᚑshieldᚋgraphᚋmodelᚐOrganization(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_OAuth2Client_organization(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "OAuth2Client",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "name":
-				return ec.fieldContext_Organization_name(ctx, field)
-			case "admins":
-				return ec.fieldContext_Organization_admins(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type Organization", field.Name)
-		},
-	}
-	return fc, nil
-}
-
 func (ec *executionContext) _OAuth2Client_loginBindings(ctx context.Context, field graphql.CollectedField, obj *model.OAuth2Client) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_OAuth2Client_loginBindings(ctx, field)
 	if err != nil {
@@ -11563,8 +11425,6 @@ func (ec *executionContext) fieldContext_OAuth2ConsentRequest_client(ctx context
 				return ec.fieldContext_OAuth2Client_updatedAt(ctx, field)
 			case "userinfoSignedResponseAlgorithm":
 				return ec.fieldContext_OAuth2Client_userinfoSignedResponseAlgorithm(ctx, field)
-			case "organization":
-				return ec.fieldContext_OAuth2Client_organization(ctx, field)
 			case "loginBindings":
 				return ec.fieldContext_OAuth2Client_loginBindings(ctx, field)
 			}
@@ -12122,8 +11982,6 @@ func (ec *executionContext) fieldContext_OAuth2LoginRequest_client(ctx context.C
 				return ec.fieldContext_OAuth2Client_updatedAt(ctx, field)
 			case "userinfoSignedResponseAlgorithm":
 				return ec.fieldContext_OAuth2Client_userinfoSignedResponseAlgorithm(ctx, field)
-			case "organization":
-				return ec.fieldContext_OAuth2Client_organization(ctx, field)
 			case "loginBindings":
 				return ec.fieldContext_OAuth2Client_loginBindings(ctx, field)
 			}
@@ -13629,8 +13487,6 @@ func (ec *executionContext) fieldContext_ObservabilityTenantPermissionBindings_u
 				return ec.fieldContext_User_email(ctx, field)
 			case "groups":
 				return ec.fieldContext_User_groups(ctx, field)
-			case "organization":
-				return ec.fieldContext_User_organization(ctx, field)
 			case "recoveryLink":
 				return ec.fieldContext_User_recoveryLink(ctx, field)
 			}
@@ -13677,8 +13533,6 @@ func (ec *executionContext) fieldContext_ObservabilityTenantPermissionBindings_g
 				return ec.fieldContext_Group_name(ctx, field)
 			case "members":
 				return ec.fieldContext_Group_members(ctx, field)
-			case "organization":
-				return ec.fieldContext_Group_organization(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Group", field.Name)
 		},
@@ -13795,8 +13649,6 @@ func (ec *executionContext) fieldContext_ObservabilityTenantPermissionBindings_o
 				return ec.fieldContext_OAuth2Client_updatedAt(ctx, field)
 			case "userinfoSignedResponseAlgorithm":
 				return ec.fieldContext_OAuth2Client_userinfoSignedResponseAlgorithm(ctx, field)
-			case "organization":
-				return ec.fieldContext_OAuth2Client_organization(ctx, field)
 			case "loginBindings":
 				return ec.fieldContext_OAuth2Client_loginBindings(ctx, field)
 			}
@@ -14078,8 +13930,6 @@ func (ec *executionContext) fieldContext_Organization_admins(ctx context.Context
 				return ec.fieldContext_User_email(ctx, field)
 			case "groups":
 				return ec.fieldContext_User_groups(ctx, field)
-			case "organization":
-				return ec.fieldContext_User_organization(ctx, field)
 			case "recoveryLink":
 				return ec.fieldContext_User_recoveryLink(ctx, field)
 			}
@@ -14159,8 +14009,6 @@ func (ec *executionContext) fieldContext_Query_listUsers(ctx context.Context, fi
 				return ec.fieldContext_User_email(ctx, field)
 			case "groups":
 				return ec.fieldContext_User_groups(ctx, field)
-			case "organization":
-				return ec.fieldContext_User_organization(ctx, field)
 			case "recoveryLink":
 				return ec.fieldContext_User_recoveryLink(ctx, field)
 			}
@@ -14240,8 +14088,6 @@ func (ec *executionContext) fieldContext_Query_getUser(ctx context.Context, fiel
 				return ec.fieldContext_User_email(ctx, field)
 			case "groups":
 				return ec.fieldContext_User_groups(ctx, field)
-			case "organization":
-				return ec.fieldContext_User_organization(ctx, field)
 			case "recoveryLink":
 				return ec.fieldContext_User_recoveryLink(ctx, field)
 			}
@@ -14325,8 +14171,6 @@ func (ec *executionContext) fieldContext_Query_listGroups(ctx context.Context, f
 				return ec.fieldContext_Group_name(ctx, field)
 			case "members":
 				return ec.fieldContext_Group_members(ctx, field)
-			case "organization":
-				return ec.fieldContext_Group_organization(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Group", field.Name)
 		},
@@ -14472,8 +14316,6 @@ func (ec *executionContext) fieldContext_Query_listOAuth2Clients(ctx context.Con
 				return ec.fieldContext_OAuth2Client_updatedAt(ctx, field)
 			case "userinfoSignedResponseAlgorithm":
 				return ec.fieldContext_OAuth2Client_userinfoSignedResponseAlgorithm(ctx, field)
-			case "organization":
-				return ec.fieldContext_OAuth2Client_organization(ctx, field)
 			case "loginBindings":
 				return ec.fieldContext_OAuth2Client_loginBindings(ctx, field)
 			}
@@ -14618,8 +14460,6 @@ func (ec *executionContext) fieldContext_Query_getOAuth2Client(ctx context.Conte
 				return ec.fieldContext_OAuth2Client_updatedAt(ctx, field)
 			case "userinfoSignedResponseAlgorithm":
 				return ec.fieldContext_OAuth2Client_userinfoSignedResponseAlgorithm(ctx, field)
-			case "organization":
-				return ec.fieldContext_OAuth2Client_organization(ctx, field)
 			case "loginBindings":
 				return ec.fieldContext_OAuth2Client_loginBindings(ctx, field)
 			}
@@ -15500,57 +15340,8 @@ func (ec *executionContext) fieldContext_User_groups(ctx context.Context, field 
 				return ec.fieldContext_Group_name(ctx, field)
 			case "members":
 				return ec.fieldContext_Group_members(ctx, field)
-			case "organization":
-				return ec.fieldContext_Group_organization(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Group", field.Name)
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _User_organization(ctx context.Context, field graphql.CollectedField, obj *model.User) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_User_organization(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp := ec._fieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Organization, nil
-	})
-
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(*model.Organization)
-	fc.Result = res
-	return ec.marshalNOrganization2ᚖgithubᚗcomᚋpluralshᚋtraceᚑshieldᚋgraphᚋmodelᚐOrganization(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_User_organization(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "User",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "name":
-				return ec.fieldContext_Organization_name(ctx, field)
-			case "admins":
-				return ec.fieldContext_Organization_admins(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type Organization", field.Name)
 		},
 	}
 	return fc, nil
@@ -18278,11 +18069,6 @@ func (ec *executionContext) _Group(ctx context.Context, sel ast.SelectionSet, ob
 			}
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
-		case "organization":
-			out.Values[i] = ec._Group_organization(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&out.Invalids, 1)
-			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -18931,11 +18717,6 @@ func (ec *executionContext) _OAuth2Client(ctx context.Context, sel ast.Selection
 			out.Values[i] = ec._OAuth2Client_updatedAt(ctx, field, obj)
 		case "userinfoSignedResponseAlgorithm":
 			out.Values[i] = ec._OAuth2Client_userinfoSignedResponseAlgorithm(ctx, field, obj)
-		case "organization":
-			out.Values[i] = ec._OAuth2Client_organization(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&out.Invalids, 1)
-			}
 		case "loginBindings":
 			field := field
 
@@ -20426,11 +20207,6 @@ func (ec *executionContext) _User(ctx context.Context, sel ast.SelectionSet, obj
 			}
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
-		case "organization":
-			out.Values[i] = ec._User_organization(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&out.Invalids, 1)
-			}
 		case "recoveryLink":
 			out.Values[i] = ec._User_recoveryLink(ctx, field, obj)
 		default:

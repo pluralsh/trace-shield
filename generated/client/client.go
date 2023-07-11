@@ -126,7 +126,6 @@ type OAuth2ClientFragment struct {
 	TosURI                                     *string                             "json:\"tosUri,omitempty\" graphql:\"tosUri\""
 	UpdatedAt                                  *time.Time                          "json:\"updatedAt,omitempty\" graphql:\"updatedAt\""
 	UserinfoSignedResponseAlgorithm            *string                             "json:\"userinfoSignedResponseAlgorithm,omitempty\" graphql:\"userinfoSignedResponseAlgorithm\""
-	Organization                               OAuth2ClientFragment_Organization   "json:\"organization\" graphql:\"organization\""
 	LoginBindings                              *OAuth2ClientFragment_LoginBindings "json:\"loginBindings,omitempty\" graphql:\"loginBindings\""
 }
 
@@ -351,12 +350,6 @@ func (t *OAuth2ClientFragment) GetUserinfoSignedResponseAlgorithm() *string {
 		t = &OAuth2ClientFragment{}
 	}
 	return t.UserinfoSignedResponseAlgorithm
-}
-func (t *OAuth2ClientFragment) GetOrganization() *OAuth2ClientFragment_Organization {
-	if t == nil {
-		t = &OAuth2ClientFragment{}
-	}
-	return &t.Organization
 }
 func (t *OAuth2ClientFragment) GetLoginBindings() *OAuth2ClientFragment_LoginBindings {
 	if t == nil {
@@ -606,17 +599,6 @@ func (t *GroupFragment_Members_UserFragmentNoGroups_Name) GetLast() *string {
 	return t.Last
 }
 
-type OAuth2ClientFragment_Organization struct {
-	Name string "json:\"name\" graphql:\"name\""
-}
-
-func (t *OAuth2ClientFragment_Organization) GetName() string {
-	if t == nil {
-		t = &OAuth2ClientFragment_Organization{}
-	}
-	return t.Name
-}
-
 type OAuth2ClientFragment_LoginBindings_Users struct {
 	ID    string "json:\"id\" graphql:\"id\""
 	Email string "json:\"email\" graphql:\"email\""
@@ -698,17 +680,6 @@ func (t *ObservabilityTenantFragment_Admins_ObservabilityTenantPermissionBinding
 		t = &ObservabilityTenantFragment_Admins_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name{}
 	}
 	return t.Last
-}
-
-type ObservabilityTenantFragment_Admins_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization struct {
-	Name string "json:\"name\" graphql:\"name\""
-}
-
-func (t *ObservabilityTenantFragment_Admins_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization) GetName() string {
-	if t == nil {
-		t = &ObservabilityTenantFragment_Admins_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization{}
-	}
-	return t.Name
 }
 
 type ObservabilityTenantFragment_Admins_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users struct {
@@ -794,17 +765,6 @@ func (t *ObservabilityTenantFragment_MetricsReaders_ObservabilityTenantPermissio
 	return t.Last
 }
 
-type ObservabilityTenantFragment_MetricsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization struct {
-	Name string "json:\"name\" graphql:\"name\""
-}
-
-func (t *ObservabilityTenantFragment_MetricsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization) GetName() string {
-	if t == nil {
-		t = &ObservabilityTenantFragment_MetricsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization{}
-	}
-	return t.Name
-}
-
 type ObservabilityTenantFragment_MetricsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users struct {
 	ID    string "json:\"id\" graphql:\"id\""
 	Email string "json:\"email\" graphql:\"email\""
@@ -886,17 +846,6 @@ func (t *ObservabilityTenantFragment_MetricsWriters_ObservabilityTenantPermissio
 		t = &ObservabilityTenantFragment_MetricsWriters_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name{}
 	}
 	return t.Last
-}
-
-type ObservabilityTenantFragment_MetricsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization struct {
-	Name string "json:\"name\" graphql:\"name\""
-}
-
-func (t *ObservabilityTenantFragment_MetricsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization) GetName() string {
-	if t == nil {
-		t = &ObservabilityTenantFragment_MetricsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization{}
-	}
-	return t.Name
 }
 
 type ObservabilityTenantFragment_MetricsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users struct {
@@ -982,17 +931,6 @@ func (t *ObservabilityTenantFragment_MetricsRulesReaders_ObservabilityTenantPerm
 	return t.Last
 }
 
-type ObservabilityTenantFragment_MetricsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization struct {
-	Name string "json:\"name\" graphql:\"name\""
-}
-
-func (t *ObservabilityTenantFragment_MetricsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization) GetName() string {
-	if t == nil {
-		t = &ObservabilityTenantFragment_MetricsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization{}
-	}
-	return t.Name
-}
-
 type ObservabilityTenantFragment_MetricsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users struct {
 	ID    string "json:\"id\" graphql:\"id\""
 	Email string "json:\"email\" graphql:\"email\""
@@ -1074,17 +1012,6 @@ func (t *ObservabilityTenantFragment_MetricsRulesWriters_ObservabilityTenantPerm
 		t = &ObservabilityTenantFragment_MetricsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name{}
 	}
 	return t.Last
-}
-
-type ObservabilityTenantFragment_MetricsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization struct {
-	Name string "json:\"name\" graphql:\"name\""
-}
-
-func (t *ObservabilityTenantFragment_MetricsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization) GetName() string {
-	if t == nil {
-		t = &ObservabilityTenantFragment_MetricsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization{}
-	}
-	return t.Name
 }
 
 type ObservabilityTenantFragment_MetricsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users struct {
@@ -1170,17 +1097,6 @@ func (t *ObservabilityTenantFragment_MetricsRulesDeleters_ObservabilityTenantPer
 	return t.Last
 }
 
-type ObservabilityTenantFragment_MetricsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization struct {
-	Name string "json:\"name\" graphql:\"name\""
-}
-
-func (t *ObservabilityTenantFragment_MetricsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization) GetName() string {
-	if t == nil {
-		t = &ObservabilityTenantFragment_MetricsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization{}
-	}
-	return t.Name
-}
-
 type ObservabilityTenantFragment_MetricsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users struct {
 	ID    string "json:\"id\" graphql:\"id\""
 	Email string "json:\"email\" graphql:\"email\""
@@ -1262,17 +1178,6 @@ func (t *ObservabilityTenantFragment_MetricsAlertsReaders_ObservabilityTenantPer
 		t = &ObservabilityTenantFragment_MetricsAlertsReaders_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name{}
 	}
 	return t.Last
-}
-
-type ObservabilityTenantFragment_MetricsAlertsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization struct {
-	Name string "json:\"name\" graphql:\"name\""
-}
-
-func (t *ObservabilityTenantFragment_MetricsAlertsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization) GetName() string {
-	if t == nil {
-		t = &ObservabilityTenantFragment_MetricsAlertsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization{}
-	}
-	return t.Name
 }
 
 type ObservabilityTenantFragment_MetricsAlertsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users struct {
@@ -1358,17 +1263,6 @@ func (t *ObservabilityTenantFragment_MetricsAlertsWriters_ObservabilityTenantPer
 	return t.Last
 }
 
-type ObservabilityTenantFragment_MetricsAlertsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization struct {
-	Name string "json:\"name\" graphql:\"name\""
-}
-
-func (t *ObservabilityTenantFragment_MetricsAlertsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization) GetName() string {
-	if t == nil {
-		t = &ObservabilityTenantFragment_MetricsAlertsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization{}
-	}
-	return t.Name
-}
-
 type ObservabilityTenantFragment_MetricsAlertsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users struct {
 	ID    string "json:\"id\" graphql:\"id\""
 	Email string "json:\"email\" graphql:\"email\""
@@ -1450,17 +1344,6 @@ func (t *ObservabilityTenantFragment_LogsReaders_ObservabilityTenantPermissionBi
 		t = &ObservabilityTenantFragment_LogsReaders_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name{}
 	}
 	return t.Last
-}
-
-type ObservabilityTenantFragment_LogsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization struct {
-	Name string "json:\"name\" graphql:\"name\""
-}
-
-func (t *ObservabilityTenantFragment_LogsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization) GetName() string {
-	if t == nil {
-		t = &ObservabilityTenantFragment_LogsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization{}
-	}
-	return t.Name
 }
 
 type ObservabilityTenantFragment_LogsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users struct {
@@ -1546,17 +1429,6 @@ func (t *ObservabilityTenantFragment_LogsWriters_ObservabilityTenantPermissionBi
 	return t.Last
 }
 
-type ObservabilityTenantFragment_LogsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization struct {
-	Name string "json:\"name\" graphql:\"name\""
-}
-
-func (t *ObservabilityTenantFragment_LogsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization) GetName() string {
-	if t == nil {
-		t = &ObservabilityTenantFragment_LogsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization{}
-	}
-	return t.Name
-}
-
 type ObservabilityTenantFragment_LogsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users struct {
 	ID    string "json:\"id\" graphql:\"id\""
 	Email string "json:\"email\" graphql:\"email\""
@@ -1638,17 +1510,6 @@ func (t *ObservabilityTenantFragment_LogsRulesReaders_ObservabilityTenantPermiss
 		t = &ObservabilityTenantFragment_LogsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name{}
 	}
 	return t.Last
-}
-
-type ObservabilityTenantFragment_LogsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization struct {
-	Name string "json:\"name\" graphql:\"name\""
-}
-
-func (t *ObservabilityTenantFragment_LogsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization) GetName() string {
-	if t == nil {
-		t = &ObservabilityTenantFragment_LogsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization{}
-	}
-	return t.Name
 }
 
 type ObservabilityTenantFragment_LogsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users struct {
@@ -1734,17 +1595,6 @@ func (t *ObservabilityTenantFragment_LogsRulesWriters_ObservabilityTenantPermiss
 	return t.Last
 }
 
-type ObservabilityTenantFragment_LogsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization struct {
-	Name string "json:\"name\" graphql:\"name\""
-}
-
-func (t *ObservabilityTenantFragment_LogsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization) GetName() string {
-	if t == nil {
-		t = &ObservabilityTenantFragment_LogsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization{}
-	}
-	return t.Name
-}
-
 type ObservabilityTenantFragment_LogsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users struct {
 	ID    string "json:\"id\" graphql:\"id\""
 	Email string "json:\"email\" graphql:\"email\""
@@ -1826,17 +1676,6 @@ func (t *ObservabilityTenantFragment_LogsRulesDeleters_ObservabilityTenantPermis
 		t = &ObservabilityTenantFragment_LogsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name{}
 	}
 	return t.Last
-}
-
-type ObservabilityTenantFragment_LogsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization struct {
-	Name string "json:\"name\" graphql:\"name\""
-}
-
-func (t *ObservabilityTenantFragment_LogsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization) GetName() string {
-	if t == nil {
-		t = &ObservabilityTenantFragment_LogsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization{}
-	}
-	return t.Name
 }
 
 type ObservabilityTenantFragment_LogsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users struct {
@@ -1922,17 +1761,6 @@ func (t *ObservabilityTenantFragment_TracesReaders_ObservabilityTenantPermission
 	return t.Last
 }
 
-type ObservabilityTenantFragment_TracesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization struct {
-	Name string "json:\"name\" graphql:\"name\""
-}
-
-func (t *ObservabilityTenantFragment_TracesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization) GetName() string {
-	if t == nil {
-		t = &ObservabilityTenantFragment_TracesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization{}
-	}
-	return t.Name
-}
-
 type ObservabilityTenantFragment_TracesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users struct {
 	ID    string "json:\"id\" graphql:\"id\""
 	Email string "json:\"email\" graphql:\"email\""
@@ -2014,17 +1842,6 @@ func (t *ObservabilityTenantFragment_TracesWriters_ObservabilityTenantPermission
 		t = &ObservabilityTenantFragment_TracesWriters_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name{}
 	}
 	return t.Last
-}
-
-type ObservabilityTenantFragment_TracesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization struct {
-	Name string "json:\"name\" graphql:\"name\""
-}
-
-func (t *ObservabilityTenantFragment_TracesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization) GetName() string {
-	if t == nil {
-		t = &ObservabilityTenantFragment_TracesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization{}
-	}
-	return t.Name
 }
 
 type ObservabilityTenantFragment_TracesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users struct {
@@ -2644,17 +2461,6 @@ func (t *ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Memb
 		t = &ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name{}
 	}
 	return t.Last
-}
-
-type ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization struct {
-	Name string "json:\"name\" graphql:\"name\""
-}
-
-func (t *ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization) GetName() string {
-	if t == nil {
-		t = &ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization{}
-	}
-	return t.Name
 }
 
 type ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users struct {
@@ -3334,17 +3140,6 @@ func (t *DeleteGroup_DeleteGroup) GetName() string {
 	return t.Name
 }
 
-type ListOAuth2Clients_ListOAuth2Clients_OAuth2ClientFragment_Organization struct {
-	Name string "json:\"name\" graphql:\"name\""
-}
-
-func (t *ListOAuth2Clients_ListOAuth2Clients_OAuth2ClientFragment_Organization) GetName() string {
-	if t == nil {
-		t = &ListOAuth2Clients_ListOAuth2Clients_OAuth2ClientFragment_Organization{}
-	}
-	return t.Name
-}
-
 type ListOAuth2Clients_ListOAuth2Clients_OAuth2ClientFragment_LoginBindings_Users struct {
 	ID    string "json:\"id\" graphql:\"id\""
 	Email string "json:\"email\" graphql:\"email\""
@@ -3390,17 +3185,6 @@ func (t *ListOAuth2Clients_ListOAuth2Clients_OAuth2ClientFragment_LoginBindings)
 		t = &ListOAuth2Clients_ListOAuth2Clients_OAuth2ClientFragment_LoginBindings{}
 	}
 	return t.Groups
-}
-
-type GetOAuth2Client_GetOAuth2Client_OAuth2ClientFragment_Organization struct {
-	Name string "json:\"name\" graphql:\"name\""
-}
-
-func (t *GetOAuth2Client_GetOAuth2Client_OAuth2ClientFragment_Organization) GetName() string {
-	if t == nil {
-		t = &GetOAuth2Client_GetOAuth2Client_OAuth2ClientFragment_Organization{}
-	}
-	return t.Name
 }
 
 type GetOAuth2Client_GetOAuth2Client_OAuth2ClientFragment_LoginBindings_Users struct {
@@ -3461,17 +3245,6 @@ func (t *DeleteOAuth2Client_DeleteOAuth2Client) GetClientID() *string {
 	return t.ClientID
 }
 
-type UpdateOAuth2Client_UpdateOAuth2Client_OAuth2ClientFragment_Organization struct {
-	Name string "json:\"name\" graphql:\"name\""
-}
-
-func (t *UpdateOAuth2Client_UpdateOAuth2Client_OAuth2ClientFragment_Organization) GetName() string {
-	if t == nil {
-		t = &UpdateOAuth2Client_UpdateOAuth2Client_OAuth2ClientFragment_Organization{}
-	}
-	return t.Name
-}
-
 type UpdateOAuth2Client_UpdateOAuth2Client_OAuth2ClientFragment_LoginBindings_Users struct {
 	ID    string "json:\"id\" graphql:\"id\""
 	Email string "json:\"email\" graphql:\"email\""
@@ -3517,17 +3290,6 @@ func (t *UpdateOAuth2Client_UpdateOAuth2Client_OAuth2ClientFragment_LoginBinding
 		t = &UpdateOAuth2Client_UpdateOAuth2Client_OAuth2ClientFragment_LoginBindings{}
 	}
 	return t.Groups
-}
-
-type CreateOAuth2Client_CreateOAuth2Client_OAuth2ClientFragment_Organization struct {
-	Name string "json:\"name\" graphql:\"name\""
-}
-
-func (t *CreateOAuth2Client_CreateOAuth2Client_OAuth2ClientFragment_Organization) GetName() string {
-	if t == nil {
-		t = &CreateOAuth2Client_CreateOAuth2Client_OAuth2ClientFragment_Organization{}
-	}
-	return t.Name
 }
 
 type CreateOAuth2Client_CreateOAuth2Client_OAuth2ClientFragment_LoginBindings_Users struct {
@@ -3613,17 +3375,6 @@ func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFr
 	return t.Last
 }
 
-type ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Admins_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization struct {
-	Name string "json:\"name\" graphql:\"name\""
-}
-
-func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Admins_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization) GetName() string {
-	if t == nil {
-		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Admins_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization{}
-	}
-	return t.Name
-}
-
 type ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Admins_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users struct {
 	ID    string "json:\"id\" graphql:\"id\""
 	Email string "json:\"email\" graphql:\"email\""
@@ -3705,17 +3456,6 @@ func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFr
 		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsReaders_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name{}
 	}
 	return t.Last
-}
-
-type ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization struct {
-	Name string "json:\"name\" graphql:\"name\""
-}
-
-func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization) GetName() string {
-	if t == nil {
-		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization{}
-	}
-	return t.Name
 }
 
 type ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users struct {
@@ -3801,17 +3541,6 @@ func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFr
 	return t.Last
 }
 
-type ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization struct {
-	Name string "json:\"name\" graphql:\"name\""
-}
-
-func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization) GetName() string {
-	if t == nil {
-		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization{}
-	}
-	return t.Name
-}
-
 type ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users struct {
 	ID    string "json:\"id\" graphql:\"id\""
 	Email string "json:\"email\" graphql:\"email\""
@@ -3893,17 +3622,6 @@ func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFr
 		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name{}
 	}
 	return t.Last
-}
-
-type ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization struct {
-	Name string "json:\"name\" graphql:\"name\""
-}
-
-func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization) GetName() string {
-	if t == nil {
-		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization{}
-	}
-	return t.Name
 }
 
 type ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users struct {
@@ -3989,17 +3707,6 @@ func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFr
 	return t.Last
 }
 
-type ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization struct {
-	Name string "json:\"name\" graphql:\"name\""
-}
-
-func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization) GetName() string {
-	if t == nil {
-		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization{}
-	}
-	return t.Name
-}
-
 type ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users struct {
 	ID    string "json:\"id\" graphql:\"id\""
 	Email string "json:\"email\" graphql:\"email\""
@@ -4081,17 +3788,6 @@ func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFr
 		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name{}
 	}
 	return t.Last
-}
-
-type ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization struct {
-	Name string "json:\"name\" graphql:\"name\""
-}
-
-func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization) GetName() string {
-	if t == nil {
-		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization{}
-	}
-	return t.Name
 }
 
 type ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users struct {
@@ -4177,17 +3873,6 @@ func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFr
 	return t.Last
 }
 
-type ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsAlertsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization struct {
-	Name string "json:\"name\" graphql:\"name\""
-}
-
-func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsAlertsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization) GetName() string {
-	if t == nil {
-		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsAlertsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization{}
-	}
-	return t.Name
-}
-
 type ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsAlertsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users struct {
 	ID    string "json:\"id\" graphql:\"id\""
 	Email string "json:\"email\" graphql:\"email\""
@@ -4269,17 +3954,6 @@ func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFr
 		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsAlertsWriters_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name{}
 	}
 	return t.Last
-}
-
-type ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsAlertsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization struct {
-	Name string "json:\"name\" graphql:\"name\""
-}
-
-func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsAlertsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization) GetName() string {
-	if t == nil {
-		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsAlertsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization{}
-	}
-	return t.Name
 }
 
 type ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_MetricsAlertsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users struct {
@@ -4365,17 +4039,6 @@ func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFr
 	return t.Last
 }
 
-type ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_LogsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization struct {
-	Name string "json:\"name\" graphql:\"name\""
-}
-
-func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_LogsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization) GetName() string {
-	if t == nil {
-		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_LogsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization{}
-	}
-	return t.Name
-}
-
 type ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_LogsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users struct {
 	ID    string "json:\"id\" graphql:\"id\""
 	Email string "json:\"email\" graphql:\"email\""
@@ -4457,17 +4120,6 @@ func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFr
 		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_LogsWriters_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name{}
 	}
 	return t.Last
-}
-
-type ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_LogsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization struct {
-	Name string "json:\"name\" graphql:\"name\""
-}
-
-func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_LogsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization) GetName() string {
-	if t == nil {
-		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_LogsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization{}
-	}
-	return t.Name
 }
 
 type ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_LogsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users struct {
@@ -4553,17 +4205,6 @@ func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFr
 	return t.Last
 }
 
-type ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_LogsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization struct {
-	Name string "json:\"name\" graphql:\"name\""
-}
-
-func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_LogsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization) GetName() string {
-	if t == nil {
-		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_LogsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization{}
-	}
-	return t.Name
-}
-
 type ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_LogsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users struct {
 	ID    string "json:\"id\" graphql:\"id\""
 	Email string "json:\"email\" graphql:\"email\""
@@ -4645,17 +4286,6 @@ func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFr
 		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_LogsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name{}
 	}
 	return t.Last
-}
-
-type ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_LogsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization struct {
-	Name string "json:\"name\" graphql:\"name\""
-}
-
-func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_LogsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization) GetName() string {
-	if t == nil {
-		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_LogsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization{}
-	}
-	return t.Name
 }
 
 type ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_LogsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users struct {
@@ -4741,17 +4371,6 @@ func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFr
 	return t.Last
 }
 
-type ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_LogsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization struct {
-	Name string "json:\"name\" graphql:\"name\""
-}
-
-func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_LogsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization) GetName() string {
-	if t == nil {
-		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_LogsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization{}
-	}
-	return t.Name
-}
-
 type ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_LogsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users struct {
 	ID    string "json:\"id\" graphql:\"id\""
 	Email string "json:\"email\" graphql:\"email\""
@@ -4835,17 +4454,6 @@ func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFr
 	return t.Last
 }
 
-type ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_TracesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization struct {
-	Name string "json:\"name\" graphql:\"name\""
-}
-
-func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_TracesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization) GetName() string {
-	if t == nil {
-		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_TracesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization{}
-	}
-	return t.Name
-}
-
 type ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_TracesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users struct {
 	ID    string "json:\"id\" graphql:\"id\""
 	Email string "json:\"email\" graphql:\"email\""
@@ -4927,17 +4535,6 @@ func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFr
 		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_TracesWriters_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name{}
 	}
 	return t.Last
-}
-
-type ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_TracesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization struct {
-	Name string "json:\"name\" graphql:\"name\""
-}
-
-func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_TracesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization) GetName() string {
-	if t == nil {
-		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_TracesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization{}
-	}
-	return t.Name
 }
 
 type ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_TracesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users struct {
@@ -5559,17 +5156,6 @@ func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragme
 	return t.Last
 }
 
-type GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Admins_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization struct {
-	Name string "json:\"name\" graphql:\"name\""
-}
-
-func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Admins_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization) GetName() string {
-	if t == nil {
-		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Admins_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization{}
-	}
-	return t.Name
-}
-
 type GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Admins_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users struct {
 	ID    string "json:\"id\" graphql:\"id\""
 	Email string "json:\"email\" graphql:\"email\""
@@ -5651,17 +5237,6 @@ func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragme
 		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsReaders_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name{}
 	}
 	return t.Last
-}
-
-type GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization struct {
-	Name string "json:\"name\" graphql:\"name\""
-}
-
-func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization) GetName() string {
-	if t == nil {
-		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization{}
-	}
-	return t.Name
 }
 
 type GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users struct {
@@ -5747,17 +5322,6 @@ func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragme
 	return t.Last
 }
 
-type GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization struct {
-	Name string "json:\"name\" graphql:\"name\""
-}
-
-func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization) GetName() string {
-	if t == nil {
-		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization{}
-	}
-	return t.Name
-}
-
 type GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users struct {
 	ID    string "json:\"id\" graphql:\"id\""
 	Email string "json:\"email\" graphql:\"email\""
@@ -5839,17 +5403,6 @@ func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragme
 		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name{}
 	}
 	return t.Last
-}
-
-type GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization struct {
-	Name string "json:\"name\" graphql:\"name\""
-}
-
-func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization) GetName() string {
-	if t == nil {
-		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization{}
-	}
-	return t.Name
 }
 
 type GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users struct {
@@ -5935,17 +5488,6 @@ func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragme
 	return t.Last
 }
 
-type GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization struct {
-	Name string "json:\"name\" graphql:\"name\""
-}
-
-func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization) GetName() string {
-	if t == nil {
-		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization{}
-	}
-	return t.Name
-}
-
 type GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users struct {
 	ID    string "json:\"id\" graphql:\"id\""
 	Email string "json:\"email\" graphql:\"email\""
@@ -6027,17 +5569,6 @@ func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragme
 		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name{}
 	}
 	return t.Last
-}
-
-type GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization struct {
-	Name string "json:\"name\" graphql:\"name\""
-}
-
-func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization) GetName() string {
-	if t == nil {
-		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization{}
-	}
-	return t.Name
 }
 
 type GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users struct {
@@ -6123,17 +5654,6 @@ func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragme
 	return t.Last
 }
 
-type GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsAlertsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization struct {
-	Name string "json:\"name\" graphql:\"name\""
-}
-
-func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsAlertsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization) GetName() string {
-	if t == nil {
-		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsAlertsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization{}
-	}
-	return t.Name
-}
-
 type GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsAlertsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users struct {
 	ID    string "json:\"id\" graphql:\"id\""
 	Email string "json:\"email\" graphql:\"email\""
@@ -6215,17 +5735,6 @@ func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragme
 		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsAlertsWriters_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name{}
 	}
 	return t.Last
-}
-
-type GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsAlertsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization struct {
-	Name string "json:\"name\" graphql:\"name\""
-}
-
-func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsAlertsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization) GetName() string {
-	if t == nil {
-		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsAlertsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization{}
-	}
-	return t.Name
 }
 
 type GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_MetricsAlertsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users struct {
@@ -6311,17 +5820,6 @@ func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragme
 	return t.Last
 }
 
-type GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_LogsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization struct {
-	Name string "json:\"name\" graphql:\"name\""
-}
-
-func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_LogsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization) GetName() string {
-	if t == nil {
-		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_LogsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization{}
-	}
-	return t.Name
-}
-
 type GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_LogsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users struct {
 	ID    string "json:\"id\" graphql:\"id\""
 	Email string "json:\"email\" graphql:\"email\""
@@ -6403,17 +5901,6 @@ func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragme
 		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_LogsWriters_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name{}
 	}
 	return t.Last
-}
-
-type GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_LogsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization struct {
-	Name string "json:\"name\" graphql:\"name\""
-}
-
-func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_LogsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization) GetName() string {
-	if t == nil {
-		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_LogsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization{}
-	}
-	return t.Name
 }
 
 type GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_LogsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users struct {
@@ -6499,17 +5986,6 @@ func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragme
 	return t.Last
 }
 
-type GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_LogsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization struct {
-	Name string "json:\"name\" graphql:\"name\""
-}
-
-func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_LogsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization) GetName() string {
-	if t == nil {
-		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_LogsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization{}
-	}
-	return t.Name
-}
-
 type GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_LogsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users struct {
 	ID    string "json:\"id\" graphql:\"id\""
 	Email string "json:\"email\" graphql:\"email\""
@@ -6591,17 +6067,6 @@ func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragme
 		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_LogsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name{}
 	}
 	return t.Last
-}
-
-type GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_LogsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization struct {
-	Name string "json:\"name\" graphql:\"name\""
-}
-
-func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_LogsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization) GetName() string {
-	if t == nil {
-		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_LogsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization{}
-	}
-	return t.Name
 }
 
 type GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_LogsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users struct {
@@ -6687,17 +6152,6 @@ func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragme
 	return t.Last
 }
 
-type GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_LogsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization struct {
-	Name string "json:\"name\" graphql:\"name\""
-}
-
-func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_LogsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization) GetName() string {
-	if t == nil {
-		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_LogsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization{}
-	}
-	return t.Name
-}
-
 type GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_LogsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users struct {
 	ID    string "json:\"id\" graphql:\"id\""
 	Email string "json:\"email\" graphql:\"email\""
@@ -6781,17 +6235,6 @@ func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragme
 	return t.Last
 }
 
-type GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_TracesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization struct {
-	Name string "json:\"name\" graphql:\"name\""
-}
-
-func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_TracesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization) GetName() string {
-	if t == nil {
-		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_TracesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization{}
-	}
-	return t.Name
-}
-
 type GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_TracesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users struct {
 	ID    string "json:\"id\" graphql:\"id\""
 	Email string "json:\"email\" graphql:\"email\""
@@ -6873,17 +6316,6 @@ func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragme
 		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_TracesWriters_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name{}
 	}
 	return t.Last
-}
-
-type GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_TracesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization struct {
-	Name string "json:\"name\" graphql:\"name\""
-}
-
-func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_TracesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization) GetName() string {
-	if t == nil {
-		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_TracesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization{}
-	}
-	return t.Name
 }
 
 type GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_TracesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users struct {
@@ -7505,17 +6937,6 @@ func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenant
 	return t.Last
 }
 
-type CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Admins_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization struct {
-	Name string "json:\"name\" graphql:\"name\""
-}
-
-func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Admins_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization) GetName() string {
-	if t == nil {
-		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Admins_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization{}
-	}
-	return t.Name
-}
-
 type CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Admins_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users struct {
 	ID    string "json:\"id\" graphql:\"id\""
 	Email string "json:\"email\" graphql:\"email\""
@@ -7597,17 +7018,6 @@ func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenant
 		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsReaders_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name{}
 	}
 	return t.Last
-}
-
-type CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization struct {
-	Name string "json:\"name\" graphql:\"name\""
-}
-
-func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization) GetName() string {
-	if t == nil {
-		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization{}
-	}
-	return t.Name
 }
 
 type CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users struct {
@@ -7693,17 +7103,6 @@ func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenant
 	return t.Last
 }
 
-type CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization struct {
-	Name string "json:\"name\" graphql:\"name\""
-}
-
-func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization) GetName() string {
-	if t == nil {
-		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization{}
-	}
-	return t.Name
-}
-
 type CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users struct {
 	ID    string "json:\"id\" graphql:\"id\""
 	Email string "json:\"email\" graphql:\"email\""
@@ -7785,17 +7184,6 @@ func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenant
 		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name{}
 	}
 	return t.Last
-}
-
-type CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization struct {
-	Name string "json:\"name\" graphql:\"name\""
-}
-
-func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization) GetName() string {
-	if t == nil {
-		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization{}
-	}
-	return t.Name
 }
 
 type CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users struct {
@@ -7881,17 +7269,6 @@ func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenant
 	return t.Last
 }
 
-type CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization struct {
-	Name string "json:\"name\" graphql:\"name\""
-}
-
-func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization) GetName() string {
-	if t == nil {
-		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization{}
-	}
-	return t.Name
-}
-
 type CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users struct {
 	ID    string "json:\"id\" graphql:\"id\""
 	Email string "json:\"email\" graphql:\"email\""
@@ -7973,17 +7350,6 @@ func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenant
 		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name{}
 	}
 	return t.Last
-}
-
-type CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization struct {
-	Name string "json:\"name\" graphql:\"name\""
-}
-
-func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization) GetName() string {
-	if t == nil {
-		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization{}
-	}
-	return t.Name
 }
 
 type CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users struct {
@@ -8069,17 +7435,6 @@ func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenant
 	return t.Last
 }
 
-type CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsAlertsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization struct {
-	Name string "json:\"name\" graphql:\"name\""
-}
-
-func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsAlertsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization) GetName() string {
-	if t == nil {
-		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsAlertsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization{}
-	}
-	return t.Name
-}
-
 type CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsAlertsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users struct {
 	ID    string "json:\"id\" graphql:\"id\""
 	Email string "json:\"email\" graphql:\"email\""
@@ -8161,17 +7516,6 @@ func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenant
 		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsAlertsWriters_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name{}
 	}
 	return t.Last
-}
-
-type CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsAlertsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization struct {
-	Name string "json:\"name\" graphql:\"name\""
-}
-
-func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsAlertsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization) GetName() string {
-	if t == nil {
-		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsAlertsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization{}
-	}
-	return t.Name
 }
 
 type CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_MetricsAlertsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users struct {
@@ -8257,17 +7601,6 @@ func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenant
 	return t.Last
 }
 
-type CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_LogsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization struct {
-	Name string "json:\"name\" graphql:\"name\""
-}
-
-func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_LogsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization) GetName() string {
-	if t == nil {
-		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_LogsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization{}
-	}
-	return t.Name
-}
-
 type CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_LogsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users struct {
 	ID    string "json:\"id\" graphql:\"id\""
 	Email string "json:\"email\" graphql:\"email\""
@@ -8349,17 +7682,6 @@ func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenant
 		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_LogsWriters_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name{}
 	}
 	return t.Last
-}
-
-type CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_LogsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization struct {
-	Name string "json:\"name\" graphql:\"name\""
-}
-
-func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_LogsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization) GetName() string {
-	if t == nil {
-		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_LogsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization{}
-	}
-	return t.Name
 }
 
 type CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_LogsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users struct {
@@ -8445,17 +7767,6 @@ func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenant
 	return t.Last
 }
 
-type CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_LogsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization struct {
-	Name string "json:\"name\" graphql:\"name\""
-}
-
-func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_LogsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization) GetName() string {
-	if t == nil {
-		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_LogsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization{}
-	}
-	return t.Name
-}
-
 type CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_LogsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users struct {
 	ID    string "json:\"id\" graphql:\"id\""
 	Email string "json:\"email\" graphql:\"email\""
@@ -8537,17 +7848,6 @@ func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenant
 		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_LogsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name{}
 	}
 	return t.Last
-}
-
-type CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_LogsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization struct {
-	Name string "json:\"name\" graphql:\"name\""
-}
-
-func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_LogsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization) GetName() string {
-	if t == nil {
-		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_LogsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization{}
-	}
-	return t.Name
 }
 
 type CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_LogsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users struct {
@@ -8633,17 +7933,6 @@ func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenant
 	return t.Last
 }
 
-type CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_LogsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization struct {
-	Name string "json:\"name\" graphql:\"name\""
-}
-
-func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_LogsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization) GetName() string {
-	if t == nil {
-		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_LogsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization{}
-	}
-	return t.Name
-}
-
 type CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_LogsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users struct {
 	ID    string "json:\"id\" graphql:\"id\""
 	Email string "json:\"email\" graphql:\"email\""
@@ -8727,17 +8016,6 @@ func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenant
 	return t.Last
 }
 
-type CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_TracesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization struct {
-	Name string "json:\"name\" graphql:\"name\""
-}
-
-func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_TracesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization) GetName() string {
-	if t == nil {
-		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_TracesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization{}
-	}
-	return t.Name
-}
-
 type CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_TracesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users struct {
 	ID    string "json:\"id\" graphql:\"id\""
 	Email string "json:\"email\" graphql:\"email\""
@@ -8819,17 +8097,6 @@ func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenant
 		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_TracesWriters_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name{}
 	}
 	return t.Last
-}
-
-type CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_TracesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization struct {
-	Name string "json:\"name\" graphql:\"name\""
-}
-
-func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_TracesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization) GetName() string {
-	if t == nil {
-		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_TracesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization{}
-	}
-	return t.Name
 }
 
 type CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_TracesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users struct {
@@ -9451,17 +8718,6 @@ func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenant
 	return t.Last
 }
 
-type UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Admins_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization struct {
-	Name string "json:\"name\" graphql:\"name\""
-}
-
-func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Admins_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization) GetName() string {
-	if t == nil {
-		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Admins_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization{}
-	}
-	return t.Name
-}
-
 type UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Admins_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users struct {
 	ID    string "json:\"id\" graphql:\"id\""
 	Email string "json:\"email\" graphql:\"email\""
@@ -9543,17 +8799,6 @@ func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenant
 		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsReaders_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name{}
 	}
 	return t.Last
-}
-
-type UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization struct {
-	Name string "json:\"name\" graphql:\"name\""
-}
-
-func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization) GetName() string {
-	if t == nil {
-		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization{}
-	}
-	return t.Name
 }
 
 type UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users struct {
@@ -9639,17 +8884,6 @@ func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenant
 	return t.Last
 }
 
-type UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization struct {
-	Name string "json:\"name\" graphql:\"name\""
-}
-
-func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization) GetName() string {
-	if t == nil {
-		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization{}
-	}
-	return t.Name
-}
-
 type UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users struct {
 	ID    string "json:\"id\" graphql:\"id\""
 	Email string "json:\"email\" graphql:\"email\""
@@ -9731,17 +8965,6 @@ func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenant
 		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name{}
 	}
 	return t.Last
-}
-
-type UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization struct {
-	Name string "json:\"name\" graphql:\"name\""
-}
-
-func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization) GetName() string {
-	if t == nil {
-		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization{}
-	}
-	return t.Name
 }
 
 type UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users struct {
@@ -9827,17 +9050,6 @@ func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenant
 	return t.Last
 }
 
-type UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization struct {
-	Name string "json:\"name\" graphql:\"name\""
-}
-
-func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization) GetName() string {
-	if t == nil {
-		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization{}
-	}
-	return t.Name
-}
-
 type UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users struct {
 	ID    string "json:\"id\" graphql:\"id\""
 	Email string "json:\"email\" graphql:\"email\""
@@ -9919,17 +9131,6 @@ func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenant
 		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name{}
 	}
 	return t.Last
-}
-
-type UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization struct {
-	Name string "json:\"name\" graphql:\"name\""
-}
-
-func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization) GetName() string {
-	if t == nil {
-		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization{}
-	}
-	return t.Name
 }
 
 type UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users struct {
@@ -10015,17 +9216,6 @@ func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenant
 	return t.Last
 }
 
-type UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsAlertsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization struct {
-	Name string "json:\"name\" graphql:\"name\""
-}
-
-func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsAlertsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization) GetName() string {
-	if t == nil {
-		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsAlertsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization{}
-	}
-	return t.Name
-}
-
 type UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsAlertsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users struct {
 	ID    string "json:\"id\" graphql:\"id\""
 	Email string "json:\"email\" graphql:\"email\""
@@ -10107,17 +9297,6 @@ func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenant
 		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsAlertsWriters_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name{}
 	}
 	return t.Last
-}
-
-type UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsAlertsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization struct {
-	Name string "json:\"name\" graphql:\"name\""
-}
-
-func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsAlertsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization) GetName() string {
-	if t == nil {
-		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsAlertsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization{}
-	}
-	return t.Name
 }
 
 type UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_MetricsAlertsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users struct {
@@ -10203,17 +9382,6 @@ func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenant
 	return t.Last
 }
 
-type UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_LogsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization struct {
-	Name string "json:\"name\" graphql:\"name\""
-}
-
-func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_LogsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization) GetName() string {
-	if t == nil {
-		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_LogsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization{}
-	}
-	return t.Name
-}
-
 type UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_LogsReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users struct {
 	ID    string "json:\"id\" graphql:\"id\""
 	Email string "json:\"email\" graphql:\"email\""
@@ -10295,17 +9463,6 @@ func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenant
 		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_LogsWriters_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name{}
 	}
 	return t.Last
-}
-
-type UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_LogsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization struct {
-	Name string "json:\"name\" graphql:\"name\""
-}
-
-func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_LogsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization) GetName() string {
-	if t == nil {
-		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_LogsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization{}
-	}
-	return t.Name
 }
 
 type UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_LogsWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users struct {
@@ -10391,17 +9548,6 @@ func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenant
 	return t.Last
 }
 
-type UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_LogsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization struct {
-	Name string "json:\"name\" graphql:\"name\""
-}
-
-func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_LogsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization) GetName() string {
-	if t == nil {
-		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_LogsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization{}
-	}
-	return t.Name
-}
-
 type UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_LogsRulesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users struct {
 	ID    string "json:\"id\" graphql:\"id\""
 	Email string "json:\"email\" graphql:\"email\""
@@ -10483,17 +9629,6 @@ func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenant
 		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_LogsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name{}
 	}
 	return t.Last
-}
-
-type UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_LogsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization struct {
-	Name string "json:\"name\" graphql:\"name\""
-}
-
-func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_LogsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization) GetName() string {
-	if t == nil {
-		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_LogsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization{}
-	}
-	return t.Name
 }
 
 type UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_LogsRulesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users struct {
@@ -10579,17 +9714,6 @@ func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenant
 	return t.Last
 }
 
-type UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_LogsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization struct {
-	Name string "json:\"name\" graphql:\"name\""
-}
-
-func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_LogsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization) GetName() string {
-	if t == nil {
-		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_LogsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization{}
-	}
-	return t.Name
-}
-
 type UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_LogsRulesDeleters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users struct {
 	ID    string "json:\"id\" graphql:\"id\""
 	Email string "json:\"email\" graphql:\"email\""
@@ -10673,17 +9797,6 @@ func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenant
 	return t.Last
 }
 
-type UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_TracesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization struct {
-	Name string "json:\"name\" graphql:\"name\""
-}
-
-func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_TracesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization) GetName() string {
-	if t == nil {
-		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_TracesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization{}
-	}
-	return t.Name
-}
-
 type UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_TracesReaders_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users struct {
 	ID    string "json:\"id\" graphql:\"id\""
 	Email string "json:\"email\" graphql:\"email\""
@@ -10765,17 +9878,6 @@ func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenant
 		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_TracesWriters_ObservabilityTenantPermissionBindingsFragment_Groups_GroupFragment_Members_UserFragmentNoGroups_Name{}
 	}
 	return t.Last
-}
-
-type UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_TracesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization struct {
-	Name string "json:\"name\" graphql:\"name\""
-}
-
-func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_TracesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization) GetName() string {
-	if t == nil {
-		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_TracesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_Organization{}
-	}
-	return t.Name
 }
 
 type UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_TracesWriters_ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2ClientFragment_LoginBindings_Users struct {
@@ -11789,9 +10891,6 @@ fragment OAuth2ClientFragment on OAuth2Client {
 	tosUri
 	updatedAt
 	userinfoSignedResponseAlgorithm
-	organization {
-		name
-	}
 	loginBindings {
 		users {
 			id
@@ -11858,9 +10957,6 @@ fragment OAuth2ClientFragment on OAuth2Client {
 	tosUri
 	updatedAt
 	userinfoSignedResponseAlgorithm
-	organization {
-		name
-	}
 	loginBindings {
 		users {
 			id
@@ -11949,9 +11045,6 @@ fragment OAuth2ClientFragment on OAuth2Client {
 	tosUri
 	updatedAt
 	userinfoSignedResponseAlgorithm
-	organization {
-		name
-	}
 	loginBindings {
 		users {
 			id
@@ -12055,9 +11148,6 @@ fragment OAuth2ClientFragment on OAuth2Client {
 	tosUri
 	updatedAt
 	userinfoSignedResponseAlgorithm
-	organization {
-		name
-	}
 	loginBindings {
 		users {
 			id
@@ -12237,9 +11327,6 @@ fragment OAuth2ClientFragment on OAuth2Client {
 	tosUri
 	updatedAt
 	userinfoSignedResponseAlgorithm
-	organization {
-		name
-	}
 	loginBindings {
 		users {
 			id
@@ -12463,9 +11550,6 @@ fragment OAuth2ClientFragment on OAuth2Client {
 	tosUri
 	updatedAt
 	userinfoSignedResponseAlgorithm
-	organization {
-		name
-	}
 	loginBindings {
 		users {
 			id
@@ -12691,9 +11775,6 @@ fragment OAuth2ClientFragment on OAuth2Client {
 	tosUri
 	updatedAt
 	userinfoSignedResponseAlgorithm
-	organization {
-		name
-	}
 	loginBindings {
 		users {
 			id
@@ -12936,9 +12017,6 @@ fragment OAuth2ClientFragment on OAuth2Client {
 	tosUri
 	updatedAt
 	userinfoSignedResponseAlgorithm
-	organization {
-		name
-	}
 	loginBindings {
 		users {
 			id

@@ -212,9 +212,6 @@ fragment OAuth2ClientFragment on OAuth2Client {
   tosUri
   updatedAt
   userinfoSignedResponseAlgorithm
-  organization{
-    name
-  }
   loginBindings{
     users{
       id

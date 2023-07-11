@@ -12,8 +12,8 @@ type User {
   "The groups the user belongs to."
   groups: [Group!]
 
-  "The organization the user belongs to."
-  organization: Organization!
+  # "The organization the user belongs to."
+  # organization: Organization!
 
   "The link a user can use to recover their account."
   recoveryLink: String

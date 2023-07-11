@@ -33,8 +33,6 @@ type Group struct {
 	Name string `json:"name"`
 	// The users that are admins of the organization.
 	Members []*User `json:"members,omitempty"`
-	// The organization that the group belongs to.
-	Organization Organization `json:"organization"`
 }
 
 // Representation of users and groups that are allowed to login with through OAuth2 Client.
@@ -308,8 +306,6 @@ type OAuth2Client struct {
 	UpdatedAt *time.Time `json:"updatedAt,omitempty"`
 	// OpenID Connect Userinfo Signed Response Algorithm. UserInfoSignedResponseAlg is a string containing the JWS signing algorithm (alg) parameter required for signing UserInfo Responses. The value none MAY be used, which indicates that the UserInfo Response will not be signed. The alg value RS256 MUST be used unless support for RS256 has been explicitly disabled. If support for RS256 has been disabled, the value none MUST be used.
 	UserinfoSignedResponseAlgorithm *string `json:"userinfoSignedResponseAlgorithm,omitempty"`
-	// The organization that owns this OAuth2 Client.
-	Organization Organization `json:"organization"`
 	// The users and groups that are allowed to login with this OAuth2 Client.
 	LoginBindings *LoginBindings `json:"loginBindings,omitempty"`
 }
@@ -487,8 +483,6 @@ type User struct {
 	Email string `json:"email"`
 	// The groups the user belongs to.
 	Groups []*Group `json:"groups,omitempty"`
-	// The organization the user belongs to.
-	Organization Organization `json:"organization"`
 	// The link a user can use to recover their account.
 	RecoveryLink *string `json:"recoveryLink,omitempty"`
 }
