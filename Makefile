@@ -5,8 +5,12 @@ run:
 generate:
 	go run github.com/99designs/gqlgen generate
 
-generate-client:
+generate-clients: generate-go-client generate-typescript-client
+
+generate-go-client:
 	go run github.com/Yamashou/gqlgenc
+
+generate-typescript-client:
 	cd frontend && yarn graphql-codegen
 
 generate-db:
