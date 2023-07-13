@@ -72,9 +72,13 @@ models:
   FloatMap:
     model:
       - github.com/pluralsh/trace-shield/graph/custom.FloatMap
-  ForwardingRuleMap:
+  StringMap:
     model:
-      - github.com/pluralsh/trace-shield/graph/custom.ForwardingRuleMap
+      - github.com/pluralsh/trace-shield/graph/custom.StringMap
+  UInt:
+    model:
+      - github.com/pluralsh/trace-shield/graph/custom.UInt64
+      - github.com/pluralsh/trace-shield/graph/custom.UInt32
   User:
     fields:
       groups:

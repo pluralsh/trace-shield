@@ -3,6 +3,9 @@
 package model
 
 import (
+	"fmt"
+	"io"
+	"strconv"
 	"time"
 
 	"github.com/pluralsh/trace-shield-controller/api/observability/v1alpha1"
@@ -42,11 +45,6 @@ type LoginBindingsInput struct {
 	Users []*UserInput `json:"users,omitempty"`
 	// The groups that are allowed to login with this OAuth2 Client.
 	Groups []*GroupInput `json:"groups,omitempty"`
-}
-
-// Representation of the limits for Loki for a tenant.
-type LokiLimits struct {
-	RequestRate *float64 `json:"requestRate,omitempty"`
 }
 
 // The first and last name of a user.
@@ -307,9 +305,14 @@ type Organization struct {
 	Admins []*User `json:"admins,omitempty"`
 }
 
-// Representation of the limits for Tempo for a tenant.
-type TempoLimits struct {
-	RequestRate *float64 `json:"requestRate,omitempty"`
+type RelabelConfigInput struct {
+	SourceLabels []*string      `json:"sourceLabels,omitempty"`
+	Separator    *string        `json:"separator,omitempty"`
+	Regex        *string        `json:"regex,omitempty"`
+	Modulus      *uint64        `json:"modulus,omitempty"`
+	TargetLabel  *string        `json:"targetLabel,omitempty"`
+	Replacement  *string        `json:"replacement,omitempty"`
+	Action       *RelabelAction `json:"action,omitempty"`
 }
 
 // Representation of the information about a user sourced from Kratos.
@@ -332,4 +335,85 @@ type UserInput struct {
 	ID *string `json:"id,omitempty"`
 	// The user's email address.
 	Email *string `json:"email,omitempty"`
+}
+
+type RelabelAction string
+
+const (
+	RelabelActionReplace    RelabelAction = "replace"
+	RelabelActionReplace0   RelabelAction = "Replace"
+	RelabelActionKeep       RelabelAction = "keep"
+	RelabelActionKeep0      RelabelAction = "Keep"
+	RelabelActionDrop       RelabelAction = "drop"
+	RelabelActionDrop0      RelabelAction = "Drop"
+	RelabelActionHashmod    RelabelAction = "hashmod"
+	RelabelActionHashMod    RelabelAction = "HashMod"
+	RelabelActionLabelmap   RelabelAction = "labelmap"
+	RelabelActionLabelMap   RelabelAction = "LabelMap"
+	RelabelActionLabeldrop  RelabelAction = "labeldrop"
+	RelabelActionLabelDrop  RelabelAction = "LabelDrop"
+	RelabelActionLabelkeep  RelabelAction = "labelkeep"
+	RelabelActionLabelKeep  RelabelAction = "LabelKeep"
+	RelabelActionLowercase  RelabelAction = "lowercase"
+	RelabelActionLowercase0 RelabelAction = "Lowercase"
+	RelabelActionUppercase  RelabelAction = "uppercase"
+	RelabelActionUppercase0 RelabelAction = "Uppercase"
+	RelabelActionKeepequal  RelabelAction = "keepequal"
+	RelabelActionKeepEqual  RelabelAction = "KeepEqual"
+	RelabelActionDropequal  RelabelAction = "dropequal"
+	RelabelActionDropEqual  RelabelAction = "DropEqual"
+)
+
+var AllRelabelAction = []RelabelAction{
+	RelabelActionReplace,
+	RelabelActionReplace0,
+	RelabelActionKeep,
+	RelabelActionKeep0,
+	RelabelActionDrop,
+	RelabelActionDrop0,
+	RelabelActionHashmod,
+	RelabelActionHashMod,
+	RelabelActionLabelmap,
+	RelabelActionLabelMap,
+	RelabelActionLabeldrop,
+	RelabelActionLabelDrop,
+	RelabelActionLabelkeep,
+	RelabelActionLabelKeep,
+	RelabelActionLowercase,
+	RelabelActionLowercase0,
+	RelabelActionUppercase,
+	RelabelActionUppercase0,
+	RelabelActionKeepequal,
+	RelabelActionKeepEqual,
+	RelabelActionDropequal,
+	RelabelActionDropEqual,
+}
+
+func (e RelabelAction) IsValid() bool {
+	switch e {
+	case RelabelActionReplace, RelabelActionReplace0, RelabelActionKeep, RelabelActionKeep0, RelabelActionDrop, RelabelActionDrop0, RelabelActionHashmod, RelabelActionHashMod, RelabelActionLabelmap, RelabelActionLabelMap, RelabelActionLabeldrop, RelabelActionLabelDrop, RelabelActionLabelkeep, RelabelActionLabelKeep, RelabelActionLowercase, RelabelActionLowercase0, RelabelActionUppercase, RelabelActionUppercase0, RelabelActionKeepequal, RelabelActionKeepEqual, RelabelActionDropequal, RelabelActionDropEqual:
+		return true
+	}
+	return false
+}
+
+func (e RelabelAction) String() string {
+	return string(e)
+}
+
+func (e *RelabelAction) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = RelabelAction(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid RelabelAction", str)
+	}
+	return nil
+}
+
+func (e RelabelAction) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
 }

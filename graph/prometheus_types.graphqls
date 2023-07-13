@@ -1,0 +1,58 @@
+scalar UInt
+
+type RelabelConfig {
+  sourceLabels: [String]
+
+  separator: String
+
+  regex: String
+
+  modulus: UInt
+
+  targetLabel: String
+
+  replacement: String
+
+  action: RelabelAction
+}
+
+enum RelabelAction {
+  replace
+  Replace
+  keep
+  Keep
+  drop
+  Drop
+  hashmod
+  HashMod
+  labelmap
+  LabelMap
+  labeldrop
+  LabelDrop
+  labelkeep
+  LabelKeep
+  lowercase
+  Lowercase
+  uppercase
+  Uppercase
+  keepequal
+  KeepEqual
+  dropequal
+  DropEqual
+}
+
+input RelabelConfigInput {
+  sourceLabels: [String]
+
+  separator: String
+
+  regex: String
+
+  modulus: UInt
+
+  targetLabel: String
+
+  replacement: String
+
+  action: RelabelAction
+}

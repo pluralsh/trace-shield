@@ -1,0 +1,4 @@
+"Representation of the limits for Tempo for a tenant."
+type TempoLimits {
+  requestRate: Float
+}

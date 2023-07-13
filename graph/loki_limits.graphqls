@@ -1,0 +1,4 @@
+"Representation of the limits for Loki for a tenant."
+type LokiLimits {
+  requestRate: Float
+}
