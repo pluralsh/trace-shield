@@ -310,7 +310,7 @@ func (c *ClientWrapper) OAuth2ClientExistsInKeto(ctx context.Context, id string)
 		Object:    px.Ptr(id),
 		Relation:  px.Ptr(consts.ObjectRelationOrganizations.String()),
 		Subject: rts.NewSubjectSet(
-			consts.ObjectRelationOrganizations.String(),
+			consts.OrganizationNamespace.String(),
 			consts.MainOrganizationName, //TODO: decide whether to hardcode this or not
 			"",
 		),
