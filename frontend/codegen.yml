@@ -16,6 +16,8 @@ generates:
       #     content: "import { TimestampTypeDefinition, GraphQLTimestamp } from 'graphql-scalars';"
           # content: '/* eslint-disable */'
 config:
+  namingConvention:
+    enumValues: keep
   scalars:
     Map: Map<string, unknown>
     # UploadOrUrl: string

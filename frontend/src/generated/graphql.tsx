@@ -45,9 +45,9 @@ export type BlockedQueryInput = {
 };
 
 export enum BlockedQueryType {
-  Filter = 'filter',
-  Limited = 'limited',
-  Metric = 'metric'
+  filter = 'filter',
+  limited = 'limited',
+  metric = 'metric'
 }
 
 export type DimensionMappings = {
@@ -240,8 +240,8 @@ export type MatchPolicyAttributeInput = {
 };
 
 export enum MatchType {
-  Regex = 'regex',
-  Strict = 'strict'
+  regex = 'regex',
+  strict = 'strict'
 }
 
 /** Representation of the limits for Mimir for a tenant. */
@@ -1051,17 +1051,17 @@ export enum RelabelAction {
   Lowercase = 'Lowercase',
   Replace = 'Replace',
   Uppercase = 'Uppercase',
-  Drop = 'drop',
-  Dropequal = 'dropequal',
-  Hashmod = 'hashmod',
-  Keep = 'keep',
-  Keepequal = 'keepequal',
-  Labeldrop = 'labeldrop',
-  Labelkeep = 'labelkeep',
-  Labelmap = 'labelmap',
-  Lowercase = 'lowercase',
-  Replace = 'replace',
-  Uppercase = 'uppercase'
+  drop = 'drop',
+  dropequal = 'dropequal',
+  hashmod = 'hashmod',
+  keep = 'keep',
+  keepequal = 'keepequal',
+  labeldrop = 'labeldrop',
+  labelkeep = 'labelkeep',
+  labelmap = 'labelmap',
+  lowercase = 'lowercase',
+  replace = 'replace',
+  uppercase = 'uppercase'
 }
 
 export type RelabelConfig = {
