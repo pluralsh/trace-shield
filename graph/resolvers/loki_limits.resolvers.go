@@ -6,18 +6,24 @@ package resolvers
 
 import (
 	"context"
-	"fmt"
+	"strings"
 
 	"github.com/pluralsh/trace-shield-controller/api/observability/v1alpha1"
 	"github.com/pluralsh/trace-shield/graph/generated"
+	"github.com/pluralsh/trace-shield/graph/model"
 )
 
-// RequestRate is the resolver for the requestRate field.
-func (r *lokiLimitsResolver) RequestRate(ctx context.Context, obj *v1alpha1.LokiLimits) (*float64, error) {
-	panic(fmt.Errorf("not implemented: RequestRate - requestRate"))
+// Types is the resolver for the types field.
+func (r *blockedQueryResolver) Types(ctx context.Context, obj *v1alpha1.BlockedQuery) ([]model.BlockedQueryType, error) {
+	types := strings.Split(*obj.Types, ",")
+	output := make([]model.BlockedQueryType, len(types))
+	for i, t := range types {
+		output[i] = model.BlockedQueryType(t)
+	}
+	return output, nil
 }
 
-// LokiLimits returns generated.LokiLimitsResolver implementation.
-func (r *Resolver) LokiLimits() generated.LokiLimitsResolver { return &lokiLimitsResolver{r} }
+// BlockedQuery returns generated.BlockedQueryResolver implementation.
+func (r *Resolver) BlockedQuery() generated.BlockedQueryResolver { return &blockedQueryResolver{r} }
 
-type lokiLimitsResolver struct{ *Resolver }
+type blockedQueryResolver struct{ *Resolver }

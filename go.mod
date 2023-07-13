@@ -10,7 +10,7 @@ require (
 	github.com/ory/herodot v0.10.2
 	github.com/ory/keto/proto v0.11.1-alpha.0
 	github.com/ory/kratos-client-go v0.13.1
-	github.com/pluralsh/trace-shield-controller v0.3.4
+	github.com/pluralsh/trace-shield-controller v0.3.5
 	github.com/prometheus-operator/prometheus-operator/pkg/apis/monitoring v0.66.0
 	github.com/ravilushqa/otelgqlgen v0.13.1
 	github.com/rs/cors v1.9.0

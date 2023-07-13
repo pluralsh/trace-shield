@@ -73,8 +73,8 @@ type ObservabilityTenantLimits {
   "The limits for Mimir for the tenant."
   mimir: MimirLimits
 
-  # "The limits for Loki for the tenant."
-  # loki: LokiLimits
+  "The limits for Loki for the tenant."
+  loki: LokiLimits
 
   # "The limits for Tempo for the tenant."
   # tempo: TempoLimits
@@ -85,8 +85,8 @@ input ObservabilityTenantLimitsInput {
   "The limits for Mimir for the tenant."
   mimir: MimirLimitsInput
 
-  # "The limits for Loki for the tenant."
-  # loki: LokiLimitsInput
+  "The limits for Loki for the tenant."
+  loki: LokiLimitsInput
 
   # "The limits for Tempo for the tenant."
   # tempo: TempoLimitsInput

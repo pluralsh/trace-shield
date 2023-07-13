@@ -1,4 +1,244 @@
 "Representation of the limits for Loki for a tenant."
 type LokiLimits {
-  requestRate: Float
+  ingestionRateStrategy: String
+  ingestionRateMB: Float
+  ingestionBurstSizeMB: Float
+  maxLabelNameLength: Int
+  maxLabelValueLength: Int
+  maxLabelNamesPerSeries: Int
+  rejectOldSamples: Boolean
+  rejectOldSamplesMaxAge: Duration
+  creationGracePeriod: Duration
+  enforceMetricName: Boolean
+  maxLineSize: UInt
+  maxLineSizeTruncate: Boolean
+  incrementDuplicateTimestamp: Boolean
+	maxLocalStreamsPerUser: Int
+	maxGlobalStreamsPerUser: Int
+	unorderedWrites: Boolean
+	perStreamRateLimit: UInt
+	perStreamRateLimitBurst: UInt
+	maxChunksPerQuery: Int
+	maxQuerySeries: Int
+	maxQueryLookback: Duration
+	maxQueryLength: Duration
+	maxQueryRange: Duration
+	maxQueryParallelism: Int
+	tsdbMaxQueryParallelism: Int
+	tsdbMaxBytesPerShard: UInt
+	cardinalityLimit: Int
+	maxStreamsMatchersPerQuery: Int
+	maxConcurrentTailRequests: Int
+	maxEntriesLimitPerQuery: Int
+	maxCacheFreshness: Duration
+	maxStatsCacheFreshness: Duration
+	maxQueriersPerTenant: Int
+	queryReadyIndexNumDays: Int
+	queryTimeout: Duration
+	querySplitDuration: Duration
+	minShardingLookback: Duration
+	maxQueryBytesRead: UInt
+	maxQuerierBytesRead: UInt
+	volumeEnabled: Boolean
+	volumeMaxSeries: Int
+	rulerEvaluationDelay: Duration
+	rulerMaxRulesPerRuleGroup: Int
+	rulerMaxRuleGroupsPerTenant: Int
+	rulerAlertManagerConfig: RulerAlertManagerConfig
+	rulerTenantShardSize: Int
+	rulerRemoteWriteDisabled: Boolean
+	# TODO: create scalar and type rulerRemoteWriteConfig: map[string]RemoteWriteSpec
+	rulerRemoteEvaluationTimeout: Duration
+	rulerRemoteEvaluationMaxResponseSize: Int
+	deletionMode: String
+	retentionPeriod: Duration
+	streamRetention: [StreamRetention!]
+	shardStreams: ShardstreamsConfig
+	blockedQueries: [BlockedQuery!]
+	requiredLabels: [String!]
+	requiredNumberLabels: Int
+	indexGatewayShardSize: Int
+}
+
+type RulerAlertManagerConfig {
+	alertmanagerURL: String!
+	alertmanagerDiscovery: Boolean
+	alertmanagerRefreshInterval: Duration
+	alertmanangerEnableV2API: Boolean
+	alertRelabelConfigs: [RelabelConfig!]
+	notificationQueueCapacity: Int
+	notificationTimeout: Duration
+	notifier: NotifierConfig
+}
+
+type NotifierConfig {
+  basicAuth: NotifierBasicAuth
+  headerAuth: NotifierHeaderAuth
+  tls: NotifierTLSClientConfig
+}
+
+type NotifierBasicAuth {
+  username: String
+  password: String
+}
+
+type NotifierHeaderAuth {
+  type: String
+  credentials: String
+  credentialsFile: String
+}
+
+type NotifierTLSClientConfig {
+	certPath: String
+	keyPath: String
+	caPath: String
+	serverName: String
+	insecureSkipVerify: Boolean
+	cipherSuites: String
+	minVersion: String
+}
+
+type StreamRetention {
+  period: Duration
+  priority: Int
+  selector: String
+}
+
+type ShardstreamsConfig {
+  enabled: Boolean
+  loggingEnabled: Boolean
+  desiredRate: UInt
+}
+
+type BlockedQuery {
+	pattern: String
+	regex: Boolean
+	hash: UInt
+  types: [BlockedQueryType!]
+}
+
+enum BlockedQueryType {
+  metric
+  filter
+  limited
+}
+
+
+"Input of the limits for Loki for a tenant."
+input LokiLimitsInput {
+  ingestionRateStrategy: String
+  ingestionRateMB: Float
+  ingestionBurstSizeMB: Float
+  maxLabelNameLength: Int
+  maxLabelValueLength: Int
+  maxLabelNamesPerSeries: Int
+  rejectOldSamples: Boolean
+  rejectOldSamplesMaxAge: Duration
+  creationGracePeriod: Duration
+  enforceMetricName: Boolean
+  maxLineSize: UInt
+  maxLineSizeTruncate: Boolean
+  incrementDuplicateTimestamp: Boolean
+	maxLocalStreamsPerUser: Int
+	maxGlobalStreamsPerUser: Int
+	unorderedWrites: Boolean
+	perStreamRateLimit: UInt
+	perStreamRateLimitBurst: UInt
+	maxChunksPerQuery: Int
+	maxQuerySeries: Int
+	maxQueryLookback: Duration
+	maxQueryLength: Duration
+	maxQueryRange: Duration
+	maxQueryParallelism: Int
+	tsdbMaxQueryParallelism: Int
+	tsdbMaxBytesPerShard: UInt
+	cardinalityLimit: Int
+	maxStreamsMatchersPerQuery: Int
+	maxConcurrentTailRequests: Int
+	maxEntriesLimitPerQuery: Int
+	maxCacheFreshness: Duration
+	maxStatsCacheFreshness: Duration
+	maxQueriersPerTenant: Int
+	queryReadyIndexNumDays: Int
+	queryTimeout: Duration
+	querySplitDuration: Duration
+	minShardingLookback: Duration
+	maxQueryBytesRead: UInt
+	maxQuerierBytesRead: UInt
+	volumeEnabled: Boolean
+	volumeMaxSeries: Int
+	rulerEvaluationDelay: Duration
+	rulerMaxRulesPerRuleGroup: Int
+	rulerMaxRuleGroupsPerTenant: Int
+	rulerAlertManagerConfig: RulerAlertManagerConfigInput
+	rulerTenantShardSize: Int
+	rulerRemoteWriteDisabled: Boolean
+	# TODO: create scalar and type rulerRemoteWriteConfig: map[string]RemoteWriteSpec
+	rulerRemoteEvaluationTimeout: Duration
+	rulerRemoteEvaluationMaxResponseSize: Int
+	deletionMode: String
+	retentionPeriod: Duration
+	streamRetention: [StreamRetentionInput!]
+	shardStreams: ShardstreamsConfigInput
+	blockedQueries: [BlockedQueryInput!]
+	requiredLabels: [String!]
+	requiredNumberLabels: Int
+	indexGatewayShardSize: Int
+}
+
+input RulerAlertManagerConfigInput {
+	alertmanagerURL: String!
+	alertmanagerDiscovery: Boolean
+	alertmanagerRefreshInterval: Duration
+	alertmanangerEnableV2API: Boolean
+	alertRelabelConfigs: [RelabelConfigInput!]
+	notificationQueueCapacity: Int
+	notificationTimeout: Duration
+	notifier: NotifierConfigInput
+}
+
+input NotifierConfigInput {
+  basicAuth: NotifierBasicAuthInput
+  headerAuth: NotifierHeaderAuthInput
+  tls: NotifierTLSClientConfigInput
+}
+
+input NotifierBasicAuthInput {
+  username: String
+  password: String
+}
+
+input NotifierHeaderAuthInput {
+  type: String
+  credentials: String
+  credentialsFile: String
+}
+
+input NotifierTLSClientConfigInput {
+	certPath: String
+	keyPath: String
+	caPath: String
+	serverName: String
+	insecureSkipVerify: Boolean
+	cipherSuites: String
+	minVersion: String
+}
+
+input StreamRetentionInput {
+  period: Duration
+  priority: Int
+  selector: String
+}
+
+input ShardstreamsConfigInput {
+  enabled: Boolean
+  loggingEnabled: Boolean
+  desiredRate: UInt
+}
+
+input BlockedQueryInput {
+	pattern: String
+	regex: Boolean
+	hash: UInt
+  types: [BlockedQueryType!]
 }

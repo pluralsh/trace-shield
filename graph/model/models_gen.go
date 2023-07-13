@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/pluralsh/trace-shield-controller/api/observability/v1alpha1"
+	"k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
 type AcceptOAuth2ConsentRequestSession struct {
@@ -16,6 +17,13 @@ type AcceptOAuth2ConsentRequestSession struct {
 	AccessToken map[string]interface{} `json:"accessToken,omitempty"`
 	// IDToken sets session data for the OpenID Connect ID token. Keep in mind that the session'id payloads are readable by anyone that has access to the ID Challenge. Use with care!
 	IDToken map[string]interface{} `json:"idToken,omitempty"`
+}
+
+type BlockedQueryInput struct {
+	Pattern *string            `json:"pattern,omitempty"`
+	Regex   *bool              `json:"regex,omitempty"`
+	Hash    *uint64            `json:"hash,omitempty"`
+	Types   []BlockedQueryType `json:"types,omitempty"`
 }
 
 // Representation a group of users.
@@ -47,6 +55,67 @@ type LoginBindingsInput struct {
 	Groups []*GroupInput `json:"groups,omitempty"`
 }
 
+// Input of the limits for Loki for a tenant.
+type LokiLimitsInput struct {
+	IngestionRateStrategy                *string                       `json:"ingestionRateStrategy,omitempty"`
+	IngestionRateMb                      *float64                      `json:"ingestionRateMB,omitempty"`
+	IngestionBurstSizeMb                 *float64                      `json:"ingestionBurstSizeMB,omitempty"`
+	MaxLabelNameLength                   *int64                        `json:"maxLabelNameLength,omitempty"`
+	MaxLabelValueLength                  *int64                        `json:"maxLabelValueLength,omitempty"`
+	MaxLabelNamesPerSeries               *int64                        `json:"maxLabelNamesPerSeries,omitempty"`
+	RejectOldSamples                     *bool                         `json:"rejectOldSamples,omitempty"`
+	RejectOldSamplesMaxAge               *v1.Duration                  `json:"rejectOldSamplesMaxAge,omitempty"`
+	CreationGracePeriod                  *v1.Duration                  `json:"creationGracePeriod,omitempty"`
+	EnforceMetricName                    *bool                         `json:"enforceMetricName,omitempty"`
+	MaxLineSize                          *uint64                       `json:"maxLineSize,omitempty"`
+	MaxLineSizeTruncate                  *bool                         `json:"maxLineSizeTruncate,omitempty"`
+	IncrementDuplicateTimestamp          *bool                         `json:"incrementDuplicateTimestamp,omitempty"`
+	MaxLocalStreamsPerUser               *int64                        `json:"maxLocalStreamsPerUser,omitempty"`
+	MaxGlobalStreamsPerUser              *int64                        `json:"maxGlobalStreamsPerUser,omitempty"`
+	UnorderedWrites                      *bool                         `json:"unorderedWrites,omitempty"`
+	PerStreamRateLimit                   *uint64                       `json:"perStreamRateLimit,omitempty"`
+	PerStreamRateLimitBurst              *uint64                       `json:"perStreamRateLimitBurst,omitempty"`
+	MaxChunksPerQuery                    *int64                        `json:"maxChunksPerQuery,omitempty"`
+	MaxQuerySeries                       *int64                        `json:"maxQuerySeries,omitempty"`
+	MaxQueryLookback                     *v1.Duration                  `json:"maxQueryLookback,omitempty"`
+	MaxQueryLength                       *v1.Duration                  `json:"maxQueryLength,omitempty"`
+	MaxQueryRange                        *v1.Duration                  `json:"maxQueryRange,omitempty"`
+	MaxQueryParallelism                  *int64                        `json:"maxQueryParallelism,omitempty"`
+	TsdbMaxQueryParallelism              *int64                        `json:"tsdbMaxQueryParallelism,omitempty"`
+	TsdbMaxBytesPerShard                 *uint64                       `json:"tsdbMaxBytesPerShard,omitempty"`
+	CardinalityLimit                     *int64                        `json:"cardinalityLimit,omitempty"`
+	MaxStreamsMatchersPerQuery           *int64                        `json:"maxStreamsMatchersPerQuery,omitempty"`
+	MaxConcurrentTailRequests            *int64                        `json:"maxConcurrentTailRequests,omitempty"`
+	MaxEntriesLimitPerQuery              *int64                        `json:"maxEntriesLimitPerQuery,omitempty"`
+	MaxCacheFreshness                    *v1.Duration                  `json:"maxCacheFreshness,omitempty"`
+	MaxStatsCacheFreshness               *v1.Duration                  `json:"maxStatsCacheFreshness,omitempty"`
+	MaxQueriersPerTenant                 *int64                        `json:"maxQueriersPerTenant,omitempty"`
+	QueryReadyIndexNumDays               *int64                        `json:"queryReadyIndexNumDays,omitempty"`
+	QueryTimeout                         *v1.Duration                  `json:"queryTimeout,omitempty"`
+	QuerySplitDuration                   *v1.Duration                  `json:"querySplitDuration,omitempty"`
+	MinShardingLookback                  *v1.Duration                  `json:"minShardingLookback,omitempty"`
+	MaxQueryBytesRead                    *uint64                       `json:"maxQueryBytesRead,omitempty"`
+	MaxQuerierBytesRead                  *uint64                       `json:"maxQuerierBytesRead,omitempty"`
+	VolumeEnabled                        *bool                         `json:"volumeEnabled,omitempty"`
+	VolumeMaxSeries                      *int64                        `json:"volumeMaxSeries,omitempty"`
+	RulerEvaluationDelay                 *v1.Duration                  `json:"rulerEvaluationDelay,omitempty"`
+	RulerMaxRulesPerRuleGroup            *int64                        `json:"rulerMaxRulesPerRuleGroup,omitempty"`
+	RulerMaxRuleGroupsPerTenant          *int64                        `json:"rulerMaxRuleGroupsPerTenant,omitempty"`
+	RulerAlertManagerConfig              *RulerAlertManagerConfigInput `json:"rulerAlertManagerConfig,omitempty"`
+	RulerTenantShardSize                 *int64                        `json:"rulerTenantShardSize,omitempty"`
+	RulerRemoteWriteDisabled             *bool                         `json:"rulerRemoteWriteDisabled,omitempty"`
+	RulerRemoteEvaluationTimeout         *v1.Duration                  `json:"rulerRemoteEvaluationTimeout,omitempty"`
+	RulerRemoteEvaluationMaxResponseSize *int64                        `json:"rulerRemoteEvaluationMaxResponseSize,omitempty"`
+	DeletionMode                         *string                       `json:"deletionMode,omitempty"`
+	RetentionPeriod                      *v1.Duration                  `json:"retentionPeriod,omitempty"`
+	StreamRetention                      []*StreamRetentionInput       `json:"streamRetention,omitempty"`
+	ShardStreams                         *ShardstreamsConfigInput      `json:"shardStreams,omitempty"`
+	BlockedQueries                       []*BlockedQueryInput          `json:"blockedQueries,omitempty"`
+	RequiredLabels                       []string                      `json:"requiredLabels,omitempty"`
+	RequiredNumberLabels                 *int64                        `json:"requiredNumberLabels,omitempty"`
+	IndexGatewayShardSize                *int64                        `json:"indexGatewayShardSize,omitempty"`
+}
+
 // The first and last name of a user.
 type Name struct {
 	// The user's first name.
@@ -60,6 +129,33 @@ type NameInput struct {
 	First *string `json:"first,omitempty"`
 	// The user's last name.
 	Last *string `json:"last,omitempty"`
+}
+
+type NotifierBasicAuthInput struct {
+	Username *string `json:"username,omitempty"`
+	Password *string `json:"password,omitempty"`
+}
+
+type NotifierConfigInput struct {
+	BasicAuth  *NotifierBasicAuthInput       `json:"basicAuth,omitempty"`
+	HeaderAuth *NotifierHeaderAuthInput      `json:"headerAuth,omitempty"`
+	TLS        *NotifierTLSClientConfigInput `json:"tls,omitempty"`
+}
+
+type NotifierHeaderAuthInput struct {
+	Type            *string `json:"type,omitempty"`
+	Credentials     *string `json:"credentials,omitempty"`
+	CredentialsFile *string `json:"credentialsFile,omitempty"`
+}
+
+type NotifierTLSClientConfigInput struct {
+	CertPath           *string `json:"certPath,omitempty"`
+	KeyPath            *string `json:"keyPath,omitempty"`
+	CaPath             *string `json:"caPath,omitempty"`
+	ServerName         *string `json:"serverName,omitempty"`
+	InsecureSkipVerify *bool   `json:"insecureSkipVerify,omitempty"`
+	CipherSuites       *string `json:"cipherSuites,omitempty"`
+	MinVersion         *string `json:"minVersion,omitempty"`
 }
 
 // Representation of the information about an OAuth2 Client sourced from Hydra.
@@ -258,12 +354,16 @@ type ObservabilityTenant struct {
 type ObservabilityTenantLimits struct {
 	// The limits for Mimir for the tenant.
 	Mimir *v1alpha1.MimirLimits `json:"mimir,omitempty"`
+	// The limits for Loki for the tenant.
+	Loki *v1alpha1.LokiLimits `json:"loki,omitempty"`
 }
 
 // Inputs for the limits of a tenant.
 type ObservabilityTenantLimitsInput struct {
 	// The limits for Mimir for the tenant.
 	Mimir *v1alpha1.MimirLimitsInput `json:"mimir,omitempty"`
+	// The limits for Loki for the tenant.
+	Loki *LokiLimitsInput `json:"loki,omitempty"`
 }
 
 // Representation of the users, groups and oauth2 clients that have a set of permissions on a tenant.
@@ -315,6 +415,29 @@ type RelabelConfigInput struct {
 	Action       *RelabelAction `json:"action,omitempty"`
 }
 
+type RulerAlertManagerConfigInput struct {
+	AlertmanagerURL             string                `json:"alertmanagerURL"`
+	AlertmanagerDiscovery       *bool                 `json:"alertmanagerDiscovery,omitempty"`
+	AlertmanagerRefreshInterval *v1.Duration          `json:"alertmanagerRefreshInterval,omitempty"`
+	AlertmanangerEnableV2api    *bool                 `json:"alertmanangerEnableV2API,omitempty"`
+	AlertRelabelConfigs         []*RelabelConfigInput `json:"alertRelabelConfigs,omitempty"`
+	NotificationQueueCapacity   *int64                `json:"notificationQueueCapacity,omitempty"`
+	NotificationTimeout         *v1.Duration          `json:"notificationTimeout,omitempty"`
+	Notifier                    *NotifierConfigInput  `json:"notifier,omitempty"`
+}
+
+type ShardstreamsConfigInput struct {
+	Enabled        *bool   `json:"enabled,omitempty"`
+	LoggingEnabled *bool   `json:"loggingEnabled,omitempty"`
+	DesiredRate    *uint64 `json:"desiredRate,omitempty"`
+}
+
+type StreamRetentionInput struct {
+	Period   *v1.Duration `json:"period,omitempty"`
+	Priority *int64       `json:"priority,omitempty"`
+	Selector *string      `json:"selector,omitempty"`
+}
+
 // Representation of the information about a user sourced from Kratos.
 type User struct {
 	// The unique ID of the user.
@@ -335,6 +458,49 @@ type UserInput struct {
 	ID *string `json:"id,omitempty"`
 	// The user's email address.
 	Email *string `json:"email,omitempty"`
+}
+
+type BlockedQueryType string
+
+const (
+	BlockedQueryTypeMetric  BlockedQueryType = "metric"
+	BlockedQueryTypeFilter  BlockedQueryType = "filter"
+	BlockedQueryTypeLimited BlockedQueryType = "limited"
+)
+
+var AllBlockedQueryType = []BlockedQueryType{
+	BlockedQueryTypeMetric,
+	BlockedQueryTypeFilter,
+	BlockedQueryTypeLimited,
+}
+
+func (e BlockedQueryType) IsValid() bool {
+	switch e {
+	case BlockedQueryTypeMetric, BlockedQueryTypeFilter, BlockedQueryTypeLimited:
+		return true
+	}
+	return false
+}
+
+func (e BlockedQueryType) String() string {
+	return string(e)
+}
+
+func (e *BlockedQueryType) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = BlockedQueryType(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid BlockedQueryType", str)
+	}
+	return nil
+}
+
+func (e BlockedQueryType) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
 type RelabelAction string
