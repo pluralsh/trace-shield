@@ -6,18 +6,26 @@ package resolvers
 
 import (
 	"context"
-	"fmt"
+	"encoding/json"
 
 	"github.com/pluralsh/trace-shield-controller/api/observability/v1alpha1"
 	"github.com/pluralsh/trace-shield/graph/generated"
 )
 
-// RequestRate is the resolver for the requestRate field.
-func (r *tempoLimitsResolver) RequestRate(ctx context.Context, obj *v1alpha1.TempoLimits) (*float64, error) {
-	panic(fmt.Errorf("not implemented: RequestRate - requestRate"))
+// Value is the resolver for the value field.
+func (r *matchPolicyAttributeResolver) Value(ctx context.Context, obj *v1alpha1.MatchPolicyAttribute) (map[string]interface{}, error) {
+	output := make(map[string]interface{})
+
+	err := json.Unmarshal(obj.Value.Raw, &output)
+	if err != nil {
+		return nil, err
+	}
+	return output, nil
 }
 
-// TempoLimits returns generated.TempoLimitsResolver implementation.
-func (r *Resolver) TempoLimits() generated.TempoLimitsResolver { return &tempoLimitsResolver{r} }
+// MatchPolicyAttribute returns generated.MatchPolicyAttributeResolver implementation.
+func (r *Resolver) MatchPolicyAttribute() generated.MatchPolicyAttributeResolver {
+	return &matchPolicyAttributeResolver{r}
+}
 
-type tempoLimitsResolver struct{ *Resolver }
+type matchPolicyAttributeResolver struct{ *Resolver }

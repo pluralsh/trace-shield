@@ -26,6 +26,17 @@ type BlockedQueryInput struct {
 	Types   []BlockedQueryType `json:"types,omitempty"`
 }
 
+type DimensionMappingsInput struct {
+	Name        *string  `json:"name,omitempty"`
+	SourceLabel []string `json:"sourceLabel,omitempty"`
+	Join        *string  `json:"join,omitempty"`
+}
+
+type FilterPolicyInput struct {
+	Include *PolicyMatchInput `json:"include,omitempty"`
+	Exclude *PolicyMatchInput `json:"exclude,omitempty"`
+}
+
 // Representation a group of users.
 type Group struct {
 	// The unique name of the group.
@@ -114,6 +125,11 @@ type LokiLimitsInput struct {
 	RequiredLabels                       []string                      `json:"requiredLabels,omitempty"`
 	RequiredNumberLabels                 *int64                        `json:"requiredNumberLabels,omitempty"`
 	IndexGatewayShardSize                *int64                        `json:"indexGatewayShardSize,omitempty"`
+}
+
+type MatchPolicyAttributeInput struct {
+	Key   *string                `json:"key,omitempty"`
+	Value map[string]interface{} `json:"value,omitempty"`
 }
 
 // The first and last name of a user.
@@ -356,6 +372,8 @@ type ObservabilityTenantLimits struct {
 	Mimir *v1alpha1.MimirLimits `json:"mimir,omitempty"`
 	// The limits for Loki for the tenant.
 	Loki *v1alpha1.LokiLimits `json:"loki,omitempty"`
+	// The limits for Tempo for the tenant.
+	Tempo *v1alpha1.TempoLimits `json:"tempo,omitempty"`
 }
 
 // Inputs for the limits of a tenant.
@@ -364,6 +382,8 @@ type ObservabilityTenantLimitsInput struct {
 	Mimir *v1alpha1.MimirLimitsInput `json:"mimir,omitempty"`
 	// The limits for Loki for the tenant.
 	Loki *LokiLimitsInput `json:"loki,omitempty"`
+	// The limits for Tempo for the tenant.
+	Tempo *TempoLimitsInput `json:"tempo,omitempty"`
 }
 
 // Representation of the users, groups and oauth2 clients that have a set of permissions on a tenant.
@@ -405,6 +425,11 @@ type Organization struct {
 	Admins []*User `json:"admins,omitempty"`
 }
 
+type PolicyMatchInput struct {
+	MatchType  *v1alpha1.MatchType          `json:"matchType,omitempty"`
+	Attributes []*MatchPolicyAttributeInput `json:"attributes,omitempty"`
+}
+
 type RelabelConfigInput struct {
 	SourceLabels []*string      `json:"sourceLabels,omitempty"`
 	Separator    *string        `json:"separator,omitempty"`
@@ -436,6 +461,44 @@ type StreamRetentionInput struct {
 	Period   *v1.Duration `json:"period,omitempty"`
 	Priority *int64       `json:"priority,omitempty"`
 	Selector *string      `json:"selector,omitempty"`
+}
+
+// Input of the limits for Tempo for a tenant.
+type TempoLimitsInput struct {
+	IngestionRateStrategy                                          *string                   `json:"ingestionRateStrategy,omitempty"`
+	IngestionRateLimitBytes                                        *int64                    `json:"ingestionRateLimitBytes,omitempty"`
+	IngestionBurstSizeBytes                                        *int64                    `json:"ingestionBurstSizeBytes,omitempty"`
+	MaxLocalTracesPerUser                                          *int64                    `json:"maxLocalTracesPerUser,omitempty"`
+	MaxGlobalTracesPerUser                                         *int64                    `json:"maxGlobalTracesPerUser,omitempty"`
+	Forwarders                                                     []string                  `json:"forwarders,omitempty"`
+	MetricsGeneratorRingSize                                       *int64                    `json:"metricsGeneratorRingSize,omitempty"`
+	MetricsGeneratorProcessors                                     []string                  `json:"metricsGeneratorProcessors,omitempty"`
+	MetricsGeneratorMaxActiveSeries                                *uint64                   `json:"metricsGeneratorMaxActiveSeries,omitempty"`
+	MetricsGeneratorCollectionInterval                             *v1.Duration              `json:"metricsGeneratorCollectionInterval,omitempty"`
+	MetricsGeneratorDisableCollection                              *bool                     `json:"metricsGeneratorDisableCollection,omitempty"`
+	MetricsGeneratorForwarderQueueSize                             *int64                    `json:"metricsGeneratorForwarderQueueSize,omitempty"`
+	MetricsGeneratorForwarderWorkers                               *int64                    `json:"metricsGeneratorForwarderWorkers,omitempty"`
+	MetricsGeneratorProcessorServiceGraphsHistogramBuckets         []*float64                `json:"metricsGeneratorProcessorServiceGraphsHistogramBuckets,omitempty"`
+	MetricsGeneratorProcessorServiceGraphsDimensions               []string                  `json:"metricsGeneratorProcessorServiceGraphsDimensions,omitempty"`
+	MetricsGeneratorProcessorServiceGraphsPeerAttributes           []string                  `json:"metricsGeneratorProcessorServiceGraphsPeerAttributes,omitempty"`
+	MetricsGeneratorProcessorServiceGraphsEnableClientServerPrefix *bool                     `json:"metricsGeneratorProcessorServiceGraphsEnableClientServerPrefix,omitempty"`
+	MetricsGeneratorProcessorSpanMetricsHistogramBuckets           []*float64                `json:"metricsGeneratorProcessorSpanMetricsHistogramBuckets,omitempty"`
+	MetricsGeneratorProcessorSpanMetricsDimensions                 []string                  `json:"metricsGeneratorProcessorSpanMetricsDimensions,omitempty"`
+	MetricsGeneratorProcessorSpanMetricsIntrinsicDimensions        map[string]bool           `json:"metricsGeneratorProcessorSpanMetricsIntrinsicDimensions,omitempty"`
+	MetricsGeneratorProcessorSpanMetricsFilterPolicies             []*FilterPolicyInput      `json:"metricsGeneratorProcessorSpanMetricsFilterPolicies,omitempty"`
+	MetricsGeneratorProcessorSpanMetricsDimensionMappings          []*DimensionMappingsInput `json:"metricsGeneratorProcessorSpanMetricsDimensionMappings,omitempty"`
+	MetricsGeneratorProcessorSpanMetricsEnableTargetInfo           *bool                     `json:"metricsGeneratorProcessorSpanMetricsEnableTargetInfo,omitempty"`
+	MetricsGeneratorProcessorLocalBlocksMaxLiveTraces              *uint64                   `json:"metricsGeneratorProcessorLocalBlocksMaxLiveTraces,omitempty"`
+	MetricsGeneratorProcessorLocalBlocksMaxBlockDuration           *v1.Duration              `json:"metricsGeneratorProcessorLocalBlocksMaxBlockDuration,omitempty"`
+	MetricsGeneratorProcessorLocalBlocksMaxBlockBytes              *uint64                   `json:"metricsGeneratorProcessorLocalBlocksMaxBlockBytes,omitempty"`
+	MetricsGeneratorProcessorLocalBlocksFlushCheckPeriod           *v1.Duration              `json:"metricsGeneratorProcessorLocalBlocksFlushCheckPeriod,omitempty"`
+	MetricsGeneratorProcessorLocalBlocksTraceIdlePeriod            *v1.Duration              `json:"metricsGeneratorProcessorLocalBlocksTraceIdlePeriod,omitempty"`
+	MetricsGeneratorProcessorLocalBlocksCompleteBlockTimeout       *v1.Duration              `json:"metricsGeneratorProcessorLocalBlocksCompleteBlockTimeout,omitempty"`
+	BlockRetention                                                 *v1.Duration              `json:"blockRetention,omitempty"`
+	MaxBytesPerTagValuesQuery                                      *int64                    `json:"maxBytesPerTagValuesQuery,omitempty"`
+	MaxBlocksPerTagValuesQuery                                     *int64                    `json:"maxBlocksPerTagValuesQuery,omitempty"`
+	MaxSearchDuration                                              *v1.Duration              `json:"maxSearchDuration,omitempty"`
+	MaxBytesPerTrace                                               *int64                    `json:"maxBytesPerTrace,omitempty"`
 }
 
 // Representation of the information about a user sourced from Kratos.

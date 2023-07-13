@@ -76,8 +76,8 @@ type ObservabilityTenantLimits {
   "The limits for Loki for the tenant."
   loki: LokiLimits
 
-  # "The limits for Tempo for the tenant."
-  # tempo: TempoLimits
+  "The limits for Tempo for the tenant."
+  tempo: TempoLimits
 }
 
 "Inputs for the limits of a tenant."
@@ -88,8 +88,8 @@ input ObservabilityTenantLimitsInput {
   "The limits for Loki for the tenant."
   loki: LokiLimitsInput
 
-  # "The limits for Tempo for the tenant."
-  # tempo: TempoLimitsInput
+  "The limits for Tempo for the tenant."
+  tempo: TempoLimitsInput
 }
 
 "Representation of the users, groups and oauth2 clients that have a set of permissions on a tenant."

@@ -75,6 +75,9 @@ models:
   StringMap:
     model:
       - github.com/pluralsh/trace-shield/graph/custom.StringMap
+  BoolMap:
+    model:
+      - github.com/pluralsh/trace-shield/graph/custom.BoolMap
   UInt:
     model:
       - github.com/pluralsh/trace-shield/graph/custom.UInt64

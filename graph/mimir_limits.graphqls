@@ -83,6 +83,8 @@ type MimirLimits {
 	alertmanagerMaxAlertsCount: Int
 	alertmanagerMaxAlertsSizeBytes: Int
 }
+
+"Input of the limits for Mimir for a tenant."
 input MimirLimitsInput {
   requestRate: Float
   requestBurstSize: Int
