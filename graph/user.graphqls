@@ -58,7 +58,7 @@ type Mutation {
   createUser(
     "The user's email address."
     email: String!
-  
+
     "The user's name."
     name: NameInput
 

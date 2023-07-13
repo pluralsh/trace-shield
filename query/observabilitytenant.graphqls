@@ -355,15 +355,15 @@ fragment LokiLimitsFragment on LokiLimits{
 
 fragment RulerAlertManagerConfigFragment on RulerAlertManagerConfig{
   alertmanagerURL
-	alertmanagerDiscovery
-	alertmanagerRefreshInterval
-	alertmanangerEnableV2API
-	alertRelabelConfigs {
+  alertmanagerDiscovery
+  alertmanagerRefreshInterval
+  alertmanangerEnableV2API
+  alertRelabelConfigs {
     ...RelabelConfigFragment
   }
-	notificationQueueCapacity
-	notificationTimeout
-	notifier {
+  notificationQueueCapacity
+  notificationTimeout
+  notifier {
     ...NotifierConfigFragment
   }
 }
@@ -391,43 +391,43 @@ fragment NotifierConfigFragment on NotifierConfig {
 
 fragment TempoLimitsFragment on TempoLimits {
   ingestionRateStrategy
-	ingestionRateLimitBytes
-	ingestionBurstSizeBytes
-	maxLocalTracesPerUser
-	maxGlobalTracesPerUser
-	forwarders
-	metricsGeneratorRingSize
-	metricsGeneratorProcessors
-	metricsGeneratorMaxActiveSeries
-	metricsGeneratorCollectionInterval
-	metricsGeneratorDisableCollection
-	metricsGeneratorForwarderQueueSize
-	metricsGeneratorForwarderWorkers
-	metricsGeneratorProcessorServiceGraphsHistogramBuckets
-	metricsGeneratorProcessorServiceGraphsDimensions
-	metricsGeneratorProcessorServiceGraphsPeerAttributes
-	metricsGeneratorProcessorServiceGraphsEnableClientServerPrefix
-	metricsGeneratorProcessorSpanMetricsHistogramBuckets
-	metricsGeneratorProcessorSpanMetricsDimensions
-	metricsGeneratorProcessorSpanMetricsIntrinsicDimensions
-	metricsGeneratorProcessorSpanMetricsFilterPolicies {
+  ingestionRateLimitBytes
+  ingestionBurstSizeBytes
+  maxLocalTracesPerUser
+  maxGlobalTracesPerUser
+  forwarders
+  metricsGeneratorRingSize
+  metricsGeneratorProcessors
+  metricsGeneratorMaxActiveSeries
+  metricsGeneratorCollectionInterval
+  metricsGeneratorDisableCollection
+  metricsGeneratorForwarderQueueSize
+  metricsGeneratorForwarderWorkers
+  metricsGeneratorProcessorServiceGraphsHistogramBuckets
+  metricsGeneratorProcessorServiceGraphsDimensions
+  metricsGeneratorProcessorServiceGraphsPeerAttributes
+  metricsGeneratorProcessorServiceGraphsEnableClientServerPrefix
+  metricsGeneratorProcessorSpanMetricsHistogramBuckets
+  metricsGeneratorProcessorSpanMetricsDimensions
+  metricsGeneratorProcessorSpanMetricsIntrinsicDimensions
+  metricsGeneratorProcessorSpanMetricsFilterPolicies {
     ...FilterPolicyFragment
   }
-	metricsGeneratorProcessorSpanMetricsDimensionMappings {
+  metricsGeneratorProcessorSpanMetricsDimensionMappings {
     ...DimensionMappingsFragment
   }
-	metricsGeneratorProcessorSpanMetricsEnableTargetInfo
-	metricsGeneratorProcessorLocalBlocksMaxLiveTraces
-	metricsGeneratorProcessorLocalBlocksMaxBlockDuration
-	metricsGeneratorProcessorLocalBlocksMaxBlockBytes
-	metricsGeneratorProcessorLocalBlocksFlushCheckPeriod
-	metricsGeneratorProcessorLocalBlocksTraceIdlePeriod
-	metricsGeneratorProcessorLocalBlocksCompleteBlockTimeout
-	blockRetention
-	maxBytesPerTagValuesQuery
-	maxBlocksPerTagValuesQuery
-	maxSearchDuration
-	maxBytesPerTrace
+  metricsGeneratorProcessorSpanMetricsEnableTargetInfo
+  metricsGeneratorProcessorLocalBlocksMaxLiveTraces
+  metricsGeneratorProcessorLocalBlocksMaxBlockDuration
+  metricsGeneratorProcessorLocalBlocksMaxBlockBytes
+  metricsGeneratorProcessorLocalBlocksFlushCheckPeriod
+  metricsGeneratorProcessorLocalBlocksTraceIdlePeriod
+  metricsGeneratorProcessorLocalBlocksCompleteBlockTimeout
+  blockRetention
+  maxBytesPerTagValuesQuery
+  maxBlocksPerTagValuesQuery
+  maxSearchDuration
+  maxBytesPerTrace
 }
 
 fragment FilterPolicyFragment on FilterPolicy {

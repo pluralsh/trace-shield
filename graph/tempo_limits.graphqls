@@ -2,50 +2,50 @@ scalar BoolMap
 
 "Representation of the limits for Tempo for a tenant."
 type TempoLimits {
-	ingestionRateStrategy: String
-	ingestionRateLimitBytes: Int
-	ingestionBurstSizeBytes: Int
-	maxLocalTracesPerUser: Int
-	maxGlobalTracesPerUser: Int
-	forwarders: [String!]
-	metricsGeneratorRingSize: Int
-	metricsGeneratorProcessors: [String!]
-	metricsGeneratorMaxActiveSeries: UInt
-	metricsGeneratorCollectionInterval: Duration
-	metricsGeneratorDisableCollection: Boolean
-	metricsGeneratorForwarderQueueSize: Int
-	metricsGeneratorForwarderWorkers: Int
-	metricsGeneratorProcessorServiceGraphsHistogramBuckets: [Float]
-	metricsGeneratorProcessorServiceGraphsDimensions: [String!]
-	metricsGeneratorProcessorServiceGraphsPeerAttributes: [String!]
-	metricsGeneratorProcessorServiceGraphsEnableClientServerPrefix: Boolean
-	metricsGeneratorProcessorSpanMetricsHistogramBuckets: [Float]
-	metricsGeneratorProcessorSpanMetricsDimensions: [String!]
-	metricsGeneratorProcessorSpanMetricsIntrinsicDimensions: BoolMap
-	metricsGeneratorProcessorSpanMetricsFilterPolicies: [FilterPolicy!]
-	metricsGeneratorProcessorSpanMetricsDimensionMappings: [DimensionMappings!]
-	metricsGeneratorProcessorSpanMetricsEnableTargetInfo: Boolean
-	metricsGeneratorProcessorLocalBlocksMaxLiveTraces: UInt
-	metricsGeneratorProcessorLocalBlocksMaxBlockDuration: Duration
-	metricsGeneratorProcessorLocalBlocksMaxBlockBytes: UInt
-	metricsGeneratorProcessorLocalBlocksFlushCheckPeriod: Duration
-	metricsGeneratorProcessorLocalBlocksTraceIdlePeriod: Duration
-	metricsGeneratorProcessorLocalBlocksCompleteBlockTimeout: Duration
-	blockRetention: Duration
-	maxBytesPerTagValuesQuery: Int
-	maxBlocksPerTagValuesQuery: Int
-	maxSearchDuration: Duration
-	maxBytesPerTrace: Int
+  ingestionRateStrategy: String
+  ingestionRateLimitBytes: Int
+  ingestionBurstSizeBytes: Int
+  maxLocalTracesPerUser: Int
+  maxGlobalTracesPerUser: Int
+  forwarders: [String!]
+  metricsGeneratorRingSize: Int
+  metricsGeneratorProcessors: [String!]
+  metricsGeneratorMaxActiveSeries: UInt
+  metricsGeneratorCollectionInterval: Duration
+  metricsGeneratorDisableCollection: Boolean
+  metricsGeneratorForwarderQueueSize: Int
+  metricsGeneratorForwarderWorkers: Int
+  metricsGeneratorProcessorServiceGraphsHistogramBuckets: [Float]
+  metricsGeneratorProcessorServiceGraphsDimensions: [String!]
+  metricsGeneratorProcessorServiceGraphsPeerAttributes: [String!]
+  metricsGeneratorProcessorServiceGraphsEnableClientServerPrefix: Boolean
+  metricsGeneratorProcessorSpanMetricsHistogramBuckets: [Float]
+  metricsGeneratorProcessorSpanMetricsDimensions: [String!]
+  metricsGeneratorProcessorSpanMetricsIntrinsicDimensions: BoolMap
+  metricsGeneratorProcessorSpanMetricsFilterPolicies: [FilterPolicy!]
+  metricsGeneratorProcessorSpanMetricsDimensionMappings: [DimensionMappings!]
+  metricsGeneratorProcessorSpanMetricsEnableTargetInfo: Boolean
+  metricsGeneratorProcessorLocalBlocksMaxLiveTraces: UInt
+  metricsGeneratorProcessorLocalBlocksMaxBlockDuration: Duration
+  metricsGeneratorProcessorLocalBlocksMaxBlockBytes: UInt
+  metricsGeneratorProcessorLocalBlocksFlushCheckPeriod: Duration
+  metricsGeneratorProcessorLocalBlocksTraceIdlePeriod: Duration
+  metricsGeneratorProcessorLocalBlocksCompleteBlockTimeout: Duration
+  blockRetention: Duration
+  maxBytesPerTagValuesQuery: Int
+  maxBlocksPerTagValuesQuery: Int
+  maxSearchDuration: Duration
+  maxBytesPerTrace: Int
 }
 
 type FilterPolicy {
-	include: PolicyMatch
-	exclude: PolicyMatch
+  include: PolicyMatch
+  exclude: PolicyMatch
 }
 
 type PolicyMatch {
-	matchType: MatchType
-	attributes: [MatchPolicyAttribute!]
+  matchType: MatchType
+  attributes: [MatchPolicyAttribute!]
 }
 
 enum MatchType {
@@ -54,71 +54,71 @@ enum MatchType {
 }
 
 type MatchPolicyAttribute {
-	key: String
-	value: Map
+  key: String
+  value: Map
 }
 
 type DimensionMappings {
-	name: String
-	sourceLabel: [String!]
-	join: String
+  name: String
+  sourceLabel: [String!]
+  join: String
 }
 
 "Input of the limits for Tempo for a tenant."
 input TempoLimitsInput {
-	ingestionRateStrategy: String
-	ingestionRateLimitBytes: Int
-	ingestionBurstSizeBytes: Int
-	maxLocalTracesPerUser: Int
-	maxGlobalTracesPerUser: Int
-	forwarders: [String!]
-	metricsGeneratorRingSize: Int
-	metricsGeneratorProcessors: [String!]
-	metricsGeneratorMaxActiveSeries: UInt
-	metricsGeneratorCollectionInterval: Duration
-	metricsGeneratorDisableCollection: Boolean
-	metricsGeneratorForwarderQueueSize: Int
-	metricsGeneratorForwarderWorkers: Int
-	metricsGeneratorProcessorServiceGraphsHistogramBuckets: [Float]
-	metricsGeneratorProcessorServiceGraphsDimensions: [String!]
-	metricsGeneratorProcessorServiceGraphsPeerAttributes: [String!]
-	metricsGeneratorProcessorServiceGraphsEnableClientServerPrefix: Boolean
-	metricsGeneratorProcessorSpanMetricsHistogramBuckets: [Float]
-	metricsGeneratorProcessorSpanMetricsDimensions: [String!]
-	metricsGeneratorProcessorSpanMetricsIntrinsicDimensions: BoolMap
-	metricsGeneratorProcessorSpanMetricsFilterPolicies: [FilterPolicyInput!]
-	metricsGeneratorProcessorSpanMetricsDimensionMappings: [DimensionMappingsInput!]
-	metricsGeneratorProcessorSpanMetricsEnableTargetInfo: Boolean
-	metricsGeneratorProcessorLocalBlocksMaxLiveTraces: UInt
-	metricsGeneratorProcessorLocalBlocksMaxBlockDuration: Duration
-	metricsGeneratorProcessorLocalBlocksMaxBlockBytes: UInt
-	metricsGeneratorProcessorLocalBlocksFlushCheckPeriod: Duration
-	metricsGeneratorProcessorLocalBlocksTraceIdlePeriod: Duration
-	metricsGeneratorProcessorLocalBlocksCompleteBlockTimeout: Duration
-	blockRetention: Duration
-	maxBytesPerTagValuesQuery: Int
-	maxBlocksPerTagValuesQuery: Int
-	maxSearchDuration: Duration
-	maxBytesPerTrace: Int
+  ingestionRateStrategy: String
+  ingestionRateLimitBytes: Int
+  ingestionBurstSizeBytes: Int
+  maxLocalTracesPerUser: Int
+  maxGlobalTracesPerUser: Int
+  forwarders: [String!]
+  metricsGeneratorRingSize: Int
+  metricsGeneratorProcessors: [String!]
+  metricsGeneratorMaxActiveSeries: UInt
+  metricsGeneratorCollectionInterval: Duration
+  metricsGeneratorDisableCollection: Boolean
+  metricsGeneratorForwarderQueueSize: Int
+  metricsGeneratorForwarderWorkers: Int
+  metricsGeneratorProcessorServiceGraphsHistogramBuckets: [Float]
+  metricsGeneratorProcessorServiceGraphsDimensions: [String!]
+  metricsGeneratorProcessorServiceGraphsPeerAttributes: [String!]
+  metricsGeneratorProcessorServiceGraphsEnableClientServerPrefix: Boolean
+  metricsGeneratorProcessorSpanMetricsHistogramBuckets: [Float]
+  metricsGeneratorProcessorSpanMetricsDimensions: [String!]
+  metricsGeneratorProcessorSpanMetricsIntrinsicDimensions: BoolMap
+  metricsGeneratorProcessorSpanMetricsFilterPolicies: [FilterPolicyInput!]
+  metricsGeneratorProcessorSpanMetricsDimensionMappings: [DimensionMappingsInput!]
+  metricsGeneratorProcessorSpanMetricsEnableTargetInfo: Boolean
+  metricsGeneratorProcessorLocalBlocksMaxLiveTraces: UInt
+  metricsGeneratorProcessorLocalBlocksMaxBlockDuration: Duration
+  metricsGeneratorProcessorLocalBlocksMaxBlockBytes: UInt
+  metricsGeneratorProcessorLocalBlocksFlushCheckPeriod: Duration
+  metricsGeneratorProcessorLocalBlocksTraceIdlePeriod: Duration
+  metricsGeneratorProcessorLocalBlocksCompleteBlockTimeout: Duration
+  blockRetention: Duration
+  maxBytesPerTagValuesQuery: Int
+  maxBlocksPerTagValuesQuery: Int
+  maxSearchDuration: Duration
+  maxBytesPerTrace: Int
 }
 
 input FilterPolicyInput {
-	include: PolicyMatchInput
-	exclude: PolicyMatchInput
+  include: PolicyMatchInput
+  exclude: PolicyMatchInput
 }
 
 input PolicyMatchInput {
-	matchType: MatchType
-	attributes: [MatchPolicyAttributeInput!]
+  matchType: MatchType
+  attributes: [MatchPolicyAttributeInput!]
 }
 
 input MatchPolicyAttributeInput {
-	key: String
-	value: Map
+  key: String
+  value: Map
 }
 
 input DimensionMappingsInput {
-	name: String
-	sourceLabel: [String!]
-	join: String
+  name: String
+  sourceLabel: [String!]
+  join: String
 }
