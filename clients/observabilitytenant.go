@@ -31,29 +31,34 @@ func (c *ClientWrapper) CreateObservabilityTenant(ctx context.Context, id string
 		)
 	}
 
-	var mimirLimits *observabilityv1alpha1.MimirLimits
-
-	if limits != nil && limits.Mimir != nil {
-		tmpMimirLimits := observabilityv1alpha1.MimirLimits(*limits.Mimir)
-		mimirLimits = &tmpMimirLimits
-	}
-
 	tenantStruct := &observabilityv1alpha1.Tenant{
 		ObjectMeta: metav1.ObjectMeta{
 			Name: id,
 		},
-		Spec: observabilityv1alpha1.TenantSpec{
-			Limits: &observabilityv1alpha1.LimitSpec{
-				Mimir: mimirLimits,
-			},
-		},
+		Spec: observabilityv1alpha1.TenantSpec{},
+	}
+
+	if limits != nil {
+		tenantStruct.Spec.Limits = &observabilityv1alpha1.LimitSpec{}
+		if limits.Mimir != nil {
+			tmpMimirLimits := observabilityv1alpha1.MimirLimits(*limits.Mimir)
+			tenantStruct.Spec.Limits.Mimir = &tmpMimirLimits
+		}
+		if limits.Loki != nil {
+			tmpLokiLimits := observabilityv1alpha1.LokiLimits(*limits.Loki)
+			tenantStruct.Spec.Limits.Loki = &tmpLokiLimits
+		}
+		if limits.Tempo != nil {
+			tmpTempoLimits := observabilityv1alpha1.TempoLimits(*limits.Tempo)
+			tenantStruct.Spec.Limits.Tempo = &tmpTempoLimits
+		}
 	}
 
 	if name != nil {
 		tenantStruct.Spec.DisplayName = *name
 		if span.IsRecording() {
 			span.SetAttributes(
-				attribute.String("name", *name),
+				attribute.String("tenant_name", *name),
 			)
 		}
 	}
@@ -213,13 +218,6 @@ func (c *ClientWrapper) UpdateObservabilityTenant(ctx context.Context, id string
 		)
 	}
 
-	var mimirLimits *observabilityv1alpha1.MimirLimits
-
-	if limits != nil && limits.Mimir != nil {
-		tmpMimirLimits := observabilityv1alpha1.MimirLimits(*limits.Mimir)
-		mimirLimits = &tmpMimirLimits
-	}
-
 	existingTenant, err := c.ControllerClient.ObservabilityV1alpha1().Tenants().Get(ctx, id, metav1.GetOptions{})
 	if err != nil {
 		log.Error(err, "Failed to get observability tenant")
@@ -228,7 +226,26 @@ func (c *ClientWrapper) UpdateObservabilityTenant(ctx context.Context, id string
 		return nil, err
 	}
 
-	mimirLimits.DeepCopyInto(existingTenant.Spec.Limits.Mimir)
+	if limits != nil {
+		if limits.Mimir != nil {
+			var mimirLimits *observabilityv1alpha1.MimirLimits
+			tmpMimirLimits := observabilityv1alpha1.MimirLimits(*limits.Mimir)
+			mimirLimits = &tmpMimirLimits
+			mimirLimits.DeepCopyInto(existingTenant.Spec.Limits.Mimir)
+		}
+		if limits.Loki != nil {
+			var lokiLimits *observabilityv1alpha1.LokiLimits
+			tmpLokiLimits := observabilityv1alpha1.LokiLimits(*limits.Loki)
+			lokiLimits = &tmpLokiLimits
+			lokiLimits.DeepCopyInto(existingTenant.Spec.Limits.Loki)
+		}
+		if limits.Tempo != nil {
+			var tempoLimits *observabilityv1alpha1.TempoLimits
+			tmpTempoLimits := observabilityv1alpha1.TempoLimits(*limits.Tempo)
+			tempoLimits = &tmpTempoLimits
+			tempoLimits.DeepCopyInto(existingTenant.Spec.Limits.Tempo)
+		}
+	}
 
 	if name != nil {
 		existingTenant.Spec.DisplayName = *name
@@ -372,12 +389,22 @@ func (c *ClientWrapper) UpdateObservabilityTenant(ctx context.Context, id string
 		return nil, err
 	}
 
-	return &model.ObservabilityTenant{
+	output := &model.ObservabilityTenant{
 		ID: tenant.Name,
-		Limits: &model.ObservabilityTenantLimits{
+	}
+
+	if tenant.Spec.DisplayName != "" {
+		output.DisplayName = &tenant.Spec.DisplayName
+	}
+
+	if tenant.Spec.Limits != nil {
+		output.Limits = &model.ObservabilityTenantLimits{
 			Mimir: tenant.Spec.Limits.Mimir,
-		},
-	}, nil
+			Loki:  tenant.Spec.Limits.Loki,
+			Tempo: tenant.Spec.Limits.Tempo,
+		}
+	}
+	return output, nil
 }
 
 func (c *ClientWrapper) MutateObservabilityTenantInKeto(ctx context.Context, id string, tenantRelations []ObservabilityTenantRelation) error {

@@ -7,9 +7,11 @@ package resolvers
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 
 	"github.com/pluralsh/trace-shield-controller/api/observability/v1alpha1"
 	"github.com/pluralsh/trace-shield/graph/generated"
+	"github.com/pluralsh/trace-shield/graph/model"
 )
 
 // Value is the resolver for the value field.
@@ -23,9 +25,25 @@ func (r *matchPolicyAttributeResolver) Value(ctx context.Context, obj *v1alpha1.
 	return output, nil
 }
 
+// MetricsGeneratorProcessorSpanMetricsFilterPolicies is the resolver for the metricsGeneratorProcessorSpanMetricsFilterPolicies field.
+func (r *tempoLimitsInputResolver) MetricsGeneratorProcessorSpanMetricsFilterPolicies(ctx context.Context, obj *v1alpha1.TempoLimitsInput, data []*model.FilterPolicyInput) error {
+	panic(fmt.Errorf("not implemented: MetricsGeneratorProcessorSpanMetricsFilterPolicies - metricsGeneratorProcessorSpanMetricsFilterPolicies"))
+}
+
+// MetricsGeneratorProcessorSpanMetricsDimensionMappings is the resolver for the metricsGeneratorProcessorSpanMetricsDimensionMappings field.
+func (r *tempoLimitsInputResolver) MetricsGeneratorProcessorSpanMetricsDimensionMappings(ctx context.Context, obj *v1alpha1.TempoLimitsInput, data []*model.DimensionMappingsInput) error {
+	panic(fmt.Errorf("not implemented: MetricsGeneratorProcessorSpanMetricsDimensionMappings - metricsGeneratorProcessorSpanMetricsDimensionMappings"))
+}
+
 // MatchPolicyAttribute returns generated.MatchPolicyAttributeResolver implementation.
 func (r *Resolver) MatchPolicyAttribute() generated.MatchPolicyAttributeResolver {
 	return &matchPolicyAttributeResolver{r}
 }
 
+// TempoLimitsInput returns generated.TempoLimitsInputResolver implementation.
+func (r *Resolver) TempoLimitsInput() generated.TempoLimitsInputResolver {
+	return &tempoLimitsInputResolver{r}
+}
+
 type matchPolicyAttributeResolver struct{ *Resolver }
+type tempoLimitsInputResolver struct{ *Resolver }

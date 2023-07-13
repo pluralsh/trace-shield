@@ -66,67 +66,6 @@ type LoginBindingsInput struct {
 	Groups []*GroupInput `json:"groups,omitempty"`
 }
 
-// Input of the limits for Loki for a tenant.
-type LokiLimitsInput struct {
-	IngestionRateStrategy                *string                       `json:"ingestionRateStrategy,omitempty"`
-	IngestionRateMb                      *float64                      `json:"ingestionRateMB,omitempty"`
-	IngestionBurstSizeMb                 *float64                      `json:"ingestionBurstSizeMB,omitempty"`
-	MaxLabelNameLength                   *int64                        `json:"maxLabelNameLength,omitempty"`
-	MaxLabelValueLength                  *int64                        `json:"maxLabelValueLength,omitempty"`
-	MaxLabelNamesPerSeries               *int64                        `json:"maxLabelNamesPerSeries,omitempty"`
-	RejectOldSamples                     *bool                         `json:"rejectOldSamples,omitempty"`
-	RejectOldSamplesMaxAge               *v1.Duration                  `json:"rejectOldSamplesMaxAge,omitempty"`
-	CreationGracePeriod                  *v1.Duration                  `json:"creationGracePeriod,omitempty"`
-	EnforceMetricName                    *bool                         `json:"enforceMetricName,omitempty"`
-	MaxLineSize                          *uint64                       `json:"maxLineSize,omitempty"`
-	MaxLineSizeTruncate                  *bool                         `json:"maxLineSizeTruncate,omitempty"`
-	IncrementDuplicateTimestamp          *bool                         `json:"incrementDuplicateTimestamp,omitempty"`
-	MaxLocalStreamsPerUser               *int64                        `json:"maxLocalStreamsPerUser,omitempty"`
-	MaxGlobalStreamsPerUser              *int64                        `json:"maxGlobalStreamsPerUser,omitempty"`
-	UnorderedWrites                      *bool                         `json:"unorderedWrites,omitempty"`
-	PerStreamRateLimit                   *uint64                       `json:"perStreamRateLimit,omitempty"`
-	PerStreamRateLimitBurst              *uint64                       `json:"perStreamRateLimitBurst,omitempty"`
-	MaxChunksPerQuery                    *int64                        `json:"maxChunksPerQuery,omitempty"`
-	MaxQuerySeries                       *int64                        `json:"maxQuerySeries,omitempty"`
-	MaxQueryLookback                     *v1.Duration                  `json:"maxQueryLookback,omitempty"`
-	MaxQueryLength                       *v1.Duration                  `json:"maxQueryLength,omitempty"`
-	MaxQueryRange                        *v1.Duration                  `json:"maxQueryRange,omitempty"`
-	MaxQueryParallelism                  *int64                        `json:"maxQueryParallelism,omitempty"`
-	TsdbMaxQueryParallelism              *int64                        `json:"tsdbMaxQueryParallelism,omitempty"`
-	TsdbMaxBytesPerShard                 *uint64                       `json:"tsdbMaxBytesPerShard,omitempty"`
-	CardinalityLimit                     *int64                        `json:"cardinalityLimit,omitempty"`
-	MaxStreamsMatchersPerQuery           *int64                        `json:"maxStreamsMatchersPerQuery,omitempty"`
-	MaxConcurrentTailRequests            *int64                        `json:"maxConcurrentTailRequests,omitempty"`
-	MaxEntriesLimitPerQuery              *int64                        `json:"maxEntriesLimitPerQuery,omitempty"`
-	MaxCacheFreshness                    *v1.Duration                  `json:"maxCacheFreshness,omitempty"`
-	MaxStatsCacheFreshness               *v1.Duration                  `json:"maxStatsCacheFreshness,omitempty"`
-	MaxQueriersPerTenant                 *int64                        `json:"maxQueriersPerTenant,omitempty"`
-	QueryReadyIndexNumDays               *int64                        `json:"queryReadyIndexNumDays,omitempty"`
-	QueryTimeout                         *v1.Duration                  `json:"queryTimeout,omitempty"`
-	QuerySplitDuration                   *v1.Duration                  `json:"querySplitDuration,omitempty"`
-	MinShardingLookback                  *v1.Duration                  `json:"minShardingLookback,omitempty"`
-	MaxQueryBytesRead                    *uint64                       `json:"maxQueryBytesRead,omitempty"`
-	MaxQuerierBytesRead                  *uint64                       `json:"maxQuerierBytesRead,omitempty"`
-	VolumeEnabled                        *bool                         `json:"volumeEnabled,omitempty"`
-	VolumeMaxSeries                      *int64                        `json:"volumeMaxSeries,omitempty"`
-	RulerEvaluationDelay                 *v1.Duration                  `json:"rulerEvaluationDelay,omitempty"`
-	RulerMaxRulesPerRuleGroup            *int64                        `json:"rulerMaxRulesPerRuleGroup,omitempty"`
-	RulerMaxRuleGroupsPerTenant          *int64                        `json:"rulerMaxRuleGroupsPerTenant,omitempty"`
-	RulerAlertManagerConfig              *RulerAlertManagerConfigInput `json:"rulerAlertManagerConfig,omitempty"`
-	RulerTenantShardSize                 *int64                        `json:"rulerTenantShardSize,omitempty"`
-	RulerRemoteWriteDisabled             *bool                         `json:"rulerRemoteWriteDisabled,omitempty"`
-	RulerRemoteEvaluationTimeout         *v1.Duration                  `json:"rulerRemoteEvaluationTimeout,omitempty"`
-	RulerRemoteEvaluationMaxResponseSize *int64                        `json:"rulerRemoteEvaluationMaxResponseSize,omitempty"`
-	DeletionMode                         *string                       `json:"deletionMode,omitempty"`
-	RetentionPeriod                      *v1.Duration                  `json:"retentionPeriod,omitempty"`
-	StreamRetention                      []*StreamRetentionInput       `json:"streamRetention,omitempty"`
-	ShardStreams                         *ShardstreamsConfigInput      `json:"shardStreams,omitempty"`
-	BlockedQueries                       []*BlockedQueryInput          `json:"blockedQueries,omitempty"`
-	RequiredLabels                       []string                      `json:"requiredLabels,omitempty"`
-	RequiredNumberLabels                 *int64                        `json:"requiredNumberLabels,omitempty"`
-	IndexGatewayShardSize                *int64                        `json:"indexGatewayShardSize,omitempty"`
-}
-
 type MatchPolicyAttributeInput struct {
 	Key   *string                `json:"key,omitempty"`
 	Value map[string]interface{} `json:"value,omitempty"`
@@ -381,9 +320,9 @@ type ObservabilityTenantLimitsInput struct {
 	// The limits for Mimir for the tenant.
 	Mimir *v1alpha1.MimirLimitsInput `json:"mimir,omitempty"`
 	// The limits for Loki for the tenant.
-	Loki *LokiLimitsInput `json:"loki,omitempty"`
+	Loki *v1alpha1.LokiLimitsInput `json:"loki,omitempty"`
 	// The limits for Tempo for the tenant.
-	Tempo *TempoLimitsInput `json:"tempo,omitempty"`
+	Tempo *v1alpha1.TempoLimitsInput `json:"tempo,omitempty"`
 }
 
 // Representation of the users, groups and oauth2 clients that have a set of permissions on a tenant.
@@ -461,44 +400,6 @@ type StreamRetentionInput struct {
 	Period   *v1.Duration `json:"period,omitempty"`
 	Priority *int64       `json:"priority,omitempty"`
 	Selector *string      `json:"selector,omitempty"`
-}
-
-// Input of the limits for Tempo for a tenant.
-type TempoLimitsInput struct {
-	IngestionRateStrategy                                          *string                   `json:"ingestionRateStrategy,omitempty"`
-	IngestionRateLimitBytes                                        *int64                    `json:"ingestionRateLimitBytes,omitempty"`
-	IngestionBurstSizeBytes                                        *int64                    `json:"ingestionBurstSizeBytes,omitempty"`
-	MaxLocalTracesPerUser                                          *int64                    `json:"maxLocalTracesPerUser,omitempty"`
-	MaxGlobalTracesPerUser                                         *int64                    `json:"maxGlobalTracesPerUser,omitempty"`
-	Forwarders                                                     []string                  `json:"forwarders,omitempty"`
-	MetricsGeneratorRingSize                                       *int64                    `json:"metricsGeneratorRingSize,omitempty"`
-	MetricsGeneratorProcessors                                     []string                  `json:"metricsGeneratorProcessors,omitempty"`
-	MetricsGeneratorMaxActiveSeries                                *uint64                   `json:"metricsGeneratorMaxActiveSeries,omitempty"`
-	MetricsGeneratorCollectionInterval                             *v1.Duration              `json:"metricsGeneratorCollectionInterval,omitempty"`
-	MetricsGeneratorDisableCollection                              *bool                     `json:"metricsGeneratorDisableCollection,omitempty"`
-	MetricsGeneratorForwarderQueueSize                             *int64                    `json:"metricsGeneratorForwarderQueueSize,omitempty"`
-	MetricsGeneratorForwarderWorkers                               *int64                    `json:"metricsGeneratorForwarderWorkers,omitempty"`
-	MetricsGeneratorProcessorServiceGraphsHistogramBuckets         []*float64                `json:"metricsGeneratorProcessorServiceGraphsHistogramBuckets,omitempty"`
-	MetricsGeneratorProcessorServiceGraphsDimensions               []string                  `json:"metricsGeneratorProcessorServiceGraphsDimensions,omitempty"`
-	MetricsGeneratorProcessorServiceGraphsPeerAttributes           []string                  `json:"metricsGeneratorProcessorServiceGraphsPeerAttributes,omitempty"`
-	MetricsGeneratorProcessorServiceGraphsEnableClientServerPrefix *bool                     `json:"metricsGeneratorProcessorServiceGraphsEnableClientServerPrefix,omitempty"`
-	MetricsGeneratorProcessorSpanMetricsHistogramBuckets           []*float64                `json:"metricsGeneratorProcessorSpanMetricsHistogramBuckets,omitempty"`
-	MetricsGeneratorProcessorSpanMetricsDimensions                 []string                  `json:"metricsGeneratorProcessorSpanMetricsDimensions,omitempty"`
-	MetricsGeneratorProcessorSpanMetricsIntrinsicDimensions        map[string]bool           `json:"metricsGeneratorProcessorSpanMetricsIntrinsicDimensions,omitempty"`
-	MetricsGeneratorProcessorSpanMetricsFilterPolicies             []*FilterPolicyInput      `json:"metricsGeneratorProcessorSpanMetricsFilterPolicies,omitempty"`
-	MetricsGeneratorProcessorSpanMetricsDimensionMappings          []*DimensionMappingsInput `json:"metricsGeneratorProcessorSpanMetricsDimensionMappings,omitempty"`
-	MetricsGeneratorProcessorSpanMetricsEnableTargetInfo           *bool                     `json:"metricsGeneratorProcessorSpanMetricsEnableTargetInfo,omitempty"`
-	MetricsGeneratorProcessorLocalBlocksMaxLiveTraces              *uint64                   `json:"metricsGeneratorProcessorLocalBlocksMaxLiveTraces,omitempty"`
-	MetricsGeneratorProcessorLocalBlocksMaxBlockDuration           *v1.Duration              `json:"metricsGeneratorProcessorLocalBlocksMaxBlockDuration,omitempty"`
-	MetricsGeneratorProcessorLocalBlocksMaxBlockBytes              *uint64                   `json:"metricsGeneratorProcessorLocalBlocksMaxBlockBytes,omitempty"`
-	MetricsGeneratorProcessorLocalBlocksFlushCheckPeriod           *v1.Duration              `json:"metricsGeneratorProcessorLocalBlocksFlushCheckPeriod,omitempty"`
-	MetricsGeneratorProcessorLocalBlocksTraceIdlePeriod            *v1.Duration              `json:"metricsGeneratorProcessorLocalBlocksTraceIdlePeriod,omitempty"`
-	MetricsGeneratorProcessorLocalBlocksCompleteBlockTimeout       *v1.Duration              `json:"metricsGeneratorProcessorLocalBlocksCompleteBlockTimeout,omitempty"`
-	BlockRetention                                                 *v1.Duration              `json:"blockRetention,omitempty"`
-	MaxBytesPerTagValuesQuery                                      *int64                    `json:"maxBytesPerTagValuesQuery,omitempty"`
-	MaxBlocksPerTagValuesQuery                                     *int64                    `json:"maxBlocksPerTagValuesQuery,omitempty"`
-	MaxSearchDuration                                              *v1.Duration              `json:"maxSearchDuration,omitempty"`
-	MaxBytesPerTrace                                               *int64                    `json:"maxBytesPerTrace,omitempty"`
 }
 
 // Representation of the information about a user sourced from Kratos.

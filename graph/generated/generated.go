@@ -52,7 +52,9 @@ type ResolverRoot interface {
 	Query() QueryResolver
 	RelabelConfig() RelabelConfigResolver
 	User() UserResolver
+	LokiLimitsInput() LokiLimitsInputResolver
 	MimirLimitsInput() MimirLimitsInputResolver
+	TempoLimitsInput() TempoLimitsInputResolver
 }
 
 type DirectiveRoot struct {
@@ -592,8 +594,19 @@ type UserResolver interface {
 	Groups(ctx context.Context, obj *model.User) ([]*model.Group, error)
 }
 
+type LokiLimitsInputResolver interface {
+	RulerAlertManagerConfig(ctx context.Context, obj *v1alpha1.LokiLimitsInput, data *model.RulerAlertManagerConfigInput) error
+
+	StreamRetention(ctx context.Context, obj *v1alpha1.LokiLimitsInput, data []*model.StreamRetentionInput) error
+	ShardStreams(ctx context.Context, obj *v1alpha1.LokiLimitsInput, data *model.ShardstreamsConfigInput) error
+	BlockedQueries(ctx context.Context, obj *v1alpha1.LokiLimitsInput, data []*model.BlockedQueryInput) error
+}
 type MimirLimitsInputResolver interface {
 	MetricRelabelConfigs(ctx context.Context, obj *v1alpha1.MimirLimitsInput, data []*model.RelabelConfigInput) error
+}
+type TempoLimitsInputResolver interface {
+	MetricsGeneratorProcessorSpanMetricsFilterPolicies(ctx context.Context, obj *v1alpha1.TempoLimitsInput, data []*model.FilterPolicyInput) error
+	MetricsGeneratorProcessorSpanMetricsDimensionMappings(ctx context.Context, obj *v1alpha1.TempoLimitsInput, data []*model.DimensionMappingsInput) error
 }
 
 type executableSchema struct {
@@ -3383,62 +3396,62 @@ type LokiLimits {
   maxLineSize: UInt
   maxLineSizeTruncate: Boolean
   incrementDuplicateTimestamp: Boolean
-	maxLocalStreamsPerUser: Int
-	maxGlobalStreamsPerUser: Int
-	unorderedWrites: Boolean
-	perStreamRateLimit: UInt
-	perStreamRateLimitBurst: UInt
-	maxChunksPerQuery: Int
-	maxQuerySeries: Int
-	maxQueryLookback: Duration
-	maxQueryLength: Duration
-	maxQueryRange: Duration
-	maxQueryParallelism: Int
-	tsdbMaxQueryParallelism: Int
-	tsdbMaxBytesPerShard: UInt
-	cardinalityLimit: Int
-	maxStreamsMatchersPerQuery: Int
-	maxConcurrentTailRequests: Int
-	maxEntriesLimitPerQuery: Int
-	maxCacheFreshness: Duration
-	maxStatsCacheFreshness: Duration
-	maxQueriersPerTenant: Int
-	queryReadyIndexNumDays: Int
-	queryTimeout: Duration
-	querySplitDuration: Duration
-	minShardingLookback: Duration
-	maxQueryBytesRead: UInt
-	maxQuerierBytesRead: UInt
-	volumeEnabled: Boolean
-	volumeMaxSeries: Int
-	rulerEvaluationDelay: Duration
-	rulerMaxRulesPerRuleGroup: Int
-	rulerMaxRuleGroupsPerTenant: Int
-	rulerAlertManagerConfig: RulerAlertManagerConfig
-	rulerTenantShardSize: Int
-	rulerRemoteWriteDisabled: Boolean
-	# TODO: create scalar and type rulerRemoteWriteConfig: map[string]RemoteWriteSpec
-	rulerRemoteEvaluationTimeout: Duration
-	rulerRemoteEvaluationMaxResponseSize: Int
-	deletionMode: String
-	retentionPeriod: Duration
-	streamRetention: [StreamRetention!]
-	shardStreams: ShardstreamsConfig
-	blockedQueries: [BlockedQuery!]
-	requiredLabels: [String!]
-	requiredNumberLabels: Int
-	indexGatewayShardSize: Int
+  maxLocalStreamsPerUser: Int
+  maxGlobalStreamsPerUser: Int
+  unorderedWrites: Boolean
+  perStreamRateLimit: UInt
+  perStreamRateLimitBurst: UInt
+  maxChunksPerQuery: Int
+  maxQuerySeries: Int
+  maxQueryLookback: Duration
+  maxQueryLength: Duration
+  maxQueryRange: Duration
+  maxQueryParallelism: Int
+  tsdbMaxQueryParallelism: Int
+  tsdbMaxBytesPerShard: UInt
+  cardinalityLimit: Int
+  maxStreamsMatchersPerQuery: Int
+  maxConcurrentTailRequests: Int
+  maxEntriesLimitPerQuery: Int
+  maxCacheFreshness: Duration
+  maxStatsCacheFreshness: Duration
+  maxQueriersPerTenant: Int
+  queryReadyIndexNumDays: Int
+  queryTimeout: Duration
+  querySplitDuration: Duration
+  minShardingLookback: Duration
+  maxQueryBytesRead: UInt
+  maxQuerierBytesRead: UInt
+  volumeEnabled: Boolean
+  volumeMaxSeries: Int
+  rulerEvaluationDelay: Duration
+  rulerMaxRulesPerRuleGroup: Int
+  rulerMaxRuleGroupsPerTenant: Int
+  rulerAlertManagerConfig: RulerAlertManagerConfig
+  rulerTenantShardSize: Int
+  rulerRemoteWriteDisabled: Boolean
+  # TODO: create scalar and type rulerRemoteWriteConfig: map[string]RemoteWriteSpec
+  rulerRemoteEvaluationTimeout: Duration
+  rulerRemoteEvaluationMaxResponseSize: Int
+  deletionMode: String
+  retentionPeriod: Duration
+  streamRetention: [StreamRetention!]
+  shardStreams: ShardstreamsConfig
+  blockedQueries: [BlockedQuery!]
+  requiredLabels: [String!]
+  requiredNumberLabels: Int
+  indexGatewayShardSize: Int
 }
 
 type RulerAlertManagerConfig {
-	alertmanagerURL: String!
-	alertmanagerDiscovery: Boolean
-	alertmanagerRefreshInterval: Duration
-	alertmanangerEnableV2API: Boolean
-	alertRelabelConfigs: [RelabelConfig!]
-	notificationQueueCapacity: Int
-	notificationTimeout: Duration
-	notifier: NotifierConfig
+  alertmanagerURL: String!
+  alertmanagerDiscovery: Boolean
+  alertmanagerRefreshInterval: Duration
+  alertmanangerEnableV2API: Boolean
+  alertRelabelConfigs: [RelabelConfig!]
+  notificationQueueCapacity: Int
+  notificationTimeout: Duration
+  notifier: NotifierConfig
 }
 
 type NotifierConfig {
@@ -3459,13 +3472,13 @@ type NotifierHeaderAuth {
 }
 
 type NotifierTLSClientConfig {
-	certPath: String
-	keyPath: String
-	caPath: String
-	serverName: String
-	insecureSkipVerify: Boolean
-	cipherSuites: String
-	minVersion: String
+  certPath: String
+  keyPath: String
+  caPath: String
+  serverName: String
+  insecureSkipVerify: Boolean
+  cipherSuites: String
+  minVersion: String
 }
 
 type StreamRetention {
@@ -3481,9 +3494,9 @@ type ShardstreamsConfig {
 }
 
 type BlockedQuery {
-	pattern: String
-	regex: Boolean
-	hash: UInt
+  pattern: String
+  regex: Boolean
+  hash: UInt
   types: [BlockedQueryType!]
 }
 
@@ -3509,62 +3522,62 @@ input LokiLimitsInput {
   maxLineSize: UInt
   maxLineSizeTruncate: Boolean
   incrementDuplicateTimestamp: Boolean
-	maxLocalStreamsPerUser: Int
-	maxGlobalStreamsPerUser: Int
-	unorderedWrites: Boolean
-	perStreamRateLimit: UInt
-	perStreamRateLimitBurst: UInt
-	maxChunksPerQuery: Int
-	maxQuerySeries: Int
-	maxQueryLookback: Duration
-	maxQueryLength: Duration
-	maxQueryRange: Duration
-	maxQueryParallelism: Int
-	tsdbMaxQueryParallelism: Int
-	tsdbMaxBytesPerShard: UInt
-	cardinalityLimit: Int
-	maxStreamsMatchersPerQuery: Int
-	maxConcurrentTailRequests: Int
-	maxEntriesLimitPerQuery: Int
-	maxCacheFreshness: Duration
-	maxStatsCacheFreshness: Duration
-	maxQueriersPerTenant: Int
-	queryReadyIndexNumDays: Int
-	queryTimeout: Duration
-	querySplitDuration: Duration
-	minShardingLookback: Duration
-	maxQueryBytesRead: UInt
-	maxQuerierBytesRead: UInt
-	volumeEnabled: Boolean
-	volumeMaxSeries: Int
-	rulerEvaluationDelay: Duration
-	rulerMaxRulesPerRuleGroup: Int
-	rulerMaxRuleGroupsPerTenant: Int
-	rulerAlertManagerConfig: RulerAlertManagerConfigInput
-	rulerTenantShardSize: Int
-	rulerRemoteWriteDisabled: Boolean
-	# TODO: create scalar and type rulerRemoteWriteConfig: map[string]RemoteWriteSpec
-	rulerRemoteEvaluationTimeout: Duration
-	rulerRemoteEvaluationMaxResponseSize: Int
-	deletionMode: String
-	retentionPeriod: Duration
-	streamRetention: [StreamRetentionInput!]
-	shardStreams: ShardstreamsConfigInput
-	blockedQueries: [BlockedQueryInput!]
-	requiredLabels: [String!]
-	requiredNumberLabels: Int
-	indexGatewayShardSize: Int
+  maxLocalStreamsPerUser: Int
+  maxGlobalStreamsPerUser: Int
+  unorderedWrites: Boolean
+  perStreamRateLimit: UInt
+  perStreamRateLimitBurst: UInt
+  maxChunksPerQuery: Int
+  maxQuerySeries: Int
+  maxQueryLookback: Duration
+  maxQueryLength: Duration
+  maxQueryRange: Duration
+  maxQueryParallelism: Int
+  tsdbMaxQueryParallelism: Int
+  tsdbMaxBytesPerShard: UInt
+  cardinalityLimit: Int
+  maxStreamsMatchersPerQuery: Int
+  maxConcurrentTailRequests: Int
+  maxEntriesLimitPerQuery: Int
+  maxCacheFreshness: Duration
+  maxStatsCacheFreshness: Duration
+  maxQueriersPerTenant: Int
+  queryReadyIndexNumDays: Int
+  queryTimeout: Duration
+  querySplitDuration: Duration
+  minShardingLookback: Duration
+  maxQueryBytesRead: UInt
+  maxQuerierBytesRead: UInt
+  volumeEnabled: Boolean
+  volumeMaxSeries: Int
+  rulerEvaluationDelay: Duration
+  rulerMaxRulesPerRuleGroup: Int
+  rulerMaxRuleGroupsPerTenant: Int
+  rulerAlertManagerConfig: RulerAlertManagerConfigInput
+  rulerTenantShardSize: Int
+  rulerRemoteWriteDisabled: Boolean
+  # TODO: create scalar and type rulerRemoteWriteConfig: map[string]RemoteWriteSpec
+  rulerRemoteEvaluationTimeout: Duration
+  rulerRemoteEvaluationMaxResponseSize: Int
+  deletionMode: String
+  retentionPeriod: Duration
+  streamRetention: [StreamRetentionInput!]
+  shardStreams: ShardstreamsConfigInput
+  blockedQueries: [BlockedQueryInput!]
+  requiredLabels: [String!]
+  requiredNumberLabels: Int
+  indexGatewayShardSize: Int
 }
 
 input RulerAlertManagerConfigInput {
-	alertmanagerURL: String!
-	alertmanagerDiscovery: Boolean
-	alertmanagerRefreshInterval: Duration
-	alertmanangerEnableV2API: Boolean
-	alertRelabelConfigs: [RelabelConfigInput!]
-	notificationQueueCapacity: Int
-	notificationTimeout: Duration
-	notifier: NotifierConfigInput
+  alertmanagerURL: String!
+  alertmanagerDiscovery: Boolean
+  alertmanagerRefreshInterval: Duration
+  alertmanangerEnableV2API: Boolean
+  alertRelabelConfigs: [RelabelConfigInput!]
+  notificationQueueCapacity: Int
+  notificationTimeout: Duration
+  notifier: NotifierConfigInput
 }
 
 input NotifierConfigInput {
@@ -3585,13 +3598,13 @@ input NotifierHeaderAuthInput {
 }
 
 input NotifierTLSClientConfigInput {
-	certPath: String
-	keyPath: String
-	caPath: String
-	serverName: String
-	insecureSkipVerify: Boolean
-	cipherSuites: String
-	minVersion: String
+  certPath: String
+  keyPath: String
+  caPath: String
+  serverName: String
+  insecureSkipVerify: Boolean
+  cipherSuites: String
+  minVersion: String
 }
 
 input StreamRetentionInput {
@@ -3607,9 +3620,9 @@ input ShardstreamsConfigInput {
 }
 
 input BlockedQueryInput {
-	pattern: String
-	regex: Boolean
-	hash: UInt
+  pattern: String
+  regex: Boolean
+  hash: UInt
   types: [BlockedQueryType!]
 }
 `, BuiltIn: false},
@@ -3617,172 +3630,172 @@ input BlockedQueryInput {
 type MimirLimits {
   requestRate: Float
   requestBurstSize: Int
-	ingestionRate: Float
-	ingestionBurstSize: Int
-	acceptHASamples: Boolean
-	haClusterLabel: String
-	haReplicaLabel: String
-	haMaxClusters: Int
-	dropLabels: [String!]
-	maxLabelNameLength: Int
-	maxLabelValueLength: Int
-	maxLabelNamesPerSeries: Int
-	maxMetadataLength: Int
+  ingestionRate: Float
+  ingestionBurstSize: Int
+  acceptHASamples: Boolean
+  haClusterLabel: String
+  haReplicaLabel: String
+  haMaxClusters: Int
+  dropLabels: [String!]
+  maxLabelNameLength: Int
+  maxLabelValueLength: Int
+  maxLabelNamesPerSeries: Int
+  maxMetadataLength: Int
   maxNativeHistogramBuckets: Int
-	creationGracePeriod: Duration
-	enforceMetadataMetricName: Boolean
-	ingestionTenantShardSize: Int
+  creationGracePeriod: Duration
+  enforceMetadataMetricName: Boolean
+  ingestionTenantShardSize: Int
   metricRelabelConfigs: [RelabelConfig!]
-	maxGlobalSeriesPerUser: Int
-	maxGlobalSeriesPerMetric: Int
-	maxGlobalMetricsWithMetadataPerUser: Int
-	maxGlobalMetadataPerMetric: Int
-	maxGlobalExemplarsPerUser: Int
-	nativeHistogramsIngestionEnabled: Boolean
-	activeSeriesCustomTrackersConfig: StringMap
-	outOfOrderTimeWindow: Duration
-	outOfOrderBlocksExternalLabelEnabled: Boolean
-	separateMetricsGroupLabel: String
-	maxChunksPerQuery: Int
-	maxFetchedSeriesPerQuery: Int
-	maxFetchedChunkBytesPerQuery: Int
-	maxQueryLookback: Duration
-	maxPartialQueryLength: Duration
-	maxQueryParallelism: Int
-	maxLabelsQueryLength: Duration
-	maxCacheFreshness: Duration
-	maxQueriersPerTenant: Int
-	queryShardingTotalShards: Int
-	queryShardingMaxShardedQueries: Int
-	queryShardingMaxRegexpSizeBytes: Int
-	splitInstantQueriesByInterval: Duration
+  maxGlobalSeriesPerUser: Int
+  maxGlobalSeriesPerMetric: Int
+  maxGlobalMetricsWithMetadataPerUser: Int
+  maxGlobalMetadataPerMetric: Int
+  maxGlobalExemplarsPerUser: Int
+  nativeHistogramsIngestionEnabled: Boolean
+  activeSeriesCustomTrackersConfig: StringMap
+  outOfOrderTimeWindow: Duration
+  outOfOrderBlocksExternalLabelEnabled: Boolean
+  separateMetricsGroupLabel: String
+  maxChunksPerQuery: Int
+  maxFetchedSeriesPerQuery: Int
+  maxFetchedChunkBytesPerQuery: Int
+  maxQueryLookback: Duration
+  maxPartialQueryLength: Duration
+  maxQueryParallelism: Int
+  maxLabelsQueryLength: Duration
+  maxCacheFreshness: Duration
+  maxQueriersPerTenant: Int
+  queryShardingTotalShards: Int
+  queryShardingMaxShardedQueries: Int
+  queryShardingMaxRegexpSizeBytes: Int
+  splitInstantQueriesByInterval: Duration
   QueryIngestersWithin: Duration
-	maxTotalQueryLength: Duration
-	resultsCacheTTL: Duration
-	resultsCacheTTLForOutOfOrderTimeWindow: Duration
+  maxTotalQueryLength: Duration
+  resultsCacheTTL: Duration
+  resultsCacheTTLForOutOfOrderTimeWindow: Duration
   resultsCacheTTLForCardinalityQuery: Duration
   resultsCacheTTLForLabelsQuery: Duration
   resultsCacheForUnalignedQueryEnabled: Boolean
-	maxQueryExpressionSizeBytes: Int
-	cardinalityAnalysisEnabled: Boolean
-	labelNamesAndValuesResultsMaxSizeBytes: Int
-	labelValuesMaxCardinalityLabelNamesPerRequest: Int
-	rulerEvaluationDelay: Duration
-	rulerTenantShardSize: Int
-	rulerMaxRulesPerRuleGroup: Int
-	rulerMaxRuleGroupsPerTenant: Int
-	rulerRecordingRulesEvaluationEnabled: Boolean
-	rulerAlertingRulesEvaluationEnabled: Boolean
+  maxQueryExpressionSizeBytes: Int
+  cardinalityAnalysisEnabled: Boolean
+  labelNamesAndValuesResultsMaxSizeBytes: Int
+  labelValuesMaxCardinalityLabelNamesPerRequest: Int
+  rulerEvaluationDelay: Duration
+  rulerTenantShardSize: Int
+  rulerMaxRulesPerRuleGroup: Int
+  rulerMaxRuleGroupsPerTenant: Int
+  rulerRecordingRulesEvaluationEnabled: Boolean
+  rulerAlertingRulesEvaluationEnabled: Boolean
   rulerSyncRulesOnChangesEnabled: Boolean
-	storeGatewayTenantShardSize: Int
-	compactorBlocksRetentionPeriod: Duration
-	compactorSplitAndMergeShards: Int
-	compactorSplitGroups: Int
-	compactorTenantShardSize: Int
-	compactorPartialBlockDeletionDelay: Duration
-	compactorBlockUploadEnabled: Boolean
-	compactorBlockUploadValidationEnabled: Boolean
-	compactorBlockUploadVerifyChunks: Boolean
+  storeGatewayTenantShardSize: Int
+  compactorBlocksRetentionPeriod: Duration
+  compactorSplitAndMergeShards: Int
+  compactorSplitGroups: Int
+  compactorTenantShardSize: Int
+  compactorPartialBlockDeletionDelay: Duration
+  compactorBlockUploadEnabled: Boolean
+  compactorBlockUploadValidationEnabled: Boolean
+  compactorBlockUploadVerifyChunks: Boolean
   compactorBlockUploadMaxBlockSizeBytes: Int
-	s3SSEType: String
-	s3SSEKMSKeyID: String
-	s3SSEKMSEncryptionContext: String
-	alertmanagerReceiversBlockCIDRNetworks: String
-	alertmanagerReceiversBlockPrivateAddresses: Boolean
-	notificationRateLimit: Float
-	notificationRateLimitPerIntegration: FloatMap
-	alertmanagerMaxConfigSizeBytes: Int
-	alertmanagerMaxTemplatesCount: Int
-	alertmanagerMaxTemplateSizeBytes: Int
-	alertmanagerMaxDispatcherAggregationGroups: Int
-	alertmanagerMaxAlertsCount: Int
-	alertmanagerMaxAlertsSizeBytes: Int
+  s3SSEType: String
+  s3SSEKMSKeyID: String
+  s3SSEKMSEncryptionContext: String
+  alertmanagerReceiversBlockCIDRNetworks: String
+  alertmanagerReceiversBlockPrivateAddresses: Boolean
+  notificationRateLimit: Float
+  notificationRateLimitPerIntegration: FloatMap
+  alertmanagerMaxConfigSizeBytes: Int
+  alertmanagerMaxTemplatesCount: Int
+  alertmanagerMaxTemplateSizeBytes: Int
+  alertmanagerMaxDispatcherAggregationGroups: Int
+  alertmanagerMaxAlertsCount: Int
+  alertmanagerMaxAlertsSizeBytes: Int
 }
 
 "Input of the limits for Mimir for a tenant."
 input MimirLimitsInput {
   requestRate: Float
   requestBurstSize: Int
-	ingestionRate: Float
-	ingestionBurstSize: Int
-	acceptHASamples: Boolean
-	haClusterLabel: String
-	haReplicaLabel: String
-	haMaxClusters: Int
-	dropLabels: [String!]
-	maxLabelNameLength: Int
-	maxLabelValueLength: Int
-	maxLabelNamesPerSeries: Int
-	maxMetadataLength: Int
+  ingestionRate: Float
+  ingestionBurstSize: Int
+  acceptHASamples: Boolean
+  haClusterLabel: String
+  haReplicaLabel: String
+  haMaxClusters: Int
+  dropLabels: [String!]
+  maxLabelNameLength: Int
+  maxLabelValueLength: Int
+  maxLabelNamesPerSeries: Int
+  maxMetadataLength: Int
   maxNativeHistogramBuckets: Int
-	creationGracePeriod: Duration
-	enforceMetadataMetricName: Boolean
-	ingestionTenantShardSize: Int
+  creationGracePeriod: Duration
+  enforceMetadataMetricName: Boolean
+  ingestionTenantShardSize: Int
   metricRelabelConfigs: [RelabelConfigInput!]
-	maxGlobalSeriesPerUser: Int
-	maxGlobalSeriesPerMetric: Int
-	maxGlobalMetricsWithMetadataPerUser: Int
-	maxGlobalMetadataPerMetric: Int
-	maxGlobalExemplarsPerUser: Int
-	nativeHistogramsIngestionEnabled: Boolean
-	activeSeriesCustomTrackersConfig: StringMap
-	outOfOrderTimeWindow: Duration
-	outOfOrderBlocksExternalLabelEnabled: Boolean
-	separateMetricsGroupLabel: String
-	maxChunksPerQuery: Int
-	maxFetchedSeriesPerQuery: Int
-	maxFetchedChunkBytesPerQuery: Int
-	maxQueryLookback: Duration
-	maxPartialQueryLength: Duration
-	maxQueryParallelism: Int
-	maxLabelsQueryLength: Duration
-	maxCacheFreshness: Duration
-	maxQueriersPerTenant: Int
-	queryShardingTotalShards: Int
-	queryShardingMaxShardedQueries: Int
-	queryShardingMaxRegexpSizeBytes: Int
-	splitInstantQueriesByInterval: Duration
+  maxGlobalSeriesPerUser: Int
+  maxGlobalSeriesPerMetric: Int
+  maxGlobalMetricsWithMetadataPerUser: Int
+  maxGlobalMetadataPerMetric: Int
+  maxGlobalExemplarsPerUser: Int
+  nativeHistogramsIngestionEnabled: Boolean
+  activeSeriesCustomTrackersConfig: StringMap
+  outOfOrderTimeWindow: Duration
+  outOfOrderBlocksExternalLabelEnabled: Boolean
+  separateMetricsGroupLabel: String
+  maxChunksPerQuery: Int
+  maxFetchedSeriesPerQuery: Int
+  maxFetchedChunkBytesPerQuery: Int
+  maxQueryLookback: Duration
+  maxPartialQueryLength: Duration
+  maxQueryParallelism: Int
+  maxLabelsQueryLength: Duration
+  maxCacheFreshness: Duration
+  maxQueriersPerTenant: Int
+  queryShardingTotalShards: Int
+  queryShardingMaxShardedQueries: Int
+  queryShardingMaxRegexpSizeBytes: Int
+  splitInstantQueriesByInterval: Duration
   QueryIngestersWithin: Duration
-	maxTotalQueryLength: Duration
-	resultsCacheTTL: Duration
-	resultsCacheTTLForOutOfOrderTimeWindow: Duration
+  maxTotalQueryLength: Duration
+  resultsCacheTTL: Duration
+  resultsCacheTTLForOutOfOrderTimeWindow: Duration
   resultsCacheTTLForCardinalityQuery: Duration
   resultsCacheTTLForLabelsQuery: Duration
   resultsCacheForUnalignedQueryEnabled: Boolean
-	maxQueryExpressionSizeBytes: Int
-	cardinalityAnalysisEnabled: Boolean
-	labelNamesAndValuesResultsMaxSizeBytes: Int
-	labelValuesMaxCardinalityLabelNamesPerRequest: Int
-	rulerEvaluationDelay: Duration
-	rulerTenantShardSize: Int
-	rulerMaxRulesPerRuleGroup: Int
-	rulerMaxRuleGroupsPerTenant: Int
-	rulerRecordingRulesEvaluationEnabled: Boolean
-	rulerAlertingRulesEvaluationEnabled: Boolean
+  maxQueryExpressionSizeBytes: Int
+  cardinalityAnalysisEnabled: Boolean
+  labelNamesAndValuesResultsMaxSizeBytes: Int
+  labelValuesMaxCardinalityLabelNamesPerRequest: Int
+  rulerEvaluationDelay: Duration
+  rulerTenantShardSize: Int
+  rulerMaxRulesPerRuleGroup: Int
+  rulerMaxRuleGroupsPerTenant: Int
+  rulerRecordingRulesEvaluationEnabled: Boolean
+  rulerAlertingRulesEvaluationEnabled: Boolean
   rulerSyncRulesOnChangesEnabled: Boolean
-	storeGatewayTenantShardSize: Int
-	compactorBlocksRetentionPeriod: Duration
-	compactorSplitAndMergeShards: Int
-	compactorSplitGroups: Int
-	compactorTenantShardSize: Int
-	compactorPartialBlockDeletionDelay: Duration
-	compactorBlockUploadEnabled: Boolean
-	compactorBlockUploadValidationEnabled: Boolean
-	compactorBlockUploadVerifyChunks: Boolean
+  storeGatewayTenantShardSize: Int
+  compactorBlocksRetentionPeriod: Duration
+  compactorSplitAndMergeShards: Int
+  compactorSplitGroups: Int
+  compactorTenantShardSize: Int
+  compactorPartialBlockDeletionDelay: Duration
+  compactorBlockUploadEnabled: Boolean
+  compactorBlockUploadValidationEnabled: Boolean
+  compactorBlockUploadVerifyChunks: Boolean
   compactorBlockUploadMaxBlockSizeBytes: Int
-	s3SSEType: String
-	s3SSEKMSKeyID: String
-	s3SSEKMSEncryptionContext: String
-	alertmanagerReceiversBlockCIDRNetworks: String
-	alertmanagerReceiversBlockPrivateAddresses: Boolean
-	notificationRateLimit: Float
-	notificationRateLimitPerIntegration: FloatMap
-	alertmanagerMaxConfigSizeBytes: Int
-	alertmanagerMaxTemplatesCount: Int
-	alertmanagerMaxTemplateSizeBytes: Int
-	alertmanagerMaxDispatcherAggregationGroups: Int
-	alertmanagerMaxAlertsCount: Int
-	alertmanagerMaxAlertsSizeBytes: Int
+  s3SSEType: String
+  s3SSEKMSKeyID: String
+  s3SSEKMSEncryptionContext: String
+  alertmanagerReceiversBlockCIDRNetworks: String
+  alertmanagerReceiversBlockPrivateAddresses: Boolean
+  notificationRateLimit: Float
+  notificationRateLimitPerIntegration: FloatMap
+  alertmanagerMaxConfigSizeBytes: Int
+  alertmanagerMaxTemplatesCount: Int
+  alertmanagerMaxTemplateSizeBytes: Int
+  alertmanagerMaxDispatcherAggregationGroups: Int
+  alertmanagerMaxAlertsCount: Int
+  alertmanagerMaxAlertsSizeBytes: Int
 }
 `, BuiltIn: false},
 	{Name: "../oauth2client.graphqls", Input: `scalar Time
@@ -4652,50 +4665,50 @@ input RelabelConfigInput {
 
 "Representation of the limits for Tempo for a tenant."
 type TempoLimits {
-	ingestionRateStrategy: String
-	ingestionRateLimitBytes: Int
-	ingestionBurstSizeBytes: Int
-	maxLocalTracesPerUser: Int
-	maxGlobalTracesPerUser: Int
-	forwarders: [String!]
-	metricsGeneratorRingSize: Int
-	metricsGeneratorProcessors: [String!]
-	metricsGeneratorMaxActiveSeries: UInt
-	metricsGeneratorCollectionInterval: Duration
-	metricsGeneratorDisableCollection: Boolean
-	metricsGeneratorForwarderQueueSize: Int
-	metricsGeneratorForwarderWorkers: Int
-	metricsGeneratorProcessorServiceGraphsHistogramBuckets: [Float]
-	metricsGeneratorProcessorServiceGraphsDimensions: [String!]
-	metricsGeneratorProcessorServiceGraphsPeerAttributes: [String!]
-	metricsGeneratorProcessorServiceGraphsEnableClientServerPrefix: Boolean
-	metricsGeneratorProcessorSpanMetricsHistogramBuckets: [Float]
-	metricsGeneratorProcessorSpanMetricsDimensions: [String!]
-	metricsGeneratorProcessorSpanMetricsIntrinsicDimensions: BoolMap
-	metricsGeneratorProcessorSpanMetricsFilterPolicies: [FilterPolicy!]
-	metricsGeneratorProcessorSpanMetricsDimensionMappings: [DimensionMappings!]
-	metricsGeneratorProcessorSpanMetricsEnableTargetInfo: Boolean
-	metricsGeneratorProcessorLocalBlocksMaxLiveTraces: UInt
-	metricsGeneratorProcessorLocalBlocksMaxBlockDuration: Duration
-	metricsGeneratorProcessorLocalBlocksMaxBlockBytes: UInt
-	metricsGeneratorProcessorLocalBlocksFlushCheckPeriod: Duration
-	metricsGeneratorProcessorLocalBlocksTraceIdlePeriod: Duration
-	metricsGeneratorProcessorLocalBlocksCompleteBlockTimeout: Duration
-	blockRetention: Duration
-	maxBytesPerTagValuesQuery: Int
-	maxBlocksPerTagValuesQuery: Int
-	maxSearchDuration: Duration
-	maxBytesPerTrace: Int
+  ingestionRateStrategy: String
+  ingestionRateLimitBytes: Int
+  ingestionBurstSizeBytes: Int
+  maxLocalTracesPerUser: Int
+  maxGlobalTracesPerUser: Int
+  forwarders: [String!]
+  metricsGeneratorRingSize: Int
+  metricsGeneratorProcessors: [String!]
+  metricsGeneratorMaxActiveSeries: UInt
+  metricsGeneratorCollectionInterval: Duration
+  metricsGeneratorDisableCollection: Boolean
+  metricsGeneratorForwarderQueueSize: Int
+  metricsGeneratorForwarderWorkers: Int
+  metricsGeneratorProcessorServiceGraphsHistogramBuckets: [Float]
+  metricsGeneratorProcessorServiceGraphsDimensions: [String!]
+  metricsGeneratorProcessorServiceGraphsPeerAttributes: [String!]
+  metricsGeneratorProcessorServiceGraphsEnableClientServerPrefix: Boolean
+  metricsGeneratorProcessorSpanMetricsHistogramBuckets: [Float]
+  metricsGeneratorProcessorSpanMetricsDimensions: [String!]
+  metricsGeneratorProcessorSpanMetricsIntrinsicDimensions: BoolMap
+  metricsGeneratorProcessorSpanMetricsFilterPolicies: [FilterPolicy!]
+  metricsGeneratorProcessorSpanMetricsDimensionMappings: [DimensionMappings!]
+  metricsGeneratorProcessorSpanMetricsEnableTargetInfo: Boolean
+  metricsGeneratorProcessorLocalBlocksMaxLiveTraces: UInt
+  metricsGeneratorProcessorLocalBlocksMaxBlockDuration: Duration
+  metricsGeneratorProcessorLocalBlocksMaxBlockBytes: UInt
+  metricsGeneratorProcessorLocalBlocksFlushCheckPeriod: Duration
+  metricsGeneratorProcessorLocalBlocksTraceIdlePeriod: Duration
+  metricsGeneratorProcessorLocalBlocksCompleteBlockTimeout: Duration
+  blockRetention: Duration
+  maxBytesPerTagValuesQuery: Int
+  maxBlocksPerTagValuesQuery: Int
+  maxSearchDuration: Duration
+  maxBytesPerTrace: Int
 }
 
 type FilterPolicy {
-	include: PolicyMatch
-	exclude: PolicyMatch
+  include: PolicyMatch
+  exclude: PolicyMatch
 }
 
 type PolicyMatch {
-	matchType: MatchType
-	attributes: [MatchPolicyAttribute!]
+  matchType: MatchType
+  attributes: [MatchPolicyAttribute!]
 }
 
 enum MatchType {
@@ -4704,73 +4717,73 @@ enum MatchType {
 }
 
 type MatchPolicyAttribute {
-	key: String
-	value: Map
+  key: String
+  value: Map
 }
 
 type DimensionMappings {
-	name: String
-	sourceLabel: [String!]
-	join: String
+  name: String
+  sourceLabel: [String!]
+  join: String
 }
 
 "Input of the limits for Tempo for a tenant."
 input TempoLimitsInput {
-	ingestionRateStrategy: String
-	ingestionRateLimitBytes: Int
-	ingestionBurstSizeBytes: Int
-	maxLocalTracesPerUser: Int
-	maxGlobalTracesPerUser: Int
-	forwarders: [String!]
-	metricsGeneratorRingSize: Int
-	metricsGeneratorProcessors: [String!]
-	metricsGeneratorMaxActiveSeries: UInt
-	metricsGeneratorCollectionInterval: Duration
-	metricsGeneratorDisableCollection: Boolean
-	metricsGeneratorForwarderQueueSize: Int
-	metricsGeneratorForwarderWorkers: Int
-	metricsGeneratorProcessorServiceGraphsHistogramBuckets: [Float]
-	metricsGeneratorProcessorServiceGraphsDimensions: [String!]
-	metricsGeneratorProcessorServiceGraphsPeerAttributes: [String!]
-	metricsGeneratorProcessorServiceGraphsEnableClientServerPrefix: Boolean
-	metricsGeneratorProcessorSpanMetricsHistogramBuckets: [Float]
-	metricsGeneratorProcessorSpanMetricsDimensions: [String!]
-	metricsGeneratorProcessorSpanMetricsIntrinsicDimensions: BoolMap
-	metricsGeneratorProcessorSpanMetricsFilterPolicies: [FilterPolicyInput!]
-	metricsGeneratorProcessorSpanMetricsDimensionMappings: [DimensionMappingsInput!]
-	metricsGeneratorProcessorSpanMetricsEnableTargetInfo: Boolean
-	metricsGeneratorProcessorLocalBlocksMaxLiveTraces: UInt
-	metricsGeneratorProcessorLocalBlocksMaxBlockDuration: Duration
-	metricsGeneratorProcessorLocalBlocksMaxBlockBytes: UInt
-	metricsGeneratorProcessorLocalBlocksFlushCheckPeriod: Duration
-	metricsGeneratorProcessorLocalBlocksTraceIdlePeriod: Duration
-	metricsGeneratorProcessorLocalBlocksCompleteBlockTimeout: Duration
-	blockRetention: Duration
-	maxBytesPerTagValuesQuery: Int
-	maxBlocksPerTagValuesQuery: Int
-	maxSearchDuration: Duration
-	maxBytesPerTrace: Int
+  ingestionRateStrategy: String
+  ingestionRateLimitBytes: Int
+  ingestionBurstSizeBytes: Int
+  maxLocalTracesPerUser: Int
+  maxGlobalTracesPerUser: Int
+  forwarders: [String!]
+  metricsGeneratorRingSize: Int
+  metricsGeneratorProcessors: [String!]
+  metricsGeneratorMaxActiveSeries: UInt
+  metricsGeneratorCollectionInterval: Duration
+  metricsGeneratorDisableCollection: Boolean
+  metricsGeneratorForwarderQueueSize: Int
+  metricsGeneratorForwarderWorkers: Int
+  metricsGeneratorProcessorServiceGraphsHistogramBuckets: [Float]
+  metricsGeneratorProcessorServiceGraphsDimensions: [String!]
+  metricsGeneratorProcessorServiceGraphsPeerAttributes: [String!]
+  metricsGeneratorProcessorServiceGraphsEnableClientServerPrefix: Boolean
+  metricsGeneratorProcessorSpanMetricsHistogramBuckets: [Float]
+  metricsGeneratorProcessorSpanMetricsDimensions: [String!]
+  metricsGeneratorProcessorSpanMetricsIntrinsicDimensions: BoolMap
+  metricsGeneratorProcessorSpanMetricsFilterPolicies: [FilterPolicyInput!]
+  metricsGeneratorProcessorSpanMetricsDimensionMappings: [DimensionMappingsInput!]
+  metricsGeneratorProcessorSpanMetricsEnableTargetInfo: Boolean
+  metricsGeneratorProcessorLocalBlocksMaxLiveTraces: UInt
+  metricsGeneratorProcessorLocalBlocksMaxBlockDuration: Duration
+  metricsGeneratorProcessorLocalBlocksMaxBlockBytes: UInt
+  metricsGeneratorProcessorLocalBlocksFlushCheckPeriod: Duration
+  metricsGeneratorProcessorLocalBlocksTraceIdlePeriod: Duration
+  metricsGeneratorProcessorLocalBlocksCompleteBlockTimeout: Duration
+  blockRetention: Duration
+  maxBytesPerTagValuesQuery: Int
+  maxBlocksPerTagValuesQuery: Int
+  maxSearchDuration: Duration
+  maxBytesPerTrace: Int
 }
 
 input FilterPolicyInput {
-	include: PolicyMatchInput
-	exclude: PolicyMatchInput
+  include: PolicyMatchInput
+  exclude: PolicyMatchInput
 }
 
 input PolicyMatchInput {
-	matchType: MatchType
-	attributes: [MatchPolicyAttributeInput!]
+  matchType: MatchType
+  attributes: [MatchPolicyAttributeInput!]
 }
 
 input MatchPolicyAttributeInput {
-	key: String
-	value: Map
+  key: String
+  value: Map
 }
 
 input DimensionMappingsInput {
-	name: String
-	sourceLabel: [String!]
-	join: String
+  name: String
+  sourceLabel: [String!]
+  join: String
 }
 `, BuiltIn: false},
 	{Name: "../user.graphqls", Input: `"Representation of the information about a user sourced from Kratos."
@@ -4833,7 +4846,7 @@ type Mutation {
   createUser(
     "The user's email address."
     email: String!
-  
+
     "The user's name."
     name: NameInput
 
@@ -24424,8 +24437,8 @@ func (ec *executionContext) unmarshalInputLoginBindingsInput(ctx context.Context
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputLokiLimitsInput(ctx context.Context, obj interface{}) (model.LokiLimitsInput, error) {
-	var it model.LokiLimitsInput
+func (ec *executionContext) unmarshalInputLokiLimitsInput(ctx context.Context, obj interface{}) (v1alpha1.LokiLimitsInput, error) {
+	var it v1alpha1.LokiLimitsInput
 	asMap := map[string]interface{}{}
 	for k, v := range obj.(map[string]interface{}) {
 		asMap[k] = v
@@ -24455,7 +24468,7 @@ func (ec *executionContext) unmarshalInputLokiLimitsInput(ctx context.Context, o
 			if err != nil {
 				return it, err
 			}
-			it.IngestionRateMb = data
+			it.IngestionRateMB = data
 		case "ingestionBurstSizeMB":
 			var err error
 
@@ -24464,12 +24477,12 @@ func (ec *executionContext) unmarshalInputLokiLimitsInput(ctx context.Context, o
 			if err != nil {
 				return it, err
 			}
-			it.IngestionBurstSizeMb = data
+			it.IngestionBurstSizeMB = data
 		case "maxLabelNameLength":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("maxLabelNameLength"))
-			data, err := ec.unmarshalOInt2ᚖint64(ctx, v)
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -24478,7 +24491,7 @@ func (ec *executionContext) unmarshalInputLokiLimitsInput(ctx context.Context, o
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("maxLabelValueLength"))
-			data, err := ec.unmarshalOInt2ᚖint64(ctx, v)
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -24487,7 +24500,7 @@ func (ec *executionContext) unmarshalInputLokiLimitsInput(ctx context.Context, o
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("maxLabelNamesPerSeries"))
-			data, err := ec.unmarshalOInt2ᚖint64(ctx, v)
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -24559,7 +24572,7 @@ func (ec *executionContext) unmarshalInputLokiLimitsInput(ctx context.Context, o
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("maxLocalStreamsPerUser"))
-			data, err := ec.unmarshalOInt2ᚖint64(ctx, v)
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -24568,7 +24581,7 @@ func (ec *executionContext) unmarshalInputLokiLimitsInput(ctx context.Context, o
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("maxGlobalStreamsPerUser"))
-			data, err := ec.unmarshalOInt2ᚖint64(ctx, v)
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -24604,7 +24617,7 @@ func (ec *executionContext) unmarshalInputLokiLimitsInput(ctx context.Context, o
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("maxChunksPerQuery"))
-			data, err := ec.unmarshalOInt2ᚖint64(ctx, v)
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -24613,7 +24626,7 @@ func (ec *executionContext) unmarshalInputLokiLimitsInput(ctx context.Context, o
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("maxQuerySeries"))
-			data, err := ec.unmarshalOInt2ᚖint64(ctx, v)
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -24649,7 +24662,7 @@ func (ec *executionContext) unmarshalInputLokiLimitsInput(ctx context.Context, o
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("maxQueryParallelism"))
-			data, err := ec.unmarshalOInt2ᚖint64(ctx, v)
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -24658,11 +24671,11 @@ func (ec *executionContext) unmarshalInputLokiLimitsInput(ctx context.Context, o
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("tsdbMaxQueryParallelism"))
-			data, err := ec.unmarshalOInt2ᚖint64(ctx, v)
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
 			if err != nil {
 				return it, err
 			}
-			it.TsdbMaxQueryParallelism = data
+			it.TSDBMaxQueryParallelism = data
 		case "tsdbMaxBytesPerShard":
 			var err error
 
@@ -24671,12 +24684,12 @@ func (ec *executionContext) unmarshalInputLokiLimitsInput(ctx context.Context, o
 			if err != nil {
 				return it, err
 			}
-			it.TsdbMaxBytesPerShard = data
+			it.TSDBMaxBytesPerShard = data
 		case "cardinalityLimit":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("cardinalityLimit"))
-			data, err := ec.unmarshalOInt2ᚖint64(ctx, v)
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -24685,7 +24698,7 @@ func (ec *executionContext) unmarshalInputLokiLimitsInput(ctx context.Context, o
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("maxStreamsMatchersPerQuery"))
-			data, err := ec.unmarshalOInt2ᚖint64(ctx, v)
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -24694,7 +24707,7 @@ func (ec *executionContext) unmarshalInputLokiLimitsInput(ctx context.Context, o
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("maxConcurrentTailRequests"))
-			data, err := ec.unmarshalOInt2ᚖint64(ctx, v)
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -24703,7 +24716,7 @@ func (ec *executionContext) unmarshalInputLokiLimitsInput(ctx context.Context, o
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("maxEntriesLimitPerQuery"))
-			data, err := ec.unmarshalOInt2ᚖint64(ctx, v)
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -24730,7 +24743,7 @@ func (ec *executionContext) unmarshalInputLokiLimitsInput(ctx context.Context, o
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("maxQueriersPerTenant"))
-			data, err := ec.unmarshalOInt2ᚖint64(ctx, v)
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -24739,7 +24752,7 @@ func (ec *executionContext) unmarshalInputLokiLimitsInput(ctx context.Context, o
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("queryReadyIndexNumDays"))
-			data, err := ec.unmarshalOInt2ᚖint64(ctx, v)
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -24802,7 +24815,7 @@ func (ec *executionContext) unmarshalInputLokiLimitsInput(ctx context.Context, o
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("volumeMaxSeries"))
-			data, err := ec.unmarshalOInt2ᚖint64(ctx, v)
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -24820,7 +24833,7 @@ func (ec *executionContext) unmarshalInputLokiLimitsInput(ctx context.Context, o
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("rulerMaxRulesPerRuleGroup"))
-			data, err := ec.unmarshalOInt2ᚖint64(ctx, v)
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -24829,7 +24842,7 @@ func (ec *executionContext) unmarshalInputLokiLimitsInput(ctx context.Context, o
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("rulerMaxRuleGroupsPerTenant"))
-			data, err := ec.unmarshalOInt2ᚖint64(ctx, v)
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -24842,12 +24855,14 @@ func (ec *executionContext) unmarshalInputLokiLimitsInput(ctx context.Context, o
 			if err != nil {
 				return it, err
 			}
-			it.RulerAlertManagerConfig = data
+			if err = ec.resolvers.LokiLimitsInput().RulerAlertManagerConfig(ctx, &it, data); err != nil {
+				return it, err
+			}
 		case "rulerTenantShardSize":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("rulerTenantShardSize"))
-			data, err := ec.unmarshalOInt2ᚖint64(ctx, v)
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -24905,7 +24920,9 @@ func (ec *executionContext) unmarshalInputLokiLimitsInput(ctx context.Context, o
 			if err != nil {
 				return it, err
 			}
-			it.StreamRetention = data
+			if err = ec.resolvers.LokiLimitsInput().StreamRetention(ctx, &it, data); err != nil {
+				return it, err
+			}
 		case "shardStreams":
 			var err error
 
@@ -24914,7 +24931,9 @@ func (ec *executionContext) unmarshalInputLokiLimitsInput(ctx context.Context, o
 			if err != nil {
 				return it, err
 			}
-			it.ShardStreams = data
+			if err = ec.resolvers.LokiLimitsInput().ShardStreams(ctx, &it, data); err != nil {
+				return it, err
+			}
 		case "blockedQueries":
 			var err error
 
@@ -24923,7 +24942,9 @@ func (ec *executionContext) unmarshalInputLokiLimitsInput(ctx context.Context, o
 			if err != nil {
 				return it, err
 			}
-			it.BlockedQueries = data
+			if err = ec.resolvers.LokiLimitsInput().BlockedQueries(ctx, &it, data); err != nil {
+				return it, err
+			}
 		case "requiredLabels":
 			var err error
 
@@ -24937,7 +24958,7 @@ func (ec *executionContext) unmarshalInputLokiLimitsInput(ctx context.Context, o
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("requiredNumberLabels"))
-			data, err := ec.unmarshalOInt2ᚖint64(ctx, v)
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -24946,7 +24967,7 @@ func (ec *executionContext) unmarshalInputLokiLimitsInput(ctx context.Context, o
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("indexGatewayShardSize"))
-			data, err := ec.unmarshalOInt2ᚖint64(ctx, v)
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -26064,7 +26085,7 @@ func (ec *executionContext) unmarshalInputObservabilityTenantLimitsInput(ctx con
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("loki"))
-			data, err := ec.unmarshalOLokiLimitsInput2ᚖgithubᚗcomᚋpluralshᚋtraceᚑshieldᚋgraphᚋmodelᚐLokiLimitsInput(ctx, v)
+			data, err := ec.unmarshalOLokiLimitsInput2ᚖgithubᚗcomᚋpluralshᚋtraceᚑshieldᚑcontrollerᚋapiᚋobservabilityᚋv1alpha1ᚐLokiLimitsInput(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -26073,7 +26094,7 @@ func (ec *executionContext) unmarshalInputObservabilityTenantLimitsInput(ctx con
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("tempo"))
-			data, err := ec.unmarshalOTempoLimitsInput2ᚖgithubᚗcomᚋpluralshᚋtraceᚑshieldᚋgraphᚋmodelᚐTempoLimitsInput(ctx, v)
+			data, err := ec.unmarshalOTempoLimitsInput2ᚖgithubᚗcomᚋpluralshᚋtraceᚑshieldᚑcontrollerᚋapiᚋobservabilityᚋv1alpha1ᚐTempoLimitsInput(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -26438,8 +26459,8 @@ func (ec *executionContext) unmarshalInputStreamRetentionInput(ctx context.Conte
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputTempoLimitsInput(ctx context.Context, obj interface{}) (model.TempoLimitsInput, error) {
-	var it model.TempoLimitsInput
+func (ec *executionContext) unmarshalInputTempoLimitsInput(ctx context.Context, obj interface{}) (v1alpha1.TempoLimitsInput, error) {
+	var it v1alpha1.TempoLimitsInput
 	asMap := map[string]interface{}{}
 	for k, v := range obj.(map[string]interface{}) {
 		asMap[k] = v
@@ -26465,7 +26486,7 @@ func (ec *executionContext) unmarshalInputTempoLimitsInput(ctx context.Context, 
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("ingestionRateLimitBytes"))
-			data, err := ec.unmarshalOInt2ᚖint64(ctx, v)
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -26474,7 +26495,7 @@ func (ec *executionContext) unmarshalInputTempoLimitsInput(ctx context.Context, 
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("ingestionBurstSizeBytes"))
-			data, err := ec.unmarshalOInt2ᚖint64(ctx, v)
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -26483,7 +26504,7 @@ func (ec *executionContext) unmarshalInputTempoLimitsInput(ctx context.Context, 
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("maxLocalTracesPerUser"))
-			data, err := ec.unmarshalOInt2ᚖint64(ctx, v)
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -26492,7 +26513,7 @@ func (ec *executionContext) unmarshalInputTempoLimitsInput(ctx context.Context, 
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("maxGlobalTracesPerUser"))
-			data, err := ec.unmarshalOInt2ᚖint64(ctx, v)
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -26510,7 +26531,7 @@ func (ec *executionContext) unmarshalInputTempoLimitsInput(ctx context.Context, 
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("metricsGeneratorRingSize"))
-			data, err := ec.unmarshalOInt2ᚖint64(ctx, v)
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -26519,7 +26540,7 @@ func (ec *executionContext) unmarshalInputTempoLimitsInput(ctx context.Context, 
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("metricsGeneratorProcessors"))
-			data, err := ec.unmarshalOString2ᚕstringᚄ(ctx, v)
+			data, err := ec.unmarshalOString2ᚕᚖstringᚄ(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -26528,7 +26549,7 @@ func (ec *executionContext) unmarshalInputTempoLimitsInput(ctx context.Context, 
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("metricsGeneratorMaxActiveSeries"))
-			data, err := ec.unmarshalOUInt2ᚖuint64(ctx, v)
+			data, err := ec.unmarshalOUInt2ᚖuint32(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -26555,7 +26576,7 @@ func (ec *executionContext) unmarshalInputTempoLimitsInput(ctx context.Context, 
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("metricsGeneratorForwarderQueueSize"))
-			data, err := ec.unmarshalOInt2ᚖint64(ctx, v)
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -26564,7 +26585,7 @@ func (ec *executionContext) unmarshalInputTempoLimitsInput(ctx context.Context, 
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("metricsGeneratorForwarderWorkers"))
-			data, err := ec.unmarshalOInt2ᚖint64(ctx, v)
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -26573,7 +26594,7 @@ func (ec *executionContext) unmarshalInputTempoLimitsInput(ctx context.Context, 
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("metricsGeneratorProcessorServiceGraphsHistogramBuckets"))
-			data, err := ec.unmarshalOFloat2ᚕᚖfloat64(ctx, v)
+			data, err := ec.unmarshalOFloat2ᚕfloat64(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -26609,7 +26630,7 @@ func (ec *executionContext) unmarshalInputTempoLimitsInput(ctx context.Context, 
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("metricsGeneratorProcessorSpanMetricsHistogramBuckets"))
-			data, err := ec.unmarshalOFloat2ᚕᚖfloat64(ctx, v)
+			data, err := ec.unmarshalOFloat2ᚕfloat64(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -26640,7 +26661,9 @@ func (ec *executionContext) unmarshalInputTempoLimitsInput(ctx context.Context, 
 			if err != nil {
 				return it, err
 			}
-			it.MetricsGeneratorProcessorSpanMetricsFilterPolicies = data
+			if err = ec.resolvers.TempoLimitsInput().MetricsGeneratorProcessorSpanMetricsFilterPolicies(ctx, &it, data); err != nil {
+				return it, err
+			}
 		case "metricsGeneratorProcessorSpanMetricsDimensionMappings":
 			var err error
 
@@ -26649,7 +26672,9 @@ func (ec *executionContext) unmarshalInputTempoLimitsInput(ctx context.Context, 
 			if err != nil {
 				return it, err
 			}
-			it.MetricsGeneratorProcessorSpanMetricsDimensionMappings = data
+			if err = ec.resolvers.TempoLimitsInput().MetricsGeneratorProcessorSpanMetricsDimensionMappings(ctx, &it, data); err != nil {
+				return it, err
+			}
 		case "metricsGeneratorProcessorSpanMetricsEnableTargetInfo":
 			var err error
 
@@ -26726,7 +26751,7 @@ func (ec *executionContext) unmarshalInputTempoLimitsInput(ctx context.Context, 
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("maxBytesPerTagValuesQuery"))
-			data, err := ec.unmarshalOInt2ᚖint64(ctx, v)
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -26735,7 +26760,7 @@ func (ec *executionContext) unmarshalInputTempoLimitsInput(ctx context.Context, 
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("maxBlocksPerTagValuesQuery"))
-			data, err := ec.unmarshalOInt2ᚖint64(ctx, v)
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -26753,7 +26778,7 @@ func (ec *executionContext) unmarshalInputTempoLimitsInput(ctx context.Context, 
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("maxBytesPerTrace"))
-			data, err := ec.unmarshalOInt2ᚖint64(ctx, v)
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -31190,38 +31215,6 @@ func (ec *executionContext) marshalOFloat2ᚕfloat64(ctx context.Context, sel as
 	return ret
 }
 
-func (ec *executionContext) unmarshalOFloat2ᚕᚖfloat64(ctx context.Context, v interface{}) ([]*float64, error) {
-	if v == nil {
-		return nil, nil
-	}
-	var vSlice []interface{}
-	if v != nil {
-		vSlice = graphql.CoerceList(v)
-	}
-	var err error
-	res := make([]*float64, len(vSlice))
-	for i := range vSlice {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
-		res[i], err = ec.unmarshalOFloat2ᚖfloat64(ctx, vSlice[i])
-		if err != nil {
-			return nil, err
-		}
-	}
-	return res, nil
-}
-
-func (ec *executionContext) marshalOFloat2ᚕᚖfloat64(ctx context.Context, sel ast.SelectionSet, v []*float64) graphql.Marshaler {
-	if v == nil {
-		return graphql.Null
-	}
-	ret := make(graphql.Array, len(v))
-	for i := range v {
-		ret[i] = ec.marshalOFloat2ᚖfloat64(ctx, sel, v[i])
-	}
-
-	return ret
-}
-
 func (ec *executionContext) unmarshalOFloat2ᚖfloat64(ctx context.Context, v interface{}) (*float64, error) {
 	if v == nil {
 		return nil, nil
@@ -31401,7 +31394,7 @@ func (ec *executionContext) marshalOLokiLimits2ᚖgithubᚗcomᚋpluralshᚋtrac
 	return ec._LokiLimits(ctx, sel, v)
 }
 
-func (ec *executionContext) unmarshalOLokiLimitsInput2ᚖgithubᚗcomᚋpluralshᚋtraceᚑshieldᚋgraphᚋmodelᚐLokiLimitsInput(ctx context.Context, v interface{}) (*model.LokiLimitsInput, error) {
+func (ec *executionContext) unmarshalOLokiLimitsInput2ᚖgithubᚗcomᚋpluralshᚋtraceᚑshieldᚑcontrollerᚋapiᚋobservabilityᚋv1alpha1ᚐLokiLimitsInput(ctx context.Context, v interface{}) (*v1alpha1.LokiLimitsInput, error) {
 	if v == nil {
 		return nil, nil
 	}
@@ -32131,7 +32124,7 @@ func (ec *executionContext) marshalOTempoLimits2ᚖgithubᚗcomᚋpluralshᚋtra
 	return ec._TempoLimits(ctx, sel, v)
 }
 
-func (ec *executionContext) unmarshalOTempoLimitsInput2ᚖgithubᚗcomᚋpluralshᚋtraceᚑshieldᚋgraphᚋmodelᚐTempoLimitsInput(ctx context.Context, v interface{}) (*model.TempoLimitsInput, error) {
+func (ec *executionContext) unmarshalOTempoLimitsInput2ᚖgithubᚗcomᚋpluralshᚋtraceᚑshieldᚑcontrollerᚋapiᚋobservabilityᚋv1alpha1ᚐTempoLimitsInput(ctx context.Context, v interface{}) (*v1alpha1.TempoLimitsInput, error) {
 	if v == nil {
 		return nil, nil
 	}

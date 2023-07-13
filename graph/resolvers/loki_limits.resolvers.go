@@ -6,6 +6,7 @@ package resolvers
 
 import (
 	"context"
+	"fmt"
 	"strings"
 
 	"github.com/pluralsh/trace-shield-controller/api/observability/v1alpha1"
@@ -23,7 +24,33 @@ func (r *blockedQueryResolver) Types(ctx context.Context, obj *v1alpha1.BlockedQ
 	return output, nil
 }
 
+// RulerAlertManagerConfig is the resolver for the rulerAlertManagerConfig field.
+func (r *lokiLimitsInputResolver) RulerAlertManagerConfig(ctx context.Context, obj *v1alpha1.LokiLimitsInput, data *model.RulerAlertManagerConfigInput) error {
+	panic(fmt.Errorf("not implemented: RulerAlertManagerConfig - rulerAlertManagerConfig"))
+}
+
+// StreamRetention is the resolver for the streamRetention field.
+func (r *lokiLimitsInputResolver) StreamRetention(ctx context.Context, obj *v1alpha1.LokiLimitsInput, data []*model.StreamRetentionInput) error {
+	panic(fmt.Errorf("not implemented: StreamRetention - streamRetention"))
+}
+
+// ShardStreams is the resolver for the shardStreams field.
+func (r *lokiLimitsInputResolver) ShardStreams(ctx context.Context, obj *v1alpha1.LokiLimitsInput, data *model.ShardstreamsConfigInput) error {
+	panic(fmt.Errorf("not implemented: ShardStreams - shardStreams"))
+}
+
+// BlockedQueries is the resolver for the blockedQueries field.
+func (r *lokiLimitsInputResolver) BlockedQueries(ctx context.Context, obj *v1alpha1.LokiLimitsInput, data []*model.BlockedQueryInput) error {
+	panic(fmt.Errorf("not implemented: BlockedQueries - blockedQueries"))
+}
+
 // BlockedQuery returns generated.BlockedQueryResolver implementation.
 func (r *Resolver) BlockedQuery() generated.BlockedQueryResolver { return &blockedQueryResolver{r} }
 
+// LokiLimitsInput returns generated.LokiLimitsInputResolver implementation.
+func (r *Resolver) LokiLimitsInput() generated.LokiLimitsInputResolver {
+	return &lokiLimitsInputResolver{r}
+}
+
 type blockedQueryResolver struct{ *Resolver }
+type lokiLimitsInputResolver struct{ *Resolver }
