@@ -247,6 +247,10 @@ func (c *ClientWrapper) UpdateOAuth2ClientLoginBindings(ctx context.Context, cli
 		return err
 	}
 
+	if len(toAdd) == 0 && len(toRemove) == 0 {
+		log.Info("No changes to login bindings")
+		return nil
+	}
 	return c.KetoClient.TransactTuples(ctx, toAdd, toRemove)
 }
 

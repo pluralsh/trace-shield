@@ -406,6 +406,10 @@ func (c *ClientWrapper) MutateObservabilityTenantInKeto(ctx context.Context, id 
 		toRemove = append(toRemove, remove...)
 	}
 
+	if len(toAdd) == 0 && len(toRemove) == 0 {
+		log.Info("No changes to observability tenant permissions")
+		return nil
+	}
 	return c.KetoClient.TransactTuples(ctx, toAdd, toRemove)
 }
 
