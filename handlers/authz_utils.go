@@ -118,7 +118,7 @@ func (h *Handler) getOrgTenants(ctx context.Context, org string) ([]string, erro
 
 	query := rts.RelationQuery{
 		Namespace: px.Ptr(consts.ObservabilityTenantNamespace.String()),
-		Subject:   rts.NewSubjectSet("Organization", org, ""),
+		Subject:   rts.NewSubjectSet(consts.OrganizationNamespace.String(), org, ""),
 	}
 	respTuples, err := h.C.KetoClient.QueryAllTuples(ctx, &query, 100)
 	if err != nil {
@@ -153,9 +153,9 @@ func (h *Handler) getUserGroups(ctx context.Context, subject string) ([]string, 
 	}
 
 	query := rts.RelationQuery{
-		Namespace: px.Ptr("Group"),
-		Relation:  px.Ptr("members"),
-		Subject:   rts.NewSubjectSet("User", subject, ""),
+		Namespace: px.Ptr(consts.GroupNamespace.String()),
+		Relation:  px.Ptr(consts.GroupRelationMembers.String()),
+		Subject:   rts.NewSubjectSet(consts.UserNamespace.String(), subject, ""),
 	}
 	respTuples, err := h.C.KetoClient.QueryAllTuples(ctx, &query, 100)
 	if err != nil {
@@ -168,7 +168,7 @@ func (h *Handler) getUserGroups(ctx context.Context, subject string) ([]string, 
 	output := []string{}
 	for _, tuple := range respTuples {
 		// likely unnecessary but just in case
-		if tuple.Namespace == "Group" && tuple.Relation == "members" && tuple.Object != "" {
+		if tuple.Namespace == consts.GroupNamespace.String() && tuple.Relation == consts.GroupRelationMembers.String() && tuple.Object != "" {
 			output = append(output, tuple.Object)
 		}
 	}
@@ -191,7 +191,7 @@ func (h *Handler) getUserDirectTenants(ctx context.Context, subject string) ([]s
 
 	query := rts.RelationQuery{
 		Namespace: px.Ptr(consts.ObservabilityTenantNamespace.String()),
-		Subject:   rts.NewSubjectSet("User", subject, ""),
+		Subject:   rts.NewSubjectSet(consts.UserNamespace.String(), subject, ""),
 	}
 	respTuples, err := h.C.KetoClient.QueryAllTuples(ctx, &query, 100)
 	if err != nil {
@@ -204,7 +204,7 @@ func (h *Handler) getUserDirectTenants(ctx context.Context, subject string) ([]s
 	output := []string{}
 	for _, tuple := range respTuples {
 		// likely unnecessary but just in case
-		if tuple.Namespace == "ObservabilityTenant" && tuple.Object != "" {
+		if tuple.Namespace == consts.ObservabilityTenantNamespace.String() && tuple.Object != "" {
 			output = append(output, tuple.Object)
 		}
 	}
@@ -227,7 +227,7 @@ func (h *Handler) getGroupTenants(ctx context.Context, group string) ([]string, 
 
 	query := rts.RelationQuery{
 		Namespace: px.Ptr(consts.ObservabilityTenantNamespace.String()),
-		Subject:   rts.NewSubjectSet("Group", group, "members"),
+		Subject:   rts.NewSubjectSet(consts.GroupNamespace.String(), group, consts.GroupRelationMembers.String()),
 	}
 	respTuples, err := h.C.KetoClient.QueryAllTuples(ctx, &query, 100)
 	if err != nil {
@@ -240,7 +240,7 @@ func (h *Handler) getGroupTenants(ctx context.Context, group string) ([]string, 
 	output := []string{}
 	for _, tuple := range respTuples {
 		// likely unnecessary but just in case
-		if tuple.Namespace == "ObservabilityTenant" && tuple.Object != "" {
+		if tuple.Namespace == consts.ObservabilityTenantNamespace.String() && tuple.Object != "" {
 			output = append(output, tuple.Object)
 		}
 	}

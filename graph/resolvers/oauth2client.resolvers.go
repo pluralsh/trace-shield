@@ -15,12 +15,12 @@ import (
 
 // Users is the resolver for the users field.
 func (r *loginBindingsResolver) Users(ctx context.Context, obj *model.LoginBindings) ([]*model.User, error) {
-	return r.C.GetOAuth2ClientUserLoginBindings(ctx, obj)
+	return r.C.GetObservabilityTenantUsers(ctx, obj.Users)
 }
 
 // Groups is the resolver for the groups field.
 func (r *loginBindingsResolver) Groups(ctx context.Context, obj *model.LoginBindings) ([]*model.Group, error) {
-	return r.C.GetOAuth2ClientGroupLoginBindings(ctx, obj)
+	return r.C.GetObservabilityTenantGroups(ctx, obj.Groups)
 }
 
 // CreateOAuth2Client is the resolver for the createOAuth2Client field.
@@ -50,7 +50,7 @@ func (r *oAuth2ClientResolver) Owner(ctx context.Context, obj *model.OAuth2Clien
 
 // LoginBindings is the resolver for the loginBindings field.
 func (r *oAuth2ClientResolver) LoginBindings(ctx context.Context, obj *model.OAuth2Client) (*model.LoginBindings, error) {
-	return r.C.GetOAuth2ClientLoginBindings(ctx, *obj.ClientID)
+	return r.C.ResolveOAuth2ClientLoginBindings(ctx, *obj.ClientID)
 }
 
 // ListOAuth2Clients is the resolver for the listOAuth2Clients field.

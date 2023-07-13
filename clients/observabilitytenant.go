@@ -429,60 +429,62 @@ func (c *ClientWrapper) OsTenantChangeset(ctx context.Context, id string, bindin
 	}
 
 	if bindings != nil {
+		if bindings.Users != nil {
+			userBindings, err := c.GetUserIdsFromUserInputs(ctx, bindings.Users)
+			if err != nil {
+				log.Error(err, "Failed to get user ids from user inputs")
+			}
 
-		userBindings, err := c.GetUserIdsFromUserInputs(ctx, bindings.Users)
-		if err != nil {
-			log.Error(err, "Failed to get user ids from user inputs")
-		}
+			for _, userId := range userBindings {
+				if !userIdInListOfUsers(currentUsers, userId) {
+					user := model.NewUser(userId)
+					toAdd = append(toAdd, user.GetTenantTuple(id, relation))
+				}
+			}
 
-		for _, userId := range userBindings {
-			if !userIdInListOfUsers(currentUsers, userId) {
-				user := model.NewUser(userId)
-				toAdd = append(toAdd, user.GetTenantTuple(id, relation))
+			for _, user := range currentUsers {
+				if !utils.StringContains(userBindings, user.ID) {
+					toRemove = append(toRemove, user.GetTenantTuple(id, relation))
+				}
 			}
 		}
-
-		for _, user := range currentUsers {
-			if !utils.StringContains(userBindings, user.ID) {
-				toRemove = append(toRemove, user.GetTenantTuple(id, relation))
-			}
-		}
-
-		for _, group := range bindings.Groups {
-			if !groupNameInListOfGroups(currentGroups, group.Name) {
-				group := model.NewGroup(group.Name)
-				toAdd = append(toAdd, group.GetTenantTuple(id, relation))
-			}
-		}
-
-		for _, group := range currentGroups {
-			var groupBindings []string
+		if bindings.Groups != nil {
 			for _, group := range bindings.Groups {
-				groupBindings = append(groupBindings, group.Name)
+				if !groupNameInListOfGroups(currentGroups, group.Name) {
+					group := model.NewGroup(group.Name)
+					toAdd = append(toAdd, group.GetTenantTuple(id, relation))
+				}
 			}
-			if !utils.StringContains(groupBindings, group.Name) {
-				toRemove = append(toRemove, group.GetTenantTuple(id, relation))
+
+			for _, group := range currentGroups {
+				var groupBindings []string
+				for _, group := range bindings.Groups {
+					groupBindings = append(groupBindings, group.Name)
+				}
+				if !utils.StringContains(groupBindings, group.Name) {
+					toRemove = append(toRemove, group.GetTenantTuple(id, relation))
+				}
 			}
 		}
-
-		for _, client := range bindings.Oauth2Clients {
-			if !ClientIDInListOfOAuth2Clients(currentClients, client.ClientID) {
-				client := model.NewOAuth2Client(client.ClientID)
-				toAdd = append(toAdd, client.GetTenantTuple(id, relation))
-			}
-		}
-
-		for _, client := range currentClients {
-			var clientBindings []string
+		if bindings.Oauth2Clients != nil {
 			for _, client := range bindings.Oauth2Clients {
-				clientBindings = append(clientBindings, client.ClientID)
+				if !ClientIDInListOfOAuth2Clients(currentClients, client.ClientID) {
+					client := model.NewOAuth2Client(client.ClientID)
+					toAdd = append(toAdd, client.GetTenantTuple(id, relation))
+				}
 			}
-			if !utils.StringContains(clientBindings, *client.ClientID) {
-				toRemove = append(toRemove, client.GetTenantTuple(id, relation))
+
+			for _, client := range currentClients {
+				var clientBindings []string
+				for _, client := range bindings.Oauth2Clients {
+					clientBindings = append(clientBindings, client.ClientID)
+				}
+				if !utils.StringContains(clientBindings, *client.ClientID) {
+					toRemove = append(toRemove, client.GetTenantTuple(id, relation))
+				}
 			}
 		}
 	}
-
 	return toAdd, toRemove, nil
 }
 
@@ -537,7 +539,7 @@ func (c *ClientWrapper) ExpandTenantRelation(ctx context.Context, id string, rel
 		)
 	}
 
-	ss := rts.NewSubjectSet("ObservabilityTenant", id, relation.String())
+	ss := rts.NewSubjectSet(consts.ObservabilityTenantNamespace.String(), id, relation.String())
 
 	respTuples, err := c.KetoClient.Expand(ctx, ss, 100)
 	if err != nil {
@@ -567,6 +569,7 @@ func (c *ClientWrapper) ExpandTenantRelation(ctx context.Context, id string, rel
 	return users, groups, clients, nil
 }
 
+// function that processes a relation tuple and returns the user, group or client
 func (c *ClientWrapper) processRelation(tree *rts.SubjectTree) (user *model.User, group *model.Group, client *model.OAuth2Client) {
 	switch tree.Tuple.Subject.GetSet().Namespace {
 	case consts.UserNamespace.String():
@@ -701,7 +704,7 @@ func (c *ClientWrapper) DeleteTenant(ctx context.Context, id string) (*model.Obs
 // function that gets user objects from a list of user ids
 func (c *ClientWrapper) GetObservabilityTenantUsers(ctx context.Context, users []*model.User) ([]*model.User, error) {
 	log := c.Log.WithName("GetObservabilityTenantUsers")
-	//TODO: dedupe with GetOAuth2ClientUserLoginBindings
+	//TODO: Rename to something more generic
 
 	ctx, span := c.Tracer.Start(ctx, "GetObservabilityTenantUsers")
 	defer span.End()
@@ -722,7 +725,7 @@ func (c *ClientWrapper) GetObservabilityTenantUsers(ctx context.Context, users [
 // function that gets group objects from a list of group names
 func (c *ClientWrapper) GetObservabilityTenantGroups(ctx context.Context, groups []*model.Group) ([]*model.Group, error) {
 	log := c.Log.WithName("GetObservabilityTenantGroups")
-	// TODO: dedupe with GetOAuth2ClientGroupLoginBindings
+	//TODO: Rename to something more generic
 
 	ctx, span := c.Tracer.Start(ctx, "GetObservabilityTenantGroups")
 	defer span.End()

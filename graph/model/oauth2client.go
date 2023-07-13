@@ -61,6 +61,15 @@ func (oc *OAuth2Client) GetOrganizationTuple() *rts.RelationTuple {
 	}
 }
 
+// function that will return the subject set for the login bindings of the oauth2client
+func (oc *OAuth2Client) GetLoginBindingsSubjectSet() *rts.Subject {
+	return rts.NewSubjectSet(
+		consts.OAuth2ClientNamespace.String(),
+		*oc.ClientID,
+		consts.OAuth2ClientRelationLoginBindings.String(),
+	)
+}
+
 // fuction that creates a new *OAuth2Client given a clientID
 func NewOAuth2Client(clientID string) *OAuth2Client {
 	return &OAuth2Client{
