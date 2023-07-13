@@ -3,9 +3,11 @@
 package gqlclient
 
 import (
+	"fmt"
+	"io"
+	"strconv"
 	"time"
 
-	"github.com/pluralsh/trace-shield-controller/api/observability/v1alpha1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
@@ -16,9 +18,40 @@ type AcceptOAuth2ConsentRequestSession struct {
 	IDToken map[string]interface{} `json:"idToken,omitempty"`
 }
 
-type ForwardingRule struct {
-	// Ingest defines whether a metric should still be pushed to the Ingesters despite it being forwarded.
-	Ingest *bool `json:"ingest,omitempty"`
+type BlockedQuery struct {
+	Pattern *string            `json:"pattern,omitempty"`
+	Regex   *bool              `json:"regex,omitempty"`
+	Hash    *string            `json:"hash,omitempty"`
+	Types   []BlockedQueryType `json:"types,omitempty"`
+}
+
+type BlockedQueryInput struct {
+	Pattern *string            `json:"pattern,omitempty"`
+	Regex   *bool              `json:"regex,omitempty"`
+	Hash    *string            `json:"hash,omitempty"`
+	Types   []BlockedQueryType `json:"types,omitempty"`
+}
+
+type DimensionMappings struct {
+	Name        *string  `json:"name,omitempty"`
+	SourceLabel []string `json:"sourceLabel,omitempty"`
+	Join        *string  `json:"join,omitempty"`
+}
+
+type DimensionMappingsInput struct {
+	Name        *string  `json:"name,omitempty"`
+	SourceLabel []string `json:"sourceLabel,omitempty"`
+	Join        *string  `json:"join,omitempty"`
+}
+
+type FilterPolicy struct {
+	Include *PolicyMatch `json:"include,omitempty"`
+	Exclude *PolicyMatch `json:"exclude,omitempty"`
+}
+
+type FilterPolicyInput struct {
+	Include *PolicyMatchInput `json:"include,omitempty"`
+	Exclude *PolicyMatchInput `json:"exclude,omitempty"`
 }
 
 // Representation a group of users.
@@ -52,166 +85,306 @@ type LoginBindingsInput struct {
 
 // Representation of the limits for Loki for a tenant.
 type LokiLimits struct {
-	RequestRate *float64 `json:"requestRate,omitempty"`
+	IngestionRateStrategy                *string                  `json:"ingestionRateStrategy,omitempty"`
+	IngestionRateMb                      *float64                 `json:"ingestionRateMB,omitempty"`
+	IngestionBurstSizeMb                 *float64                 `json:"ingestionBurstSizeMB,omitempty"`
+	MaxLabelNameLength                   *int64                   `json:"maxLabelNameLength,omitempty"`
+	MaxLabelValueLength                  *int64                   `json:"maxLabelValueLength,omitempty"`
+	MaxLabelNamesPerSeries               *int64                   `json:"maxLabelNamesPerSeries,omitempty"`
+	RejectOldSamples                     *bool                    `json:"rejectOldSamples,omitempty"`
+	RejectOldSamplesMaxAge               *v1.Duration             `json:"rejectOldSamplesMaxAge,omitempty"`
+	CreationGracePeriod                  *v1.Duration             `json:"creationGracePeriod,omitempty"`
+	EnforceMetricName                    *bool                    `json:"enforceMetricName,omitempty"`
+	MaxLineSize                          *string                  `json:"maxLineSize,omitempty"`
+	MaxLineSizeTruncate                  *bool                    `json:"maxLineSizeTruncate,omitempty"`
+	IncrementDuplicateTimestamp          *bool                    `json:"incrementDuplicateTimestamp,omitempty"`
+	MaxLocalStreamsPerUser               *int64                   `json:"maxLocalStreamsPerUser,omitempty"`
+	MaxGlobalStreamsPerUser              *int64                   `json:"maxGlobalStreamsPerUser,omitempty"`
+	UnorderedWrites                      *bool                    `json:"unorderedWrites,omitempty"`
+	PerStreamRateLimit                   *string                  `json:"perStreamRateLimit,omitempty"`
+	PerStreamRateLimitBurst              *string                  `json:"perStreamRateLimitBurst,omitempty"`
+	MaxChunksPerQuery                    *int64                   `json:"maxChunksPerQuery,omitempty"`
+	MaxQuerySeries                       *int64                   `json:"maxQuerySeries,omitempty"`
+	MaxQueryLookback                     *v1.Duration             `json:"maxQueryLookback,omitempty"`
+	MaxQueryLength                       *v1.Duration             `json:"maxQueryLength,omitempty"`
+	MaxQueryRange                        *v1.Duration             `json:"maxQueryRange,omitempty"`
+	MaxQueryParallelism                  *int64                   `json:"maxQueryParallelism,omitempty"`
+	TsdbMaxQueryParallelism              *int64                   `json:"tsdbMaxQueryParallelism,omitempty"`
+	TsdbMaxBytesPerShard                 *string                  `json:"tsdbMaxBytesPerShard,omitempty"`
+	CardinalityLimit                     *int64                   `json:"cardinalityLimit,omitempty"`
+	MaxStreamsMatchersPerQuery           *int64                   `json:"maxStreamsMatchersPerQuery,omitempty"`
+	MaxConcurrentTailRequests            *int64                   `json:"maxConcurrentTailRequests,omitempty"`
+	MaxEntriesLimitPerQuery              *int64                   `json:"maxEntriesLimitPerQuery,omitempty"`
+	MaxCacheFreshness                    *v1.Duration             `json:"maxCacheFreshness,omitempty"`
+	MaxStatsCacheFreshness               *v1.Duration             `json:"maxStatsCacheFreshness,omitempty"`
+	MaxQueriersPerTenant                 *int64                   `json:"maxQueriersPerTenant,omitempty"`
+	QueryReadyIndexNumDays               *int64                   `json:"queryReadyIndexNumDays,omitempty"`
+	QueryTimeout                         *v1.Duration             `json:"queryTimeout,omitempty"`
+	QuerySplitDuration                   *v1.Duration             `json:"querySplitDuration,omitempty"`
+	MinShardingLookback                  *v1.Duration             `json:"minShardingLookback,omitempty"`
+	MaxQueryBytesRead                    *string                  `json:"maxQueryBytesRead,omitempty"`
+	MaxQuerierBytesRead                  *string                  `json:"maxQuerierBytesRead,omitempty"`
+	VolumeEnabled                        *bool                    `json:"volumeEnabled,omitempty"`
+	VolumeMaxSeries                      *int64                   `json:"volumeMaxSeries,omitempty"`
+	RulerEvaluationDelay                 *v1.Duration             `json:"rulerEvaluationDelay,omitempty"`
+	RulerMaxRulesPerRuleGroup            *int64                   `json:"rulerMaxRulesPerRuleGroup,omitempty"`
+	RulerMaxRuleGroupsPerTenant          *int64                   `json:"rulerMaxRuleGroupsPerTenant,omitempty"`
+	RulerAlertManagerConfig              *RulerAlertManagerConfig `json:"rulerAlertManagerConfig,omitempty"`
+	RulerTenantShardSize                 *int64                   `json:"rulerTenantShardSize,omitempty"`
+	RulerRemoteWriteDisabled             *bool                    `json:"rulerRemoteWriteDisabled,omitempty"`
+	RulerRemoteEvaluationTimeout         *v1.Duration             `json:"rulerRemoteEvaluationTimeout,omitempty"`
+	RulerRemoteEvaluationMaxResponseSize *int64                   `json:"rulerRemoteEvaluationMaxResponseSize,omitempty"`
+	DeletionMode                         *string                  `json:"deletionMode,omitempty"`
+	RetentionPeriod                      *v1.Duration             `json:"retentionPeriod,omitempty"`
+	StreamRetention                      []*StreamRetention       `json:"streamRetention,omitempty"`
+	ShardStreams                         *ShardstreamsConfig      `json:"shardStreams,omitempty"`
+	BlockedQueries                       []*BlockedQuery          `json:"blockedQueries,omitempty"`
+	RequiredLabels                       []string                 `json:"requiredLabels,omitempty"`
+	RequiredNumberLabels                 *int64                   `json:"requiredNumberLabels,omitempty"`
+	IndexGatewayShardSize                *int64                   `json:"indexGatewayShardSize,omitempty"`
+}
+
+// Input of the limits for Loki for a tenant.
+type LokiLimitsInput struct {
+	IngestionRateStrategy                *string                       `json:"ingestionRateStrategy,omitempty"`
+	IngestionRateMb                      *float64                      `json:"ingestionRateMB,omitempty"`
+	IngestionBurstSizeMb                 *float64                      `json:"ingestionBurstSizeMB,omitempty"`
+	MaxLabelNameLength                   *int64                        `json:"maxLabelNameLength,omitempty"`
+	MaxLabelValueLength                  *int64                        `json:"maxLabelValueLength,omitempty"`
+	MaxLabelNamesPerSeries               *int64                        `json:"maxLabelNamesPerSeries,omitempty"`
+	RejectOldSamples                     *bool                         `json:"rejectOldSamples,omitempty"`
+	RejectOldSamplesMaxAge               *v1.Duration                  `json:"rejectOldSamplesMaxAge,omitempty"`
+	CreationGracePeriod                  *v1.Duration                  `json:"creationGracePeriod,omitempty"`
+	EnforceMetricName                    *bool                         `json:"enforceMetricName,omitempty"`
+	MaxLineSize                          *string                       `json:"maxLineSize,omitempty"`
+	MaxLineSizeTruncate                  *bool                         `json:"maxLineSizeTruncate,omitempty"`
+	IncrementDuplicateTimestamp          *bool                         `json:"incrementDuplicateTimestamp,omitempty"`
+	MaxLocalStreamsPerUser               *int64                        `json:"maxLocalStreamsPerUser,omitempty"`
+	MaxGlobalStreamsPerUser              *int64                        `json:"maxGlobalStreamsPerUser,omitempty"`
+	UnorderedWrites                      *bool                         `json:"unorderedWrites,omitempty"`
+	PerStreamRateLimit                   *string                       `json:"perStreamRateLimit,omitempty"`
+	PerStreamRateLimitBurst              *string                       `json:"perStreamRateLimitBurst,omitempty"`
+	MaxChunksPerQuery                    *int64                        `json:"maxChunksPerQuery,omitempty"`
+	MaxQuerySeries                       *int64                        `json:"maxQuerySeries,omitempty"`
+	MaxQueryLookback                     *v1.Duration                  `json:"maxQueryLookback,omitempty"`
+	MaxQueryLength                       *v1.Duration                  `json:"maxQueryLength,omitempty"`
+	MaxQueryRange                        *v1.Duration                  `json:"maxQueryRange,omitempty"`
+	MaxQueryParallelism                  *int64                        `json:"maxQueryParallelism,omitempty"`
+	TsdbMaxQueryParallelism              *int64                        `json:"tsdbMaxQueryParallelism,omitempty"`
+	TsdbMaxBytesPerShard                 *string                       `json:"tsdbMaxBytesPerShard,omitempty"`
+	CardinalityLimit                     *int64                        `json:"cardinalityLimit,omitempty"`
+	MaxStreamsMatchersPerQuery           *int64                        `json:"maxStreamsMatchersPerQuery,omitempty"`
+	MaxConcurrentTailRequests            *int64                        `json:"maxConcurrentTailRequests,omitempty"`
+	MaxEntriesLimitPerQuery              *int64                        `json:"maxEntriesLimitPerQuery,omitempty"`
+	MaxCacheFreshness                    *v1.Duration                  `json:"maxCacheFreshness,omitempty"`
+	MaxStatsCacheFreshness               *v1.Duration                  `json:"maxStatsCacheFreshness,omitempty"`
+	MaxQueriersPerTenant                 *int64                        `json:"maxQueriersPerTenant,omitempty"`
+	QueryReadyIndexNumDays               *int64                        `json:"queryReadyIndexNumDays,omitempty"`
+	QueryTimeout                         *v1.Duration                  `json:"queryTimeout,omitempty"`
+	QuerySplitDuration                   *v1.Duration                  `json:"querySplitDuration,omitempty"`
+	MinShardingLookback                  *v1.Duration                  `json:"minShardingLookback,omitempty"`
+	MaxQueryBytesRead                    *string                       `json:"maxQueryBytesRead,omitempty"`
+	MaxQuerierBytesRead                  *string                       `json:"maxQuerierBytesRead,omitempty"`
+	VolumeEnabled                        *bool                         `json:"volumeEnabled,omitempty"`
+	VolumeMaxSeries                      *int64                        `json:"volumeMaxSeries,omitempty"`
+	RulerEvaluationDelay                 *v1.Duration                  `json:"rulerEvaluationDelay,omitempty"`
+	RulerMaxRulesPerRuleGroup            *int64                        `json:"rulerMaxRulesPerRuleGroup,omitempty"`
+	RulerMaxRuleGroupsPerTenant          *int64                        `json:"rulerMaxRuleGroupsPerTenant,omitempty"`
+	RulerAlertManagerConfig              *RulerAlertManagerConfigInput `json:"rulerAlertManagerConfig,omitempty"`
+	RulerTenantShardSize                 *int64                        `json:"rulerTenantShardSize,omitempty"`
+	RulerRemoteWriteDisabled             *bool                         `json:"rulerRemoteWriteDisabled,omitempty"`
+	RulerRemoteEvaluationTimeout         *v1.Duration                  `json:"rulerRemoteEvaluationTimeout,omitempty"`
+	RulerRemoteEvaluationMaxResponseSize *int64                        `json:"rulerRemoteEvaluationMaxResponseSize,omitempty"`
+	DeletionMode                         *string                       `json:"deletionMode,omitempty"`
+	RetentionPeriod                      *v1.Duration                  `json:"retentionPeriod,omitempty"`
+	StreamRetention                      []*StreamRetentionInput       `json:"streamRetention,omitempty"`
+	ShardStreams                         *ShardstreamsConfigInput      `json:"shardStreams,omitempty"`
+	BlockedQueries                       []*BlockedQueryInput          `json:"blockedQueries,omitempty"`
+	RequiredLabels                       []string                      `json:"requiredLabels,omitempty"`
+	RequiredNumberLabels                 *int64                        `json:"requiredNumberLabels,omitempty"`
+	IndexGatewayShardSize                *int64                        `json:"indexGatewayShardSize,omitempty"`
+}
+
+type MatchPolicyAttribute struct {
+	Key   *string                `json:"key,omitempty"`
+	Value map[string]interface{} `json:"value,omitempty"`
+}
+
+type MatchPolicyAttributeInput struct {
+	Key   *string                `json:"key,omitempty"`
+	Value map[string]interface{} `json:"value,omitempty"`
 }
 
 // Representation of the limits for Mimir for a tenant.
 type MimirLimits struct {
-	RequestRate                                   *float64                            `json:"requestRate,omitempty"`
-	RequestBurstSize                              *int64                              `json:"requestBurstSize,omitempty"`
-	IngestionRate                                 *float64                            `json:"ingestionRate,omitempty"`
-	IngestionBurstSize                            *int64                              `json:"ingestionBurstSize,omitempty"`
-	AcceptHASamples                               *bool                               `json:"acceptHASamples,omitempty"`
-	HaClusterLabel                                *string                             `json:"haClusterLabel,omitempty"`
-	HaReplicaLabel                                *string                             `json:"haReplicaLabel,omitempty"`
-	HaMaxClusters                                 *int64                              `json:"haMaxClusters,omitempty"`
-	DropLabels                                    []*string                           `json:"dropLabels,omitempty"`
-	MaxLabelNameLength                            *int64                              `json:"maxLabelNameLength,omitempty"`
-	MaxLabelValueLength                           *int64                              `json:"maxLabelValueLength,omitempty"`
-	MaxLabelNamesPerSeries                        *int64                              `json:"maxLabelNamesPerSeries,omitempty"`
-	MaxMetadataLength                             *int64                              `json:"maxMetadataLength,omitempty"`
-	CreationGracePeriod                           *v1.Duration                        `json:"creationGracePeriod,omitempty"`
-	EnforceMetadataMetricName                     *bool                               `json:"enforceMetadataMetricName,omitempty"`
-	IngestionTenantShardSize                      *int64                              `json:"ingestionTenantShardSize,omitempty"`
-	MaxGlobalSeriesPerUser                        *int64                              `json:"maxGlobalSeriesPerUser,omitempty"`
-	MaxGlobalSeriesPerMetric                      *int64                              `json:"maxGlobalSeriesPerMetric,omitempty"`
-	MaxGlobalMetricsWithMetadataPerUser           *int64                              `json:"maxGlobalMetricsWithMetadataPerUser,omitempty"`
-	MaxGlobalMetadataPerMetric                    *int64                              `json:"maxGlobalMetadataPerMetric,omitempty"`
-	MaxGlobalExemplarsPerUser                     *int64                              `json:"maxGlobalExemplarsPerUser,omitempty"`
-	NativeHistogramsIngestionEnabled              *bool                               `json:"nativeHistogramsIngestionEnabled,omitempty"`
-	OutOfOrderTimeWindow                          *v1.Duration                        `json:"outOfOrderTimeWindow,omitempty"`
-	OutOfOrderBlocksExternalLabelEnabled          *bool                               `json:"outOfOrderBlocksExternalLabelEnabled,omitempty"`
-	SeparateMetricsGroupLabel                     *string                             `json:"separateMetricsGroupLabel,omitempty"`
-	MaxChunksPerQuery                             *int64                              `json:"maxChunksPerQuery,omitempty"`
-	MaxFetchedSeriesPerQuery                      *int64                              `json:"maxFetchedSeriesPerQuery,omitempty"`
-	MaxFetchedChunkBytesPerQuery                  *int64                              `json:"maxFetchedChunkBytesPerQuery,omitempty"`
-	MaxQueryLookback                              *v1.Duration                        `json:"maxQueryLookback,omitempty"`
-	MaxPartialQueryLength                         *v1.Duration                        `json:"maxPartialQueryLength,omitempty"`
-	MaxQueryParallelism                           *int64                              `json:"maxQueryParallelism,omitempty"`
-	MaxLabelsQueryLength                          *v1.Duration                        `json:"maxLabelsQueryLength,omitempty"`
-	MaxCacheFreshness                             *v1.Duration                        `json:"maxCacheFreshness,omitempty"`
-	MaxQueriersPerTenant                          *int64                              `json:"maxQueriersPerTenant,omitempty"`
-	QueryShardingTotalShards                      *int64                              `json:"queryShardingTotalShards,omitempty"`
-	QueryShardingMaxShardedQueries                *int64                              `json:"queryShardingMaxShardedQueries,omitempty"`
-	QueryShardingMaxRegexpSizeBytes               *int64                              `json:"queryShardingMaxRegexpSizeBytes,omitempty"`
-	SplitInstantQueriesByInterval                 *v1.Duration                        `json:"splitInstantQueriesByInterval,omitempty"`
-	MaxTotalQueryLength                           *v1.Duration                        `json:"maxTotalQueryLength,omitempty"`
-	ResultsCacheTTL                               *v1.Duration                        `json:"resultsCacheTTL,omitempty"`
-	ResultsCacheTTLForOutOfOrderTimeWindow        *v1.Duration                        `json:"resultsCacheTTLForOutOfOrderTimeWindow,omitempty"`
-	MaxQueryExpressionSizeBytes                   *int64                              `json:"maxQueryExpressionSizeBytes,omitempty"`
-	CardinalityAnalysisEnabled                    *bool                               `json:"cardinalityAnalysisEnabled,omitempty"`
-	LabelNamesAndValuesResultsMaxSizeBytes        *int64                              `json:"labelNamesAndValuesResultsMaxSizeBytes,omitempty"`
-	LabelValuesMaxCardinalityLabelNamesPerRequest *int64                              `json:"labelValuesMaxCardinalityLabelNamesPerRequest,omitempty"`
-	RulerEvaluationDelay                          *v1.Duration                        `json:"rulerEvaluationDelay,omitempty"`
-	RulerTenantShardSize                          *int64                              `json:"rulerTenantShardSize,omitempty"`
-	RulerMaxRulesPerRuleGroup                     *int64                              `json:"rulerMaxRulesPerRuleGroup,omitempty"`
-	RulerMaxRuleGroupsPerTenant                   *int64                              `json:"rulerMaxRuleGroupsPerTenant,omitempty"`
-	RulerRecordingRulesEvaluationEnabled          *bool                               `json:"rulerRecordingRulesEvaluationEnabled,omitempty"`
-	RulerAlertingRulesEvaluationEnabled           *bool                               `json:"rulerAlertingRulesEvaluationEnabled,omitempty"`
-	StoreGatewayTenantShardSize                   *int64                              `json:"storeGatewayTenantShardSize,omitempty"`
-	CompactorBlocksRetentionPeriod                *v1.Duration                        `json:"compactorBlocksRetentionPeriod,omitempty"`
-	CompactorSplitAndMergeShards                  *int64                              `json:"compactorSplitAndMergeShards,omitempty"`
-	CompactorSplitGroups                          *int64                              `json:"compactorSplitGroups,omitempty"`
-	CompactorTenantShardSize                      *int64                              `json:"compactorTenantShardSize,omitempty"`
-	CompactorPartialBlockDeletionDelay            *v1.Duration                        `json:"compactorPartialBlockDeletionDelay,omitempty"`
-	CompactorBlockUploadEnabled                   *bool                               `json:"compactorBlockUploadEnabled,omitempty"`
-	CompactorBlockUploadValidationEnabled         *bool                               `json:"compactorBlockUploadValidationEnabled,omitempty"`
-	CompactorBlockUploadVerifyChunks              *bool                               `json:"compactorBlockUploadVerifyChunks,omitempty"`
-	S3SSEType                                     *string                             `json:"s3SSEType,omitempty"`
-	S3SSEKMSKeyID                                 *string                             `json:"s3SSEKMSKeyID,omitempty"`
-	S3SSEKMSEncryptionContext                     *string                             `json:"s3SSEKMSEncryptionContext,omitempty"`
-	AlertmanagerReceiversBlockCIDRNetworks        *string                             `json:"alertmanagerReceiversBlockCIDRNetworks,omitempty"`
-	AlertmanagerReceiversBlockPrivateAddresses    *bool                               `json:"alertmanagerReceiversBlockPrivateAddresses,omitempty"`
-	NotificationRateLimit                         *float64                            `json:"notificationRateLimit,omitempty"`
-	NotificationRateLimitPerIntegration           map[string]*float64                 `json:"notificationRateLimitPerIntegration,omitempty"`
-	AlertmanagerMaxConfigSizeBytes                *int64                              `json:"alertmanagerMaxConfigSizeBytes,omitempty"`
-	AlertmanagerMaxTemplatesCount                 *int64                              `json:"alertmanagerMaxTemplatesCount,omitempty"`
-	AlertmanagerMaxTemplateSizeBytes              *int64                              `json:"alertmanagerMaxTemplateSizeBytes,omitempty"`
-	AlertmanagerMaxDispatcherAggregationGroups    *int64                              `json:"alertmanagerMaxDispatcherAggregationGroups,omitempty"`
-	AlertmanagerMaxAlertsCount                    *int64                              `json:"alertmanagerMaxAlertsCount,omitempty"`
-	AlertmanagerMaxAlertsSizeBytes                *int64                              `json:"alertmanagerMaxAlertsSizeBytes,omitempty"`
-	ForwardingEndpoint                            *string                             `json:"forwardingEndpoint,omitempty"`
-	ForwardingDropOlderThan                       *v1.Duration                        `json:"forwardingDropOlderThan,omitempty"`
-	ForwardingRules                               map[string]*v1alpha1.ForwardingRule `json:"forwardingRules,omitempty"`
+	RequestRate                                   *float64           `json:"requestRate,omitempty"`
+	RequestBurstSize                              *int64             `json:"requestBurstSize,omitempty"`
+	IngestionRate                                 *float64           `json:"ingestionRate,omitempty"`
+	IngestionBurstSize                            *int64             `json:"ingestionBurstSize,omitempty"`
+	AcceptHASamples                               *bool              `json:"acceptHASamples,omitempty"`
+	HaClusterLabel                                *string            `json:"haClusterLabel,omitempty"`
+	HaReplicaLabel                                *string            `json:"haReplicaLabel,omitempty"`
+	HaMaxClusters                                 *int64             `json:"haMaxClusters,omitempty"`
+	DropLabels                                    []string           `json:"dropLabels,omitempty"`
+	MaxLabelNameLength                            *int64             `json:"maxLabelNameLength,omitempty"`
+	MaxLabelValueLength                           *int64             `json:"maxLabelValueLength,omitempty"`
+	MaxLabelNamesPerSeries                        *int64             `json:"maxLabelNamesPerSeries,omitempty"`
+	MaxMetadataLength                             *int64             `json:"maxMetadataLength,omitempty"`
+	MaxNativeHistogramBuckets                     *int64             `json:"maxNativeHistogramBuckets,omitempty"`
+	CreationGracePeriod                           *v1.Duration       `json:"creationGracePeriod,omitempty"`
+	EnforceMetadataMetricName                     *bool              `json:"enforceMetadataMetricName,omitempty"`
+	IngestionTenantShardSize                      *int64             `json:"ingestionTenantShardSize,omitempty"`
+	MetricRelabelConfigs                          []*RelabelConfig   `json:"metricRelabelConfigs,omitempty"`
+	MaxGlobalSeriesPerUser                        *int64             `json:"maxGlobalSeriesPerUser,omitempty"`
+	MaxGlobalSeriesPerMetric                      *int64             `json:"maxGlobalSeriesPerMetric,omitempty"`
+	MaxGlobalMetricsWithMetadataPerUser           *int64             `json:"maxGlobalMetricsWithMetadataPerUser,omitempty"`
+	MaxGlobalMetadataPerMetric                    *int64             `json:"maxGlobalMetadataPerMetric,omitempty"`
+	MaxGlobalExemplarsPerUser                     *int64             `json:"maxGlobalExemplarsPerUser,omitempty"`
+	NativeHistogramsIngestionEnabled              *bool              `json:"nativeHistogramsIngestionEnabled,omitempty"`
+	ActiveSeriesCustomTrackersConfig              *string            `json:"activeSeriesCustomTrackersConfig,omitempty"`
+	OutOfOrderTimeWindow                          *v1.Duration       `json:"outOfOrderTimeWindow,omitempty"`
+	OutOfOrderBlocksExternalLabelEnabled          *bool              `json:"outOfOrderBlocksExternalLabelEnabled,omitempty"`
+	SeparateMetricsGroupLabel                     *string            `json:"separateMetricsGroupLabel,omitempty"`
+	MaxChunksPerQuery                             *int64             `json:"maxChunksPerQuery,omitempty"`
+	MaxFetchedSeriesPerQuery                      *int64             `json:"maxFetchedSeriesPerQuery,omitempty"`
+	MaxFetchedChunkBytesPerQuery                  *int64             `json:"maxFetchedChunkBytesPerQuery,omitempty"`
+	MaxQueryLookback                              *v1.Duration       `json:"maxQueryLookback,omitempty"`
+	MaxPartialQueryLength                         *v1.Duration       `json:"maxPartialQueryLength,omitempty"`
+	MaxQueryParallelism                           *int64             `json:"maxQueryParallelism,omitempty"`
+	MaxLabelsQueryLength                          *v1.Duration       `json:"maxLabelsQueryLength,omitempty"`
+	MaxCacheFreshness                             *v1.Duration       `json:"maxCacheFreshness,omitempty"`
+	MaxQueriersPerTenant                          *int64             `json:"maxQueriersPerTenant,omitempty"`
+	QueryShardingTotalShards                      *int64             `json:"queryShardingTotalShards,omitempty"`
+	QueryShardingMaxShardedQueries                *int64             `json:"queryShardingMaxShardedQueries,omitempty"`
+	QueryShardingMaxRegexpSizeBytes               *int64             `json:"queryShardingMaxRegexpSizeBytes,omitempty"`
+	SplitInstantQueriesByInterval                 *v1.Duration       `json:"splitInstantQueriesByInterval,omitempty"`
+	QueryIngestersWithin                          *v1.Duration       `json:"QueryIngestersWithin,omitempty"`
+	MaxTotalQueryLength                           *v1.Duration       `json:"maxTotalQueryLength,omitempty"`
+	ResultsCacheTTL                               *v1.Duration       `json:"resultsCacheTTL,omitempty"`
+	ResultsCacheTTLForOutOfOrderTimeWindow        *v1.Duration       `json:"resultsCacheTTLForOutOfOrderTimeWindow,omitempty"`
+	ResultsCacheTTLForCardinalityQuery            *v1.Duration       `json:"resultsCacheTTLForCardinalityQuery,omitempty"`
+	ResultsCacheTTLForLabelsQuery                 *v1.Duration       `json:"resultsCacheTTLForLabelsQuery,omitempty"`
+	ResultsCacheForUnalignedQueryEnabled          *bool              `json:"resultsCacheForUnalignedQueryEnabled,omitempty"`
+	MaxQueryExpressionSizeBytes                   *int64             `json:"maxQueryExpressionSizeBytes,omitempty"`
+	CardinalityAnalysisEnabled                    *bool              `json:"cardinalityAnalysisEnabled,omitempty"`
+	LabelNamesAndValuesResultsMaxSizeBytes        *int64             `json:"labelNamesAndValuesResultsMaxSizeBytes,omitempty"`
+	LabelValuesMaxCardinalityLabelNamesPerRequest *int64             `json:"labelValuesMaxCardinalityLabelNamesPerRequest,omitempty"`
+	RulerEvaluationDelay                          *v1.Duration       `json:"rulerEvaluationDelay,omitempty"`
+	RulerTenantShardSize                          *int64             `json:"rulerTenantShardSize,omitempty"`
+	RulerMaxRulesPerRuleGroup                     *int64             `json:"rulerMaxRulesPerRuleGroup,omitempty"`
+	RulerMaxRuleGroupsPerTenant                   *int64             `json:"rulerMaxRuleGroupsPerTenant,omitempty"`
+	RulerRecordingRulesEvaluationEnabled          *bool              `json:"rulerRecordingRulesEvaluationEnabled,omitempty"`
+	RulerAlertingRulesEvaluationEnabled           *bool              `json:"rulerAlertingRulesEvaluationEnabled,omitempty"`
+	RulerSyncRulesOnChangesEnabled                *bool              `json:"rulerSyncRulesOnChangesEnabled,omitempty"`
+	StoreGatewayTenantShardSize                   *int64             `json:"storeGatewayTenantShardSize,omitempty"`
+	CompactorBlocksRetentionPeriod                *v1.Duration       `json:"compactorBlocksRetentionPeriod,omitempty"`
+	CompactorSplitAndMergeShards                  *int64             `json:"compactorSplitAndMergeShards,omitempty"`
+	CompactorSplitGroups                          *int64             `json:"compactorSplitGroups,omitempty"`
+	CompactorTenantShardSize                      *int64             `json:"compactorTenantShardSize,omitempty"`
+	CompactorPartialBlockDeletionDelay            *v1.Duration       `json:"compactorPartialBlockDeletionDelay,omitempty"`
+	CompactorBlockUploadEnabled                   *bool              `json:"compactorBlockUploadEnabled,omitempty"`
+	CompactorBlockUploadValidationEnabled         *bool              `json:"compactorBlockUploadValidationEnabled,omitempty"`
+	CompactorBlockUploadVerifyChunks              *bool              `json:"compactorBlockUploadVerifyChunks,omitempty"`
+	CompactorBlockUploadMaxBlockSizeBytes         *int64             `json:"compactorBlockUploadMaxBlockSizeBytes,omitempty"`
+	S3SSEType                                     *string            `json:"s3SSEType,omitempty"`
+	S3SSEKMSKeyID                                 *string            `json:"s3SSEKMSKeyID,omitempty"`
+	S3SSEKMSEncryptionContext                     *string            `json:"s3SSEKMSEncryptionContext,omitempty"`
+	AlertmanagerReceiversBlockCIDRNetworks        *string            `json:"alertmanagerReceiversBlockCIDRNetworks,omitempty"`
+	AlertmanagerReceiversBlockPrivateAddresses    *bool              `json:"alertmanagerReceiversBlockPrivateAddresses,omitempty"`
+	NotificationRateLimit                         *float64           `json:"notificationRateLimit,omitempty"`
+	NotificationRateLimitPerIntegration           map[string]float64 `json:"notificationRateLimitPerIntegration,omitempty"`
+	AlertmanagerMaxConfigSizeBytes                *int64             `json:"alertmanagerMaxConfigSizeBytes,omitempty"`
+	AlertmanagerMaxTemplatesCount                 *int64             `json:"alertmanagerMaxTemplatesCount,omitempty"`
+	AlertmanagerMaxTemplateSizeBytes              *int64             `json:"alertmanagerMaxTemplateSizeBytes,omitempty"`
+	AlertmanagerMaxDispatcherAggregationGroups    *int64             `json:"alertmanagerMaxDispatcherAggregationGroups,omitempty"`
+	AlertmanagerMaxAlertsCount                    *int64             `json:"alertmanagerMaxAlertsCount,omitempty"`
+	AlertmanagerMaxAlertsSizeBytes                *int64             `json:"alertmanagerMaxAlertsSizeBytes,omitempty"`
 }
 
+// Input of the limits for Mimir for a tenant.
 type MimirLimitsInput struct {
-	RequestRate                                   *float64                            `json:"requestRate,omitempty"`
-	RequestBurstSize                              *int64                              `json:"requestBurstSize,omitempty"`
-	IngestionRate                                 *float64                            `json:"ingestionRate,omitempty"`
-	IngestionBurstSize                            *int64                              `json:"ingestionBurstSize,omitempty"`
-	AcceptHASamples                               *bool                               `json:"acceptHASamples,omitempty"`
-	HaClusterLabel                                *string                             `json:"haClusterLabel,omitempty"`
-	HaReplicaLabel                                *string                             `json:"haReplicaLabel,omitempty"`
-	HaMaxClusters                                 *int64                              `json:"haMaxClusters,omitempty"`
-	DropLabels                                    []*string                           `json:"dropLabels,omitempty"`
-	MaxLabelNameLength                            *int64                              `json:"maxLabelNameLength,omitempty"`
-	MaxLabelValueLength                           *int64                              `json:"maxLabelValueLength,omitempty"`
-	MaxLabelNamesPerSeries                        *int64                              `json:"maxLabelNamesPerSeries,omitempty"`
-	MaxMetadataLength                             *int64                              `json:"maxMetadataLength,omitempty"`
-	CreationGracePeriod                           *v1.Duration                        `json:"creationGracePeriod,omitempty"`
-	EnforceMetadataMetricName                     *bool                               `json:"enforceMetadataMetricName,omitempty"`
-	IngestionTenantShardSize                      *int64                              `json:"ingestionTenantShardSize,omitempty"`
-	MaxGlobalSeriesPerUser                        *int64                              `json:"maxGlobalSeriesPerUser,omitempty"`
-	MaxGlobalSeriesPerMetric                      *int64                              `json:"maxGlobalSeriesPerMetric,omitempty"`
-	MaxGlobalMetricsWithMetadataPerUser           *int64                              `json:"maxGlobalMetricsWithMetadataPerUser,omitempty"`
-	MaxGlobalMetadataPerMetric                    *int64                              `json:"maxGlobalMetadataPerMetric,omitempty"`
-	MaxGlobalExemplarsPerUser                     *int64                              `json:"maxGlobalExemplarsPerUser,omitempty"`
-	NativeHistogramsIngestionEnabled              *bool                               `json:"nativeHistogramsIngestionEnabled,omitempty"`
-	OutOfOrderTimeWindow                          *v1.Duration                        `json:"outOfOrderTimeWindow,omitempty"`
-	OutOfOrderBlocksExternalLabelEnabled          *bool                               `json:"outOfOrderBlocksExternalLabelEnabled,omitempty"`
-	SeparateMetricsGroupLabel                     *string                             `json:"separateMetricsGroupLabel,omitempty"`
-	MaxChunksPerQuery                             *int64                              `json:"maxChunksPerQuery,omitempty"`
-	MaxFetchedSeriesPerQuery                      *int64                              `json:"maxFetchedSeriesPerQuery,omitempty"`
-	MaxFetchedChunkBytesPerQuery                  *int64                              `json:"maxFetchedChunkBytesPerQuery,omitempty"`
-	MaxQueryLookback                              *v1.Duration                        `json:"maxQueryLookback,omitempty"`
-	MaxPartialQueryLength                         *v1.Duration                        `json:"maxPartialQueryLength,omitempty"`
-	MaxQueryParallelism                           *int64                              `json:"maxQueryParallelism,omitempty"`
-	MaxLabelsQueryLength                          *v1.Duration                        `json:"maxLabelsQueryLength,omitempty"`
-	MaxCacheFreshness                             *v1.Duration                        `json:"maxCacheFreshness,omitempty"`
-	MaxQueriersPerTenant                          *int64                              `json:"maxQueriersPerTenant,omitempty"`
-	QueryShardingTotalShards                      *int64                              `json:"queryShardingTotalShards,omitempty"`
-	QueryShardingMaxShardedQueries                *int64                              `json:"queryShardingMaxShardedQueries,omitempty"`
-	QueryShardingMaxRegexpSizeBytes               *int64                              `json:"queryShardingMaxRegexpSizeBytes,omitempty"`
-	SplitInstantQueriesByInterval                 *v1.Duration                        `json:"splitInstantQueriesByInterval,omitempty"`
-	MaxTotalQueryLength                           *v1.Duration                        `json:"maxTotalQueryLength,omitempty"`
-	ResultsCacheTTL                               *v1.Duration                        `json:"resultsCacheTTL,omitempty"`
-	ResultsCacheTTLForOutOfOrderTimeWindow        *v1.Duration                        `json:"resultsCacheTTLForOutOfOrderTimeWindow,omitempty"`
-	MaxQueryExpressionSizeBytes                   *int64                              `json:"maxQueryExpressionSizeBytes,omitempty"`
-	CardinalityAnalysisEnabled                    *bool                               `json:"cardinalityAnalysisEnabled,omitempty"`
-	LabelNamesAndValuesResultsMaxSizeBytes        *int64                              `json:"labelNamesAndValuesResultsMaxSizeBytes,omitempty"`
-	LabelValuesMaxCardinalityLabelNamesPerRequest *int64                              `json:"labelValuesMaxCardinalityLabelNamesPerRequest,omitempty"`
-	RulerEvaluationDelay                          *v1.Duration                        `json:"rulerEvaluationDelay,omitempty"`
-	RulerTenantShardSize                          *int64                              `json:"rulerTenantShardSize,omitempty"`
-	RulerMaxRulesPerRuleGroup                     *int64                              `json:"rulerMaxRulesPerRuleGroup,omitempty"`
-	RulerMaxRuleGroupsPerTenant                   *int64                              `json:"rulerMaxRuleGroupsPerTenant,omitempty"`
-	RulerRecordingRulesEvaluationEnabled          *bool                               `json:"rulerRecordingRulesEvaluationEnabled,omitempty"`
-	RulerAlertingRulesEvaluationEnabled           *bool                               `json:"rulerAlertingRulesEvaluationEnabled,omitempty"`
-	StoreGatewayTenantShardSize                   *int64                              `json:"storeGatewayTenantShardSize,omitempty"`
-	CompactorBlocksRetentionPeriod                *v1.Duration                        `json:"compactorBlocksRetentionPeriod,omitempty"`
-	CompactorSplitAndMergeShards                  *int64                              `json:"compactorSplitAndMergeShards,omitempty"`
-	CompactorSplitGroups                          *int64                              `json:"compactorSplitGroups,omitempty"`
-	CompactorTenantShardSize                      *int64                              `json:"compactorTenantShardSize,omitempty"`
-	CompactorPartialBlockDeletionDelay            *v1.Duration                        `json:"compactorPartialBlockDeletionDelay,omitempty"`
-	CompactorBlockUploadEnabled                   *bool                               `json:"compactorBlockUploadEnabled,omitempty"`
-	CompactorBlockUploadValidationEnabled         *bool                               `json:"compactorBlockUploadValidationEnabled,omitempty"`
-	CompactorBlockUploadVerifyChunks              *bool                               `json:"compactorBlockUploadVerifyChunks,omitempty"`
-	S3SSEType                                     *string                             `json:"s3SSEType,omitempty"`
-	S3SSEKMSKeyID                                 *string                             `json:"s3SSEKMSKeyID,omitempty"`
-	S3SSEKMSEncryptionContext                     *string                             `json:"s3SSEKMSEncryptionContext,omitempty"`
-	AlertmanagerReceiversBlockCIDRNetworks        *string                             `json:"alertmanagerReceiversBlockCIDRNetworks,omitempty"`
-	AlertmanagerReceiversBlockPrivateAddresses    *bool                               `json:"alertmanagerReceiversBlockPrivateAddresses,omitempty"`
-	NotificationRateLimit                         *float64                            `json:"notificationRateLimit,omitempty"`
-	NotificationRateLimitPerIntegration           map[string]*float64                 `json:"notificationRateLimitPerIntegration,omitempty"`
-	AlertmanagerMaxConfigSizeBytes                *int64                              `json:"alertmanagerMaxConfigSizeBytes,omitempty"`
-	AlertmanagerMaxTemplatesCount                 *int64                              `json:"alertmanagerMaxTemplatesCount,omitempty"`
-	AlertmanagerMaxTemplateSizeBytes              *int64                              `json:"alertmanagerMaxTemplateSizeBytes,omitempty"`
-	AlertmanagerMaxDispatcherAggregationGroups    *int64                              `json:"alertmanagerMaxDispatcherAggregationGroups,omitempty"`
-	AlertmanagerMaxAlertsCount                    *int64                              `json:"alertmanagerMaxAlertsCount,omitempty"`
-	AlertmanagerMaxAlertsSizeBytes                *int64                              `json:"alertmanagerMaxAlertsSizeBytes,omitempty"`
-	ForwardingEndpoint                            *string                             `json:"forwardingEndpoint,omitempty"`
-	ForwardingDropOlderThan                       *v1.Duration                        `json:"forwardingDropOlderThan,omitempty"`
-	ForwardingRules                               map[string]*v1alpha1.ForwardingRule `json:"forwardingRules,omitempty"`
+	RequestRate                                   *float64              `json:"requestRate,omitempty"`
+	RequestBurstSize                              *int64                `json:"requestBurstSize,omitempty"`
+	IngestionRate                                 *float64              `json:"ingestionRate,omitempty"`
+	IngestionBurstSize                            *int64                `json:"ingestionBurstSize,omitempty"`
+	AcceptHASamples                               *bool                 `json:"acceptHASamples,omitempty"`
+	HaClusterLabel                                *string               `json:"haClusterLabel,omitempty"`
+	HaReplicaLabel                                *string               `json:"haReplicaLabel,omitempty"`
+	HaMaxClusters                                 *int64                `json:"haMaxClusters,omitempty"`
+	DropLabels                                    []string              `json:"dropLabels,omitempty"`
+	MaxLabelNameLength                            *int64                `json:"maxLabelNameLength,omitempty"`
+	MaxLabelValueLength                           *int64                `json:"maxLabelValueLength,omitempty"`
+	MaxLabelNamesPerSeries                        *int64                `json:"maxLabelNamesPerSeries,omitempty"`
+	MaxMetadataLength                             *int64                `json:"maxMetadataLength,omitempty"`
+	MaxNativeHistogramBuckets                     *int64                `json:"maxNativeHistogramBuckets,omitempty"`
+	CreationGracePeriod                           *v1.Duration          `json:"creationGracePeriod,omitempty"`
+	EnforceMetadataMetricName                     *bool                 `json:"enforceMetadataMetricName,omitempty"`
+	IngestionTenantShardSize                      *int64                `json:"ingestionTenantShardSize,omitempty"`
+	MetricRelabelConfigs                          []*RelabelConfigInput `json:"metricRelabelConfigs,omitempty"`
+	MaxGlobalSeriesPerUser                        *int64                `json:"maxGlobalSeriesPerUser,omitempty"`
+	MaxGlobalSeriesPerMetric                      *int64                `json:"maxGlobalSeriesPerMetric,omitempty"`
+	MaxGlobalMetricsWithMetadataPerUser           *int64                `json:"maxGlobalMetricsWithMetadataPerUser,omitempty"`
+	MaxGlobalMetadataPerMetric                    *int64                `json:"maxGlobalMetadataPerMetric,omitempty"`
+	MaxGlobalExemplarsPerUser                     *int64                `json:"maxGlobalExemplarsPerUser,omitempty"`
+	NativeHistogramsIngestionEnabled              *bool                 `json:"nativeHistogramsIngestionEnabled,omitempty"`
+	ActiveSeriesCustomTrackersConfig              *string               `json:"activeSeriesCustomTrackersConfig,omitempty"`
+	OutOfOrderTimeWindow                          *v1.Duration          `json:"outOfOrderTimeWindow,omitempty"`
+	OutOfOrderBlocksExternalLabelEnabled          *bool                 `json:"outOfOrderBlocksExternalLabelEnabled,omitempty"`
+	SeparateMetricsGroupLabel                     *string               `json:"separateMetricsGroupLabel,omitempty"`
+	MaxChunksPerQuery                             *int64                `json:"maxChunksPerQuery,omitempty"`
+	MaxFetchedSeriesPerQuery                      *int64                `json:"maxFetchedSeriesPerQuery,omitempty"`
+	MaxFetchedChunkBytesPerQuery                  *int64                `json:"maxFetchedChunkBytesPerQuery,omitempty"`
+	MaxQueryLookback                              *v1.Duration          `json:"maxQueryLookback,omitempty"`
+	MaxPartialQueryLength                         *v1.Duration          `json:"maxPartialQueryLength,omitempty"`
+	MaxQueryParallelism                           *int64                `json:"maxQueryParallelism,omitempty"`
+	MaxLabelsQueryLength                          *v1.Duration          `json:"maxLabelsQueryLength,omitempty"`
+	MaxCacheFreshness                             *v1.Duration          `json:"maxCacheFreshness,omitempty"`
+	MaxQueriersPerTenant                          *int64                `json:"maxQueriersPerTenant,omitempty"`
+	QueryShardingTotalShards                      *int64                `json:"queryShardingTotalShards,omitempty"`
+	QueryShardingMaxShardedQueries                *int64                `json:"queryShardingMaxShardedQueries,omitempty"`
+	QueryShardingMaxRegexpSizeBytes               *int64                `json:"queryShardingMaxRegexpSizeBytes,omitempty"`
+	SplitInstantQueriesByInterval                 *v1.Duration          `json:"splitInstantQueriesByInterval,omitempty"`
+	QueryIngestersWithin                          *v1.Duration          `json:"QueryIngestersWithin,omitempty"`
+	MaxTotalQueryLength                           *v1.Duration          `json:"maxTotalQueryLength,omitempty"`
+	ResultsCacheTTL                               *v1.Duration          `json:"resultsCacheTTL,omitempty"`
+	ResultsCacheTTLForOutOfOrderTimeWindow        *v1.Duration          `json:"resultsCacheTTLForOutOfOrderTimeWindow,omitempty"`
+	ResultsCacheTTLForCardinalityQuery            *v1.Duration          `json:"resultsCacheTTLForCardinalityQuery,omitempty"`
+	ResultsCacheTTLForLabelsQuery                 *v1.Duration          `json:"resultsCacheTTLForLabelsQuery,omitempty"`
+	ResultsCacheForUnalignedQueryEnabled          *bool                 `json:"resultsCacheForUnalignedQueryEnabled,omitempty"`
+	MaxQueryExpressionSizeBytes                   *int64                `json:"maxQueryExpressionSizeBytes,omitempty"`
+	CardinalityAnalysisEnabled                    *bool                 `json:"cardinalityAnalysisEnabled,omitempty"`
+	LabelNamesAndValuesResultsMaxSizeBytes        *int64                `json:"labelNamesAndValuesResultsMaxSizeBytes,omitempty"`
+	LabelValuesMaxCardinalityLabelNamesPerRequest *int64                `json:"labelValuesMaxCardinalityLabelNamesPerRequest,omitempty"`
+	RulerEvaluationDelay                          *v1.Duration          `json:"rulerEvaluationDelay,omitempty"`
+	RulerTenantShardSize                          *int64                `json:"rulerTenantShardSize,omitempty"`
+	RulerMaxRulesPerRuleGroup                     *int64                `json:"rulerMaxRulesPerRuleGroup,omitempty"`
+	RulerMaxRuleGroupsPerTenant                   *int64                `json:"rulerMaxRuleGroupsPerTenant,omitempty"`
+	RulerRecordingRulesEvaluationEnabled          *bool                 `json:"rulerRecordingRulesEvaluationEnabled,omitempty"`
+	RulerAlertingRulesEvaluationEnabled           *bool                 `json:"rulerAlertingRulesEvaluationEnabled,omitempty"`
+	RulerSyncRulesOnChangesEnabled                *bool                 `json:"rulerSyncRulesOnChangesEnabled,omitempty"`
+	StoreGatewayTenantShardSize                   *int64                `json:"storeGatewayTenantShardSize,omitempty"`
+	CompactorBlocksRetentionPeriod                *v1.Duration          `json:"compactorBlocksRetentionPeriod,omitempty"`
+	CompactorSplitAndMergeShards                  *int64                `json:"compactorSplitAndMergeShards,omitempty"`
+	CompactorSplitGroups                          *int64                `json:"compactorSplitGroups,omitempty"`
+	CompactorTenantShardSize                      *int64                `json:"compactorTenantShardSize,omitempty"`
+	CompactorPartialBlockDeletionDelay            *v1.Duration          `json:"compactorPartialBlockDeletionDelay,omitempty"`
+	CompactorBlockUploadEnabled                   *bool                 `json:"compactorBlockUploadEnabled,omitempty"`
+	CompactorBlockUploadValidationEnabled         *bool                 `json:"compactorBlockUploadValidationEnabled,omitempty"`
+	CompactorBlockUploadVerifyChunks              *bool                 `json:"compactorBlockUploadVerifyChunks,omitempty"`
+	CompactorBlockUploadMaxBlockSizeBytes         *int64                `json:"compactorBlockUploadMaxBlockSizeBytes,omitempty"`
+	S3SSEType                                     *string               `json:"s3SSEType,omitempty"`
+	S3SSEKMSKeyID                                 *string               `json:"s3SSEKMSKeyID,omitempty"`
+	S3SSEKMSEncryptionContext                     *string               `json:"s3SSEKMSEncryptionContext,omitempty"`
+	AlertmanagerReceiversBlockCIDRNetworks        *string               `json:"alertmanagerReceiversBlockCIDRNetworks,omitempty"`
+	AlertmanagerReceiversBlockPrivateAddresses    *bool                 `json:"alertmanagerReceiversBlockPrivateAddresses,omitempty"`
+	NotificationRateLimit                         *float64              `json:"notificationRateLimit,omitempty"`
+	NotificationRateLimitPerIntegration           map[string]float64    `json:"notificationRateLimitPerIntegration,omitempty"`
+	AlertmanagerMaxConfigSizeBytes                *int64                `json:"alertmanagerMaxConfigSizeBytes,omitempty"`
+	AlertmanagerMaxTemplatesCount                 *int64                `json:"alertmanagerMaxTemplatesCount,omitempty"`
+	AlertmanagerMaxTemplateSizeBytes              *int64                `json:"alertmanagerMaxTemplateSizeBytes,omitempty"`
+	AlertmanagerMaxDispatcherAggregationGroups    *int64                `json:"alertmanagerMaxDispatcherAggregationGroups,omitempty"`
+	AlertmanagerMaxAlertsCount                    *int64                `json:"alertmanagerMaxAlertsCount,omitempty"`
+	AlertmanagerMaxAlertsSizeBytes                *int64                `json:"alertmanagerMaxAlertsSizeBytes,omitempty"`
 }
 
 // The first and last name of a user.
@@ -227,6 +400,60 @@ type NameInput struct {
 	First *string `json:"first,omitempty"`
 	// The user's last name.
 	Last *string `json:"last,omitempty"`
+}
+
+type NotifierBasicAuth struct {
+	Username *string `json:"username,omitempty"`
+	Password *string `json:"password,omitempty"`
+}
+
+type NotifierBasicAuthInput struct {
+	Username *string `json:"username,omitempty"`
+	Password *string `json:"password,omitempty"`
+}
+
+type NotifierConfig struct {
+	BasicAuth  *NotifierBasicAuth       `json:"basicAuth,omitempty"`
+	HeaderAuth *NotifierHeaderAuth      `json:"headerAuth,omitempty"`
+	TLS        *NotifierTLSClientConfig `json:"tls,omitempty"`
+}
+
+type NotifierConfigInput struct {
+	BasicAuth  *NotifierBasicAuthInput       `json:"basicAuth,omitempty"`
+	HeaderAuth *NotifierHeaderAuthInput      `json:"headerAuth,omitempty"`
+	TLS        *NotifierTLSClientConfigInput `json:"tls,omitempty"`
+}
+
+type NotifierHeaderAuth struct {
+	Type            *string `json:"type,omitempty"`
+	Credentials     *string `json:"credentials,omitempty"`
+	CredentialsFile *string `json:"credentialsFile,omitempty"`
+}
+
+type NotifierHeaderAuthInput struct {
+	Type            *string `json:"type,omitempty"`
+	Credentials     *string `json:"credentials,omitempty"`
+	CredentialsFile *string `json:"credentialsFile,omitempty"`
+}
+
+type NotifierTLSClientConfig struct {
+	CertPath           *string `json:"certPath,omitempty"`
+	KeyPath            *string `json:"keyPath,omitempty"`
+	CaPath             *string `json:"caPath,omitempty"`
+	ServerName         *string `json:"serverName,omitempty"`
+	InsecureSkipVerify *bool   `json:"insecureSkipVerify,omitempty"`
+	CipherSuites       *string `json:"cipherSuites,omitempty"`
+	MinVersion         *string `json:"minVersion,omitempty"`
+}
+
+type NotifierTLSClientConfigInput struct {
+	CertPath           *string `json:"certPath,omitempty"`
+	KeyPath            *string `json:"keyPath,omitempty"`
+	CaPath             *string `json:"caPath,omitempty"`
+	ServerName         *string `json:"serverName,omitempty"`
+	InsecureSkipVerify *bool   `json:"insecureSkipVerify,omitempty"`
+	CipherSuites       *string `json:"cipherSuites,omitempty"`
+	MinVersion         *string `json:"minVersion,omitempty"`
 }
 
 // Representation of the information about an OAuth2 Client sourced from Hydra.
@@ -425,12 +652,20 @@ type ObservabilityTenant struct {
 type ObservabilityTenantLimits struct {
 	// The limits for Mimir for the tenant.
 	Mimir *MimirLimits `json:"mimir,omitempty"`
+	// The limits for Loki for the tenant.
+	Loki *LokiLimits `json:"loki,omitempty"`
+	// The limits for Tempo for the tenant.
+	Tempo *TempoLimits `json:"tempo,omitempty"`
 }
 
 // Inputs for the limits of a tenant.
 type ObservabilityTenantLimitsInput struct {
 	// The limits for Mimir for the tenant.
 	Mimir *MimirLimitsInput `json:"mimir,omitempty"`
+	// The limits for Loki for the tenant.
+	Loki *LokiLimitsInput `json:"loki,omitempty"`
+	// The limits for Tempo for the tenant.
+	Tempo *TempoLimitsInput `json:"tempo,omitempty"`
 }
 
 // Representation of the users, groups and oauth2 clients that have a set of permissions on a tenant.
@@ -472,9 +707,156 @@ type Organization struct {
 	Admins []*User `json:"admins,omitempty"`
 }
 
+type PolicyMatch struct {
+	MatchType  *MatchType              `json:"matchType,omitempty"`
+	Attributes []*MatchPolicyAttribute `json:"attributes,omitempty"`
+}
+
+type PolicyMatchInput struct {
+	MatchType  *MatchType                   `json:"matchType,omitempty"`
+	Attributes []*MatchPolicyAttributeInput `json:"attributes,omitempty"`
+}
+
+type RelabelConfig struct {
+	SourceLabels []*string      `json:"sourceLabels,omitempty"`
+	Separator    *string        `json:"separator,omitempty"`
+	Regex        *string        `json:"regex,omitempty"`
+	Modulus      *string        `json:"modulus,omitempty"`
+	TargetLabel  *string        `json:"targetLabel,omitempty"`
+	Replacement  *string        `json:"replacement,omitempty"`
+	Action       *RelabelAction `json:"action,omitempty"`
+}
+
+type RelabelConfigInput struct {
+	SourceLabels []*string      `json:"sourceLabels,omitempty"`
+	Separator    *string        `json:"separator,omitempty"`
+	Regex        *string        `json:"regex,omitempty"`
+	Modulus      *string        `json:"modulus,omitempty"`
+	TargetLabel  *string        `json:"targetLabel,omitempty"`
+	Replacement  *string        `json:"replacement,omitempty"`
+	Action       *RelabelAction `json:"action,omitempty"`
+}
+
+type RulerAlertManagerConfig struct {
+	AlertmanagerURL             string           `json:"alertmanagerURL"`
+	AlertmanagerDiscovery       *bool            `json:"alertmanagerDiscovery,omitempty"`
+	AlertmanagerRefreshInterval *v1.Duration     `json:"alertmanagerRefreshInterval,omitempty"`
+	AlertmanangerEnableV2api    *bool            `json:"alertmanangerEnableV2API,omitempty"`
+	AlertRelabelConfigs         []*RelabelConfig `json:"alertRelabelConfigs,omitempty"`
+	NotificationQueueCapacity   *int64           `json:"notificationQueueCapacity,omitempty"`
+	NotificationTimeout         *v1.Duration     `json:"notificationTimeout,omitempty"`
+	Notifier                    *NotifierConfig  `json:"notifier,omitempty"`
+}
+
+type RulerAlertManagerConfigInput struct {
+	AlertmanagerURL             string                `json:"alertmanagerURL"`
+	AlertmanagerDiscovery       *bool                 `json:"alertmanagerDiscovery,omitempty"`
+	AlertmanagerRefreshInterval *v1.Duration          `json:"alertmanagerRefreshInterval,omitempty"`
+	AlertmanangerEnableV2api    *bool                 `json:"alertmanangerEnableV2API,omitempty"`
+	AlertRelabelConfigs         []*RelabelConfigInput `json:"alertRelabelConfigs,omitempty"`
+	NotificationQueueCapacity   *int64                `json:"notificationQueueCapacity,omitempty"`
+	NotificationTimeout         *v1.Duration          `json:"notificationTimeout,omitempty"`
+	Notifier                    *NotifierConfigInput  `json:"notifier,omitempty"`
+}
+
+type ShardstreamsConfig struct {
+	Enabled        *bool   `json:"enabled,omitempty"`
+	LoggingEnabled *bool   `json:"loggingEnabled,omitempty"`
+	DesiredRate    *string `json:"desiredRate,omitempty"`
+}
+
+type ShardstreamsConfigInput struct {
+	Enabled        *bool   `json:"enabled,omitempty"`
+	LoggingEnabled *bool   `json:"loggingEnabled,omitempty"`
+	DesiredRate    *string `json:"desiredRate,omitempty"`
+}
+
+type StreamRetention struct {
+	Period   *v1.Duration `json:"period,omitempty"`
+	Priority *int64       `json:"priority,omitempty"`
+	Selector *string      `json:"selector,omitempty"`
+}
+
+type StreamRetentionInput struct {
+	Period   *v1.Duration `json:"period,omitempty"`
+	Priority *int64       `json:"priority,omitempty"`
+	Selector *string      `json:"selector,omitempty"`
+}
+
 // Representation of the limits for Tempo for a tenant.
 type TempoLimits struct {
-	RequestRate *float64 `json:"requestRate,omitempty"`
+	IngestionRateStrategy                                          *string              `json:"ingestionRateStrategy,omitempty"`
+	IngestionRateLimitBytes                                        *int64               `json:"ingestionRateLimitBytes,omitempty"`
+	IngestionBurstSizeBytes                                        *int64               `json:"ingestionBurstSizeBytes,omitempty"`
+	MaxLocalTracesPerUser                                          *int64               `json:"maxLocalTracesPerUser,omitempty"`
+	MaxGlobalTracesPerUser                                         *int64               `json:"maxGlobalTracesPerUser,omitempty"`
+	Forwarders                                                     []string             `json:"forwarders,omitempty"`
+	MetricsGeneratorRingSize                                       *int64               `json:"metricsGeneratorRingSize,omitempty"`
+	MetricsGeneratorProcessors                                     []string             `json:"metricsGeneratorProcessors,omitempty"`
+	MetricsGeneratorMaxActiveSeries                                *string              `json:"metricsGeneratorMaxActiveSeries,omitempty"`
+	MetricsGeneratorCollectionInterval                             *v1.Duration         `json:"metricsGeneratorCollectionInterval,omitempty"`
+	MetricsGeneratorDisableCollection                              *bool                `json:"metricsGeneratorDisableCollection,omitempty"`
+	MetricsGeneratorForwarderQueueSize                             *int64               `json:"metricsGeneratorForwarderQueueSize,omitempty"`
+	MetricsGeneratorForwarderWorkers                               *int64               `json:"metricsGeneratorForwarderWorkers,omitempty"`
+	MetricsGeneratorProcessorServiceGraphsHistogramBuckets         []*float64           `json:"metricsGeneratorProcessorServiceGraphsHistogramBuckets,omitempty"`
+	MetricsGeneratorProcessorServiceGraphsDimensions               []string             `json:"metricsGeneratorProcessorServiceGraphsDimensions,omitempty"`
+	MetricsGeneratorProcessorServiceGraphsPeerAttributes           []string             `json:"metricsGeneratorProcessorServiceGraphsPeerAttributes,omitempty"`
+	MetricsGeneratorProcessorServiceGraphsEnableClientServerPrefix *bool                `json:"metricsGeneratorProcessorServiceGraphsEnableClientServerPrefix,omitempty"`
+	MetricsGeneratorProcessorSpanMetricsHistogramBuckets           []*float64           `json:"metricsGeneratorProcessorSpanMetricsHistogramBuckets,omitempty"`
+	MetricsGeneratorProcessorSpanMetricsDimensions                 []string             `json:"metricsGeneratorProcessorSpanMetricsDimensions,omitempty"`
+	MetricsGeneratorProcessorSpanMetricsIntrinsicDimensions        *string              `json:"metricsGeneratorProcessorSpanMetricsIntrinsicDimensions,omitempty"`
+	MetricsGeneratorProcessorSpanMetricsFilterPolicies             []*FilterPolicy      `json:"metricsGeneratorProcessorSpanMetricsFilterPolicies,omitempty"`
+	MetricsGeneratorProcessorSpanMetricsDimensionMappings          []*DimensionMappings `json:"metricsGeneratorProcessorSpanMetricsDimensionMappings,omitempty"`
+	MetricsGeneratorProcessorSpanMetricsEnableTargetInfo           *bool                `json:"metricsGeneratorProcessorSpanMetricsEnableTargetInfo,omitempty"`
+	MetricsGeneratorProcessorLocalBlocksMaxLiveTraces              *string              `json:"metricsGeneratorProcessorLocalBlocksMaxLiveTraces,omitempty"`
+	MetricsGeneratorProcessorLocalBlocksMaxBlockDuration           *v1.Duration         `json:"metricsGeneratorProcessorLocalBlocksMaxBlockDuration,omitempty"`
+	MetricsGeneratorProcessorLocalBlocksMaxBlockBytes              *string              `json:"metricsGeneratorProcessorLocalBlocksMaxBlockBytes,omitempty"`
+	MetricsGeneratorProcessorLocalBlocksFlushCheckPeriod           *v1.Duration         `json:"metricsGeneratorProcessorLocalBlocksFlushCheckPeriod,omitempty"`
+	MetricsGeneratorProcessorLocalBlocksTraceIdlePeriod            *v1.Duration         `json:"metricsGeneratorProcessorLocalBlocksTraceIdlePeriod,omitempty"`
+	MetricsGeneratorProcessorLocalBlocksCompleteBlockTimeout       *v1.Duration         `json:"metricsGeneratorProcessorLocalBlocksCompleteBlockTimeout,omitempty"`
+	BlockRetention                                                 *v1.Duration         `json:"blockRetention,omitempty"`
+	MaxBytesPerTagValuesQuery                                      *int64               `json:"maxBytesPerTagValuesQuery,omitempty"`
+	MaxBlocksPerTagValuesQuery                                     *int64               `json:"maxBlocksPerTagValuesQuery,omitempty"`
+	MaxSearchDuration                                              *v1.Duration         `json:"maxSearchDuration,omitempty"`
+	MaxBytesPerTrace                                               *int64               `json:"maxBytesPerTrace,omitempty"`
+}
+
+// Input of the limits for Tempo for a tenant.
+type TempoLimitsInput struct {
+	IngestionRateStrategy                                          *string                   `json:"ingestionRateStrategy,omitempty"`
+	IngestionRateLimitBytes                                        *int64                    `json:"ingestionRateLimitBytes,omitempty"`
+	IngestionBurstSizeBytes                                        *int64                    `json:"ingestionBurstSizeBytes,omitempty"`
+	MaxLocalTracesPerUser                                          *int64                    `json:"maxLocalTracesPerUser,omitempty"`
+	MaxGlobalTracesPerUser                                         *int64                    `json:"maxGlobalTracesPerUser,omitempty"`
+	Forwarders                                                     []string                  `json:"forwarders,omitempty"`
+	MetricsGeneratorRingSize                                       *int64                    `json:"metricsGeneratorRingSize,omitempty"`
+	MetricsGeneratorProcessors                                     []string                  `json:"metricsGeneratorProcessors,omitempty"`
+	MetricsGeneratorMaxActiveSeries                                *string                   `json:"metricsGeneratorMaxActiveSeries,omitempty"`
+	MetricsGeneratorCollectionInterval                             *v1.Duration              `json:"metricsGeneratorCollectionInterval,omitempty"`
+	MetricsGeneratorDisableCollection                              *bool                     `json:"metricsGeneratorDisableCollection,omitempty"`
+	MetricsGeneratorForwarderQueueSize                             *int64                    `json:"metricsGeneratorForwarderQueueSize,omitempty"`
+	MetricsGeneratorForwarderWorkers                               *int64                    `json:"metricsGeneratorForwarderWorkers,omitempty"`
+	MetricsGeneratorProcessorServiceGraphsHistogramBuckets         []*float64                `json:"metricsGeneratorProcessorServiceGraphsHistogramBuckets,omitempty"`
+	MetricsGeneratorProcessorServiceGraphsDimensions               []string                  `json:"metricsGeneratorProcessorServiceGraphsDimensions,omitempty"`
+	MetricsGeneratorProcessorServiceGraphsPeerAttributes           []string                  `json:"metricsGeneratorProcessorServiceGraphsPeerAttributes,omitempty"`
+	MetricsGeneratorProcessorServiceGraphsEnableClientServerPrefix *bool                     `json:"metricsGeneratorProcessorServiceGraphsEnableClientServerPrefix,omitempty"`
+	MetricsGeneratorProcessorSpanMetricsHistogramBuckets           []*float64                `json:"metricsGeneratorProcessorSpanMetricsHistogramBuckets,omitempty"`
+	MetricsGeneratorProcessorSpanMetricsDimensions                 []string                  `json:"metricsGeneratorProcessorSpanMetricsDimensions,omitempty"`
+	MetricsGeneratorProcessorSpanMetricsIntrinsicDimensions        *string                   `json:"metricsGeneratorProcessorSpanMetricsIntrinsicDimensions,omitempty"`
+	MetricsGeneratorProcessorSpanMetricsFilterPolicies             []*FilterPolicyInput      `json:"metricsGeneratorProcessorSpanMetricsFilterPolicies,omitempty"`
+	MetricsGeneratorProcessorSpanMetricsDimensionMappings          []*DimensionMappingsInput `json:"metricsGeneratorProcessorSpanMetricsDimensionMappings,omitempty"`
+	MetricsGeneratorProcessorSpanMetricsEnableTargetInfo           *bool                     `json:"metricsGeneratorProcessorSpanMetricsEnableTargetInfo,omitempty"`
+	MetricsGeneratorProcessorLocalBlocksMaxLiveTraces              *string                   `json:"metricsGeneratorProcessorLocalBlocksMaxLiveTraces,omitempty"`
+	MetricsGeneratorProcessorLocalBlocksMaxBlockDuration           *v1.Duration              `json:"metricsGeneratorProcessorLocalBlocksMaxBlockDuration,omitempty"`
+	MetricsGeneratorProcessorLocalBlocksMaxBlockBytes              *string                   `json:"metricsGeneratorProcessorLocalBlocksMaxBlockBytes,omitempty"`
+	MetricsGeneratorProcessorLocalBlocksFlushCheckPeriod           *v1.Duration              `json:"metricsGeneratorProcessorLocalBlocksFlushCheckPeriod,omitempty"`
+	MetricsGeneratorProcessorLocalBlocksTraceIdlePeriod            *v1.Duration              `json:"metricsGeneratorProcessorLocalBlocksTraceIdlePeriod,omitempty"`
+	MetricsGeneratorProcessorLocalBlocksCompleteBlockTimeout       *v1.Duration              `json:"metricsGeneratorProcessorLocalBlocksCompleteBlockTimeout,omitempty"`
+	BlockRetention                                                 *v1.Duration              `json:"blockRetention,omitempty"`
+	MaxBytesPerTagValuesQuery                                      *int64                    `json:"maxBytesPerTagValuesQuery,omitempty"`
+	MaxBlocksPerTagValuesQuery                                     *int64                    `json:"maxBlocksPerTagValuesQuery,omitempty"`
+	MaxSearchDuration                                              *v1.Duration              `json:"maxSearchDuration,omitempty"`
+	MaxBytesPerTrace                                               *int64                    `json:"maxBytesPerTrace,omitempty"`
 }
 
 // Representation of the information about a user sourced from Kratos.
@@ -497,4 +879,169 @@ type UserInput struct {
 	ID *string `json:"id,omitempty"`
 	// The user's email address.
 	Email *string `json:"email,omitempty"`
+}
+
+type BlockedQueryType string
+
+const (
+	BlockedQueryTypeMetric  BlockedQueryType = "metric"
+	BlockedQueryTypeFilter  BlockedQueryType = "filter"
+	BlockedQueryTypeLimited BlockedQueryType = "limited"
+)
+
+var AllBlockedQueryType = []BlockedQueryType{
+	BlockedQueryTypeMetric,
+	BlockedQueryTypeFilter,
+	BlockedQueryTypeLimited,
+}
+
+func (e BlockedQueryType) IsValid() bool {
+	switch e {
+	case BlockedQueryTypeMetric, BlockedQueryTypeFilter, BlockedQueryTypeLimited:
+		return true
+	}
+	return false
+}
+
+func (e BlockedQueryType) String() string {
+	return string(e)
+}
+
+func (e *BlockedQueryType) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = BlockedQueryType(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid BlockedQueryType", str)
+	}
+	return nil
+}
+
+func (e BlockedQueryType) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+type MatchType string
+
+const (
+	MatchTypeStrict MatchType = "strict"
+	MatchTypeRegex  MatchType = "regex"
+)
+
+var AllMatchType = []MatchType{
+	MatchTypeStrict,
+	MatchTypeRegex,
+}
+
+func (e MatchType) IsValid() bool {
+	switch e {
+	case MatchTypeStrict, MatchTypeRegex:
+		return true
+	}
+	return false
+}
+
+func (e MatchType) String() string {
+	return string(e)
+}
+
+func (e *MatchType) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = MatchType(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid MatchType", str)
+	}
+	return nil
+}
+
+func (e MatchType) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+type RelabelAction string
+
+const (
+	RelabelActionReplace    RelabelAction = "replace"
+	RelabelActionReplace0   RelabelAction = "Replace"
+	RelabelActionKeep       RelabelAction = "keep"
+	RelabelActionKeep0      RelabelAction = "Keep"
+	RelabelActionDrop       RelabelAction = "drop"
+	RelabelActionDrop0      RelabelAction = "Drop"
+	RelabelActionHashmod    RelabelAction = "hashmod"
+	RelabelActionHashMod    RelabelAction = "HashMod"
+	RelabelActionLabelmap   RelabelAction = "labelmap"
+	RelabelActionLabelMap   RelabelAction = "LabelMap"
+	RelabelActionLabeldrop  RelabelAction = "labeldrop"
+	RelabelActionLabelDrop  RelabelAction = "LabelDrop"
+	RelabelActionLabelkeep  RelabelAction = "labelkeep"
+	RelabelActionLabelKeep  RelabelAction = "LabelKeep"
+	RelabelActionLowercase  RelabelAction = "lowercase"
+	RelabelActionLowercase0 RelabelAction = "Lowercase"
+	RelabelActionUppercase  RelabelAction = "uppercase"
+	RelabelActionUppercase0 RelabelAction = "Uppercase"
+	RelabelActionKeepequal  RelabelAction = "keepequal"
+	RelabelActionKeepEqual  RelabelAction = "KeepEqual"
+	RelabelActionDropequal  RelabelAction = "dropequal"
+	RelabelActionDropEqual  RelabelAction = "DropEqual"
+)
+
+var AllRelabelAction = []RelabelAction{
+	RelabelActionReplace,
+	RelabelActionReplace0,
+	RelabelActionKeep,
+	RelabelActionKeep0,
+	RelabelActionDrop,
+	RelabelActionDrop0,
+	RelabelActionHashmod,
+	RelabelActionHashMod,
+	RelabelActionLabelmap,
+	RelabelActionLabelMap,
+	RelabelActionLabeldrop,
+	RelabelActionLabelDrop,
+	RelabelActionLabelkeep,
+	RelabelActionLabelKeep,
+	RelabelActionLowercase,
+	RelabelActionLowercase0,
+	RelabelActionUppercase,
+	RelabelActionUppercase0,
+	RelabelActionKeepequal,
+	RelabelActionKeepEqual,
+	RelabelActionDropequal,
+	RelabelActionDropEqual,
+}
+
+func (e RelabelAction) IsValid() bool {
+	switch e {
+	case RelabelActionReplace, RelabelActionReplace0, RelabelActionKeep, RelabelActionKeep0, RelabelActionDrop, RelabelActionDrop0, RelabelActionHashmod, RelabelActionHashMod, RelabelActionLabelmap, RelabelActionLabelMap, RelabelActionLabeldrop, RelabelActionLabelDrop, RelabelActionLabelkeep, RelabelActionLabelKeep, RelabelActionLowercase, RelabelActionLowercase0, RelabelActionUppercase, RelabelActionUppercase0, RelabelActionKeepequal, RelabelActionKeepEqual, RelabelActionDropequal, RelabelActionDropEqual:
+		return true
+	}
+	return false
+}
+
+func (e RelabelAction) String() string {
+	return string(e)
+}
+
+func (e *RelabelAction) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = RelabelAction(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid RelabelAction", str)
+	}
+	return nil
+}
+
+func (e RelabelAction) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
 }
