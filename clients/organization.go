@@ -15,7 +15,7 @@ import (
 
 func (c *ClientWrapper) UpdateOrganization(ctx context.Context, admins []*model.UserInput) (*model.Organization, error) {
 
-	// TODO: figure out which admins to add or remove
+	// TODO: use same updating logic as observability tenant and oauth2 client
 	// TODO: create separate functions for adding and removing admins from an organization
 	log := c.Log.WithName("UpdateOrganization")
 

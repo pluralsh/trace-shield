@@ -737,11 +737,13 @@ func (c *ClientWrapper) GetObservabilityTenantUsers(ctx context.Context, users [
 	log := c.Log.WithName("GetObservabilityTenantUsers")
 	//TODO: Rename to something more generic
 
+	// TODO: use field collection so we don't query kratos if only the ID is requested
 	ctx, span := c.Tracer.Start(ctx, "GetObservabilityTenantUsers")
 	defer span.End()
 
 	var output []*model.User
 
+	// TODO: use a go routine to parallelize this
 	for _, inUser := range users {
 		user, err := c.GetUserFromId(ctx, inUser.ID)
 		if err != nil {
@@ -758,6 +760,7 @@ func (c *ClientWrapper) GetObservabilityTenantGroups(ctx context.Context, groups
 	log := c.Log.WithName("GetObservabilityTenantGroups")
 	//TODO: Rename to something more generic
 
+	// TODO: use field collection so we don't query kratos if only the ID is requested
 	ctx, span := c.Tracer.Start(ctx, "GetObservabilityTenantGroups")
 	defer span.End()
 
