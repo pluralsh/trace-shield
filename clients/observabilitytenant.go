@@ -31,29 +31,34 @@ func (c *ClientWrapper) CreateObservabilityTenant(ctx context.Context, id string
 		)
 	}
 
-	var mimirLimits *observabilityv1alpha1.MimirLimits
-
-	if limits != nil && limits.Mimir != nil {
-		tmpMimirLimits := observabilityv1alpha1.MimirLimits(*limits.Mimir)
-		mimirLimits = &tmpMimirLimits
-	}
-
 	tenantStruct := &observabilityv1alpha1.Tenant{
 		ObjectMeta: metav1.ObjectMeta{
 			Name: id,
 		},
-		Spec: observabilityv1alpha1.TenantSpec{
-			Limits: &observabilityv1alpha1.LimitSpec{
-				Mimir: mimirLimits,
-			},
-		},
+		Spec: observabilityv1alpha1.TenantSpec{},
+	}
+
+	if limits != nil {
+		tenantStruct.Spec.Limits = &observabilityv1alpha1.LimitSpec{}
+		if limits.Mimir != nil {
+			tmpMimirLimits := observabilityv1alpha1.MimirLimits(*limits.Mimir)
+			tenantStruct.Spec.Limits.Mimir = &tmpMimirLimits
+		}
+		if limits.Loki != nil {
+			tmpLokiLimits := observabilityv1alpha1.LokiLimits(*limits.Loki)
+			tenantStruct.Spec.Limits.Loki = &tmpLokiLimits
+		}
+		if limits.Tempo != nil {
+			tmpTempoLimits := observabilityv1alpha1.TempoLimits(*limits.Tempo)
+			tenantStruct.Spec.Limits.Tempo = &tmpTempoLimits
+		}
 	}
 
 	if name != nil {
 		tenantStruct.Spec.DisplayName = *name
 		if span.IsRecording() {
 			span.SetAttributes(
-				attribute.String("name", *name),
+				attribute.String("tenant_name", *name),
 			)
 		}
 	}
@@ -213,13 +218,6 @@ func (c *ClientWrapper) UpdateObservabilityTenant(ctx context.Context, id string
 		)
 	}
 
-	var mimirLimits *observabilityv1alpha1.MimirLimits
-
-	if limits != nil && limits.Mimir != nil {
-		tmpMimirLimits := observabilityv1alpha1.MimirLimits(*limits.Mimir)
-		mimirLimits = &tmpMimirLimits
-	}
-
 	existingTenant, err := c.ControllerClient.ObservabilityV1alpha1().Tenants().Get(ctx, id, metav1.GetOptions{})
 	if err != nil {
 		log.Error(err, "Failed to get observability tenant")
@@ -228,7 +226,26 @@ func (c *ClientWrapper) UpdateObservabilityTenant(ctx context.Context, id string
 		return nil, err
 	}
 
-	mimirLimits.DeepCopyInto(existingTenant.Spec.Limits.Mimir)
+	if limits != nil {
+		if limits.Mimir != nil {
+			var mimirLimits *observabilityv1alpha1.MimirLimits
+			tmpMimirLimits := observabilityv1alpha1.MimirLimits(*limits.Mimir)
+			mimirLimits = &tmpMimirLimits
+			mimirLimits.DeepCopyInto(existingTenant.Spec.Limits.Mimir)
+		}
+		if limits.Loki != nil {
+			var lokiLimits *observabilityv1alpha1.LokiLimits
+			tmpLokiLimits := observabilityv1alpha1.LokiLimits(*limits.Loki)
+			lokiLimits = &tmpLokiLimits
+			lokiLimits.DeepCopyInto(existingTenant.Spec.Limits.Loki)
+		}
+		if limits.Tempo != nil {
+			var tempoLimits *observabilityv1alpha1.TempoLimits
+			tmpTempoLimits := observabilityv1alpha1.TempoLimits(*limits.Tempo)
+			tempoLimits = &tmpTempoLimits
+			tempoLimits.DeepCopyInto(existingTenant.Spec.Limits.Tempo)
+		}
+	}
 
 	if name != nil {
 		existingTenant.Spec.DisplayName = *name
@@ -372,12 +389,22 @@ func (c *ClientWrapper) UpdateObservabilityTenant(ctx context.Context, id string
 		return nil, err
 	}
 
-	return &model.ObservabilityTenant{
+	output := &model.ObservabilityTenant{
 		ID: tenant.Name,
-		Limits: &model.ObservabilityTenantLimits{
+	}
+
+	if tenant.Spec.DisplayName != "" {
+		output.DisplayName = &tenant.Spec.DisplayName
+	}
+
+	if tenant.Spec.Limits != nil {
+		output.Limits = &model.ObservabilityTenantLimits{
 			Mimir: tenant.Spec.Limits.Mimir,
-		},
-	}, nil
+			Loki:  tenant.Spec.Limits.Loki,
+			Tempo: tenant.Spec.Limits.Tempo,
+		}
+	}
+	return output, nil
 }
 
 func (c *ClientWrapper) MutateObservabilityTenantInKeto(ctx context.Context, id string, tenantRelations []ObservabilityTenantRelation) error {
@@ -406,6 +433,10 @@ func (c *ClientWrapper) MutateObservabilityTenantInKeto(ctx context.Context, id 
 		toRemove = append(toRemove, remove...)
 	}
 
+	if len(toAdd) == 0 && len(toRemove) == 0 {
+		log.Info("No changes to observability tenant permissions")
+		return nil
+	}
 	return c.KetoClient.TransactTuples(ctx, toAdd, toRemove)
 }
 
@@ -429,46 +460,62 @@ func (c *ClientWrapper) OsTenantChangeset(ctx context.Context, id string, bindin
 	}
 
 	if bindings != nil {
-		for _, userId := range bindings.Users {
-			if !userIdInListOfUsers(currentUsers, userId) {
-				user := model.NewUser(userId)
-				toAdd = append(toAdd, user.GetTenantTuple(id, relation))
+		if bindings.Users != nil {
+			userBindings, err := c.GetUserIdsFromUserInputs(ctx, bindings.Users)
+			if err != nil {
+				log.Error(err, "Failed to get user ids from user inputs")
+			}
+
+			for _, userId := range userBindings {
+				if !userIdInListOfUsers(currentUsers, userId) {
+					user := model.NewUser(userId)
+					toAdd = append(toAdd, user.GetTenantTuple(id, relation))
+				}
+			}
+
+			for _, user := range currentUsers {
+				if !utils.StringContains(userBindings, user.ID) {
+					toRemove = append(toRemove, user.GetTenantTuple(id, relation))
+				}
 			}
 		}
+		if bindings.Groups != nil {
+			for _, group := range bindings.Groups {
+				if !groupNameInListOfGroups(currentGroups, group.Name) {
+					group := model.NewGroup(group.Name)
+					toAdd = append(toAdd, group.GetTenantTuple(id, relation))
+				}
+			}
 
-		for _, user := range currentUsers {
-			if !utils.StringContains(bindings.Users, user.ID) {
-				toRemove = append(toRemove, user.GetTenantTuple(id, relation))
+			for _, group := range currentGroups {
+				var groupBindings []string
+				for _, group := range bindings.Groups {
+					groupBindings = append(groupBindings, group.Name)
+				}
+				if !utils.StringContains(groupBindings, group.Name) {
+					toRemove = append(toRemove, group.GetTenantTuple(id, relation))
+				}
 			}
 		}
-
-		for _, groupName := range bindings.Groups {
-			if !groupNameInListOfGroups(currentGroups, groupName) {
-				group := model.NewGroup(groupName)
-				toAdd = append(toAdd, group.GetTenantTuple(id, relation))
+		if bindings.Oauth2Clients != nil {
+			for _, client := range bindings.Oauth2Clients {
+				if !ClientIDInListOfOAuth2Clients(currentClients, client.ClientID) {
+					client := model.NewOAuth2Client(client.ClientID)
+					toAdd = append(toAdd, client.GetTenantTuple(id, relation))
+				}
 			}
-		}
 
-		for _, group := range currentGroups {
-			if !utils.StringContains(bindings.Groups, group.Name) {
-				toRemove = append(toRemove, group.GetTenantTuple(id, relation))
-			}
-		}
-
-		for _, clientId := range bindings.Oauth2Clients {
-			if !ClientIDInListOfOAuth2Clients(currentClients, clientId) {
-				client := model.NewOAuth2Client(clientId)
-				toAdd = append(toAdd, client.GetTenantTuple(id, relation))
-			}
-		}
-
-		for _, client := range currentClients {
-			if !utils.StringContains(bindings.Oauth2Clients, *client.ClientID) {
-				toRemove = append(toRemove, client.GetTenantTuple(id, relation))
+			for _, client := range currentClients {
+				var clientBindings []string
+				for _, client := range bindings.Oauth2Clients {
+					clientBindings = append(clientBindings, client.ClientID)
+				}
+				if !utils.StringContains(clientBindings, *client.ClientID) {
+					toRemove = append(toRemove, client.GetTenantTuple(id, relation))
+				}
 			}
 		}
 	}
-
 	return toAdd, toRemove, nil
 }
 
@@ -523,7 +570,7 @@ func (c *ClientWrapper) ExpandTenantRelation(ctx context.Context, id string, rel
 		)
 	}
 
-	ss := rts.NewSubjectSet("ObservabilityTenant", id, relation.String())
+	ss := rts.NewSubjectSet(consts.ObservabilityTenantNamespace.String(), id, relation.String())
 
 	respTuples, err := c.KetoClient.Expand(ctx, ss, 100)
 	if err != nil {
@@ -553,6 +600,7 @@ func (c *ClientWrapper) ExpandTenantRelation(ctx context.Context, id string, rel
 	return users, groups, clients, nil
 }
 
+// function that processes a relation tuple and returns the user, group or client
 func (c *ClientWrapper) processRelation(tree *rts.SubjectTree) (user *model.User, group *model.Group, client *model.OAuth2Client) {
 	switch tree.Tuple.Subject.GetSet().Namespace {
 	case consts.UserNamespace.String():
@@ -593,7 +641,7 @@ func (c *ClientWrapper) ListTenants(ctx context.Context) ([]*model.Observability
 			ID: tenant.Name,
 		}
 		if tenant.Spec.DisplayName != "" {
-			outTenant.Name = &tenant.Spec.DisplayName
+			outTenant.DisplayName = &tenant.Spec.DisplayName
 		}
 		if tenant.Spec.Limits != nil && tenant.Spec.Limits.Mimir != nil {
 			outTenant.Limits = &model.ObservabilityTenantLimits{
@@ -687,13 +735,15 @@ func (c *ClientWrapper) DeleteTenant(ctx context.Context, id string) (*model.Obs
 // function that gets user objects from a list of user ids
 func (c *ClientWrapper) GetObservabilityTenantUsers(ctx context.Context, users []*model.User) ([]*model.User, error) {
 	log := c.Log.WithName("GetObservabilityTenantUsers")
-	//TODO: dedupe with GetOAuth2ClientUserLoginBindings
+	//TODO: Rename to something more generic
 
+	// TODO: use field collection so we don't query kratos if only the ID is requested
 	ctx, span := c.Tracer.Start(ctx, "GetObservabilityTenantUsers")
 	defer span.End()
 
 	var output []*model.User
 
+	// TODO: use a go routine to parallelize this
 	for _, inUser := range users {
 		user, err := c.GetUserFromId(ctx, inUser.ID)
 		if err != nil {
@@ -708,8 +758,9 @@ func (c *ClientWrapper) GetObservabilityTenantUsers(ctx context.Context, users [
 // function that gets group objects from a list of group names
 func (c *ClientWrapper) GetObservabilityTenantGroups(ctx context.Context, groups []*model.Group) ([]*model.Group, error) {
 	log := c.Log.WithName("GetObservabilityTenantGroups")
-	// TODO: dedupe with GetOAuth2ClientGroupLoginBindings
+	//TODO: Rename to something more generic
 
+	// TODO: use field collection so we don't query kratos if only the ID is requested
 	ctx, span := c.Tracer.Start(ctx, "GetObservabilityTenantGroups")
 	defer span.End()
 

@@ -18,16 +18,14 @@ func (r *groupResolver) Members(ctx context.Context, obj *model.Group) ([]*model
 }
 
 // Group is the resolver for the group field.
-func (r *mutationResolver) Group(ctx context.Context, name string, members []string) (*model.Group, error) {
+func (r *mutationResolver) Group(ctx context.Context, name string, members []*model.UserInput) (*model.Group, error) {
 	if name == "" {
 		return nil, fmt.Errorf("group name cannot be empty")
 	}
 
-	var sanitizedMembers []string
-	for _, member := range members {
-		if member != "" {
-			sanitizedMembers = append(sanitizedMembers, member)
-		}
+	sanitizedMembers, err := r.C.GetUserIdsFromUserInputs(ctx, members)
+	if err != nil {
+		return nil, err
 	}
 
 	return r.C.MutateGroup(ctx, name, sanitizedMembers)

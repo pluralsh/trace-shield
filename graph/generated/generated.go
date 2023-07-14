@@ -40,6 +40,7 @@ type Config struct {
 }
 
 type ResolverRoot interface {
+	BlockedQuery() BlockedQueryResolver
 	Group() GroupResolver
 	LoginBindings() LoginBindingsResolver
 	Mutation() MutationResolver
@@ -49,6 +50,7 @@ type ResolverRoot interface {
 	Organization() OrganizationResolver
 	Query() QueryResolver
 	User() UserResolver
+	BlockedQueryInput() BlockedQueryInputResolver
 }
 
 type DirectiveRoot struct {
@@ -57,8 +59,22 @@ type DirectiveRoot struct {
 }
 
 type ComplexityRoot struct {
-	ForwardingRule struct {
-		Ingest func(childComplexity int) int
+	BlockedQuery struct {
+		Hash    func(childComplexity int) int
+		Pattern func(childComplexity int) int
+		Regex   func(childComplexity int) int
+		Types   func(childComplexity int) int
+	}
+
+	DimensionMappings struct {
+		Join        func(childComplexity int) int
+		Name        func(childComplexity int) int
+		SourceLabel func(childComplexity int) int
+	}
+
+	FilterPolicy struct {
+		Exclude func(childComplexity int) int
+		Include func(childComplexity int) int
 	}
 
 	Group struct {
@@ -72,11 +88,73 @@ type ComplexityRoot struct {
 	}
 
 	LokiLimits struct {
-		RequestRate func(childComplexity int) int
+		BlockedQueries                       func(childComplexity int) int
+		CardinalityLimit                     func(childComplexity int) int
+		CreationGracePeriod                  func(childComplexity int) int
+		DeletionMode                         func(childComplexity int) int
+		EnforceMetricName                    func(childComplexity int) int
+		IncrementDuplicateTimestamp          func(childComplexity int) int
+		IndexGatewayShardSize                func(childComplexity int) int
+		IngestionBurstSizeMB                 func(childComplexity int) int
+		IngestionRateMB                      func(childComplexity int) int
+		IngestionRateStrategy                func(childComplexity int) int
+		MaxCacheFreshness                    func(childComplexity int) int
+		MaxChunksPerQuery                    func(childComplexity int) int
+		MaxConcurrentTailRequests            func(childComplexity int) int
+		MaxEntriesLimitPerQuery              func(childComplexity int) int
+		MaxGlobalStreamsPerUser              func(childComplexity int) int
+		MaxLabelNameLength                   func(childComplexity int) int
+		MaxLabelNamesPerSeries               func(childComplexity int) int
+		MaxLabelValueLength                  func(childComplexity int) int
+		MaxLineSize                          func(childComplexity int) int
+		MaxLineSizeTruncate                  func(childComplexity int) int
+		MaxLocalStreamsPerUser               func(childComplexity int) int
+		MaxQuerierBytesRead                  func(childComplexity int) int
+		MaxQueriersPerTenant                 func(childComplexity int) int
+		MaxQueryBytesRead                    func(childComplexity int) int
+		MaxQueryLength                       func(childComplexity int) int
+		MaxQueryLookback                     func(childComplexity int) int
+		MaxQueryParallelism                  func(childComplexity int) int
+		MaxQueryRange                        func(childComplexity int) int
+		MaxQuerySeries                       func(childComplexity int) int
+		MaxStatsCacheFreshness               func(childComplexity int) int
+		MaxStreamsMatchersPerQuery           func(childComplexity int) int
+		MinShardingLookback                  func(childComplexity int) int
+		PerStreamRateLimit                   func(childComplexity int) int
+		PerStreamRateLimitBurst              func(childComplexity int) int
+		QueryReadyIndexNumDays               func(childComplexity int) int
+		QuerySplitDuration                   func(childComplexity int) int
+		QueryTimeout                         func(childComplexity int) int
+		RejectOldSamples                     func(childComplexity int) int
+		RejectOldSamplesMaxAge               func(childComplexity int) int
+		RequiredLabels                       func(childComplexity int) int
+		RequiredNumberLabels                 func(childComplexity int) int
+		RetentionPeriod                      func(childComplexity int) int
+		RulerAlertManagerConfig              func(childComplexity int) int
+		RulerEvaluationDelay                 func(childComplexity int) int
+		RulerMaxRuleGroupsPerTenant          func(childComplexity int) int
+		RulerMaxRulesPerRuleGroup            func(childComplexity int) int
+		RulerRemoteEvaluationMaxResponseSize func(childComplexity int) int
+		RulerRemoteEvaluationTimeout         func(childComplexity int) int
+		RulerRemoteWriteDisabled             func(childComplexity int) int
+		RulerTenantShardSize                 func(childComplexity int) int
+		ShardStreams                         func(childComplexity int) int
+		StreamRetention                      func(childComplexity int) int
+		TSDBMaxBytesPerShard                 func(childComplexity int) int
+		TSDBMaxQueryParallelism              func(childComplexity int) int
+		UnorderedWrites                      func(childComplexity int) int
+		VolumeEnabled                        func(childComplexity int) int
+		VolumeMaxSeries                      func(childComplexity int) int
+	}
+
+	MatchPolicyAttribute struct {
+		Key   func(childComplexity int) int
+		Value func(childComplexity int) int
 	}
 
 	MimirLimits struct {
 		AcceptHASamples                               func(childComplexity int) int
+		ActiveSeriesCustomTrackersConfig              func(childComplexity int) int
 		AlertmanagerMaxAlertsCount                    func(childComplexity int) int
 		AlertmanagerMaxAlertsSizeBytes                func(childComplexity int) int
 		AlertmanagerMaxConfigSizeBytes                func(childComplexity int) int
@@ -87,6 +165,7 @@ type ComplexityRoot struct {
 		AlertmanagerReceiversBlockPrivateAddresses    func(childComplexity int) int
 		CardinalityAnalysisEnabled                    func(childComplexity int) int
 		CompactorBlockUploadEnabled                   func(childComplexity int) int
+		CompactorBlockUploadMaxBlockSizeBytes         func(childComplexity int) int
 		CompactorBlockUploadValidationEnabled         func(childComplexity int) int
 		CompactorBlockUploadVerifyChunks              func(childComplexity int) int
 		CompactorBlocksRetentionPeriod                func(childComplexity int) int
@@ -97,9 +176,6 @@ type ComplexityRoot struct {
 		CreationGracePeriod                           func(childComplexity int) int
 		DropLabels                                    func(childComplexity int) int
 		EnforceMetadataMetricName                     func(childComplexity int) int
-		ForwardingDropOlderThan                       func(childComplexity int) int
-		ForwardingEndpoint                            func(childComplexity int) int
-		ForwardingRules                               func(childComplexity int) int
 		HAClusterLabel                                func(childComplexity int) int
 		HAMaxClusters                                 func(childComplexity int) int
 		HAReplicaLabel                                func(childComplexity int) int
@@ -122,29 +198,36 @@ type ComplexityRoot struct {
 		MaxLabelValueLength                           func(childComplexity int) int
 		MaxLabelsQueryLength                          func(childComplexity int) int
 		MaxMetadataLength                             func(childComplexity int) int
+		MaxNativeHistogramBuckets                     func(childComplexity int) int
 		MaxPartialQueryLength                         func(childComplexity int) int
 		MaxQueriersPerTenant                          func(childComplexity int) int
 		MaxQueryExpressionSizeBytes                   func(childComplexity int) int
 		MaxQueryLookback                              func(childComplexity int) int
 		MaxQueryParallelism                           func(childComplexity int) int
 		MaxTotalQueryLength                           func(childComplexity int) int
+		MetricRelabelConfigs                          func(childComplexity int) int
 		NativeHistogramsIngestionEnabled              func(childComplexity int) int
 		NotificationRateLimit                         func(childComplexity int) int
 		NotificationRateLimitPerIntegration           func(childComplexity int) int
 		OutOfOrderBlocksExternalLabelEnabled          func(childComplexity int) int
 		OutOfOrderTimeWindow                          func(childComplexity int) int
+		QueryIngestersWithin                          func(childComplexity int) int
 		QueryShardingMaxRegexpSizeBytes               func(childComplexity int) int
 		QueryShardingMaxShardedQueries                func(childComplexity int) int
 		QueryShardingTotalShards                      func(childComplexity int) int
 		RequestBurstSize                              func(childComplexity int) int
 		RequestRate                                   func(childComplexity int) int
+		ResultsCacheForUnalignedQueryEnabled          func(childComplexity int) int
 		ResultsCacheTTL                               func(childComplexity int) int
+		ResultsCacheTTLForCardinalityQuery            func(childComplexity int) int
+		ResultsCacheTTLForLabelsQuery                 func(childComplexity int) int
 		ResultsCacheTTLForOutOfOrderTimeWindow        func(childComplexity int) int
 		RulerAlertingRulesEvaluationEnabled           func(childComplexity int) int
 		RulerEvaluationDelay                          func(childComplexity int) int
 		RulerMaxRuleGroupsPerTenant                   func(childComplexity int) int
 		RulerMaxRulesPerRuleGroup                     func(childComplexity int) int
 		RulerRecordingRulesEvaluationEnabled          func(childComplexity int) int
+		RulerSyncRulesOnChangesEnabled                func(childComplexity int) int
 		RulerTenantShardSize                          func(childComplexity int) int
 		S3SSEKMSEncryptionContext                     func(childComplexity int) int
 		S3SSEKMSKeyID                                 func(childComplexity int) int
@@ -164,8 +247,8 @@ type ComplexityRoot struct {
 		DeleteOAuth2Client         func(childComplexity int, clientID string) int
 		DeleteObservabilityTenant  func(childComplexity int, id string) int
 		DeleteUser                 func(childComplexity int, id string) int
-		Group                      func(childComplexity int, name string, members []string) int
-		Organization               func(childComplexity int, name string, admins []string) int
+		Group                      func(childComplexity int, name string, members []*model.UserInput) int
+		Organization               func(childComplexity int, admins []*model.UserInput) int
 		RejectOAuth2ConsentRequest func(childComplexity int, challenge string) int
 		RejectOAuth2LoginRequest   func(childComplexity int, challenge string) int
 		UpdateOAuth2Client         func(childComplexity int, allowedCorsOrigins []string, audience []string, authorizationCodeGrantAccessTokenLifespan *string, authorizationCodeGrantIDTokenLifespan *string, authorizationCodeGrantRefreshTokenLifespan *string, backChannelLogoutSessionRequired *bool, backChannelLogoutURI *string, clientCredentialsGrantAccessTokenLifespan *string, clientID string, clientName *string, clientSecret *string, clientSecretExpiresAt *int64, clientURI *string, contacts []string, frontchannelLogoutSessionRequired *bool, frontchannelLogoutURI *string, grantTypes []string, implicitGrantAccessTokenLifespan *string, implicitGrantIDTokenLifespan *string, jwks map[string]interface{}, jwksURI *string, jwtBearerGrantAccessTokenLifespan *string, logoURI *string, metadata map[string]interface{}, policyURI *string, postLogoutRedirectUris []string, redirectUris []string, responseTypes []string, scope *string, sectorIdentifierURI *string, subjectType *string, tokenEndpointAuthMethod *string, tokenEndpointAuthSigningAlgorithm *string, tosURI *string, userinfoSignedResponseAlgorithm *string, loginBindings *model.LoginBindingsInput) int
@@ -175,6 +258,33 @@ type ComplexityRoot struct {
 	Name struct {
 		First func(childComplexity int) int
 		Last  func(childComplexity int) int
+	}
+
+	NotifierBasicAuth struct {
+		Password func(childComplexity int) int
+		Username func(childComplexity int) int
+	}
+
+	NotifierConfig struct {
+		BasicAuth  func(childComplexity int) int
+		HeaderAuth func(childComplexity int) int
+		TLS        func(childComplexity int) int
+	}
+
+	NotifierHeaderAuth struct {
+		Credentials     func(childComplexity int) int
+		CredentialsFile func(childComplexity int) int
+		Type            func(childComplexity int) int
+	}
+
+	NotifierTLSClientConfig struct {
+		CAPath             func(childComplexity int) int
+		CertPath           func(childComplexity int) int
+		CipherSuites       func(childComplexity int) int
+		InsecureSkipVerify func(childComplexity int) int
+		KeyPath            func(childComplexity int) int
+		MinVersion         func(childComplexity int) int
+		ServerName         func(childComplexity int) int
 	}
 
 	OAuth2Client struct {
@@ -255,6 +365,7 @@ type ComplexityRoot struct {
 
 	ObservabilityTenant struct {
 		Admins               func(childComplexity int) int
+		DisplayName          func(childComplexity int) int
 		ID                   func(childComplexity int) int
 		Limits               func(childComplexity int) int
 		LogsDeleters         func(childComplexity int) int
@@ -271,13 +382,14 @@ type ComplexityRoot struct {
 		MetricsRulesReaders  func(childComplexity int) int
 		MetricsRulesWriters  func(childComplexity int) int
 		MetricsWriters       func(childComplexity int) int
-		Name                 func(childComplexity int) int
 		TracesReaders        func(childComplexity int) int
 		TracesWriters        func(childComplexity int) int
 	}
 
 	ObservabilityTenantLimits struct {
+		Loki  func(childComplexity int) int
 		Mimir func(childComplexity int) int
+		Tempo func(childComplexity int) int
 	}
 
 	ObservabilityTenantPermissionBindings struct {
@@ -296,25 +408,94 @@ type ComplexityRoot struct {
 
 	Organization struct {
 		Admins func(childComplexity int) int
-		Name   func(childComplexity int) int
+	}
+
+	PolicyMatch struct {
+		Attributes func(childComplexity int) int
+		MatchType  func(childComplexity int) int
 	}
 
 	Query struct {
 		GetOAuth2Client          func(childComplexity int, clientID string) int
 		GetObservabilityTenant   func(childComplexity int, id string) int
-		GetUser                  func(childComplexity int, id string) int
+		GetUser                  func(childComplexity int, id *string, email *string) int
 		ListGroups               func(childComplexity int) int
 		ListOAuth2Clients        func(childComplexity int) int
 		ListObservabilityTenants func(childComplexity int) int
-		ListOrganizations        func(childComplexity int) int
 		ListUsers                func(childComplexity int) int
 		Oauth2ConsentRequest     func(childComplexity int, challenge string) int
 		Oauth2LoginRequest       func(childComplexity int, challenge string) int
-		Organization             func(childComplexity int, name string) int
+		Organization             func(childComplexity int) int
+	}
+
+	RelabelConfig struct {
+		Action       func(childComplexity int) int
+		Modulus      func(childComplexity int) int
+		Regex        func(childComplexity int) int
+		Replacement  func(childComplexity int) int
+		Separator    func(childComplexity int) int
+		SourceLabels func(childComplexity int) int
+		TargetLabel  func(childComplexity int) int
+	}
+
+	RulerAlertManagerConfig struct {
+		AlertRelabelConfigs         func(childComplexity int) int
+		AlertmanagerDiscovery       func(childComplexity int) int
+		AlertmanagerRefreshInterval func(childComplexity int) int
+		AlertmanagerURL             func(childComplexity int) int
+		AlertmanangerEnableV2API    func(childComplexity int) int
+		NotificationQueueCapacity   func(childComplexity int) int
+		NotificationTimeout         func(childComplexity int) int
+		Notifier                    func(childComplexity int) int
+	}
+
+	ShardstreamsConfig struct {
+		DesiredRate    func(childComplexity int) int
+		Enabled        func(childComplexity int) int
+		LoggingEnabled func(childComplexity int) int
+	}
+
+	StreamRetention struct {
+		Period   func(childComplexity int) int
+		Priority func(childComplexity int) int
+		Selector func(childComplexity int) int
 	}
 
 	TempoLimits struct {
-		RequestRate func(childComplexity int) int
+		BlockRetention                                                 func(childComplexity int) int
+		Forwarders                                                     func(childComplexity int) int
+		IngestionBurstSizeBytes                                        func(childComplexity int) int
+		IngestionRateLimitBytes                                        func(childComplexity int) int
+		IngestionRateStrategy                                          func(childComplexity int) int
+		MaxBlocksPerTagValuesQuery                                     func(childComplexity int) int
+		MaxBytesPerTagValuesQuery                                      func(childComplexity int) int
+		MaxBytesPerTrace                                               func(childComplexity int) int
+		MaxGlobalTracesPerUser                                         func(childComplexity int) int
+		MaxLocalTracesPerUser                                          func(childComplexity int) int
+		MaxSearchDuration                                              func(childComplexity int) int
+		MetricsGeneratorCollectionInterval                             func(childComplexity int) int
+		MetricsGeneratorDisableCollection                              func(childComplexity int) int
+		MetricsGeneratorForwarderQueueSize                             func(childComplexity int) int
+		MetricsGeneratorForwarderWorkers                               func(childComplexity int) int
+		MetricsGeneratorMaxActiveSeries                                func(childComplexity int) int
+		MetricsGeneratorProcessorLocalBlocksCompleteBlockTimeout       func(childComplexity int) int
+		MetricsGeneratorProcessorLocalBlocksFlushCheckPeriod           func(childComplexity int) int
+		MetricsGeneratorProcessorLocalBlocksMaxBlockBytes              func(childComplexity int) int
+		MetricsGeneratorProcessorLocalBlocksMaxBlockDuration           func(childComplexity int) int
+		MetricsGeneratorProcessorLocalBlocksMaxLiveTraces              func(childComplexity int) int
+		MetricsGeneratorProcessorLocalBlocksTraceIdlePeriod            func(childComplexity int) int
+		MetricsGeneratorProcessorServiceGraphsDimensions               func(childComplexity int) int
+		MetricsGeneratorProcessorServiceGraphsEnableClientServerPrefix func(childComplexity int) int
+		MetricsGeneratorProcessorServiceGraphsHistogramBuckets         func(childComplexity int) int
+		MetricsGeneratorProcessorServiceGraphsPeerAttributes           func(childComplexity int) int
+		MetricsGeneratorProcessorSpanMetricsDimensionMappings          func(childComplexity int) int
+		MetricsGeneratorProcessorSpanMetricsDimensions                 func(childComplexity int) int
+		MetricsGeneratorProcessorSpanMetricsEnableTargetInfo           func(childComplexity int) int
+		MetricsGeneratorProcessorSpanMetricsFilterPolicies             func(childComplexity int) int
+		MetricsGeneratorProcessorSpanMetricsHistogramBuckets           func(childComplexity int) int
+		MetricsGeneratorProcessorSpanMetricsIntrinsicDimensions        func(childComplexity int) int
+		MetricsGeneratorProcessors                                     func(childComplexity int) int
+		MetricsGeneratorRingSize                                       func(childComplexity int) int
 	}
 
 	User struct {
@@ -326,6 +507,9 @@ type ComplexityRoot struct {
 	}
 }
 
+type BlockedQueryResolver interface {
+	Types(ctx context.Context, obj *v1alpha1.BlockedQuery) ([]v1alpha1.BlockedQueryType, error)
+}
 type GroupResolver interface {
 	Members(ctx context.Context, obj *model.Group) ([]*model.User, error)
 }
@@ -336,7 +520,7 @@ type LoginBindingsResolver interface {
 type MutationResolver interface {
 	CreateUser(ctx context.Context, email string, name *model.NameInput) (*model.User, error)
 	DeleteUser(ctx context.Context, id string) (*model.User, error)
-	Group(ctx context.Context, name string, members []string) (*model.Group, error)
+	Group(ctx context.Context, name string, members []*model.UserInput) (*model.Group, error)
 	DeleteGroup(ctx context.Context, name string) (*model.Group, error)
 	CreateOAuth2Client(ctx context.Context, allowedCorsOrigins []string, audience []string, authorizationCodeGrantAccessTokenLifespan *string, authorizationCodeGrantIDTokenLifespan *string, authorizationCodeGrantRefreshTokenLifespan *string, backChannelLogoutSessionRequired *bool, backChannelLogoutURI *string, clientCredentialsGrantAccessTokenLifespan *string, clientName *string, clientSecret *string, clientSecretExpiresAt *int64, clientURI *string, contacts []string, frontchannelLogoutSessionRequired *bool, frontchannelLogoutURI *string, grantTypes []string, implicitGrantAccessTokenLifespan *string, implicitGrantIDTokenLifespan *string, jwks map[string]interface{}, jwksURI *string, jwtBearerGrantAccessTokenLifespan *string, logoURI *string, metadata map[string]interface{}, policyURI *string, postLogoutRedirectUris []string, redirectUris []string, responseTypes []string, scope *string, sectorIdentifierURI *string, subjectType *string, tokenEndpointAuthMethod *string, tokenEndpointAuthSigningAlgorithm *string, tosURI *string, userinfoSignedResponseAlgorithm *string, loginBindings *model.LoginBindingsInput) (*model.OAuth2Client, error)
 	UpdateOAuth2Client(ctx context.Context, allowedCorsOrigins []string, audience []string, authorizationCodeGrantAccessTokenLifespan *string, authorizationCodeGrantIDTokenLifespan *string, authorizationCodeGrantRefreshTokenLifespan *string, backChannelLogoutSessionRequired *bool, backChannelLogoutURI *string, clientCredentialsGrantAccessTokenLifespan *string, clientID string, clientName *string, clientSecret *string, clientSecretExpiresAt *int64, clientURI *string, contacts []string, frontchannelLogoutSessionRequired *bool, frontchannelLogoutURI *string, grantTypes []string, implicitGrantAccessTokenLifespan *string, implicitGrantIDTokenLifespan *string, jwks map[string]interface{}, jwksURI *string, jwtBearerGrantAccessTokenLifespan *string, logoURI *string, metadata map[string]interface{}, policyURI *string, postLogoutRedirectUris []string, redirectUris []string, responseTypes []string, scope *string, sectorIdentifierURI *string, subjectType *string, tokenEndpointAuthMethod *string, tokenEndpointAuthSigningAlgorithm *string, tosURI *string, userinfoSignedResponseAlgorithm *string, loginBindings *model.LoginBindingsInput) (*model.OAuth2Client, error)
@@ -348,7 +532,7 @@ type MutationResolver interface {
 	CreateObservabilityTenant(ctx context.Context, id string, name *string, admins *model.ObservabilityTenantPermissionBindingsInput, metricsReaders *model.ObservabilityTenantPermissionBindingsInput, metricsWriters *model.ObservabilityTenantPermissionBindingsInput, metricsDeleters *model.ObservabilityTenantPermissionBindingsInput, metricsRulesReaders *model.ObservabilityTenantPermissionBindingsInput, metricsRulesWriters *model.ObservabilityTenantPermissionBindingsInput, metricsRulesDeleters *model.ObservabilityTenantPermissionBindingsInput, metricsAlertsReaders *model.ObservabilityTenantPermissionBindingsInput, metricsAlertsWriters *model.ObservabilityTenantPermissionBindingsInput, logsReaders *model.ObservabilityTenantPermissionBindingsInput, logsWriters *model.ObservabilityTenantPermissionBindingsInput, logsDeleters *model.ObservabilityTenantPermissionBindingsInput, logsRulesReaders *model.ObservabilityTenantPermissionBindingsInput, logsRulesWriters *model.ObservabilityTenantPermissionBindingsInput, logsRulesDeleters *model.ObservabilityTenantPermissionBindingsInput, tracesReaders *model.ObservabilityTenantPermissionBindingsInput, tracesWriters *model.ObservabilityTenantPermissionBindingsInput, limits *model.ObservabilityTenantLimitsInput) (*model.ObservabilityTenant, error)
 	UpdateObservabilityTenant(ctx context.Context, id string, name *string, admins *model.ObservabilityTenantPermissionBindingsInput, metricsReaders *model.ObservabilityTenantPermissionBindingsInput, metricsWriters *model.ObservabilityTenantPermissionBindingsInput, metricsDeleters *model.ObservabilityTenantPermissionBindingsInput, metricsRulesReaders *model.ObservabilityTenantPermissionBindingsInput, metricsRulesWriters *model.ObservabilityTenantPermissionBindingsInput, metricsRulesDeleters *model.ObservabilityTenantPermissionBindingsInput, metricsAlertsReaders *model.ObservabilityTenantPermissionBindingsInput, metricsAlertsWriters *model.ObservabilityTenantPermissionBindingsInput, logsReaders *model.ObservabilityTenantPermissionBindingsInput, logsWriters *model.ObservabilityTenantPermissionBindingsInput, logsDeleters *model.ObservabilityTenantPermissionBindingsInput, logsRulesReaders *model.ObservabilityTenantPermissionBindingsInput, logsRulesWriters *model.ObservabilityTenantPermissionBindingsInput, logsRulesDeleters *model.ObservabilityTenantPermissionBindingsInput, tracesReaders *model.ObservabilityTenantPermissionBindingsInput, tracesWriters *model.ObservabilityTenantPermissionBindingsInput, limits *model.ObservabilityTenantLimitsInput) (*model.ObservabilityTenant, error)
 	DeleteObservabilityTenant(ctx context.Context, id string) (*model.ObservabilityTenant, error)
-	Organization(ctx context.Context, name string, admins []string) (*model.Organization, error)
+	Organization(ctx context.Context, admins []*model.UserInput) (*model.Organization, error)
 }
 type OAuth2ClientResolver interface {
 	Owner(ctx context.Context, obj *model.OAuth2Client) (*string, error)
@@ -384,7 +568,7 @@ type OrganizationResolver interface {
 }
 type QueryResolver interface {
 	ListUsers(ctx context.Context) ([]*model.User, error)
-	GetUser(ctx context.Context, id string) (*model.User, error)
+	GetUser(ctx context.Context, id *string, email *string) (*model.User, error)
 	ListGroups(ctx context.Context) ([]*model.Group, error)
 	ListOAuth2Clients(ctx context.Context) ([]*model.OAuth2Client, error)
 	GetOAuth2Client(ctx context.Context, clientID string) (*model.OAuth2Client, error)
@@ -392,11 +576,14 @@ type QueryResolver interface {
 	Oauth2LoginRequest(ctx context.Context, challenge string) (*model.OAuth2LoginRequest, error)
 	ListObservabilityTenants(ctx context.Context) ([]*model.ObservabilityTenant, error)
 	GetObservabilityTenant(ctx context.Context, id string) (*model.ObservabilityTenant, error)
-	ListOrganizations(ctx context.Context) ([]*model.Organization, error)
-	Organization(ctx context.Context, name string) (*model.Organization, error)
+	Organization(ctx context.Context) (*model.Organization, error)
 }
 type UserResolver interface {
 	Groups(ctx context.Context, obj *model.User) ([]*model.Group, error)
+}
+
+type BlockedQueryInputResolver interface {
+	Types(ctx context.Context, obj *v1alpha1.BlockedQuery, data []v1alpha1.BlockedQueryType) error
 }
 
 type executableSchema struct {
@@ -414,12 +601,68 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 	_ = ec
 	switch typeName + "." + field {
 
-	case "ForwardingRule.ingest":
-		if e.complexity.ForwardingRule.Ingest == nil {
+	case "BlockedQuery.hash":
+		if e.complexity.BlockedQuery.Hash == nil {
 			break
 		}
 
-		return e.complexity.ForwardingRule.Ingest(childComplexity), true
+		return e.complexity.BlockedQuery.Hash(childComplexity), true
+
+	case "BlockedQuery.pattern":
+		if e.complexity.BlockedQuery.Pattern == nil {
+			break
+		}
+
+		return e.complexity.BlockedQuery.Pattern(childComplexity), true
+
+	case "BlockedQuery.regex":
+		if e.complexity.BlockedQuery.Regex == nil {
+			break
+		}
+
+		return e.complexity.BlockedQuery.Regex(childComplexity), true
+
+	case "BlockedQuery.types":
+		if e.complexity.BlockedQuery.Types == nil {
+			break
+		}
+
+		return e.complexity.BlockedQuery.Types(childComplexity), true
+
+	case "DimensionMappings.join":
+		if e.complexity.DimensionMappings.Join == nil {
+			break
+		}
+
+		return e.complexity.DimensionMappings.Join(childComplexity), true
+
+	case "DimensionMappings.name":
+		if e.complexity.DimensionMappings.Name == nil {
+			break
+		}
+
+		return e.complexity.DimensionMappings.Name(childComplexity), true
+
+	case "DimensionMappings.sourceLabel":
+		if e.complexity.DimensionMappings.SourceLabel == nil {
+			break
+		}
+
+		return e.complexity.DimensionMappings.SourceLabel(childComplexity), true
+
+	case "FilterPolicy.exclude":
+		if e.complexity.FilterPolicy.Exclude == nil {
+			break
+		}
+
+		return e.complexity.FilterPolicy.Exclude(childComplexity), true
+
+	case "FilterPolicy.include":
+		if e.complexity.FilterPolicy.Include == nil {
+			break
+		}
+
+		return e.complexity.FilterPolicy.Include(childComplexity), true
 
 	case "Group.members":
 		if e.complexity.Group.Members == nil {
@@ -449,12 +692,418 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.LoginBindings.Users(childComplexity), true
 
-	case "LokiLimits.requestRate":
-		if e.complexity.LokiLimits.RequestRate == nil {
+	case "LokiLimits.blockedQueries":
+		if e.complexity.LokiLimits.BlockedQueries == nil {
 			break
 		}
 
-		return e.complexity.LokiLimits.RequestRate(childComplexity), true
+		return e.complexity.LokiLimits.BlockedQueries(childComplexity), true
+
+	case "LokiLimits.cardinalityLimit":
+		if e.complexity.LokiLimits.CardinalityLimit == nil {
+			break
+		}
+
+		return e.complexity.LokiLimits.CardinalityLimit(childComplexity), true
+
+	case "LokiLimits.creationGracePeriod":
+		if e.complexity.LokiLimits.CreationGracePeriod == nil {
+			break
+		}
+
+		return e.complexity.LokiLimits.CreationGracePeriod(childComplexity), true
+
+	case "LokiLimits.deletionMode":
+		if e.complexity.LokiLimits.DeletionMode == nil {
+			break
+		}
+
+		return e.complexity.LokiLimits.DeletionMode(childComplexity), true
+
+	case "LokiLimits.enforceMetricName":
+		if e.complexity.LokiLimits.EnforceMetricName == nil {
+			break
+		}
+
+		return e.complexity.LokiLimits.EnforceMetricName(childComplexity), true
+
+	case "LokiLimits.incrementDuplicateTimestamp":
+		if e.complexity.LokiLimits.IncrementDuplicateTimestamp == nil {
+			break
+		}
+
+		return e.complexity.LokiLimits.IncrementDuplicateTimestamp(childComplexity), true
+
+	case "LokiLimits.indexGatewayShardSize":
+		if e.complexity.LokiLimits.IndexGatewayShardSize == nil {
+			break
+		}
+
+		return e.complexity.LokiLimits.IndexGatewayShardSize(childComplexity), true
+
+	case "LokiLimits.ingestionBurstSizeMB":
+		if e.complexity.LokiLimits.IngestionBurstSizeMB == nil {
+			break
+		}
+
+		return e.complexity.LokiLimits.IngestionBurstSizeMB(childComplexity), true
+
+	case "LokiLimits.ingestionRateMB":
+		if e.complexity.LokiLimits.IngestionRateMB == nil {
+			break
+		}
+
+		return e.complexity.LokiLimits.IngestionRateMB(childComplexity), true
+
+	case "LokiLimits.ingestionRateStrategy":
+		if e.complexity.LokiLimits.IngestionRateStrategy == nil {
+			break
+		}
+
+		return e.complexity.LokiLimits.IngestionRateStrategy(childComplexity), true
+
+	case "LokiLimits.maxCacheFreshness":
+		if e.complexity.LokiLimits.MaxCacheFreshness == nil {
+			break
+		}
+
+		return e.complexity.LokiLimits.MaxCacheFreshness(childComplexity), true
+
+	case "LokiLimits.maxChunksPerQuery":
+		if e.complexity.LokiLimits.MaxChunksPerQuery == nil {
+			break
+		}
+
+		return e.complexity.LokiLimits.MaxChunksPerQuery(childComplexity), true
+
+	case "LokiLimits.maxConcurrentTailRequests":
+		if e.complexity.LokiLimits.MaxConcurrentTailRequests == nil {
+			break
+		}
+
+		return e.complexity.LokiLimits.MaxConcurrentTailRequests(childComplexity), true
+
+	case "LokiLimits.maxEntriesLimitPerQuery":
+		if e.complexity.LokiLimits.MaxEntriesLimitPerQuery == nil {
+			break
+		}
+
+		return e.complexity.LokiLimits.MaxEntriesLimitPerQuery(childComplexity), true
+
+	case "LokiLimits.maxGlobalStreamsPerUser":
+		if e.complexity.LokiLimits.MaxGlobalStreamsPerUser == nil {
+			break
+		}
+
+		return e.complexity.LokiLimits.MaxGlobalStreamsPerUser(childComplexity), true
+
+	case "LokiLimits.maxLabelNameLength":
+		if e.complexity.LokiLimits.MaxLabelNameLength == nil {
+			break
+		}
+
+		return e.complexity.LokiLimits.MaxLabelNameLength(childComplexity), true
+
+	case "LokiLimits.maxLabelNamesPerSeries":
+		if e.complexity.LokiLimits.MaxLabelNamesPerSeries == nil {
+			break
+		}
+
+		return e.complexity.LokiLimits.MaxLabelNamesPerSeries(childComplexity), true
+
+	case "LokiLimits.maxLabelValueLength":
+		if e.complexity.LokiLimits.MaxLabelValueLength == nil {
+			break
+		}
+
+		return e.complexity.LokiLimits.MaxLabelValueLength(childComplexity), true
+
+	case "LokiLimits.maxLineSize":
+		if e.complexity.LokiLimits.MaxLineSize == nil {
+			break
+		}
+
+		return e.complexity.LokiLimits.MaxLineSize(childComplexity), true
+
+	case "LokiLimits.maxLineSizeTruncate":
+		if e.complexity.LokiLimits.MaxLineSizeTruncate == nil {
+			break
+		}
+
+		return e.complexity.LokiLimits.MaxLineSizeTruncate(childComplexity), true
+
+	case "LokiLimits.maxLocalStreamsPerUser":
+		if e.complexity.LokiLimits.MaxLocalStreamsPerUser == nil {
+			break
+		}
+
+		return e.complexity.LokiLimits.MaxLocalStreamsPerUser(childComplexity), true
+
+	case "LokiLimits.maxQuerierBytesRead":
+		if e.complexity.LokiLimits.MaxQuerierBytesRead == nil {
+			break
+		}
+
+		return e.complexity.LokiLimits.MaxQuerierBytesRead(childComplexity), true
+
+	case "LokiLimits.maxQueriersPerTenant":
+		if e.complexity.LokiLimits.MaxQueriersPerTenant == nil {
+			break
+		}
+
+		return e.complexity.LokiLimits.MaxQueriersPerTenant(childComplexity), true
+
+	case "LokiLimits.maxQueryBytesRead":
+		if e.complexity.LokiLimits.MaxQueryBytesRead == nil {
+			break
+		}
+
+		return e.complexity.LokiLimits.MaxQueryBytesRead(childComplexity), true
+
+	case "LokiLimits.maxQueryLength":
+		if e.complexity.LokiLimits.MaxQueryLength == nil {
+			break
+		}
+
+		return e.complexity.LokiLimits.MaxQueryLength(childComplexity), true
+
+	case "LokiLimits.maxQueryLookback":
+		if e.complexity.LokiLimits.MaxQueryLookback == nil {
+			break
+		}
+
+		return e.complexity.LokiLimits.MaxQueryLookback(childComplexity), true
+
+	case "LokiLimits.maxQueryParallelism":
+		if e.complexity.LokiLimits.MaxQueryParallelism == nil {
+			break
+		}
+
+		return e.complexity.LokiLimits.MaxQueryParallelism(childComplexity), true
+
+	case "LokiLimits.maxQueryRange":
+		if e.complexity.LokiLimits.MaxQueryRange == nil {
+			break
+		}
+
+		return e.complexity.LokiLimits.MaxQueryRange(childComplexity), true
+
+	case "LokiLimits.maxQuerySeries":
+		if e.complexity.LokiLimits.MaxQuerySeries == nil {
+			break
+		}
+
+		return e.complexity.LokiLimits.MaxQuerySeries(childComplexity), true
+
+	case "LokiLimits.maxStatsCacheFreshness":
+		if e.complexity.LokiLimits.MaxStatsCacheFreshness == nil {
+			break
+		}
+
+		return e.complexity.LokiLimits.MaxStatsCacheFreshness(childComplexity), true
+
+	case "LokiLimits.maxStreamsMatchersPerQuery":
+		if e.complexity.LokiLimits.MaxStreamsMatchersPerQuery == nil {
+			break
+		}
+
+		return e.complexity.LokiLimits.MaxStreamsMatchersPerQuery(childComplexity), true
+
+	case "LokiLimits.minShardingLookback":
+		if e.complexity.LokiLimits.MinShardingLookback == nil {
+			break
+		}
+
+		return e.complexity.LokiLimits.MinShardingLookback(childComplexity), true
+
+	case "LokiLimits.perStreamRateLimit":
+		if e.complexity.LokiLimits.PerStreamRateLimit == nil {
+			break
+		}
+
+		return e.complexity.LokiLimits.PerStreamRateLimit(childComplexity), true
+
+	case "LokiLimits.perStreamRateLimitBurst":
+		if e.complexity.LokiLimits.PerStreamRateLimitBurst == nil {
+			break
+		}
+
+		return e.complexity.LokiLimits.PerStreamRateLimitBurst(childComplexity), true
+
+	case "LokiLimits.queryReadyIndexNumDays":
+		if e.complexity.LokiLimits.QueryReadyIndexNumDays == nil {
+			break
+		}
+
+		return e.complexity.LokiLimits.QueryReadyIndexNumDays(childComplexity), true
+
+	case "LokiLimits.querySplitDuration":
+		if e.complexity.LokiLimits.QuerySplitDuration == nil {
+			break
+		}
+
+		return e.complexity.LokiLimits.QuerySplitDuration(childComplexity), true
+
+	case "LokiLimits.queryTimeout":
+		if e.complexity.LokiLimits.QueryTimeout == nil {
+			break
+		}
+
+		return e.complexity.LokiLimits.QueryTimeout(childComplexity), true
+
+	case "LokiLimits.rejectOldSamples":
+		if e.complexity.LokiLimits.RejectOldSamples == nil {
+			break
+		}
+
+		return e.complexity.LokiLimits.RejectOldSamples(childComplexity), true
+
+	case "LokiLimits.rejectOldSamplesMaxAge":
+		if e.complexity.LokiLimits.RejectOldSamplesMaxAge == nil {
+			break
+		}
+
+		return e.complexity.LokiLimits.RejectOldSamplesMaxAge(childComplexity), true
+
+	case "LokiLimits.requiredLabels":
+		if e.complexity.LokiLimits.RequiredLabels == nil {
+			break
+		}
+
+		return e.complexity.LokiLimits.RequiredLabels(childComplexity), true
+
+	case "LokiLimits.requiredNumberLabels":
+		if e.complexity.LokiLimits.RequiredNumberLabels == nil {
+			break
+		}
+
+		return e.complexity.LokiLimits.RequiredNumberLabels(childComplexity), true
+
+	case "LokiLimits.retentionPeriod":
+		if e.complexity.LokiLimits.RetentionPeriod == nil {
+			break
+		}
+
+		return e.complexity.LokiLimits.RetentionPeriod(childComplexity), true
+
+	case "LokiLimits.rulerAlertManagerConfig":
+		if e.complexity.LokiLimits.RulerAlertManagerConfig == nil {
+			break
+		}
+
+		return e.complexity.LokiLimits.RulerAlertManagerConfig(childComplexity), true
+
+	case "LokiLimits.rulerEvaluationDelay":
+		if e.complexity.LokiLimits.RulerEvaluationDelay == nil {
+			break
+		}
+
+		return e.complexity.LokiLimits.RulerEvaluationDelay(childComplexity), true
+
+	case "LokiLimits.rulerMaxRuleGroupsPerTenant":
+		if e.complexity.LokiLimits.RulerMaxRuleGroupsPerTenant == nil {
+			break
+		}
+
+		return e.complexity.LokiLimits.RulerMaxRuleGroupsPerTenant(childComplexity), true
+
+	case "LokiLimits.rulerMaxRulesPerRuleGroup":
+		if e.complexity.LokiLimits.RulerMaxRulesPerRuleGroup == nil {
+			break
+		}
+
+		return e.complexity.LokiLimits.RulerMaxRulesPerRuleGroup(childComplexity), true
+
+	case "LokiLimits.rulerRemoteEvaluationMaxResponseSize":
+		if e.complexity.LokiLimits.RulerRemoteEvaluationMaxResponseSize == nil {
+			break
+		}
+
+		return e.complexity.LokiLimits.RulerRemoteEvaluationMaxResponseSize(childComplexity), true
+
+	case "LokiLimits.rulerRemoteEvaluationTimeout":
+		if e.complexity.LokiLimits.RulerRemoteEvaluationTimeout == nil {
+			break
+		}
+
+		return e.complexity.LokiLimits.RulerRemoteEvaluationTimeout(childComplexity), true
+
+	case "LokiLimits.rulerRemoteWriteDisabled":
+		if e.complexity.LokiLimits.RulerRemoteWriteDisabled == nil {
+			break
+		}
+
+		return e.complexity.LokiLimits.RulerRemoteWriteDisabled(childComplexity), true
+
+	case "LokiLimits.rulerTenantShardSize":
+		if e.complexity.LokiLimits.RulerTenantShardSize == nil {
+			break
+		}
+
+		return e.complexity.LokiLimits.RulerTenantShardSize(childComplexity), true
+
+	case "LokiLimits.shardStreams":
+		if e.complexity.LokiLimits.ShardStreams == nil {
+			break
+		}
+
+		return e.complexity.LokiLimits.ShardStreams(childComplexity), true
+
+	case "LokiLimits.streamRetention":
+		if e.complexity.LokiLimits.StreamRetention == nil {
+			break
+		}
+
+		return e.complexity.LokiLimits.StreamRetention(childComplexity), true
+
+	case "LokiLimits.tsdbMaxBytesPerShard":
+		if e.complexity.LokiLimits.TSDBMaxBytesPerShard == nil {
+			break
+		}
+
+		return e.complexity.LokiLimits.TSDBMaxBytesPerShard(childComplexity), true
+
+	case "LokiLimits.tsdbMaxQueryParallelism":
+		if e.complexity.LokiLimits.TSDBMaxQueryParallelism == nil {
+			break
+		}
+
+		return e.complexity.LokiLimits.TSDBMaxQueryParallelism(childComplexity), true
+
+	case "LokiLimits.unorderedWrites":
+		if e.complexity.LokiLimits.UnorderedWrites == nil {
+			break
+		}
+
+		return e.complexity.LokiLimits.UnorderedWrites(childComplexity), true
+
+	case "LokiLimits.volumeEnabled":
+		if e.complexity.LokiLimits.VolumeEnabled == nil {
+			break
+		}
+
+		return e.complexity.LokiLimits.VolumeEnabled(childComplexity), true
+
+	case "LokiLimits.volumeMaxSeries":
+		if e.complexity.LokiLimits.VolumeMaxSeries == nil {
+			break
+		}
+
+		return e.complexity.LokiLimits.VolumeMaxSeries(childComplexity), true
+
+	case "MatchPolicyAttribute.key":
+		if e.complexity.MatchPolicyAttribute.Key == nil {
+			break
+		}
+
+		return e.complexity.MatchPolicyAttribute.Key(childComplexity), true
+
+	case "MatchPolicyAttribute.value":
+		if e.complexity.MatchPolicyAttribute.Value == nil {
+			break
+		}
+
+		return e.complexity.MatchPolicyAttribute.Value(childComplexity), true
 
 	case "MimirLimits.acceptHASamples":
 		if e.complexity.MimirLimits.AcceptHASamples == nil {
@@ -462,6 +1111,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.MimirLimits.AcceptHASamples(childComplexity), true
+
+	case "MimirLimits.activeSeriesCustomTrackersConfig":
+		if e.complexity.MimirLimits.ActiveSeriesCustomTrackersConfig == nil {
+			break
+		}
+
+		return e.complexity.MimirLimits.ActiveSeriesCustomTrackersConfig(childComplexity), true
 
 	case "MimirLimits.alertmanagerMaxAlertsCount":
 		if e.complexity.MimirLimits.AlertmanagerMaxAlertsCount == nil {
@@ -533,6 +1189,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.MimirLimits.CompactorBlockUploadEnabled(childComplexity), true
 
+	case "MimirLimits.compactorBlockUploadMaxBlockSizeBytes":
+		if e.complexity.MimirLimits.CompactorBlockUploadMaxBlockSizeBytes == nil {
+			break
+		}
+
+		return e.complexity.MimirLimits.CompactorBlockUploadMaxBlockSizeBytes(childComplexity), true
+
 	case "MimirLimits.compactorBlockUploadValidationEnabled":
 		if e.complexity.MimirLimits.CompactorBlockUploadValidationEnabled == nil {
 			break
@@ -602,27 +1265,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.MimirLimits.EnforceMetadataMetricName(childComplexity), true
-
-	case "MimirLimits.forwardingDropOlderThan":
-		if e.complexity.MimirLimits.ForwardingDropOlderThan == nil {
-			break
-		}
-
-		return e.complexity.MimirLimits.ForwardingDropOlderThan(childComplexity), true
-
-	case "MimirLimits.forwardingEndpoint":
-		if e.complexity.MimirLimits.ForwardingEndpoint == nil {
-			break
-		}
-
-		return e.complexity.MimirLimits.ForwardingEndpoint(childComplexity), true
-
-	case "MimirLimits.forwardingRules":
-		if e.complexity.MimirLimits.ForwardingRules == nil {
-			break
-		}
-
-		return e.complexity.MimirLimits.ForwardingRules(childComplexity), true
 
 	case "MimirLimits.haClusterLabel":
 		if e.complexity.MimirLimits.HAClusterLabel == nil {
@@ -778,6 +1420,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.MimirLimits.MaxMetadataLength(childComplexity), true
 
+	case "MimirLimits.maxNativeHistogramBuckets":
+		if e.complexity.MimirLimits.MaxNativeHistogramBuckets == nil {
+			break
+		}
+
+		return e.complexity.MimirLimits.MaxNativeHistogramBuckets(childComplexity), true
+
 	case "MimirLimits.maxPartialQueryLength":
 		if e.complexity.MimirLimits.MaxPartialQueryLength == nil {
 			break
@@ -820,6 +1469,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.MimirLimits.MaxTotalQueryLength(childComplexity), true
 
+	case "MimirLimits.metricRelabelConfigs":
+		if e.complexity.MimirLimits.MetricRelabelConfigs == nil {
+			break
+		}
+
+		return e.complexity.MimirLimits.MetricRelabelConfigs(childComplexity), true
+
 	case "MimirLimits.nativeHistogramsIngestionEnabled":
 		if e.complexity.MimirLimits.NativeHistogramsIngestionEnabled == nil {
 			break
@@ -854,6 +1510,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.MimirLimits.OutOfOrderTimeWindow(childComplexity), true
+
+	case "MimirLimits.QueryIngestersWithin":
+		if e.complexity.MimirLimits.QueryIngestersWithin == nil {
+			break
+		}
+
+		return e.complexity.MimirLimits.QueryIngestersWithin(childComplexity), true
 
 	case "MimirLimits.queryShardingMaxRegexpSizeBytes":
 		if e.complexity.MimirLimits.QueryShardingMaxRegexpSizeBytes == nil {
@@ -890,12 +1553,33 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.MimirLimits.RequestRate(childComplexity), true
 
+	case "MimirLimits.resultsCacheForUnalignedQueryEnabled":
+		if e.complexity.MimirLimits.ResultsCacheForUnalignedQueryEnabled == nil {
+			break
+		}
+
+		return e.complexity.MimirLimits.ResultsCacheForUnalignedQueryEnabled(childComplexity), true
+
 	case "MimirLimits.resultsCacheTTL":
 		if e.complexity.MimirLimits.ResultsCacheTTL == nil {
 			break
 		}
 
 		return e.complexity.MimirLimits.ResultsCacheTTL(childComplexity), true
+
+	case "MimirLimits.resultsCacheTTLForCardinalityQuery":
+		if e.complexity.MimirLimits.ResultsCacheTTLForCardinalityQuery == nil {
+			break
+		}
+
+		return e.complexity.MimirLimits.ResultsCacheTTLForCardinalityQuery(childComplexity), true
+
+	case "MimirLimits.resultsCacheTTLForLabelsQuery":
+		if e.complexity.MimirLimits.ResultsCacheTTLForLabelsQuery == nil {
+			break
+		}
+
+		return e.complexity.MimirLimits.ResultsCacheTTLForLabelsQuery(childComplexity), true
 
 	case "MimirLimits.resultsCacheTTLForOutOfOrderTimeWindow":
 		if e.complexity.MimirLimits.ResultsCacheTTLForOutOfOrderTimeWindow == nil {
@@ -938,6 +1622,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.MimirLimits.RulerRecordingRulesEvaluationEnabled(childComplexity), true
+
+	case "MimirLimits.rulerSyncRulesOnChangesEnabled":
+		if e.complexity.MimirLimits.RulerSyncRulesOnChangesEnabled == nil {
+			break
+		}
+
+		return e.complexity.MimirLimits.RulerSyncRulesOnChangesEnabled(childComplexity), true
 
 	case "MimirLimits.rulerTenantShardSize":
 		if e.complexity.MimirLimits.RulerTenantShardSize == nil {
@@ -1106,7 +1797,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Mutation.Group(childComplexity, args["name"].(string), args["members"].([]string)), true
+		return e.complexity.Mutation.Group(childComplexity, args["name"].(string), args["members"].([]*model.UserInput)), true
 
 	case "Mutation.organization":
 		if e.complexity.Mutation.Organization == nil {
@@ -1118,7 +1809,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Mutation.Organization(childComplexity, args["name"].(string), args["admins"].([]string)), true
+		return e.complexity.Mutation.Organization(childComplexity, args["admins"].([]*model.UserInput)), true
 
 	case "Mutation.rejectOAuth2ConsentRequest":
 		if e.complexity.Mutation.RejectOAuth2ConsentRequest == nil {
@@ -1181,6 +1872,111 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Name.Last(childComplexity), true
+
+	case "NotifierBasicAuth.password":
+		if e.complexity.NotifierBasicAuth.Password == nil {
+			break
+		}
+
+		return e.complexity.NotifierBasicAuth.Password(childComplexity), true
+
+	case "NotifierBasicAuth.username":
+		if e.complexity.NotifierBasicAuth.Username == nil {
+			break
+		}
+
+		return e.complexity.NotifierBasicAuth.Username(childComplexity), true
+
+	case "NotifierConfig.basicAuth":
+		if e.complexity.NotifierConfig.BasicAuth == nil {
+			break
+		}
+
+		return e.complexity.NotifierConfig.BasicAuth(childComplexity), true
+
+	case "NotifierConfig.headerAuth":
+		if e.complexity.NotifierConfig.HeaderAuth == nil {
+			break
+		}
+
+		return e.complexity.NotifierConfig.HeaderAuth(childComplexity), true
+
+	case "NotifierConfig.tls":
+		if e.complexity.NotifierConfig.TLS == nil {
+			break
+		}
+
+		return e.complexity.NotifierConfig.TLS(childComplexity), true
+
+	case "NotifierHeaderAuth.credentials":
+		if e.complexity.NotifierHeaderAuth.Credentials == nil {
+			break
+		}
+
+		return e.complexity.NotifierHeaderAuth.Credentials(childComplexity), true
+
+	case "NotifierHeaderAuth.credentialsFile":
+		if e.complexity.NotifierHeaderAuth.CredentialsFile == nil {
+			break
+		}
+
+		return e.complexity.NotifierHeaderAuth.CredentialsFile(childComplexity), true
+
+	case "NotifierHeaderAuth.type":
+		if e.complexity.NotifierHeaderAuth.Type == nil {
+			break
+		}
+
+		return e.complexity.NotifierHeaderAuth.Type(childComplexity), true
+
+	case "NotifierTLSClientConfig.caPath":
+		if e.complexity.NotifierTLSClientConfig.CAPath == nil {
+			break
+		}
+
+		return e.complexity.NotifierTLSClientConfig.CAPath(childComplexity), true
+
+	case "NotifierTLSClientConfig.certPath":
+		if e.complexity.NotifierTLSClientConfig.CertPath == nil {
+			break
+		}
+
+		return e.complexity.NotifierTLSClientConfig.CertPath(childComplexity), true
+
+	case "NotifierTLSClientConfig.cipherSuites":
+		if e.complexity.NotifierTLSClientConfig.CipherSuites == nil {
+			break
+		}
+
+		return e.complexity.NotifierTLSClientConfig.CipherSuites(childComplexity), true
+
+	case "NotifierTLSClientConfig.insecureSkipVerify":
+		if e.complexity.NotifierTLSClientConfig.InsecureSkipVerify == nil {
+			break
+		}
+
+		return e.complexity.NotifierTLSClientConfig.InsecureSkipVerify(childComplexity), true
+
+	case "NotifierTLSClientConfig.keyPath":
+		if e.complexity.NotifierTLSClientConfig.KeyPath == nil {
+			break
+		}
+
+		return e.complexity.NotifierTLSClientConfig.KeyPath(childComplexity), true
+
+	case "NotifierTLSClientConfig.minVersion":
+		if e.complexity.NotifierTLSClientConfig.MinVersion == nil {
+			break
+		}
+
+		return e.complexity.NotifierTLSClientConfig.MinVersion(childComplexity), true
+
+	case "NotifierTLSClientConfig.serverName":
+		if e.complexity.NotifierTLSClientConfig.ServerName == nil {
+			break
+		}
+
+		return e.complexity.NotifierTLSClientConfig.ServerName(childComplexity), true
 
 	case "OAuth2Client.allowedCorsOrigins":
 		if e.complexity.OAuth2Client.AllowedCorsOrigins == nil {
@@ -1637,6 +2433,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.ObservabilityTenant.Admins(childComplexity), true
 
+	case "ObservabilityTenant.displayName":
+		if e.complexity.ObservabilityTenant.DisplayName == nil {
+			break
+		}
+
+		return e.complexity.ObservabilityTenant.DisplayName(childComplexity), true
+
 	case "ObservabilityTenant.id":
 		if e.complexity.ObservabilityTenant.ID == nil {
 			break
@@ -1749,13 +2552,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.ObservabilityTenant.MetricsWriters(childComplexity), true
 
-	case "ObservabilityTenant.name":
-		if e.complexity.ObservabilityTenant.Name == nil {
-			break
-		}
-
-		return e.complexity.ObservabilityTenant.Name(childComplexity), true
-
 	case "ObservabilityTenant.tracesReaders":
 		if e.complexity.ObservabilityTenant.TracesReaders == nil {
 			break
@@ -1770,12 +2566,26 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.ObservabilityTenant.TracesWriters(childComplexity), true
 
+	case "ObservabilityTenantLimits.loki":
+		if e.complexity.ObservabilityTenantLimits.Loki == nil {
+			break
+		}
+
+		return e.complexity.ObservabilityTenantLimits.Loki(childComplexity), true
+
 	case "ObservabilityTenantLimits.mimir":
 		if e.complexity.ObservabilityTenantLimits.Mimir == nil {
 			break
 		}
 
 		return e.complexity.ObservabilityTenantLimits.Mimir(childComplexity), true
+
+	case "ObservabilityTenantLimits.tempo":
+		if e.complexity.ObservabilityTenantLimits.Tempo == nil {
+			break
+		}
+
+		return e.complexity.ObservabilityTenantLimits.Tempo(childComplexity), true
 
 	case "ObservabilityTenantPermissionBindings.groups":
 		if e.complexity.ObservabilityTenantPermissionBindings.Groups == nil {
@@ -1840,12 +2650,19 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Organization.Admins(childComplexity), true
 
-	case "Organization.name":
-		if e.complexity.Organization.Name == nil {
+	case "PolicyMatch.attributes":
+		if e.complexity.PolicyMatch.Attributes == nil {
 			break
 		}
 
-		return e.complexity.Organization.Name(childComplexity), true
+		return e.complexity.PolicyMatch.Attributes(childComplexity), true
+
+	case "PolicyMatch.matchType":
+		if e.complexity.PolicyMatch.MatchType == nil {
+			break
+		}
+
+		return e.complexity.PolicyMatch.MatchType(childComplexity), true
 
 	case "Query.getOAuth2Client":
 		if e.complexity.Query.GetOAuth2Client == nil {
@@ -1881,7 +2698,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Query.GetUser(childComplexity, args["id"].(string)), true
+		return e.complexity.Query.GetUser(childComplexity, args["id"].(*string), args["email"].(*string)), true
 
 	case "Query.listGroups":
 		if e.complexity.Query.ListGroups == nil {
@@ -1903,13 +2720,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Query.ListObservabilityTenants(childComplexity), true
-
-	case "Query.listOrganizations":
-		if e.complexity.Query.ListOrganizations == nil {
-			break
-		}
-
-		return e.complexity.Query.ListOrganizations(childComplexity), true
 
 	case "Query.listUsers":
 		if e.complexity.Query.ListUsers == nil {
@@ -1947,19 +2757,392 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		args, err := ec.field_Query_organization_args(context.TODO(), rawArgs)
-		if err != nil {
-			return 0, false
-		}
+		return e.complexity.Query.Organization(childComplexity), true
 
-		return e.complexity.Query.Organization(childComplexity, args["name"].(string)), true
-
-	case "TempoLimits.requestRate":
-		if e.complexity.TempoLimits.RequestRate == nil {
+	case "RelabelConfig.action":
+		if e.complexity.RelabelConfig.Action == nil {
 			break
 		}
 
-		return e.complexity.TempoLimits.RequestRate(childComplexity), true
+		return e.complexity.RelabelConfig.Action(childComplexity), true
+
+	case "RelabelConfig.modulus":
+		if e.complexity.RelabelConfig.Modulus == nil {
+			break
+		}
+
+		return e.complexity.RelabelConfig.Modulus(childComplexity), true
+
+	case "RelabelConfig.regex":
+		if e.complexity.RelabelConfig.Regex == nil {
+			break
+		}
+
+		return e.complexity.RelabelConfig.Regex(childComplexity), true
+
+	case "RelabelConfig.replacement":
+		if e.complexity.RelabelConfig.Replacement == nil {
+			break
+		}
+
+		return e.complexity.RelabelConfig.Replacement(childComplexity), true
+
+	case "RelabelConfig.separator":
+		if e.complexity.RelabelConfig.Separator == nil {
+			break
+		}
+
+		return e.complexity.RelabelConfig.Separator(childComplexity), true
+
+	case "RelabelConfig.sourceLabels":
+		if e.complexity.RelabelConfig.SourceLabels == nil {
+			break
+		}
+
+		return e.complexity.RelabelConfig.SourceLabels(childComplexity), true
+
+	case "RelabelConfig.targetLabel":
+		if e.complexity.RelabelConfig.TargetLabel == nil {
+			break
+		}
+
+		return e.complexity.RelabelConfig.TargetLabel(childComplexity), true
+
+	case "RulerAlertManagerConfig.alertRelabelConfigs":
+		if e.complexity.RulerAlertManagerConfig.AlertRelabelConfigs == nil {
+			break
+		}
+
+		return e.complexity.RulerAlertManagerConfig.AlertRelabelConfigs(childComplexity), true
+
+	case "RulerAlertManagerConfig.alertmanagerDiscovery":
+		if e.complexity.RulerAlertManagerConfig.AlertmanagerDiscovery == nil {
+			break
+		}
+
+		return e.complexity.RulerAlertManagerConfig.AlertmanagerDiscovery(childComplexity), true
+
+	case "RulerAlertManagerConfig.alertmanagerRefreshInterval":
+		if e.complexity.RulerAlertManagerConfig.AlertmanagerRefreshInterval == nil {
+			break
+		}
+
+		return e.complexity.RulerAlertManagerConfig.AlertmanagerRefreshInterval(childComplexity), true
+
+	case "RulerAlertManagerConfig.alertmanagerURL":
+		if e.complexity.RulerAlertManagerConfig.AlertmanagerURL == nil {
+			break
+		}
+
+		return e.complexity.RulerAlertManagerConfig.AlertmanagerURL(childComplexity), true
+
+	case "RulerAlertManagerConfig.alertmanangerEnableV2API":
+		if e.complexity.RulerAlertManagerConfig.AlertmanangerEnableV2API == nil {
+			break
+		}
+
+		return e.complexity.RulerAlertManagerConfig.AlertmanangerEnableV2API(childComplexity), true
+
+	case "RulerAlertManagerConfig.notificationQueueCapacity":
+		if e.complexity.RulerAlertManagerConfig.NotificationQueueCapacity == nil {
+			break
+		}
+
+		return e.complexity.RulerAlertManagerConfig.NotificationQueueCapacity(childComplexity), true
+
+	case "RulerAlertManagerConfig.notificationTimeout":
+		if e.complexity.RulerAlertManagerConfig.NotificationTimeout == nil {
+			break
+		}
+
+		return e.complexity.RulerAlertManagerConfig.NotificationTimeout(childComplexity), true
+
+	case "RulerAlertManagerConfig.notifier":
+		if e.complexity.RulerAlertManagerConfig.Notifier == nil {
+			break
+		}
+
+		return e.complexity.RulerAlertManagerConfig.Notifier(childComplexity), true
+
+	case "ShardstreamsConfig.desiredRate":
+		if e.complexity.ShardstreamsConfig.DesiredRate == nil {
+			break
+		}
+
+		return e.complexity.ShardstreamsConfig.DesiredRate(childComplexity), true
+
+	case "ShardstreamsConfig.enabled":
+		if e.complexity.ShardstreamsConfig.Enabled == nil {
+			break
+		}
+
+		return e.complexity.ShardstreamsConfig.Enabled(childComplexity), true
+
+	case "ShardstreamsConfig.loggingEnabled":
+		if e.complexity.ShardstreamsConfig.LoggingEnabled == nil {
+			break
+		}
+
+		return e.complexity.ShardstreamsConfig.LoggingEnabled(childComplexity), true
+
+	case "StreamRetention.period":
+		if e.complexity.StreamRetention.Period == nil {
+			break
+		}
+
+		return e.complexity.StreamRetention.Period(childComplexity), true
+
+	case "StreamRetention.priority":
+		if e.complexity.StreamRetention.Priority == nil {
+			break
+		}
+
+		return e.complexity.StreamRetention.Priority(childComplexity), true
+
+	case "StreamRetention.selector":
+		if e.complexity.StreamRetention.Selector == nil {
+			break
+		}
+
+		return e.complexity.StreamRetention.Selector(childComplexity), true
+
+	case "TempoLimits.blockRetention":
+		if e.complexity.TempoLimits.BlockRetention == nil {
+			break
+		}
+
+		return e.complexity.TempoLimits.BlockRetention(childComplexity), true
+
+	case "TempoLimits.forwarders":
+		if e.complexity.TempoLimits.Forwarders == nil {
+			break
+		}
+
+		return e.complexity.TempoLimits.Forwarders(childComplexity), true
+
+	case "TempoLimits.ingestionBurstSizeBytes":
+		if e.complexity.TempoLimits.IngestionBurstSizeBytes == nil {
+			break
+		}
+
+		return e.complexity.TempoLimits.IngestionBurstSizeBytes(childComplexity), true
+
+	case "TempoLimits.ingestionRateLimitBytes":
+		if e.complexity.TempoLimits.IngestionRateLimitBytes == nil {
+			break
+		}
+
+		return e.complexity.TempoLimits.IngestionRateLimitBytes(childComplexity), true
+
+	case "TempoLimits.ingestionRateStrategy":
+		if e.complexity.TempoLimits.IngestionRateStrategy == nil {
+			break
+		}
+
+		return e.complexity.TempoLimits.IngestionRateStrategy(childComplexity), true
+
+	case "TempoLimits.maxBlocksPerTagValuesQuery":
+		if e.complexity.TempoLimits.MaxBlocksPerTagValuesQuery == nil {
+			break
+		}
+
+		return e.complexity.TempoLimits.MaxBlocksPerTagValuesQuery(childComplexity), true
+
+	case "TempoLimits.maxBytesPerTagValuesQuery":
+		if e.complexity.TempoLimits.MaxBytesPerTagValuesQuery == nil {
+			break
+		}
+
+		return e.complexity.TempoLimits.MaxBytesPerTagValuesQuery(childComplexity), true
+
+	case "TempoLimits.maxBytesPerTrace":
+		if e.complexity.TempoLimits.MaxBytesPerTrace == nil {
+			break
+		}
+
+		return e.complexity.TempoLimits.MaxBytesPerTrace(childComplexity), true
+
+	case "TempoLimits.maxGlobalTracesPerUser":
+		if e.complexity.TempoLimits.MaxGlobalTracesPerUser == nil {
+			break
+		}
+
+		return e.complexity.TempoLimits.MaxGlobalTracesPerUser(childComplexity), true
+
+	case "TempoLimits.maxLocalTracesPerUser":
+		if e.complexity.TempoLimits.MaxLocalTracesPerUser == nil {
+			break
+		}
+
+		return e.complexity.TempoLimits.MaxLocalTracesPerUser(childComplexity), true
+
+	case "TempoLimits.maxSearchDuration":
+		if e.complexity.TempoLimits.MaxSearchDuration == nil {
+			break
+		}
+
+		return e.complexity.TempoLimits.MaxSearchDuration(childComplexity), true
+
+	case "TempoLimits.metricsGeneratorCollectionInterval":
+		if e.complexity.TempoLimits.MetricsGeneratorCollectionInterval == nil {
+			break
+		}
+
+		return e.complexity.TempoLimits.MetricsGeneratorCollectionInterval(childComplexity), true
+
+	case "TempoLimits.metricsGeneratorDisableCollection":
+		if e.complexity.TempoLimits.MetricsGeneratorDisableCollection == nil {
+			break
+		}
+
+		return e.complexity.TempoLimits.MetricsGeneratorDisableCollection(childComplexity), true
+
+	case "TempoLimits.metricsGeneratorForwarderQueueSize":
+		if e.complexity.TempoLimits.MetricsGeneratorForwarderQueueSize == nil {
+			break
+		}
+
+		return e.complexity.TempoLimits.MetricsGeneratorForwarderQueueSize(childComplexity), true
+
+	case "TempoLimits.metricsGeneratorForwarderWorkers":
+		if e.complexity.TempoLimits.MetricsGeneratorForwarderWorkers == nil {
+			break
+		}
+
+		return e.complexity.TempoLimits.MetricsGeneratorForwarderWorkers(childComplexity), true
+
+	case "TempoLimits.metricsGeneratorMaxActiveSeries":
+		if e.complexity.TempoLimits.MetricsGeneratorMaxActiveSeries == nil {
+			break
+		}
+
+		return e.complexity.TempoLimits.MetricsGeneratorMaxActiveSeries(childComplexity), true
+
+	case "TempoLimits.metricsGeneratorProcessorLocalBlocksCompleteBlockTimeout":
+		if e.complexity.TempoLimits.MetricsGeneratorProcessorLocalBlocksCompleteBlockTimeout == nil {
+			break
+		}
+
+		return e.complexity.TempoLimits.MetricsGeneratorProcessorLocalBlocksCompleteBlockTimeout(childComplexity), true
+
+	case "TempoLimits.metricsGeneratorProcessorLocalBlocksFlushCheckPeriod":
+		if e.complexity.TempoLimits.MetricsGeneratorProcessorLocalBlocksFlushCheckPeriod == nil {
+			break
+		}
+
+		return e.complexity.TempoLimits.MetricsGeneratorProcessorLocalBlocksFlushCheckPeriod(childComplexity), true
+
+	case "TempoLimits.metricsGeneratorProcessorLocalBlocksMaxBlockBytes":
+		if e.complexity.TempoLimits.MetricsGeneratorProcessorLocalBlocksMaxBlockBytes == nil {
+			break
+		}
+
+		return e.complexity.TempoLimits.MetricsGeneratorProcessorLocalBlocksMaxBlockBytes(childComplexity), true
+
+	case "TempoLimits.metricsGeneratorProcessorLocalBlocksMaxBlockDuration":
+		if e.complexity.TempoLimits.MetricsGeneratorProcessorLocalBlocksMaxBlockDuration == nil {
+			break
+		}
+
+		return e.complexity.TempoLimits.MetricsGeneratorProcessorLocalBlocksMaxBlockDuration(childComplexity), true
+
+	case "TempoLimits.metricsGeneratorProcessorLocalBlocksMaxLiveTraces":
+		if e.complexity.TempoLimits.MetricsGeneratorProcessorLocalBlocksMaxLiveTraces == nil {
+			break
+		}
+
+		return e.complexity.TempoLimits.MetricsGeneratorProcessorLocalBlocksMaxLiveTraces(childComplexity), true
+
+	case "TempoLimits.metricsGeneratorProcessorLocalBlocksTraceIdlePeriod":
+		if e.complexity.TempoLimits.MetricsGeneratorProcessorLocalBlocksTraceIdlePeriod == nil {
+			break
+		}
+
+		return e.complexity.TempoLimits.MetricsGeneratorProcessorLocalBlocksTraceIdlePeriod(childComplexity), true
+
+	case "TempoLimits.metricsGeneratorProcessorServiceGraphsDimensions":
+		if e.complexity.TempoLimits.MetricsGeneratorProcessorServiceGraphsDimensions == nil {
+			break
+		}
+
+		return e.complexity.TempoLimits.MetricsGeneratorProcessorServiceGraphsDimensions(childComplexity), true
+
+	case "TempoLimits.metricsGeneratorProcessorServiceGraphsEnableClientServerPrefix":
+		if e.complexity.TempoLimits.MetricsGeneratorProcessorServiceGraphsEnableClientServerPrefix == nil {
+			break
+		}
+
+		return e.complexity.TempoLimits.MetricsGeneratorProcessorServiceGraphsEnableClientServerPrefix(childComplexity), true
+
+	case "TempoLimits.metricsGeneratorProcessorServiceGraphsHistogramBuckets":
+		if e.complexity.TempoLimits.MetricsGeneratorProcessorServiceGraphsHistogramBuckets == nil {
+			break
+		}
+
+		return e.complexity.TempoLimits.MetricsGeneratorProcessorServiceGraphsHistogramBuckets(childComplexity), true
+
+	case "TempoLimits.metricsGeneratorProcessorServiceGraphsPeerAttributes":
+		if e.complexity.TempoLimits.MetricsGeneratorProcessorServiceGraphsPeerAttributes == nil {
+			break
+		}
+
+		return e.complexity.TempoLimits.MetricsGeneratorProcessorServiceGraphsPeerAttributes(childComplexity), true
+
+	case "TempoLimits.metricsGeneratorProcessorSpanMetricsDimensionMappings":
+		if e.complexity.TempoLimits.MetricsGeneratorProcessorSpanMetricsDimensionMappings == nil {
+			break
+		}
+
+		return e.complexity.TempoLimits.MetricsGeneratorProcessorSpanMetricsDimensionMappings(childComplexity), true
+
+	case "TempoLimits.metricsGeneratorProcessorSpanMetricsDimensions":
+		if e.complexity.TempoLimits.MetricsGeneratorProcessorSpanMetricsDimensions == nil {
+			break
+		}
+
+		return e.complexity.TempoLimits.MetricsGeneratorProcessorSpanMetricsDimensions(childComplexity), true
+
+	case "TempoLimits.metricsGeneratorProcessorSpanMetricsEnableTargetInfo":
+		if e.complexity.TempoLimits.MetricsGeneratorProcessorSpanMetricsEnableTargetInfo == nil {
+			break
+		}
+
+		return e.complexity.TempoLimits.MetricsGeneratorProcessorSpanMetricsEnableTargetInfo(childComplexity), true
+
+	case "TempoLimits.metricsGeneratorProcessorSpanMetricsFilterPolicies":
+		if e.complexity.TempoLimits.MetricsGeneratorProcessorSpanMetricsFilterPolicies == nil {
+			break
+		}
+
+		return e.complexity.TempoLimits.MetricsGeneratorProcessorSpanMetricsFilterPolicies(childComplexity), true
+
+	case "TempoLimits.metricsGeneratorProcessorSpanMetricsHistogramBuckets":
+		if e.complexity.TempoLimits.MetricsGeneratorProcessorSpanMetricsHistogramBuckets == nil {
+			break
+		}
+
+		return e.complexity.TempoLimits.MetricsGeneratorProcessorSpanMetricsHistogramBuckets(childComplexity), true
+
+	case "TempoLimits.metricsGeneratorProcessorSpanMetricsIntrinsicDimensions":
+		if e.complexity.TempoLimits.MetricsGeneratorProcessorSpanMetricsIntrinsicDimensions == nil {
+			break
+		}
+
+		return e.complexity.TempoLimits.MetricsGeneratorProcessorSpanMetricsIntrinsicDimensions(childComplexity), true
+
+	case "TempoLimits.metricsGeneratorProcessors":
+		if e.complexity.TempoLimits.MetricsGeneratorProcessors == nil {
+			break
+		}
+
+		return e.complexity.TempoLimits.MetricsGeneratorProcessors(childComplexity), true
+
+	case "TempoLimits.metricsGeneratorRingSize":
+		if e.complexity.TempoLimits.MetricsGeneratorRingSize == nil {
+			break
+		}
+
+		return e.complexity.TempoLimits.MetricsGeneratorRingSize(childComplexity), true
 
 	case "User.email":
 		if e.complexity.User.Email == nil {
@@ -2005,12 +3188,29 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 	ec := executionContext{rc, e, 0, 0, make(chan graphql.DeferredResult)}
 	inputUnmarshalMap := graphql.BuildUnmarshalerMap(
 		ec.unmarshalInputAcceptOAuth2ConsentRequestSession,
-		ec.unmarshalInputAdmin,
+		ec.unmarshalInputBlockedQueryInput,
+		ec.unmarshalInputDimensionMappingsInput,
+		ec.unmarshalInputFilterPolicyInput,
+		ec.unmarshalInputGroupInput,
 		ec.unmarshalInputLoginBindingsInput,
+		ec.unmarshalInputLokiLimitsInput,
+		ec.unmarshalInputMatchPolicyAttributeInput,
 		ec.unmarshalInputMimirLimitsInput,
 		ec.unmarshalInputNameInput,
+		ec.unmarshalInputNotifierBasicAuthInput,
+		ec.unmarshalInputNotifierConfigInput,
+		ec.unmarshalInputNotifierHeaderAuthInput,
+		ec.unmarshalInputNotifierTLSClientConfigInput,
+		ec.unmarshalInputOAuth2ClientInput,
 		ec.unmarshalInputObservabilityTenantLimitsInput,
 		ec.unmarshalInputObservabilityTenantPermissionBindingsInput,
+		ec.unmarshalInputPolicyMatchInput,
+		ec.unmarshalInputRelabelConfigInput,
+		ec.unmarshalInputRulerAlertManagerConfigInput,
+		ec.unmarshalInputShardstreamsConfigInput,
+		ec.unmarshalInputStreamRetentionInput,
+		ec.unmarshalInputTempoLimitsInput,
+		ec.unmarshalInputUserInput,
 	)
 	first := true
 
@@ -2130,6 +3330,12 @@ type Group {
   # organization: Organization!
 }
 
+"Input for a group using its name."
+input GroupInput {
+  "The name of the group."
+  name: String!
+}
+
 extend type Query {
   "Get a list of all users."
   listGroups: [Group!] @checkPermissions @isAuthenticated
@@ -2141,8 +3347,8 @@ extend type Mutation {
     "The unique name of the group."
     name: String!
 
-    "The IDs of the users that are members of the group."
-    members: [String!]
+    "The IDs or email addresses of the users that are members of the group."
+    members: [UserInput!]
   ): Group! @checkPermissions @isAuthenticated
 
   "Delete a group."
@@ -2150,6 +3356,423 @@ extend type Mutation {
     "The unique name of the group."
     name: String!
   ): Group! @checkPermissions @isAuthenticated
+}
+`, BuiltIn: false},
+	{Name: "../loki_limits.graphqls", Input: `"Representation of the limits for Loki for a tenant."
+type LokiLimits {
+  ingestionRateStrategy: String
+  ingestionRateMB: Float
+  ingestionBurstSizeMB: Float
+  maxLabelNameLength: Int
+  maxLabelValueLength: Int
+  maxLabelNamesPerSeries: Int
+  rejectOldSamples: Boolean
+  rejectOldSamplesMaxAge: Duration
+  creationGracePeriod: Duration
+  enforceMetricName: Boolean
+  maxLineSize: UInt
+  maxLineSizeTruncate: Boolean
+  incrementDuplicateTimestamp: Boolean
+  maxLocalStreamsPerUser: Int
+  maxGlobalStreamsPerUser: Int
+  unorderedWrites: Boolean
+  perStreamRateLimit: UInt
+  perStreamRateLimitBurst: UInt
+  maxChunksPerQuery: Int
+  maxQuerySeries: Int
+  maxQueryLookback: Duration
+  maxQueryLength: Duration
+  maxQueryRange: Duration
+  maxQueryParallelism: Int
+  tsdbMaxQueryParallelism: Int
+  tsdbMaxBytesPerShard: UInt
+  cardinalityLimit: Int
+  maxStreamsMatchersPerQuery: Int
+  maxConcurrentTailRequests: Int
+  maxEntriesLimitPerQuery: Int
+  maxCacheFreshness: Duration
+  maxStatsCacheFreshness: Duration
+  maxQueriersPerTenant: Int
+  queryReadyIndexNumDays: Int
+  queryTimeout: Duration
+  querySplitDuration: Duration
+  minShardingLookback: Duration
+  maxQueryBytesRead: UInt
+  maxQuerierBytesRead: UInt
+  volumeEnabled: Boolean
+  volumeMaxSeries: Int
+  rulerEvaluationDelay: Duration
+  rulerMaxRulesPerRuleGroup: Int
+  rulerMaxRuleGroupsPerTenant: Int
+  rulerAlertManagerConfig: RulerAlertManagerConfig
+  rulerTenantShardSize: Int
+  rulerRemoteWriteDisabled: Boolean
+  # TODO: create scalar and type rulerRemoteWriteConfig: map[string]RemoteWriteSpec
+  rulerRemoteEvaluationTimeout: Duration
+  rulerRemoteEvaluationMaxResponseSize: Int
+  deletionMode: String
+  retentionPeriod: Duration
+  streamRetention: [StreamRetention!]
+  shardStreams: ShardstreamsConfig
+  blockedQueries: [BlockedQuery!]
+  requiredLabels: [String!]
+  requiredNumberLabels: Int
+  indexGatewayShardSize: Int
+}
+
+type RulerAlertManagerConfig {
+  alertmanagerURL: String!
+  alertmanagerDiscovery: Boolean
+  alertmanagerRefreshInterval: Duration
+  alertmanangerEnableV2API: Boolean
+  alertRelabelConfigs: [RelabelConfig!]
+  notificationQueueCapacity: Int
+  notificationTimeout: Duration
+  notifier: NotifierConfig
+}
+
+type NotifierConfig {
+  basicAuth: NotifierBasicAuth
+  headerAuth: NotifierHeaderAuth
+  tls: NotifierTLSClientConfig
+}
+
+type NotifierBasicAuth {
+  username: String
+  password: String
+}
+
+type NotifierHeaderAuth {
+  type: String
+  credentials: String
+  credentialsFile: String
+}
+
+type NotifierTLSClientConfig {
+  certPath: String
+  keyPath: String
+  caPath: String
+  serverName: String
+  insecureSkipVerify: Boolean
+  cipherSuites: String
+  minVersion: String
+}
+
+type StreamRetention {
+  period: Duration
+  priority: Int
+  selector: String
+}
+
+type ShardstreamsConfig {
+  enabled: Boolean
+  loggingEnabled: Boolean
+  desiredRate: UInt
+}
+
+type BlockedQuery {
+  pattern: String
+  regex: Boolean
+  hash: UInt
+  types: [BlockedQueryType!]
+}
+
+enum BlockedQueryType {
+  metric
+  filter
+  limited
+}
+
+
+"Input of the limits for Loki for a tenant."
+input LokiLimitsInput {
+  ingestionRateStrategy: String
+  ingestionRateMB: Float
+  ingestionBurstSizeMB: Float
+  maxLabelNameLength: Int
+  maxLabelValueLength: Int
+  maxLabelNamesPerSeries: Int
+  rejectOldSamples: Boolean
+  rejectOldSamplesMaxAge: Duration
+  creationGracePeriod: Duration
+  enforceMetricName: Boolean
+  maxLineSize: UInt
+  maxLineSizeTruncate: Boolean
+  incrementDuplicateTimestamp: Boolean
+  maxLocalStreamsPerUser: Int
+  maxGlobalStreamsPerUser: Int
+  unorderedWrites: Boolean
+  perStreamRateLimit: UInt
+  perStreamRateLimitBurst: UInt
+  maxChunksPerQuery: Int
+  maxQuerySeries: Int
+  maxQueryLookback: Duration
+  maxQueryLength: Duration
+  maxQueryRange: Duration
+  maxQueryParallelism: Int
+  tsdbMaxQueryParallelism: Int
+  tsdbMaxBytesPerShard: UInt
+  cardinalityLimit: Int
+  maxStreamsMatchersPerQuery: Int
+  maxConcurrentTailRequests: Int
+  maxEntriesLimitPerQuery: Int
+  maxCacheFreshness: Duration
+  maxStatsCacheFreshness: Duration
+  maxQueriersPerTenant: Int
+  queryReadyIndexNumDays: Int
+  queryTimeout: Duration
+  querySplitDuration: Duration
+  minShardingLookback: Duration
+  maxQueryBytesRead: UInt
+  maxQuerierBytesRead: UInt
+  volumeEnabled: Boolean
+  volumeMaxSeries: Int
+  rulerEvaluationDelay: Duration
+  rulerMaxRulesPerRuleGroup: Int
+  rulerMaxRuleGroupsPerTenant: Int
+  rulerAlertManagerConfig: RulerAlertManagerConfigInput
+  rulerTenantShardSize: Int
+  rulerRemoteWriteDisabled: Boolean
+  # TODO: create scalar and type rulerRemoteWriteConfig: map[string]RemoteWriteSpec
+  rulerRemoteEvaluationTimeout: Duration
+  rulerRemoteEvaluationMaxResponseSize: Int
+  deletionMode: String
+  retentionPeriod: Duration
+  streamRetention: [StreamRetentionInput!]
+  shardStreams: ShardstreamsConfigInput
+  blockedQueries: [BlockedQueryInput!]
+  requiredLabels: [String!]
+  requiredNumberLabels: Int
+  indexGatewayShardSize: Int
+}
+
+input RulerAlertManagerConfigInput {
+  alertmanagerURL: String!
+  alertmanagerDiscovery: Boolean
+  alertmanagerRefreshInterval: Duration
+  alertmanangerEnableV2API: Boolean
+  alertRelabelConfigs: [RelabelConfigInput!]
+  notificationQueueCapacity: Int
+  notificationTimeout: Duration
+  notifier: NotifierConfigInput
+}
+
+input NotifierConfigInput {
+  basicAuth: NotifierBasicAuthInput
+  headerAuth: NotifierHeaderAuthInput
+  tls: NotifierTLSClientConfigInput
+}
+
+input NotifierBasicAuthInput {
+  username: String
+  password: String
+}
+
+input NotifierHeaderAuthInput {
+  type: String
+  credentials: String
+  credentialsFile: String
+}
+
+input NotifierTLSClientConfigInput {
+  certPath: String
+  keyPath: String
+  caPath: String
+  serverName: String
+  insecureSkipVerify: Boolean
+  cipherSuites: String
+  minVersion: String
+}
+
+input StreamRetentionInput {
+  period: Duration
+  priority: Int
+  selector: String
+}
+
+input ShardstreamsConfigInput {
+  enabled: Boolean
+  loggingEnabled: Boolean
+  desiredRate: UInt
+}
+
+input BlockedQueryInput {
+  pattern: String
+  regex: Boolean
+  hash: UInt
+  types: [BlockedQueryType!]
+}
+`, BuiltIn: false},
+	{Name: "../mimir_limits.graphqls", Input: `"Representation of the limits for Mimir for a tenant."
+type MimirLimits {
+  requestRate: Float
+  requestBurstSize: Int
+  ingestionRate: Float
+  ingestionBurstSize: Int
+  acceptHASamples: Boolean
+  haClusterLabel: String
+  haReplicaLabel: String
+  haMaxClusters: Int
+  dropLabels: [String!]
+  maxLabelNameLength: Int
+  maxLabelValueLength: Int
+  maxLabelNamesPerSeries: Int
+  maxMetadataLength: Int
+  maxNativeHistogramBuckets: Int
+  creationGracePeriod: Duration
+  enforceMetadataMetricName: Boolean
+  ingestionTenantShardSize: Int
+  metricRelabelConfigs: [RelabelConfig!]
+  maxGlobalSeriesPerUser: Int
+  maxGlobalSeriesPerMetric: Int
+  maxGlobalMetricsWithMetadataPerUser: Int
+  maxGlobalMetadataPerMetric: Int
+  maxGlobalExemplarsPerUser: Int
+  nativeHistogramsIngestionEnabled: Boolean
+  activeSeriesCustomTrackersConfig: StringMap
+  outOfOrderTimeWindow: Duration
+  outOfOrderBlocksExternalLabelEnabled: Boolean
+  separateMetricsGroupLabel: String
+  maxChunksPerQuery: Int
+  maxFetchedSeriesPerQuery: Int
+  maxFetchedChunkBytesPerQuery: Int
+  maxQueryLookback: Duration
+  maxPartialQueryLength: Duration
+  maxQueryParallelism: Int
+  maxLabelsQueryLength: Duration
+  maxCacheFreshness: Duration
+  maxQueriersPerTenant: Int
+  queryShardingTotalShards: Int
+  queryShardingMaxShardedQueries: Int
+  queryShardingMaxRegexpSizeBytes: Int
+  splitInstantQueriesByInterval: Duration
+  QueryIngestersWithin: Duration
+  maxTotalQueryLength: Duration
+  resultsCacheTTL: Duration
+  resultsCacheTTLForOutOfOrderTimeWindow: Duration
+  resultsCacheTTLForCardinalityQuery: Duration
+  resultsCacheTTLForLabelsQuery: Duration
+  resultsCacheForUnalignedQueryEnabled: Boolean
+  maxQueryExpressionSizeBytes: Int
+  cardinalityAnalysisEnabled: Boolean
+  labelNamesAndValuesResultsMaxSizeBytes: Int
+  labelValuesMaxCardinalityLabelNamesPerRequest: Int
+  rulerEvaluationDelay: Duration
+  rulerTenantShardSize: Int
+  rulerMaxRulesPerRuleGroup: Int
+  rulerMaxRuleGroupsPerTenant: Int
+  rulerRecordingRulesEvaluationEnabled: Boolean
+  rulerAlertingRulesEvaluationEnabled: Boolean
+  rulerSyncRulesOnChangesEnabled: Boolean
+  storeGatewayTenantShardSize: Int
+  compactorBlocksRetentionPeriod: Duration
+  compactorSplitAndMergeShards: Int
+  compactorSplitGroups: Int
+  compactorTenantShardSize: Int
+  compactorPartialBlockDeletionDelay: Duration
+  compactorBlockUploadEnabled: Boolean
+  compactorBlockUploadValidationEnabled: Boolean
+  compactorBlockUploadVerifyChunks: Boolean
+  compactorBlockUploadMaxBlockSizeBytes: Int
+  s3SSEType: String
+  s3SSEKMSKeyID: String
+  s3SSEKMSEncryptionContext: String
+  alertmanagerReceiversBlockCIDRNetworks: String
+  alertmanagerReceiversBlockPrivateAddresses: Boolean
+  notificationRateLimit: Float
+  notificationRateLimitPerIntegration: FloatMap
+  alertmanagerMaxConfigSizeBytes: Int
+  alertmanagerMaxTemplatesCount: Int
+  alertmanagerMaxTemplateSizeBytes: Int
+  alertmanagerMaxDispatcherAggregationGroups: Int
+  alertmanagerMaxAlertsCount: Int
+  alertmanagerMaxAlertsSizeBytes: Int
+}
+
+"Input of the limits for Mimir for a tenant."
+input MimirLimitsInput {
+  requestRate: Float
+  requestBurstSize: Int
+  ingestionRate: Float
+  ingestionBurstSize: Int
+  acceptHASamples: Boolean
+  haClusterLabel: String
+  haReplicaLabel: String
+  haMaxClusters: Int
+  dropLabels: [String!]
+  maxLabelNameLength: Int
+  maxLabelValueLength: Int
+  maxLabelNamesPerSeries: Int
+  maxMetadataLength: Int
+  maxNativeHistogramBuckets: Int
+  creationGracePeriod: Duration
+  enforceMetadataMetricName: Boolean
+  ingestionTenantShardSize: Int
+  metricRelabelConfigs: [RelabelConfigInput!]
+  maxGlobalSeriesPerUser: Int
+  maxGlobalSeriesPerMetric: Int
+  maxGlobalMetricsWithMetadataPerUser: Int
+  maxGlobalMetadataPerMetric: Int
+  maxGlobalExemplarsPerUser: Int
+  nativeHistogramsIngestionEnabled: Boolean
+  activeSeriesCustomTrackersConfig: StringMap
+  outOfOrderTimeWindow: Duration
+  outOfOrderBlocksExternalLabelEnabled: Boolean
+  separateMetricsGroupLabel: String
+  maxChunksPerQuery: Int
+  maxFetchedSeriesPerQuery: Int
+  maxFetchedChunkBytesPerQuery: Int
+  maxQueryLookback: Duration
+  maxPartialQueryLength: Duration
+  maxQueryParallelism: Int
+  maxLabelsQueryLength: Duration
+  maxCacheFreshness: Duration
+  maxQueriersPerTenant: Int
+  queryShardingTotalShards: Int
+  queryShardingMaxShardedQueries: Int
+  queryShardingMaxRegexpSizeBytes: Int
+  splitInstantQueriesByInterval: Duration
+  QueryIngestersWithin: Duration
+  maxTotalQueryLength: Duration
+  resultsCacheTTL: Duration
+  resultsCacheTTLForOutOfOrderTimeWindow: Duration
+  resultsCacheTTLForCardinalityQuery: Duration
+  resultsCacheTTLForLabelsQuery: Duration
+  resultsCacheForUnalignedQueryEnabled: Boolean
+  maxQueryExpressionSizeBytes: Int
+  cardinalityAnalysisEnabled: Boolean
+  labelNamesAndValuesResultsMaxSizeBytes: Int
+  labelValuesMaxCardinalityLabelNamesPerRequest: Int
+  rulerEvaluationDelay: Duration
+  rulerTenantShardSize: Int
+  rulerMaxRulesPerRuleGroup: Int
+  rulerMaxRuleGroupsPerTenant: Int
+  rulerRecordingRulesEvaluationEnabled: Boolean
+  rulerAlertingRulesEvaluationEnabled: Boolean
+  rulerSyncRulesOnChangesEnabled: Boolean
+  storeGatewayTenantShardSize: Int
+  compactorBlocksRetentionPeriod: Duration
+  compactorSplitAndMergeShards: Int
+  compactorSplitGroups: Int
+  compactorTenantShardSize: Int
+  compactorPartialBlockDeletionDelay: Duration
+  compactorBlockUploadEnabled: Boolean
+  compactorBlockUploadValidationEnabled: Boolean
+  compactorBlockUploadVerifyChunks: Boolean
+  compactorBlockUploadMaxBlockSizeBytes: Int
+  s3SSEType: String
+  s3SSEKMSKeyID: String
+  s3SSEKMSEncryptionContext: String
+  alertmanagerReceiversBlockCIDRNetworks: String
+  alertmanagerReceiversBlockPrivateAddresses: Boolean
+  notificationRateLimit: Float
+  notificationRateLimitPerIntegration: FloatMap
+  alertmanagerMaxConfigSizeBytes: Int
+  alertmanagerMaxTemplatesCount: Int
+  alertmanagerMaxTemplateSizeBytes: Int
+  alertmanagerMaxDispatcherAggregationGroups: Int
+  alertmanagerMaxAlertsCount: Int
+  alertmanagerMaxAlertsSizeBytes: Int
 }
 `, BuiltIn: false},
 	{Name: "../oauth2client.graphqls", Input: `scalar Time
@@ -2288,11 +3911,17 @@ type LoginBindings {
 }
 
 input LoginBindingsInput {
-  "The users that are allowed to login with this OAuth2 Client."
-  users: [ID!]
+  "The IDs or email addresses of the users that are allowed to login with this OAuth2 Client."
+  users: [UserInput!]
 
   "The groups that are allowed to login with this OAuth2 Client."
-  groups: [ID!]
+  groups: [GroupInput!]
+}
+
+"Input an OAuth2Client using its clientId."
+input OAuth2ClientInput {
+  "The ID of the OAuth2 Client."
+  clientId: ID!
 }
 
 extend type Query {
@@ -2714,13 +4343,17 @@ extend type Mutation {
   ): OAuth2RedirectTo!
 }
 `, BuiltIn: false},
-	{Name: "../observabilitytenant.graphqls", Input: `"Representation a tenant in the Grafana observability stack where metrics, logs and traces can be sent to or retrieved from."
+	{Name: "../observabilitytenant.graphqls", Input: `scalar Duration
+scalar FloatMap
+scalar StringMap
+
+"Representation a tenant in the Grafana observability stack where metrics, logs and traces can be sent to or retrieved from."
 type ObservabilityTenant {
   "The unique id of the tenant."
-  id: String!
+  id: ID!
 
   "The display name of the tenant."
-  name: String
+  displayName: String
 
   # "The organization that the tenant belongs to."
   # organization: Organization!
@@ -2785,11 +4418,11 @@ type ObservabilityTenantLimits {
   "The limits for Mimir for the tenant."
   mimir: MimirLimits
 
-  # "The limits for Loki for the tenant."
-  # loki: LokiLimits
+  "The limits for Loki for the tenant."
+  loki: LokiLimits
 
-  # "The limits for Tempo for the tenant."
-  # tempo: TempoLimits
+  "The limits for Tempo for the tenant."
+  tempo: TempoLimits
 }
 
 "Inputs for the limits of a tenant."
@@ -2797,415 +4430,11 @@ input ObservabilityTenantLimitsInput {
   "The limits for Mimir for the tenant."
   mimir: MimirLimitsInput
 
-  # "The limits for Loki for the tenant."
-  # loki: LokiLimitsInput
+  "The limits for Loki for the tenant."
+  loki: LokiLimitsInput
 
-  # "The limits for Tempo for the tenant."
-  # tempo: TempoLimitsInput
-}
-
-scalar Duration
-scalar FloatMap
-scalar ForwardingRuleMap
-
-"Representation of the limits for Mimir for a tenant."
-type MimirLimits {
-  requestRate: Float
-
-  requestBurstSize: Int
-	
-	ingestionRate: Float
-	
-	ingestionBurstSize: Int
-	
-	acceptHASamples: Boolean
-	
-	haClusterLabel: String
-	
-	haReplicaLabel: String
-	
-	haMaxClusters: Int
-	
-	dropLabels: [String]
-	
-	maxLabelNameLength: Int
-	
-	maxLabelValueLength: Int
-	
-	maxLabelNamesPerSeries: Int
-	
-	maxMetadataLength: Int
-	
-	creationGracePeriod: Duration
-	
-	enforceMetadataMetricName: Boolean
-	
-	ingestionTenantShardSize: Int
-	
-  # metricRelabelConfigs
-	
-	
-
-	
-	
-	
-	maxGlobalSeriesPerUser: Int
-	
-	maxGlobalSeriesPerMetric: Int
-	
-	
-	maxGlobalMetricsWithMetadataPerUser: Int
-	
-	maxGlobalMetadataPerMetric: Int
-	
-	
-	
-	maxGlobalExemplarsPerUser: Int
-	
-	
-	nativeHistogramsIngestionEnabled: Boolean
-	
-	# activeSeriesCustomTrackersConfig: 
-	
-	
-	outOfOrderTimeWindow: Duration
-	
-	outOfOrderBlocksExternalLabelEnabled: Boolean
-	
-
-	
-	
-	separateMetricsGroupLabel: String
-
-	
-	
-	maxChunksPerQuery: Int
-	
-	maxFetchedSeriesPerQuery: Int
-	
-	maxFetchedChunkBytesPerQuery: Int
-	
-	maxQueryLookback: Duration
-	
-	maxPartialQueryLength: Duration
-	
-	maxQueryParallelism: Int
-	
-	maxLabelsQueryLength: Duration
-	
-	maxCacheFreshness: Duration
-	
-	maxQueriersPerTenant: Int
-	
-	queryShardingTotalShards: Int
-	
-	queryShardingMaxShardedQueries: Int
-	
-	queryShardingMaxRegexpSizeBytes: Int
-	
-	splitInstantQueriesByInterval: Duration
-
-	
-	
-	maxTotalQueryLength: Duration
-	
-	resultsCacheTTL: Duration
-	
-	resultsCacheTTLForOutOfOrderTimeWindow: Duration
-	
-	maxQueryExpressionSizeBytes: Int
-
-	
-	
-	cardinalityAnalysisEnabled: Boolean
-	
-	labelNamesAndValuesResultsMaxSizeBytes: Int
-	
-	labelValuesMaxCardinalityLabelNamesPerRequest: Int
-
-	
-	
-	rulerEvaluationDelay: Duration
-	
-	rulerTenantShardSize: Int
-	
-	rulerMaxRulesPerRuleGroup: Int
-	
-	rulerMaxRuleGroupsPerTenant: Int
-	
-	rulerRecordingRulesEvaluationEnabled: Boolean
-	
-	rulerAlertingRulesEvaluationEnabled: Boolean
-
-	
-	
-	storeGatewayTenantShardSize: Int
-
-	
-	
-	compactorBlocksRetentionPeriod: Duration
-	
-	compactorSplitAndMergeShards: Int
-	
-	compactorSplitGroups: Int
-	
-	compactorTenantShardSize: Int
-	
-	compactorPartialBlockDeletionDelay: Duration
-	
-	compactorBlockUploadEnabled: Boolean
-	
-	compactorBlockUploadValidationEnabled: Boolean
-	
-	compactorBlockUploadVerifyChunks: Boolean
-
-	
-	
-	
-	s3SSEType: String
-	
-	s3SSEKMSKeyID: String
-	
-	s3SSEKMSEncryptionContext: String
-
-	
-	
-	
-	alertmanagerReceiversBlockCIDRNetworks: String
-	
-	alertmanagerReceiversBlockPrivateAddresses: Boolean
-
-	
-	notificationRateLimit: Float
-	
-	notificationRateLimitPerIntegration: FloatMap
-
-	
-	alertmanagerMaxConfigSizeBytes: Int
-	
-	alertmanagerMaxTemplatesCount: Int
-	
-	alertmanagerMaxTemplateSizeBytes: Int
-	
-	alertmanagerMaxDispatcherAggregationGroups: Int
-	
-	alertmanagerMaxAlertsCount: Int
-	
-	alertmanagerMaxAlertsSizeBytes: Int
-
-	
-	forwardingEndpoint: String
-	
-	forwardingDropOlderThan: Duration
-	
-	forwardingRules: ForwardingRuleMap
-}
-
-input MimirLimitsInput {
-  requestRate: Float
-
-  requestBurstSize: Int
-	
-	ingestionRate: Float
-	
-	ingestionBurstSize: Int
-	
-	acceptHASamples: Boolean
-	
-	haClusterLabel: String
-	
-	haReplicaLabel: String
-	
-	haMaxClusters: Int
-	
-	dropLabels: [String]
-	
-	maxLabelNameLength: Int
-	
-	maxLabelValueLength: Int
-	
-	maxLabelNamesPerSeries: Int
-	
-	maxMetadataLength: Int
-	
-	creationGracePeriod: Duration
-	
-	enforceMetadataMetricName: Boolean
-	
-	ingestionTenantShardSize: Int
-	
-  # metricRelabelConfigs
-	
-	
-
-	
-	
-	
-	maxGlobalSeriesPerUser: Int
-	
-	maxGlobalSeriesPerMetric: Int
-	
-	
-	maxGlobalMetricsWithMetadataPerUser: Int
-	
-	maxGlobalMetadataPerMetric: Int
-	
-	
-	
-	maxGlobalExemplarsPerUser: Int
-	
-	
-	nativeHistogramsIngestionEnabled: Boolean
-	
-	# activeSeriesCustomTrackersConfig: 
-	
-	
-	outOfOrderTimeWindow: Duration
-	
-	outOfOrderBlocksExternalLabelEnabled: Boolean
-	
-
-	
-	
-	separateMetricsGroupLabel: String
-
-	
-	
-	maxChunksPerQuery: Int
-	
-	maxFetchedSeriesPerQuery: Int
-	
-	maxFetchedChunkBytesPerQuery: Int
-	
-	maxQueryLookback: Duration
-	
-	maxPartialQueryLength: Duration
-	
-	maxQueryParallelism: Int
-	
-	maxLabelsQueryLength: Duration
-	
-	maxCacheFreshness: Duration
-	
-	maxQueriersPerTenant: Int
-	
-	queryShardingTotalShards: Int
-	
-	queryShardingMaxShardedQueries: Int
-	
-	queryShardingMaxRegexpSizeBytes: Int
-	
-	splitInstantQueriesByInterval: Duration
-
-	
-	
-	maxTotalQueryLength: Duration
-	
-	resultsCacheTTL: Duration
-	
-	resultsCacheTTLForOutOfOrderTimeWindow: Duration
-	
-	maxQueryExpressionSizeBytes: Int
-
-	
-	
-	cardinalityAnalysisEnabled: Boolean
-	
-	labelNamesAndValuesResultsMaxSizeBytes: Int
-	
-	labelValuesMaxCardinalityLabelNamesPerRequest: Int
-
-	
-	
-	rulerEvaluationDelay: Duration
-	
-	rulerTenantShardSize: Int
-	
-	rulerMaxRulesPerRuleGroup: Int
-	
-	rulerMaxRuleGroupsPerTenant: Int
-	
-	rulerRecordingRulesEvaluationEnabled: Boolean
-	
-	rulerAlertingRulesEvaluationEnabled: Boolean
-
-	
-	
-	storeGatewayTenantShardSize: Int
-
-	
-	
-	compactorBlocksRetentionPeriod: Duration
-	
-	compactorSplitAndMergeShards: Int
-	
-	compactorSplitGroups: Int
-	
-	compactorTenantShardSize: Int
-	
-	compactorPartialBlockDeletionDelay: Duration
-	
-	compactorBlockUploadEnabled: Boolean
-	
-	compactorBlockUploadValidationEnabled: Boolean
-	
-	compactorBlockUploadVerifyChunks: Boolean
-
-	
-	
-	
-	s3SSEType: String
-	
-	s3SSEKMSKeyID: String
-	
-	s3SSEKMSEncryptionContext: String
-
-	
-	
-	
-	alertmanagerReceiversBlockCIDRNetworks: String
-	
-	alertmanagerReceiversBlockPrivateAddresses: Boolean
-
-	
-	notificationRateLimit: Float
-	
-	notificationRateLimitPerIntegration: FloatMap
-
-	
-	alertmanagerMaxConfigSizeBytes: Int
-	
-	alertmanagerMaxTemplatesCount: Int
-	
-	alertmanagerMaxTemplateSizeBytes: Int
-	
-	alertmanagerMaxDispatcherAggregationGroups: Int
-	
-	alertmanagerMaxAlertsCount: Int
-	
-	alertmanagerMaxAlertsSizeBytes: Int
-
-	
-	forwardingEndpoint: String
-	
-	forwardingDropOlderThan: Duration
-	
-	forwardingRules: ForwardingRuleMap
-}
-
-type ForwardingRule {
-  "Ingest defines whether a metric should still be pushed to the Ingesters despite it being forwarded."
-	ingest: Boolean
-}
-
-"Representation of the limits for Loki for a tenant."
-type LokiLimits {
-  requestRate: Float
-}
-
-"Representation of the limits for Tempo for a tenant."
-type TempoLimits {
-  requestRate: Float
+  "The limits for Tempo for the tenant."
+  tempo: TempoLimitsInput
 }
 
 "Representation of the users, groups and oauth2 clients that have a set of permissions on a tenant."
@@ -3221,14 +4450,14 @@ type ObservabilityTenantPermissionBindings {
 }
 
 input ObservabilityTenantPermissionBindingsInput {
-  "The IDs of users that can view a tenant."
-  users: [String!]
+  "The IDs or email addresses of users that can view a tenant."
+  users: [UserInput!]
 
   "The names of groups that can view a tenant."
-  groups: [String!]
+  groups: [GroupInput!]
 
   "The clientIDs oauth2 clients that can send data a tenant."
-  oauth2Clients: [String!]
+  oauth2Clients: [OAuth2ClientInput!]
 }
 
 extend type Query {
@@ -3237,7 +4466,7 @@ extend type Query {
 
   getObservabilityTenant(
     "The unique ID of the tenant."
-    id: String!
+    id: ID!
   ): ObservabilityTenant! @checkPermissions @isAuthenticated
 }
 
@@ -3245,7 +4474,7 @@ extend type Mutation {
   "Create an observability tenant."
   createObservabilityTenant(
     "The unique ID of the tenant."
-    id: String!
+    id: ID!
     "The display name of the tenant."
     name: String
     "The users, groups or clients that are admins of the observability tenant and can change its permissions."
@@ -3289,7 +4518,7 @@ extend type Mutation {
   "Update an observability tenant."
   updateObservabilityTenant(
     "The unique ID of the tenant."
-    id: String!
+    id: ID!
     "The display name of the tenant."
     name: String
     "The users, groups or clients that are admins of the observability tenant and can change its permissions."
@@ -3333,45 +4562,209 @@ extend type Mutation {
   "Delete an observability tenant."
   deleteObservabilityTenant(
     "The unique ID of the tenant."
-    id: String!
+    id: ID!
   ): ObservabilityTenant! @checkPermissions @isAuthenticated
 }
 `, BuiltIn: false},
 	{Name: "../organization.graphqls", Input: `"Representation an Organization in the auth stack."
 type Organization {
-  "The unique name of the organization."
-  name: String!
+  # "The unique name of the organization."
+  # name: String!
 
   "The users that are admins of the organization."
   admins: [User!]
 }
 
-"Input for adding a user to an organization as an administrator."
-input Admin {
-  "The ID of the user to add as an admin."
-  id: ID!
-}
-
 extend type Query {
-  "Get a list of all users."
-  listOrganizations: [Organization!]! @checkPermissions @isAuthenticated
+  # "Get a list of all users."
+  # listOrganizations: [Organization!]! @checkPermissions @isAuthenticated
 
   "Get a single organization by name."
-  organization(
-    "The name of the organization."
-    name: String!
-  ): Organization! @checkPermissions @isAuthenticated
+  organization: Organization! @checkPermissions @isAuthenticated
 }
 
 extend type Mutation {
   "Create a new organization."
   organization(
-    "The name of the organization."
-    name: String!,
+    # "The name of the organization."
+    # name: String!,
 
-    "The IDs of the users that are organization admins."
-    admins: [String!]!
+    "The IDs or email addresses of the users that are organization admins."
+    admins: [UserInput!]
     ): Organization! @checkPermissions @isAuthenticated
+}
+`, BuiltIn: false},
+	{Name: "../prometheus_types.graphqls", Input: `scalar UInt
+scalar LabelName
+
+type RelabelConfig {
+  sourceLabels: [LabelName!]
+  separator: String
+  regex: String
+  modulus: UInt
+  targetLabel: String
+  replacement: String
+  action: RelabelAction
+}
+
+enum RelabelAction {
+  replace
+  Replace
+  keep
+  Keep
+  drop
+  Drop
+  hashmod
+  HashMod
+  labelmap
+  LabelMap
+  labeldrop
+  LabelDrop
+  labelkeep
+  LabelKeep
+  lowercase
+  Lowercase
+  uppercase
+  Uppercase
+  keepequal
+  KeepEqual
+  dropequal
+  DropEqual
+}
+
+input RelabelConfigInput {
+  sourceLabels: [LabelName!]
+  separator: String
+  regex: String
+  modulus: UInt
+  targetLabel: String
+  replacement: String
+  action: RelabelAction
+}
+`, BuiltIn: false},
+	{Name: "../tempo_limits.graphqls", Input: `scalar BoolMap
+
+"Representation of the limits for Tempo for a tenant."
+type TempoLimits {
+  ingestionRateStrategy: String
+  ingestionRateLimitBytes: Int
+  ingestionBurstSizeBytes: Int
+  maxLocalTracesPerUser: Int
+  maxGlobalTracesPerUser: Int
+  forwarders: [String!]
+  metricsGeneratorRingSize: Int
+  metricsGeneratorProcessors: [String!]
+  metricsGeneratorMaxActiveSeries: UInt
+  metricsGeneratorCollectionInterval: Duration
+  metricsGeneratorDisableCollection: Boolean
+  metricsGeneratorForwarderQueueSize: Int
+  metricsGeneratorForwarderWorkers: Int
+  metricsGeneratorProcessorServiceGraphsHistogramBuckets: [Float]
+  metricsGeneratorProcessorServiceGraphsDimensions: [String!]
+  metricsGeneratorProcessorServiceGraphsPeerAttributes: [String!]
+  metricsGeneratorProcessorServiceGraphsEnableClientServerPrefix: Boolean
+  metricsGeneratorProcessorSpanMetricsHistogramBuckets: [Float]
+  metricsGeneratorProcessorSpanMetricsDimensions: [String!]
+  metricsGeneratorProcessorSpanMetricsIntrinsicDimensions: BoolMap
+  metricsGeneratorProcessorSpanMetricsFilterPolicies: [FilterPolicy!]
+  metricsGeneratorProcessorSpanMetricsDimensionMappings: [DimensionMappings!]
+  metricsGeneratorProcessorSpanMetricsEnableTargetInfo: Boolean
+  metricsGeneratorProcessorLocalBlocksMaxLiveTraces: UInt
+  metricsGeneratorProcessorLocalBlocksMaxBlockDuration: Duration
+  metricsGeneratorProcessorLocalBlocksMaxBlockBytes: UInt
+  metricsGeneratorProcessorLocalBlocksFlushCheckPeriod: Duration
+  metricsGeneratorProcessorLocalBlocksTraceIdlePeriod: Duration
+  metricsGeneratorProcessorLocalBlocksCompleteBlockTimeout: Duration
+  blockRetention: Duration
+  maxBytesPerTagValuesQuery: Int
+  maxBlocksPerTagValuesQuery: Int
+  maxSearchDuration: Duration
+  maxBytesPerTrace: Int
+}
+
+type FilterPolicy {
+  include: PolicyMatch
+  exclude: PolicyMatch
+}
+
+type PolicyMatch {
+  matchType: MatchType
+  attributes: [MatchPolicyAttribute!]
+}
+
+enum MatchType {
+  strict
+  regex
+}
+
+type MatchPolicyAttribute {
+  key: String!
+  value: Map
+}
+
+type DimensionMappings {
+  name: String
+  sourceLabel: [String!]
+  join: String
+}
+
+"Input of the limits for Tempo for a tenant."
+input TempoLimitsInput {
+  ingestionRateStrategy: String
+  ingestionRateLimitBytes: Int
+  ingestionBurstSizeBytes: Int
+  maxLocalTracesPerUser: Int
+  maxGlobalTracesPerUser: Int
+  forwarders: [String!]
+  metricsGeneratorRingSize: Int
+  metricsGeneratorProcessors: [String!]
+  metricsGeneratorMaxActiveSeries: UInt
+  metricsGeneratorCollectionInterval: Duration
+  metricsGeneratorDisableCollection: Boolean
+  metricsGeneratorForwarderQueueSize: Int
+  metricsGeneratorForwarderWorkers: Int
+  metricsGeneratorProcessorServiceGraphsHistogramBuckets: [Float]
+  metricsGeneratorProcessorServiceGraphsDimensions: [String!]
+  metricsGeneratorProcessorServiceGraphsPeerAttributes: [String!]
+  metricsGeneratorProcessorServiceGraphsEnableClientServerPrefix: Boolean
+  metricsGeneratorProcessorSpanMetricsHistogramBuckets: [Float]
+  metricsGeneratorProcessorSpanMetricsDimensions: [String!]
+  metricsGeneratorProcessorSpanMetricsIntrinsicDimensions: BoolMap
+  metricsGeneratorProcessorSpanMetricsFilterPolicies: [FilterPolicyInput!]
+  metricsGeneratorProcessorSpanMetricsDimensionMappings: [DimensionMappingsInput!]
+  metricsGeneratorProcessorSpanMetricsEnableTargetInfo: Boolean
+  metricsGeneratorProcessorLocalBlocksMaxLiveTraces: UInt
+  metricsGeneratorProcessorLocalBlocksMaxBlockDuration: Duration
+  metricsGeneratorProcessorLocalBlocksMaxBlockBytes: UInt
+  metricsGeneratorProcessorLocalBlocksFlushCheckPeriod: Duration
+  metricsGeneratorProcessorLocalBlocksTraceIdlePeriod: Duration
+  metricsGeneratorProcessorLocalBlocksCompleteBlockTimeout: Duration
+  blockRetention: Duration
+  maxBytesPerTagValuesQuery: Int
+  maxBlocksPerTagValuesQuery: Int
+  maxSearchDuration: Duration
+  maxBytesPerTrace: Int
+}
+
+input FilterPolicyInput {
+  include: PolicyMatchInput
+  exclude: PolicyMatchInput
+}
+
+input PolicyMatchInput {
+  matchType: MatchType
+  attributes: [MatchPolicyAttributeInput!]
+}
+
+input MatchPolicyAttributeInput {
+  key: String!
+  value: Map
+}
+
+input DimensionMappingsInput {
+  name: String
+  sourceLabel: [String!]
+  join: String
 }
 `, BuiltIn: false},
 	{Name: "../user.graphqls", Input: `"Representation of the information about a user sourced from Kratos."
@@ -3412,12 +4805,21 @@ input NameInput {
   last: String
 }
 
+"Input for a user using either ID or email."
+input UserInput {
+  "The user IDs."
+  id: ID
+
+  "The user's email address."
+  email: String
+}
+
 type Query {
   "Get a list of all users."
   listUsers: [User!]! @checkPermissions @isAuthenticated
 
-  "Get a user by ID."
-  getUser(id: ID!): User! @checkPermissions @isAuthenticated
+  "Get a user by ID or email."
+  getUser(id: ID, email: String): User! @checkPermissions @isAuthenticated
 }
 
 type Mutation {
@@ -3425,7 +4827,7 @@ type Mutation {
   createUser(
     "The user's email address."
     email: String!
-  
+
     "The user's name."
     name: NameInput
 
@@ -3892,7 +5294,7 @@ func (ec *executionContext) field_Mutation_createObservabilityTenant_args(ctx co
 	var arg0 string
 	if tmp, ok := rawArgs["id"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
-		arg0, err = ec.unmarshalNString2string(ctx, tmp)
+		arg0, err = ec.unmarshalNID2string(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -4132,7 +5534,7 @@ func (ec *executionContext) field_Mutation_deleteObservabilityTenant_args(ctx co
 	var arg0 string
 	if tmp, ok := rawArgs["id"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
-		arg0, err = ec.unmarshalNString2string(ctx, tmp)
+		arg0, err = ec.unmarshalNID2string(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -4168,10 +5570,10 @@ func (ec *executionContext) field_Mutation_group_args(ctx context.Context, rawAr
 		}
 	}
 	args["name"] = arg0
-	var arg1 []string
+	var arg1 []*model.UserInput
 	if tmp, ok := rawArgs["members"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("members"))
-		arg1, err = ec.unmarshalOString2ᚕstringᚄ(ctx, tmp)
+		arg1, err = ec.unmarshalOUserInput2ᚕᚖgithubᚗcomᚋpluralshᚋtraceᚑshieldᚋgraphᚋmodelᚐUserInputᚄ(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -4183,24 +5585,15 @@ func (ec *executionContext) field_Mutation_group_args(ctx context.Context, rawAr
 func (ec *executionContext) field_Mutation_organization_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 string
-	if tmp, ok := rawArgs["name"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
-		arg0, err = ec.unmarshalNString2string(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["name"] = arg0
-	var arg1 []string
+	var arg0 []*model.UserInput
 	if tmp, ok := rawArgs["admins"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("admins"))
-		arg1, err = ec.unmarshalNString2ᚕstringᚄ(ctx, tmp)
+		arg0, err = ec.unmarshalOUserInput2ᚕᚖgithubᚗcomᚋpluralshᚋtraceᚑshieldᚋgraphᚋmodelᚐUserInputᚄ(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
 	}
-	args["admins"] = arg1
+	args["admins"] = arg0
 	return args, nil
 }
 
@@ -4570,7 +5963,7 @@ func (ec *executionContext) field_Mutation_updateObservabilityTenant_args(ctx co
 	var arg0 string
 	if tmp, ok := rawArgs["id"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
-		arg0, err = ec.unmarshalNString2string(ctx, tmp)
+		arg0, err = ec.unmarshalNID2string(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -4786,7 +6179,7 @@ func (ec *executionContext) field_Query_getObservabilityTenant_args(ctx context.
 	var arg0 string
 	if tmp, ok := rawArgs["id"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
-		arg0, err = ec.unmarshalNString2string(ctx, tmp)
+		arg0, err = ec.unmarshalNID2string(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -4798,15 +6191,24 @@ func (ec *executionContext) field_Query_getObservabilityTenant_args(ctx context.
 func (ec *executionContext) field_Query_getUser_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 string
+	var arg0 *string
 	if tmp, ok := rawArgs["id"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
-		arg0, err = ec.unmarshalNID2string(ctx, tmp)
+		arg0, err = ec.unmarshalOID2ᚖstring(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
 	}
 	args["id"] = arg0
+	var arg1 *string
+	if tmp, ok := rawArgs["email"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("email"))
+		arg1, err = ec.unmarshalOString2ᚖstring(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["email"] = arg1
 	return args, nil
 }
 
@@ -4837,21 +6239,6 @@ func (ec *executionContext) field_Query_oauth2LoginRequest_args(ctx context.Cont
 		}
 	}
 	args["challenge"] = arg0
-	return args, nil
-}
-
-func (ec *executionContext) field_Query_organization_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
-	var err error
-	args := map[string]interface{}{}
-	var arg0 string
-	if tmp, ok := rawArgs["name"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
-		arg0, err = ec.unmarshalNString2string(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["name"] = arg0
 	return args, nil
 }
 
@@ -4993,8 +6380,8 @@ func (ec *executionContext) _fieldMiddleware(ctx context.Context, obj interface{
 
 // region    **************************** field.gotpl *****************************
 
-func (ec *executionContext) _ForwardingRule_ingest(ctx context.Context, field graphql.CollectedField, obj *v1alpha1.ForwardingRule) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_ForwardingRule_ingest(ctx, field)
+func (ec *executionContext) _BlockedQuery_pattern(ctx context.Context, field graphql.CollectedField, obj *v1alpha1.BlockedQuery) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_BlockedQuery_pattern(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -5007,7 +6394,45 @@ func (ec *executionContext) _ForwardingRule_ingest(ctx context.Context, field gr
 	}()
 	resTmp := ec._fieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.Ingest, nil
+		return obj.Pattern, nil
+	})
+
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_BlockedQuery_pattern(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "BlockedQuery",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _BlockedQuery_regex(ctx context.Context, field graphql.CollectedField, obj *v1alpha1.BlockedQuery) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_BlockedQuery_regex(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp := ec._fieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Regex, nil
 	})
 
 	if resTmp == nil {
@@ -5018,14 +6443,292 @@ func (ec *executionContext) _ForwardingRule_ingest(ctx context.Context, field gr
 	return ec.marshalOBoolean2ᚖbool(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_ForwardingRule_ingest(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_BlockedQuery_regex(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "ForwardingRule",
+		Object:     "BlockedQuery",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _BlockedQuery_hash(ctx context.Context, field graphql.CollectedField, obj *v1alpha1.BlockedQuery) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_BlockedQuery_hash(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp := ec._fieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Hash, nil
+	})
+
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*uint32)
+	fc.Result = res
+	return ec.marshalOUInt2ᚖuint32(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_BlockedQuery_hash(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "BlockedQuery",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type UInt does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _BlockedQuery_types(ctx context.Context, field graphql.CollectedField, obj *v1alpha1.BlockedQuery) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_BlockedQuery_types(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp := ec._fieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.BlockedQuery().Types(rctx, obj)
+	})
+
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.([]v1alpha1.BlockedQueryType)
+	fc.Result = res
+	return ec.marshalOBlockedQueryType2ᚕgithubᚗcomᚋpluralshᚋtraceᚑshieldᚑcontrollerᚋapiᚋobservabilityᚋv1alpha1ᚐBlockedQueryTypeᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_BlockedQuery_types(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "BlockedQuery",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type BlockedQueryType does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _DimensionMappings_name(ctx context.Context, field graphql.CollectedField, obj *v1alpha1.DimensionMappings) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_DimensionMappings_name(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp := ec._fieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Name, nil
+	})
+
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_DimensionMappings_name(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "DimensionMappings",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _DimensionMappings_sourceLabel(ctx context.Context, field graphql.CollectedField, obj *v1alpha1.DimensionMappings) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_DimensionMappings_sourceLabel(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp := ec._fieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.SourceLabel, nil
+	})
+
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.([]string)
+	fc.Result = res
+	return ec.marshalOString2ᚕstringᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_DimensionMappings_sourceLabel(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "DimensionMappings",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _DimensionMappings_join(ctx context.Context, field graphql.CollectedField, obj *v1alpha1.DimensionMappings) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_DimensionMappings_join(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp := ec._fieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Join, nil
+	})
+
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_DimensionMappings_join(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "DimensionMappings",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _FilterPolicy_include(ctx context.Context, field graphql.CollectedField, obj *v1alpha1.FilterPolicy) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_FilterPolicy_include(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp := ec._fieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Include, nil
+	})
+
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*v1alpha1.PolicyMatch)
+	fc.Result = res
+	return ec.marshalOPolicyMatch2ᚖgithubᚗcomᚋpluralshᚋtraceᚑshieldᚑcontrollerᚋapiᚋobservabilityᚋv1alpha1ᚐPolicyMatch(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_FilterPolicy_include(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "FilterPolicy",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "matchType":
+				return ec.fieldContext_PolicyMatch_matchType(ctx, field)
+			case "attributes":
+				return ec.fieldContext_PolicyMatch_attributes(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type PolicyMatch", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _FilterPolicy_exclude(ctx context.Context, field graphql.CollectedField, obj *v1alpha1.FilterPolicy) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_FilterPolicy_exclude(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp := ec._fieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Exclude, nil
+	})
+
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*v1alpha1.PolicyMatch)
+	fc.Result = res
+	return ec.marshalOPolicyMatch2ᚖgithubᚗcomᚋpluralshᚋtraceᚑshieldᚑcontrollerᚋapiᚋobservabilityᚋv1alpha1ᚐPolicyMatch(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_FilterPolicy_exclude(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "FilterPolicy",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "matchType":
+				return ec.fieldContext_PolicyMatch_matchType(ctx, field)
+			case "attributes":
+				return ec.fieldContext_PolicyMatch_attributes(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type PolicyMatch", field.Name)
 		},
 	}
 	return fc, nil
@@ -5216,8 +6919,8 @@ func (ec *executionContext) fieldContext_LoginBindings_groups(ctx context.Contex
 	return fc, nil
 }
 
-func (ec *executionContext) _LokiLimits_requestRate(ctx context.Context, field graphql.CollectedField, obj *model.LokiLimits) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_LokiLimits_requestRate(ctx, field)
+func (ec *executionContext) _LokiLimits_ingestionRateStrategy(ctx context.Context, field graphql.CollectedField, obj *v1alpha1.LokiLimits) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_LokiLimits_ingestionRateStrategy(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -5230,7 +6933,45 @@ func (ec *executionContext) _LokiLimits_requestRate(ctx context.Context, field g
 	}()
 	resTmp := ec._fieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.RequestRate, nil
+		return obj.IngestionRateStrategy, nil
+	})
+
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_LokiLimits_ingestionRateStrategy(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "LokiLimits",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _LokiLimits_ingestionRateMB(ctx context.Context, field graphql.CollectedField, obj *v1alpha1.LokiLimits) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_LokiLimits_ingestionRateMB(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp := ec._fieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.IngestionRateMB, nil
 	})
 
 	if resTmp == nil {
@@ -5241,7 +6982,7 @@ func (ec *executionContext) _LokiLimits_requestRate(ctx context.Context, field g
 	return ec.marshalOFloat2ᚖfloat64(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_LokiLimits_requestRate(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_LokiLimits_ingestionRateMB(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "LokiLimits",
 		Field:      field,
@@ -5249,6 +6990,2219 @@ func (ec *executionContext) fieldContext_LokiLimits_requestRate(ctx context.Cont
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type Float does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _LokiLimits_ingestionBurstSizeMB(ctx context.Context, field graphql.CollectedField, obj *v1alpha1.LokiLimits) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_LokiLimits_ingestionBurstSizeMB(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp := ec._fieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.IngestionBurstSizeMB, nil
+	})
+
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*float64)
+	fc.Result = res
+	return ec.marshalOFloat2ᚖfloat64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_LokiLimits_ingestionBurstSizeMB(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "LokiLimits",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Float does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _LokiLimits_maxLabelNameLength(ctx context.Context, field graphql.CollectedField, obj *v1alpha1.LokiLimits) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_LokiLimits_maxLabelNameLength(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp := ec._fieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.MaxLabelNameLength, nil
+	})
+
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*int)
+	fc.Result = res
+	return ec.marshalOInt2ᚖint(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_LokiLimits_maxLabelNameLength(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "LokiLimits",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _LokiLimits_maxLabelValueLength(ctx context.Context, field graphql.CollectedField, obj *v1alpha1.LokiLimits) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_LokiLimits_maxLabelValueLength(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp := ec._fieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.MaxLabelValueLength, nil
+	})
+
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*int)
+	fc.Result = res
+	return ec.marshalOInt2ᚖint(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_LokiLimits_maxLabelValueLength(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "LokiLimits",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _LokiLimits_maxLabelNamesPerSeries(ctx context.Context, field graphql.CollectedField, obj *v1alpha1.LokiLimits) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_LokiLimits_maxLabelNamesPerSeries(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp := ec._fieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.MaxLabelNamesPerSeries, nil
+	})
+
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*int)
+	fc.Result = res
+	return ec.marshalOInt2ᚖint(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_LokiLimits_maxLabelNamesPerSeries(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "LokiLimits",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _LokiLimits_rejectOldSamples(ctx context.Context, field graphql.CollectedField, obj *v1alpha1.LokiLimits) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_LokiLimits_rejectOldSamples(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp := ec._fieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.RejectOldSamples, nil
+	})
+
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*bool)
+	fc.Result = res
+	return ec.marshalOBoolean2ᚖbool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_LokiLimits_rejectOldSamples(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "LokiLimits",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _LokiLimits_rejectOldSamplesMaxAge(ctx context.Context, field graphql.CollectedField, obj *v1alpha1.LokiLimits) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_LokiLimits_rejectOldSamplesMaxAge(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp := ec._fieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.RejectOldSamplesMaxAge, nil
+	})
+
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*v1.Duration)
+	fc.Result = res
+	return ec.marshalODuration2ᚖk8sᚗioᚋapimachineryᚋpkgᚋapisᚋmetaᚋv1ᚐDuration(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_LokiLimits_rejectOldSamplesMaxAge(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "LokiLimits",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Duration does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _LokiLimits_creationGracePeriod(ctx context.Context, field graphql.CollectedField, obj *v1alpha1.LokiLimits) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_LokiLimits_creationGracePeriod(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp := ec._fieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.CreationGracePeriod, nil
+	})
+
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*v1.Duration)
+	fc.Result = res
+	return ec.marshalODuration2ᚖk8sᚗioᚋapimachineryᚋpkgᚋapisᚋmetaᚋv1ᚐDuration(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_LokiLimits_creationGracePeriod(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "LokiLimits",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Duration does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _LokiLimits_enforceMetricName(ctx context.Context, field graphql.CollectedField, obj *v1alpha1.LokiLimits) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_LokiLimits_enforceMetricName(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp := ec._fieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.EnforceMetricName, nil
+	})
+
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*bool)
+	fc.Result = res
+	return ec.marshalOBoolean2ᚖbool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_LokiLimits_enforceMetricName(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "LokiLimits",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _LokiLimits_maxLineSize(ctx context.Context, field graphql.CollectedField, obj *v1alpha1.LokiLimits) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_LokiLimits_maxLineSize(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp := ec._fieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.MaxLineSize, nil
+	})
+
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*uint64)
+	fc.Result = res
+	return ec.marshalOUInt2ᚖuint64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_LokiLimits_maxLineSize(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "LokiLimits",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type UInt does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _LokiLimits_maxLineSizeTruncate(ctx context.Context, field graphql.CollectedField, obj *v1alpha1.LokiLimits) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_LokiLimits_maxLineSizeTruncate(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp := ec._fieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.MaxLineSizeTruncate, nil
+	})
+
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*bool)
+	fc.Result = res
+	return ec.marshalOBoolean2ᚖbool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_LokiLimits_maxLineSizeTruncate(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "LokiLimits",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _LokiLimits_incrementDuplicateTimestamp(ctx context.Context, field graphql.CollectedField, obj *v1alpha1.LokiLimits) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_LokiLimits_incrementDuplicateTimestamp(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp := ec._fieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.IncrementDuplicateTimestamp, nil
+	})
+
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*bool)
+	fc.Result = res
+	return ec.marshalOBoolean2ᚖbool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_LokiLimits_incrementDuplicateTimestamp(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "LokiLimits",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _LokiLimits_maxLocalStreamsPerUser(ctx context.Context, field graphql.CollectedField, obj *v1alpha1.LokiLimits) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_LokiLimits_maxLocalStreamsPerUser(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp := ec._fieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.MaxLocalStreamsPerUser, nil
+	})
+
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*int)
+	fc.Result = res
+	return ec.marshalOInt2ᚖint(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_LokiLimits_maxLocalStreamsPerUser(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "LokiLimits",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _LokiLimits_maxGlobalStreamsPerUser(ctx context.Context, field graphql.CollectedField, obj *v1alpha1.LokiLimits) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_LokiLimits_maxGlobalStreamsPerUser(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp := ec._fieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.MaxGlobalStreamsPerUser, nil
+	})
+
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*int)
+	fc.Result = res
+	return ec.marshalOInt2ᚖint(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_LokiLimits_maxGlobalStreamsPerUser(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "LokiLimits",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _LokiLimits_unorderedWrites(ctx context.Context, field graphql.CollectedField, obj *v1alpha1.LokiLimits) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_LokiLimits_unorderedWrites(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp := ec._fieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.UnorderedWrites, nil
+	})
+
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*bool)
+	fc.Result = res
+	return ec.marshalOBoolean2ᚖbool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_LokiLimits_unorderedWrites(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "LokiLimits",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _LokiLimits_perStreamRateLimit(ctx context.Context, field graphql.CollectedField, obj *v1alpha1.LokiLimits) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_LokiLimits_perStreamRateLimit(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp := ec._fieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.PerStreamRateLimit, nil
+	})
+
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*uint64)
+	fc.Result = res
+	return ec.marshalOUInt2ᚖuint64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_LokiLimits_perStreamRateLimit(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "LokiLimits",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type UInt does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _LokiLimits_perStreamRateLimitBurst(ctx context.Context, field graphql.CollectedField, obj *v1alpha1.LokiLimits) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_LokiLimits_perStreamRateLimitBurst(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp := ec._fieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.PerStreamRateLimitBurst, nil
+	})
+
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*uint64)
+	fc.Result = res
+	return ec.marshalOUInt2ᚖuint64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_LokiLimits_perStreamRateLimitBurst(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "LokiLimits",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type UInt does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _LokiLimits_maxChunksPerQuery(ctx context.Context, field graphql.CollectedField, obj *v1alpha1.LokiLimits) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_LokiLimits_maxChunksPerQuery(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp := ec._fieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.MaxChunksPerQuery, nil
+	})
+
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*int)
+	fc.Result = res
+	return ec.marshalOInt2ᚖint(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_LokiLimits_maxChunksPerQuery(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "LokiLimits",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _LokiLimits_maxQuerySeries(ctx context.Context, field graphql.CollectedField, obj *v1alpha1.LokiLimits) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_LokiLimits_maxQuerySeries(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp := ec._fieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.MaxQuerySeries, nil
+	})
+
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*int)
+	fc.Result = res
+	return ec.marshalOInt2ᚖint(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_LokiLimits_maxQuerySeries(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "LokiLimits",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _LokiLimits_maxQueryLookback(ctx context.Context, field graphql.CollectedField, obj *v1alpha1.LokiLimits) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_LokiLimits_maxQueryLookback(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp := ec._fieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.MaxQueryLookback, nil
+	})
+
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*v1.Duration)
+	fc.Result = res
+	return ec.marshalODuration2ᚖk8sᚗioᚋapimachineryᚋpkgᚋapisᚋmetaᚋv1ᚐDuration(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_LokiLimits_maxQueryLookback(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "LokiLimits",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Duration does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _LokiLimits_maxQueryLength(ctx context.Context, field graphql.CollectedField, obj *v1alpha1.LokiLimits) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_LokiLimits_maxQueryLength(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp := ec._fieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.MaxQueryLength, nil
+	})
+
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*v1.Duration)
+	fc.Result = res
+	return ec.marshalODuration2ᚖk8sᚗioᚋapimachineryᚋpkgᚋapisᚋmetaᚋv1ᚐDuration(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_LokiLimits_maxQueryLength(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "LokiLimits",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Duration does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _LokiLimits_maxQueryRange(ctx context.Context, field graphql.CollectedField, obj *v1alpha1.LokiLimits) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_LokiLimits_maxQueryRange(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp := ec._fieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.MaxQueryRange, nil
+	})
+
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*v1.Duration)
+	fc.Result = res
+	return ec.marshalODuration2ᚖk8sᚗioᚋapimachineryᚋpkgᚋapisᚋmetaᚋv1ᚐDuration(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_LokiLimits_maxQueryRange(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "LokiLimits",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Duration does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _LokiLimits_maxQueryParallelism(ctx context.Context, field graphql.CollectedField, obj *v1alpha1.LokiLimits) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_LokiLimits_maxQueryParallelism(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp := ec._fieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.MaxQueryParallelism, nil
+	})
+
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*int)
+	fc.Result = res
+	return ec.marshalOInt2ᚖint(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_LokiLimits_maxQueryParallelism(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "LokiLimits",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _LokiLimits_tsdbMaxQueryParallelism(ctx context.Context, field graphql.CollectedField, obj *v1alpha1.LokiLimits) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_LokiLimits_tsdbMaxQueryParallelism(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp := ec._fieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.TSDBMaxQueryParallelism, nil
+	})
+
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*int)
+	fc.Result = res
+	return ec.marshalOInt2ᚖint(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_LokiLimits_tsdbMaxQueryParallelism(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "LokiLimits",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _LokiLimits_tsdbMaxBytesPerShard(ctx context.Context, field graphql.CollectedField, obj *v1alpha1.LokiLimits) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_LokiLimits_tsdbMaxBytesPerShard(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp := ec._fieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.TSDBMaxBytesPerShard, nil
+	})
+
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*uint64)
+	fc.Result = res
+	return ec.marshalOUInt2ᚖuint64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_LokiLimits_tsdbMaxBytesPerShard(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "LokiLimits",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type UInt does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _LokiLimits_cardinalityLimit(ctx context.Context, field graphql.CollectedField, obj *v1alpha1.LokiLimits) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_LokiLimits_cardinalityLimit(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp := ec._fieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.CardinalityLimit, nil
+	})
+
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*int)
+	fc.Result = res
+	return ec.marshalOInt2ᚖint(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_LokiLimits_cardinalityLimit(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "LokiLimits",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _LokiLimits_maxStreamsMatchersPerQuery(ctx context.Context, field graphql.CollectedField, obj *v1alpha1.LokiLimits) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_LokiLimits_maxStreamsMatchersPerQuery(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp := ec._fieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.MaxStreamsMatchersPerQuery, nil
+	})
+
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*int)
+	fc.Result = res
+	return ec.marshalOInt2ᚖint(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_LokiLimits_maxStreamsMatchersPerQuery(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "LokiLimits",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _LokiLimits_maxConcurrentTailRequests(ctx context.Context, field graphql.CollectedField, obj *v1alpha1.LokiLimits) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_LokiLimits_maxConcurrentTailRequests(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp := ec._fieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.MaxConcurrentTailRequests, nil
+	})
+
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*int)
+	fc.Result = res
+	return ec.marshalOInt2ᚖint(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_LokiLimits_maxConcurrentTailRequests(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "LokiLimits",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _LokiLimits_maxEntriesLimitPerQuery(ctx context.Context, field graphql.CollectedField, obj *v1alpha1.LokiLimits) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_LokiLimits_maxEntriesLimitPerQuery(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp := ec._fieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.MaxEntriesLimitPerQuery, nil
+	})
+
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*int)
+	fc.Result = res
+	return ec.marshalOInt2ᚖint(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_LokiLimits_maxEntriesLimitPerQuery(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "LokiLimits",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _LokiLimits_maxCacheFreshness(ctx context.Context, field graphql.CollectedField, obj *v1alpha1.LokiLimits) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_LokiLimits_maxCacheFreshness(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp := ec._fieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.MaxCacheFreshness, nil
+	})
+
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*v1.Duration)
+	fc.Result = res
+	return ec.marshalODuration2ᚖk8sᚗioᚋapimachineryᚋpkgᚋapisᚋmetaᚋv1ᚐDuration(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_LokiLimits_maxCacheFreshness(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "LokiLimits",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Duration does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _LokiLimits_maxStatsCacheFreshness(ctx context.Context, field graphql.CollectedField, obj *v1alpha1.LokiLimits) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_LokiLimits_maxStatsCacheFreshness(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp := ec._fieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.MaxStatsCacheFreshness, nil
+	})
+
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*v1.Duration)
+	fc.Result = res
+	return ec.marshalODuration2ᚖk8sᚗioᚋapimachineryᚋpkgᚋapisᚋmetaᚋv1ᚐDuration(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_LokiLimits_maxStatsCacheFreshness(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "LokiLimits",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Duration does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _LokiLimits_maxQueriersPerTenant(ctx context.Context, field graphql.CollectedField, obj *v1alpha1.LokiLimits) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_LokiLimits_maxQueriersPerTenant(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp := ec._fieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.MaxQueriersPerTenant, nil
+	})
+
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*int)
+	fc.Result = res
+	return ec.marshalOInt2ᚖint(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_LokiLimits_maxQueriersPerTenant(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "LokiLimits",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _LokiLimits_queryReadyIndexNumDays(ctx context.Context, field graphql.CollectedField, obj *v1alpha1.LokiLimits) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_LokiLimits_queryReadyIndexNumDays(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp := ec._fieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.QueryReadyIndexNumDays, nil
+	})
+
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*int)
+	fc.Result = res
+	return ec.marshalOInt2ᚖint(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_LokiLimits_queryReadyIndexNumDays(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "LokiLimits",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _LokiLimits_queryTimeout(ctx context.Context, field graphql.CollectedField, obj *v1alpha1.LokiLimits) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_LokiLimits_queryTimeout(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp := ec._fieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.QueryTimeout, nil
+	})
+
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*v1.Duration)
+	fc.Result = res
+	return ec.marshalODuration2ᚖk8sᚗioᚋapimachineryᚋpkgᚋapisᚋmetaᚋv1ᚐDuration(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_LokiLimits_queryTimeout(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "LokiLimits",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Duration does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _LokiLimits_querySplitDuration(ctx context.Context, field graphql.CollectedField, obj *v1alpha1.LokiLimits) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_LokiLimits_querySplitDuration(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp := ec._fieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.QuerySplitDuration, nil
+	})
+
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*v1.Duration)
+	fc.Result = res
+	return ec.marshalODuration2ᚖk8sᚗioᚋapimachineryᚋpkgᚋapisᚋmetaᚋv1ᚐDuration(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_LokiLimits_querySplitDuration(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "LokiLimits",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Duration does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _LokiLimits_minShardingLookback(ctx context.Context, field graphql.CollectedField, obj *v1alpha1.LokiLimits) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_LokiLimits_minShardingLookback(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp := ec._fieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.MinShardingLookback, nil
+	})
+
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*v1.Duration)
+	fc.Result = res
+	return ec.marshalODuration2ᚖk8sᚗioᚋapimachineryᚋpkgᚋapisᚋmetaᚋv1ᚐDuration(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_LokiLimits_minShardingLookback(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "LokiLimits",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Duration does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _LokiLimits_maxQueryBytesRead(ctx context.Context, field graphql.CollectedField, obj *v1alpha1.LokiLimits) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_LokiLimits_maxQueryBytesRead(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp := ec._fieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.MaxQueryBytesRead, nil
+	})
+
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*uint64)
+	fc.Result = res
+	return ec.marshalOUInt2ᚖuint64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_LokiLimits_maxQueryBytesRead(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "LokiLimits",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type UInt does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _LokiLimits_maxQuerierBytesRead(ctx context.Context, field graphql.CollectedField, obj *v1alpha1.LokiLimits) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_LokiLimits_maxQuerierBytesRead(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp := ec._fieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.MaxQuerierBytesRead, nil
+	})
+
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*uint64)
+	fc.Result = res
+	return ec.marshalOUInt2ᚖuint64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_LokiLimits_maxQuerierBytesRead(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "LokiLimits",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type UInt does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _LokiLimits_volumeEnabled(ctx context.Context, field graphql.CollectedField, obj *v1alpha1.LokiLimits) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_LokiLimits_volumeEnabled(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp := ec._fieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.VolumeEnabled, nil
+	})
+
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*bool)
+	fc.Result = res
+	return ec.marshalOBoolean2ᚖbool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_LokiLimits_volumeEnabled(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "LokiLimits",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _LokiLimits_volumeMaxSeries(ctx context.Context, field graphql.CollectedField, obj *v1alpha1.LokiLimits) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_LokiLimits_volumeMaxSeries(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp := ec._fieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.VolumeMaxSeries, nil
+	})
+
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*int)
+	fc.Result = res
+	return ec.marshalOInt2ᚖint(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_LokiLimits_volumeMaxSeries(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "LokiLimits",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _LokiLimits_rulerEvaluationDelay(ctx context.Context, field graphql.CollectedField, obj *v1alpha1.LokiLimits) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_LokiLimits_rulerEvaluationDelay(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp := ec._fieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.RulerEvaluationDelay, nil
+	})
+
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*v1.Duration)
+	fc.Result = res
+	return ec.marshalODuration2ᚖk8sᚗioᚋapimachineryᚋpkgᚋapisᚋmetaᚋv1ᚐDuration(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_LokiLimits_rulerEvaluationDelay(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "LokiLimits",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Duration does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _LokiLimits_rulerMaxRulesPerRuleGroup(ctx context.Context, field graphql.CollectedField, obj *v1alpha1.LokiLimits) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_LokiLimits_rulerMaxRulesPerRuleGroup(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp := ec._fieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.RulerMaxRulesPerRuleGroup, nil
+	})
+
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*int)
+	fc.Result = res
+	return ec.marshalOInt2ᚖint(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_LokiLimits_rulerMaxRulesPerRuleGroup(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "LokiLimits",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _LokiLimits_rulerMaxRuleGroupsPerTenant(ctx context.Context, field graphql.CollectedField, obj *v1alpha1.LokiLimits) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_LokiLimits_rulerMaxRuleGroupsPerTenant(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp := ec._fieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.RulerMaxRuleGroupsPerTenant, nil
+	})
+
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*int)
+	fc.Result = res
+	return ec.marshalOInt2ᚖint(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_LokiLimits_rulerMaxRuleGroupsPerTenant(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "LokiLimits",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _LokiLimits_rulerAlertManagerConfig(ctx context.Context, field graphql.CollectedField, obj *v1alpha1.LokiLimits) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_LokiLimits_rulerAlertManagerConfig(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp := ec._fieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.RulerAlertManagerConfig, nil
+	})
+
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*v1alpha1.RulerAlertManagerConfig)
+	fc.Result = res
+	return ec.marshalORulerAlertManagerConfig2ᚖgithubᚗcomᚋpluralshᚋtraceᚑshieldᚑcontrollerᚋapiᚋobservabilityᚋv1alpha1ᚐRulerAlertManagerConfig(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_LokiLimits_rulerAlertManagerConfig(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "LokiLimits",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "alertmanagerURL":
+				return ec.fieldContext_RulerAlertManagerConfig_alertmanagerURL(ctx, field)
+			case "alertmanagerDiscovery":
+				return ec.fieldContext_RulerAlertManagerConfig_alertmanagerDiscovery(ctx, field)
+			case "alertmanagerRefreshInterval":
+				return ec.fieldContext_RulerAlertManagerConfig_alertmanagerRefreshInterval(ctx, field)
+			case "alertmanangerEnableV2API":
+				return ec.fieldContext_RulerAlertManagerConfig_alertmanangerEnableV2API(ctx, field)
+			case "alertRelabelConfigs":
+				return ec.fieldContext_RulerAlertManagerConfig_alertRelabelConfigs(ctx, field)
+			case "notificationQueueCapacity":
+				return ec.fieldContext_RulerAlertManagerConfig_notificationQueueCapacity(ctx, field)
+			case "notificationTimeout":
+				return ec.fieldContext_RulerAlertManagerConfig_notificationTimeout(ctx, field)
+			case "notifier":
+				return ec.fieldContext_RulerAlertManagerConfig_notifier(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type RulerAlertManagerConfig", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _LokiLimits_rulerTenantShardSize(ctx context.Context, field graphql.CollectedField, obj *v1alpha1.LokiLimits) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_LokiLimits_rulerTenantShardSize(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp := ec._fieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.RulerTenantShardSize, nil
+	})
+
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*int)
+	fc.Result = res
+	return ec.marshalOInt2ᚖint(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_LokiLimits_rulerTenantShardSize(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "LokiLimits",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _LokiLimits_rulerRemoteWriteDisabled(ctx context.Context, field graphql.CollectedField, obj *v1alpha1.LokiLimits) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_LokiLimits_rulerRemoteWriteDisabled(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp := ec._fieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.RulerRemoteWriteDisabled, nil
+	})
+
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*bool)
+	fc.Result = res
+	return ec.marshalOBoolean2ᚖbool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_LokiLimits_rulerRemoteWriteDisabled(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "LokiLimits",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _LokiLimits_rulerRemoteEvaluationTimeout(ctx context.Context, field graphql.CollectedField, obj *v1alpha1.LokiLimits) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_LokiLimits_rulerRemoteEvaluationTimeout(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp := ec._fieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.RulerRemoteEvaluationTimeout, nil
+	})
+
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*v1.Duration)
+	fc.Result = res
+	return ec.marshalODuration2ᚖk8sᚗioᚋapimachineryᚋpkgᚋapisᚋmetaᚋv1ᚐDuration(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_LokiLimits_rulerRemoteEvaluationTimeout(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "LokiLimits",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Duration does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _LokiLimits_rulerRemoteEvaluationMaxResponseSize(ctx context.Context, field graphql.CollectedField, obj *v1alpha1.LokiLimits) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_LokiLimits_rulerRemoteEvaluationMaxResponseSize(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp := ec._fieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.RulerRemoteEvaluationMaxResponseSize, nil
+	})
+
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*int64)
+	fc.Result = res
+	return ec.marshalOInt2ᚖint64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_LokiLimits_rulerRemoteEvaluationMaxResponseSize(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "LokiLimits",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _LokiLimits_deletionMode(ctx context.Context, field graphql.CollectedField, obj *v1alpha1.LokiLimits) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_LokiLimits_deletionMode(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp := ec._fieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.DeletionMode, nil
+	})
+
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_LokiLimits_deletionMode(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "LokiLimits",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _LokiLimits_retentionPeriod(ctx context.Context, field graphql.CollectedField, obj *v1alpha1.LokiLimits) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_LokiLimits_retentionPeriod(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp := ec._fieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.RetentionPeriod, nil
+	})
+
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*v1.Duration)
+	fc.Result = res
+	return ec.marshalODuration2ᚖk8sᚗioᚋapimachineryᚋpkgᚋapisᚋmetaᚋv1ᚐDuration(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_LokiLimits_retentionPeriod(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "LokiLimits",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Duration does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _LokiLimits_streamRetention(ctx context.Context, field graphql.CollectedField, obj *v1alpha1.LokiLimits) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_LokiLimits_streamRetention(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp := ec._fieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.StreamRetention, nil
+	})
+
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.([]v1alpha1.StreamRetention)
+	fc.Result = res
+	return ec.marshalOStreamRetention2ᚕgithubᚗcomᚋpluralshᚋtraceᚑshieldᚑcontrollerᚋapiᚋobservabilityᚋv1alpha1ᚐStreamRetentionᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_LokiLimits_streamRetention(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "LokiLimits",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "period":
+				return ec.fieldContext_StreamRetention_period(ctx, field)
+			case "priority":
+				return ec.fieldContext_StreamRetention_priority(ctx, field)
+			case "selector":
+				return ec.fieldContext_StreamRetention_selector(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type StreamRetention", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _LokiLimits_shardStreams(ctx context.Context, field graphql.CollectedField, obj *v1alpha1.LokiLimits) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_LokiLimits_shardStreams(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp := ec._fieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ShardStreams, nil
+	})
+
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*v1alpha1.ShardstreamsConfig)
+	fc.Result = res
+	return ec.marshalOShardstreamsConfig2ᚖgithubᚗcomᚋpluralshᚋtraceᚑshieldᚑcontrollerᚋapiᚋobservabilityᚋv1alpha1ᚐShardstreamsConfig(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_LokiLimits_shardStreams(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "LokiLimits",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "enabled":
+				return ec.fieldContext_ShardstreamsConfig_enabled(ctx, field)
+			case "loggingEnabled":
+				return ec.fieldContext_ShardstreamsConfig_loggingEnabled(ctx, field)
+			case "desiredRate":
+				return ec.fieldContext_ShardstreamsConfig_desiredRate(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type ShardstreamsConfig", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _LokiLimits_blockedQueries(ctx context.Context, field graphql.CollectedField, obj *v1alpha1.LokiLimits) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_LokiLimits_blockedQueries(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp := ec._fieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.BlockedQueries, nil
+	})
+
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.([]v1alpha1.BlockedQuery)
+	fc.Result = res
+	return ec.marshalOBlockedQuery2ᚕgithubᚗcomᚋpluralshᚋtraceᚑshieldᚑcontrollerᚋapiᚋobservabilityᚋv1alpha1ᚐBlockedQueryᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_LokiLimits_blockedQueries(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "LokiLimits",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "pattern":
+				return ec.fieldContext_BlockedQuery_pattern(ctx, field)
+			case "regex":
+				return ec.fieldContext_BlockedQuery_regex(ctx, field)
+			case "hash":
+				return ec.fieldContext_BlockedQuery_hash(ctx, field)
+			case "types":
+				return ec.fieldContext_BlockedQuery_types(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type BlockedQuery", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _LokiLimits_requiredLabels(ctx context.Context, field graphql.CollectedField, obj *v1alpha1.LokiLimits) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_LokiLimits_requiredLabels(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp := ec._fieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.RequiredLabels, nil
+	})
+
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.([]string)
+	fc.Result = res
+	return ec.marshalOString2ᚕstringᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_LokiLimits_requiredLabels(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "LokiLimits",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _LokiLimits_requiredNumberLabels(ctx context.Context, field graphql.CollectedField, obj *v1alpha1.LokiLimits) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_LokiLimits_requiredNumberLabels(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp := ec._fieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.RequiredNumberLabels, nil
+	})
+
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*int)
+	fc.Result = res
+	return ec.marshalOInt2ᚖint(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_LokiLimits_requiredNumberLabels(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "LokiLimits",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _LokiLimits_indexGatewayShardSize(ctx context.Context, field graphql.CollectedField, obj *v1alpha1.LokiLimits) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_LokiLimits_indexGatewayShardSize(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp := ec._fieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.IndexGatewayShardSize, nil
+	})
+
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*int)
+	fc.Result = res
+	return ec.marshalOInt2ᚖint(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_LokiLimits_indexGatewayShardSize(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "LokiLimits",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _MatchPolicyAttribute_key(ctx context.Context, field graphql.CollectedField, obj *v1alpha1.MatchPolicyAttribute) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_MatchPolicyAttribute_key(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp := ec._fieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Key, nil
+	})
+
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_MatchPolicyAttribute_key(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "MatchPolicyAttribute",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _MatchPolicyAttribute_value(ctx context.Context, field graphql.CollectedField, obj *v1alpha1.MatchPolicyAttribute) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_MatchPolicyAttribute_value(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp := ec._fieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Value, nil
+	})
+
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(v1alpha1.WrappedMap)
+	fc.Result = res
+	return ec.marshalOMap2githubᚗcomᚋpluralshᚋtraceᚑshieldᚑcontrollerᚋapiᚋobservabilityᚋv1alpha1ᚐWrappedMap(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_MatchPolicyAttribute_value(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "MatchPolicyAttribute",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Map does not have child fields")
 		},
 	}
 	return fc, nil
@@ -5578,9 +9532,9 @@ func (ec *executionContext) _MimirLimits_dropLabels(ctx context.Context, field g
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.([]*string)
+	res := resTmp.([]string)
 	fc.Result = res
-	return ec.marshalOString2ᚕᚖstring(ctx, field.Selections, res)
+	return ec.marshalOString2ᚕstringᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_MimirLimits_dropLabels(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -5748,6 +9702,44 @@ func (ec *executionContext) fieldContext_MimirLimits_maxMetadataLength(ctx conte
 	return fc, nil
 }
 
+func (ec *executionContext) _MimirLimits_maxNativeHistogramBuckets(ctx context.Context, field graphql.CollectedField, obj *v1alpha1.MimirLimits) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_MimirLimits_maxNativeHistogramBuckets(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp := ec._fieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.MaxNativeHistogramBuckets, nil
+	})
+
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*int)
+	fc.Result = res
+	return ec.marshalOInt2ᚖint(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_MimirLimits_maxNativeHistogramBuckets(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "MimirLimits",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _MimirLimits_creationGracePeriod(ctx context.Context, field graphql.CollectedField, obj *v1alpha1.MimirLimits) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_MimirLimits_creationGracePeriod(ctx, field)
 	if err != nil {
@@ -5857,6 +9849,60 @@ func (ec *executionContext) fieldContext_MimirLimits_ingestionTenantShardSize(ct
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _MimirLimits_metricRelabelConfigs(ctx context.Context, field graphql.CollectedField, obj *v1alpha1.MimirLimits) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_MimirLimits_metricRelabelConfigs(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp := ec._fieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.MetricRelabelConfigs, nil
+	})
+
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.([]v1alpha1.RelabelConfig)
+	fc.Result = res
+	return ec.marshalORelabelConfig2ᚕgithubᚗcomᚋpluralshᚋtraceᚑshieldᚑcontrollerᚋapiᚋobservabilityᚋv1alpha1ᚐRelabelConfigᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_MimirLimits_metricRelabelConfigs(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "MimirLimits",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "sourceLabels":
+				return ec.fieldContext_RelabelConfig_sourceLabels(ctx, field)
+			case "separator":
+				return ec.fieldContext_RelabelConfig_separator(ctx, field)
+			case "regex":
+				return ec.fieldContext_RelabelConfig_regex(ctx, field)
+			case "modulus":
+				return ec.fieldContext_RelabelConfig_modulus(ctx, field)
+			case "targetLabel":
+				return ec.fieldContext_RelabelConfig_targetLabel(ctx, field)
+			case "replacement":
+				return ec.fieldContext_RelabelConfig_replacement(ctx, field)
+			case "action":
+				return ec.fieldContext_RelabelConfig_action(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type RelabelConfig", field.Name)
 		},
 	}
 	return fc, nil
@@ -6085,6 +10131,44 @@ func (ec *executionContext) fieldContext_MimirLimits_nativeHistogramsIngestionEn
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _MimirLimits_activeSeriesCustomTrackersConfig(ctx context.Context, field graphql.CollectedField, obj *v1alpha1.MimirLimits) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_MimirLimits_activeSeriesCustomTrackersConfig(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp := ec._fieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ActiveSeriesCustomTrackersConfig, nil
+	})
+
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(map[string]string)
+	fc.Result = res
+	return ec.marshalOStringMap2map(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_MimirLimits_activeSeriesCustomTrackersConfig(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "MimirLimits",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type StringMap does not have child fields")
 		},
 	}
 	return fc, nil
@@ -6698,6 +10782,44 @@ func (ec *executionContext) fieldContext_MimirLimits_splitInstantQueriesByInterv
 	return fc, nil
 }
 
+func (ec *executionContext) _MimirLimits_QueryIngestersWithin(ctx context.Context, field graphql.CollectedField, obj *v1alpha1.MimirLimits) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_MimirLimits_QueryIngestersWithin(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp := ec._fieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.QueryIngestersWithin, nil
+	})
+
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*v1.Duration)
+	fc.Result = res
+	return ec.marshalODuration2ᚖk8sᚗioᚋapimachineryᚋpkgᚋapisᚋmetaᚋv1ᚐDuration(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_MimirLimits_QueryIngestersWithin(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "MimirLimits",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Duration does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _MimirLimits_maxTotalQueryLength(ctx context.Context, field graphql.CollectedField, obj *v1alpha1.MimirLimits) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_MimirLimits_maxTotalQueryLength(ctx, field)
 	if err != nil {
@@ -6807,6 +10929,120 @@ func (ec *executionContext) fieldContext_MimirLimits_resultsCacheTTLForOutOfOrde
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type Duration does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _MimirLimits_resultsCacheTTLForCardinalityQuery(ctx context.Context, field graphql.CollectedField, obj *v1alpha1.MimirLimits) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_MimirLimits_resultsCacheTTLForCardinalityQuery(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp := ec._fieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ResultsCacheTTLForCardinalityQuery, nil
+	})
+
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*v1.Duration)
+	fc.Result = res
+	return ec.marshalODuration2ᚖk8sᚗioᚋapimachineryᚋpkgᚋapisᚋmetaᚋv1ᚐDuration(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_MimirLimits_resultsCacheTTLForCardinalityQuery(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "MimirLimits",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Duration does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _MimirLimits_resultsCacheTTLForLabelsQuery(ctx context.Context, field graphql.CollectedField, obj *v1alpha1.MimirLimits) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_MimirLimits_resultsCacheTTLForLabelsQuery(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp := ec._fieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ResultsCacheTTLForLabelsQuery, nil
+	})
+
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*v1.Duration)
+	fc.Result = res
+	return ec.marshalODuration2ᚖk8sᚗioᚋapimachineryᚋpkgᚋapisᚋmetaᚋv1ᚐDuration(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_MimirLimits_resultsCacheTTLForLabelsQuery(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "MimirLimits",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Duration does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _MimirLimits_resultsCacheForUnalignedQueryEnabled(ctx context.Context, field graphql.CollectedField, obj *v1alpha1.MimirLimits) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_MimirLimits_resultsCacheForUnalignedQueryEnabled(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp := ec._fieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ResultsCacheForUnalignedQueryEnabled, nil
+	})
+
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*bool)
+	fc.Result = res
+	return ec.marshalOBoolean2ᚖbool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_MimirLimits_resultsCacheForUnalignedQueryEnabled(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "MimirLimits",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
 		},
 	}
 	return fc, nil
@@ -7192,6 +11428,44 @@ func (ec *executionContext) fieldContext_MimirLimits_rulerAlertingRulesEvaluatio
 	return fc, nil
 }
 
+func (ec *executionContext) _MimirLimits_rulerSyncRulesOnChangesEnabled(ctx context.Context, field graphql.CollectedField, obj *v1alpha1.MimirLimits) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_MimirLimits_rulerSyncRulesOnChangesEnabled(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp := ec._fieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.RulerSyncRulesOnChangesEnabled, nil
+	})
+
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*bool)
+	fc.Result = res
+	return ec.marshalOBoolean2ᚖbool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_MimirLimits_rulerSyncRulesOnChangesEnabled(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "MimirLimits",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _MimirLimits_storeGatewayTenantShardSize(ctx context.Context, field graphql.CollectedField, obj *v1alpha1.MimirLimits) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_MimirLimits_storeGatewayTenantShardSize(ctx, field)
 	if err != nil {
@@ -7534,6 +11808,44 @@ func (ec *executionContext) fieldContext_MimirLimits_compactorBlockUploadVerifyC
 	return fc, nil
 }
 
+func (ec *executionContext) _MimirLimits_compactorBlockUploadMaxBlockSizeBytes(ctx context.Context, field graphql.CollectedField, obj *v1alpha1.MimirLimits) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_MimirLimits_compactorBlockUploadMaxBlockSizeBytes(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp := ec._fieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.CompactorBlockUploadMaxBlockSizeBytes, nil
+	})
+
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*int64)
+	fc.Result = res
+	return ec.marshalOInt2ᚖint64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_MimirLimits_compactorBlockUploadMaxBlockSizeBytes(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "MimirLimits",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _MimirLimits_s3SSEType(ctx context.Context, field graphql.CollectedField, obj *v1alpha1.MimirLimits) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_MimirLimits_s3SSEType(ctx, field)
 	if err != nil {
@@ -7782,7 +12094,7 @@ func (ec *executionContext) _MimirLimits_notificationRateLimitPerIntegration(ctx
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.(map[string]*float64)
+	res := resTmp.(map[string]float64)
 	fc.Result = res
 	return ec.marshalOFloatMap2map(ctx, field.Selections, res)
 }
@@ -8028,120 +12340,6 @@ func (ec *executionContext) fieldContext_MimirLimits_alertmanagerMaxAlertsSizeBy
 	return fc, nil
 }
 
-func (ec *executionContext) _MimirLimits_forwardingEndpoint(ctx context.Context, field graphql.CollectedField, obj *v1alpha1.MimirLimits) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_MimirLimits_forwardingEndpoint(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp := ec._fieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.ForwardingEndpoint, nil
-	})
-
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.(*string)
-	fc.Result = res
-	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_MimirLimits_forwardingEndpoint(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "MimirLimits",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _MimirLimits_forwardingDropOlderThan(ctx context.Context, field graphql.CollectedField, obj *v1alpha1.MimirLimits) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_MimirLimits_forwardingDropOlderThan(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp := ec._fieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.ForwardingDropOlderThan, nil
-	})
-
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.(*v1.Duration)
-	fc.Result = res
-	return ec.marshalODuration2ᚖk8sᚗioᚋapimachineryᚋpkgᚋapisᚋmetaᚋv1ᚐDuration(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_MimirLimits_forwardingDropOlderThan(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "MimirLimits",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Duration does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _MimirLimits_forwardingRules(ctx context.Context, field graphql.CollectedField, obj *v1alpha1.MimirLimits) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_MimirLimits_forwardingRules(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp := ec._fieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.ForwardingRules, nil
-	})
-
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.(map[string]*v1alpha1.ForwardingRule)
-	fc.Result = res
-	return ec.marshalOForwardingRuleMap2map(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_MimirLimits_forwardingRules(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "MimirLimits",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type ForwardingRuleMap does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
 func (ec *executionContext) _Mutation_createUser(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Mutation_createUser(ctx, field)
 	if err != nil {
@@ -8337,7 +12535,7 @@ func (ec *executionContext) _Mutation_group(ctx context.Context, field graphql.C
 	resTmp := ec._fieldMiddleware(ctx, nil, func(rctx context.Context) (interface{}, error) {
 		directive0 := func(rctx context.Context) (interface{}, error) {
 			ctx = rctx // use context from middleware stack in children
-			return ec.resolvers.Mutation().Group(rctx, fc.Args["name"].(string), fc.Args["members"].([]string))
+			return ec.resolvers.Mutation().Group(rctx, fc.Args["name"].(string), fc.Args["members"].([]*model.UserInput))
 		}
 		directive1 := func(ctx context.Context) (interface{}, error) {
 			if ec.directives.CheckPermissions == nil {
@@ -9252,8 +13450,8 @@ func (ec *executionContext) fieldContext_Mutation_createObservabilityTenant(ctx 
 			switch field.Name {
 			case "id":
 				return ec.fieldContext_ObservabilityTenant_id(ctx, field)
-			case "name":
-				return ec.fieldContext_ObservabilityTenant_name(ctx, field)
+			case "displayName":
+				return ec.fieldContext_ObservabilityTenant_displayName(ctx, field)
 			case "admins":
 				return ec.fieldContext_ObservabilityTenant_admins(ctx, field)
 			case "metricsReaders":
@@ -9372,8 +13570,8 @@ func (ec *executionContext) fieldContext_Mutation_updateObservabilityTenant(ctx 
 			switch field.Name {
 			case "id":
 				return ec.fieldContext_ObservabilityTenant_id(ctx, field)
-			case "name":
-				return ec.fieldContext_ObservabilityTenant_name(ctx, field)
+			case "displayName":
+				return ec.fieldContext_ObservabilityTenant_displayName(ctx, field)
 			case "admins":
 				return ec.fieldContext_ObservabilityTenant_admins(ctx, field)
 			case "metricsReaders":
@@ -9492,8 +13690,8 @@ func (ec *executionContext) fieldContext_Mutation_deleteObservabilityTenant(ctx 
 			switch field.Name {
 			case "id":
 				return ec.fieldContext_ObservabilityTenant_id(ctx, field)
-			case "name":
-				return ec.fieldContext_ObservabilityTenant_name(ctx, field)
+			case "displayName":
+				return ec.fieldContext_ObservabilityTenant_displayName(ctx, field)
 			case "admins":
 				return ec.fieldContext_ObservabilityTenant_admins(ctx, field)
 			case "metricsReaders":
@@ -9563,7 +13761,7 @@ func (ec *executionContext) _Mutation_organization(ctx context.Context, field gr
 	resTmp := ec._fieldMiddleware(ctx, nil, func(rctx context.Context) (interface{}, error) {
 		directive0 := func(rctx context.Context) (interface{}, error) {
 			ctx = rctx // use context from middleware stack in children
-			return ec.resolvers.Mutation().Organization(rctx, fc.Args["name"].(string), fc.Args["admins"].([]string))
+			return ec.resolvers.Mutation().Organization(rctx, fc.Args["admins"].([]*model.UserInput))
 		}
 		directive1 := func(ctx context.Context) (interface{}, error) {
 			if ec.directives.CheckPermissions == nil {
@@ -9610,8 +13808,6 @@ func (ec *executionContext) fieldContext_Mutation_organization(ctx context.Conte
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
-			case "name":
-				return ec.fieldContext_Organization_name(ctx, field)
 			case "admins":
 				return ec.fieldContext_Organization_admins(ctx, field)
 			}
@@ -9698,6 +13894,606 @@ func (ec *executionContext) _Name_last(ctx context.Context, field graphql.Collec
 func (ec *executionContext) fieldContext_Name_last(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Name",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _NotifierBasicAuth_username(ctx context.Context, field graphql.CollectedField, obj *v1alpha1.NotifierBasicAuth) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_NotifierBasicAuth_username(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp := ec._fieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Username, nil
+	})
+
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_NotifierBasicAuth_username(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "NotifierBasicAuth",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _NotifierBasicAuth_password(ctx context.Context, field graphql.CollectedField, obj *v1alpha1.NotifierBasicAuth) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_NotifierBasicAuth_password(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp := ec._fieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Password, nil
+	})
+
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_NotifierBasicAuth_password(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "NotifierBasicAuth",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _NotifierConfig_basicAuth(ctx context.Context, field graphql.CollectedField, obj *v1alpha1.NotifierConfig) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_NotifierConfig_basicAuth(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp := ec._fieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.BasicAuth, nil
+	})
+
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*v1alpha1.NotifierBasicAuth)
+	fc.Result = res
+	return ec.marshalONotifierBasicAuth2ᚖgithubᚗcomᚋpluralshᚋtraceᚑshieldᚑcontrollerᚋapiᚋobservabilityᚋv1alpha1ᚐNotifierBasicAuth(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_NotifierConfig_basicAuth(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "NotifierConfig",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "username":
+				return ec.fieldContext_NotifierBasicAuth_username(ctx, field)
+			case "password":
+				return ec.fieldContext_NotifierBasicAuth_password(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type NotifierBasicAuth", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _NotifierConfig_headerAuth(ctx context.Context, field graphql.CollectedField, obj *v1alpha1.NotifierConfig) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_NotifierConfig_headerAuth(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp := ec._fieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.HeaderAuth, nil
+	})
+
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*v1alpha1.NotifierHeaderAuth)
+	fc.Result = res
+	return ec.marshalONotifierHeaderAuth2ᚖgithubᚗcomᚋpluralshᚋtraceᚑshieldᚑcontrollerᚋapiᚋobservabilityᚋv1alpha1ᚐNotifierHeaderAuth(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_NotifierConfig_headerAuth(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "NotifierConfig",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "type":
+				return ec.fieldContext_NotifierHeaderAuth_type(ctx, field)
+			case "credentials":
+				return ec.fieldContext_NotifierHeaderAuth_credentials(ctx, field)
+			case "credentialsFile":
+				return ec.fieldContext_NotifierHeaderAuth_credentialsFile(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type NotifierHeaderAuth", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _NotifierConfig_tls(ctx context.Context, field graphql.CollectedField, obj *v1alpha1.NotifierConfig) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_NotifierConfig_tls(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp := ec._fieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.TLS, nil
+	})
+
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*v1alpha1.NotifierTLSClientConfig)
+	fc.Result = res
+	return ec.marshalONotifierTLSClientConfig2ᚖgithubᚗcomᚋpluralshᚋtraceᚑshieldᚑcontrollerᚋapiᚋobservabilityᚋv1alpha1ᚐNotifierTLSClientConfig(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_NotifierConfig_tls(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "NotifierConfig",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "certPath":
+				return ec.fieldContext_NotifierTLSClientConfig_certPath(ctx, field)
+			case "keyPath":
+				return ec.fieldContext_NotifierTLSClientConfig_keyPath(ctx, field)
+			case "caPath":
+				return ec.fieldContext_NotifierTLSClientConfig_caPath(ctx, field)
+			case "serverName":
+				return ec.fieldContext_NotifierTLSClientConfig_serverName(ctx, field)
+			case "insecureSkipVerify":
+				return ec.fieldContext_NotifierTLSClientConfig_insecureSkipVerify(ctx, field)
+			case "cipherSuites":
+				return ec.fieldContext_NotifierTLSClientConfig_cipherSuites(ctx, field)
+			case "minVersion":
+				return ec.fieldContext_NotifierTLSClientConfig_minVersion(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type NotifierTLSClientConfig", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _NotifierHeaderAuth_type(ctx context.Context, field graphql.CollectedField, obj *v1alpha1.NotifierHeaderAuth) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_NotifierHeaderAuth_type(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp := ec._fieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Type, nil
+	})
+
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_NotifierHeaderAuth_type(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "NotifierHeaderAuth",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _NotifierHeaderAuth_credentials(ctx context.Context, field graphql.CollectedField, obj *v1alpha1.NotifierHeaderAuth) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_NotifierHeaderAuth_credentials(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp := ec._fieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Credentials, nil
+	})
+
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_NotifierHeaderAuth_credentials(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "NotifierHeaderAuth",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _NotifierHeaderAuth_credentialsFile(ctx context.Context, field graphql.CollectedField, obj *v1alpha1.NotifierHeaderAuth) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_NotifierHeaderAuth_credentialsFile(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp := ec._fieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.CredentialsFile, nil
+	})
+
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_NotifierHeaderAuth_credentialsFile(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "NotifierHeaderAuth",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _NotifierTLSClientConfig_certPath(ctx context.Context, field graphql.CollectedField, obj *v1alpha1.NotifierTLSClientConfig) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_NotifierTLSClientConfig_certPath(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp := ec._fieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.CertPath, nil
+	})
+
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_NotifierTLSClientConfig_certPath(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "NotifierTLSClientConfig",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _NotifierTLSClientConfig_keyPath(ctx context.Context, field graphql.CollectedField, obj *v1alpha1.NotifierTLSClientConfig) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_NotifierTLSClientConfig_keyPath(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp := ec._fieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.KeyPath, nil
+	})
+
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_NotifierTLSClientConfig_keyPath(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "NotifierTLSClientConfig",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _NotifierTLSClientConfig_caPath(ctx context.Context, field graphql.CollectedField, obj *v1alpha1.NotifierTLSClientConfig) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_NotifierTLSClientConfig_caPath(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp := ec._fieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.CAPath, nil
+	})
+
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_NotifierTLSClientConfig_caPath(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "NotifierTLSClientConfig",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _NotifierTLSClientConfig_serverName(ctx context.Context, field graphql.CollectedField, obj *v1alpha1.NotifierTLSClientConfig) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_NotifierTLSClientConfig_serverName(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp := ec._fieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ServerName, nil
+	})
+
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_NotifierTLSClientConfig_serverName(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "NotifierTLSClientConfig",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _NotifierTLSClientConfig_insecureSkipVerify(ctx context.Context, field graphql.CollectedField, obj *v1alpha1.NotifierTLSClientConfig) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_NotifierTLSClientConfig_insecureSkipVerify(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp := ec._fieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.InsecureSkipVerify, nil
+	})
+
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*bool)
+	fc.Result = res
+	return ec.marshalOBoolean2ᚖbool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_NotifierTLSClientConfig_insecureSkipVerify(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "NotifierTLSClientConfig",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _NotifierTLSClientConfig_cipherSuites(ctx context.Context, field graphql.CollectedField, obj *v1alpha1.NotifierTLSClientConfig) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_NotifierTLSClientConfig_cipherSuites(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp := ec._fieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.CipherSuites, nil
+	})
+
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_NotifierTLSClientConfig_cipherSuites(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "NotifierTLSClientConfig",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _NotifierTLSClientConfig_minVersion(ctx context.Context, field graphql.CollectedField, obj *v1alpha1.NotifierTLSClientConfig) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_NotifierTLSClientConfig_minVersion(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp := ec._fieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.MinVersion, nil
+	})
+
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_NotifierTLSClientConfig_minVersion(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "NotifierTLSClientConfig",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -12376,7 +17172,7 @@ func (ec *executionContext) _ObservabilityTenant_id(ctx context.Context, field g
 	}
 	res := resTmp.(string)
 	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
+	return ec.marshalNID2string(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_ObservabilityTenant_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -12386,14 +17182,14 @@ func (ec *executionContext) fieldContext_ObservabilityTenant_id(ctx context.Cont
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
+			return nil, errors.New("field of type ID does not have child fields")
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _ObservabilityTenant_name(ctx context.Context, field graphql.CollectedField, obj *model.ObservabilityTenant) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_ObservabilityTenant_name(ctx, field)
+func (ec *executionContext) _ObservabilityTenant_displayName(ctx context.Context, field graphql.CollectedField, obj *model.ObservabilityTenant) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ObservabilityTenant_displayName(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -12406,7 +17202,7 @@ func (ec *executionContext) _ObservabilityTenant_name(ctx context.Context, field
 	}()
 	resTmp := ec._fieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.Name, nil
+		return obj.DisplayName, nil
 	})
 
 	if resTmp == nil {
@@ -12417,7 +17213,7 @@ func (ec *executionContext) _ObservabilityTenant_name(ctx context.Context, field
 	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_ObservabilityTenant_name(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_ObservabilityTenant_displayName(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "ObservabilityTenant",
 		Field:      field,
@@ -13247,6 +18043,10 @@ func (ec *executionContext) fieldContext_ObservabilityTenant_limits(ctx context.
 			switch field.Name {
 			case "mimir":
 				return ec.fieldContext_ObservabilityTenantLimits_mimir(ctx, field)
+			case "loki":
+				return ec.fieldContext_ObservabilityTenantLimits_loki(ctx, field)
+			case "tempo":
+				return ec.fieldContext_ObservabilityTenantLimits_tempo(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type ObservabilityTenantLimits", field.Name)
 		},
@@ -13313,12 +18113,16 @@ func (ec *executionContext) fieldContext_ObservabilityTenantLimits_mimir(ctx con
 				return ec.fieldContext_MimirLimits_maxLabelNamesPerSeries(ctx, field)
 			case "maxMetadataLength":
 				return ec.fieldContext_MimirLimits_maxMetadataLength(ctx, field)
+			case "maxNativeHistogramBuckets":
+				return ec.fieldContext_MimirLimits_maxNativeHistogramBuckets(ctx, field)
 			case "creationGracePeriod":
 				return ec.fieldContext_MimirLimits_creationGracePeriod(ctx, field)
 			case "enforceMetadataMetricName":
 				return ec.fieldContext_MimirLimits_enforceMetadataMetricName(ctx, field)
 			case "ingestionTenantShardSize":
 				return ec.fieldContext_MimirLimits_ingestionTenantShardSize(ctx, field)
+			case "metricRelabelConfigs":
+				return ec.fieldContext_MimirLimits_metricRelabelConfigs(ctx, field)
 			case "maxGlobalSeriesPerUser":
 				return ec.fieldContext_MimirLimits_maxGlobalSeriesPerUser(ctx, field)
 			case "maxGlobalSeriesPerMetric":
@@ -13331,6 +18135,8 @@ func (ec *executionContext) fieldContext_ObservabilityTenantLimits_mimir(ctx con
 				return ec.fieldContext_MimirLimits_maxGlobalExemplarsPerUser(ctx, field)
 			case "nativeHistogramsIngestionEnabled":
 				return ec.fieldContext_MimirLimits_nativeHistogramsIngestionEnabled(ctx, field)
+			case "activeSeriesCustomTrackersConfig":
+				return ec.fieldContext_MimirLimits_activeSeriesCustomTrackersConfig(ctx, field)
 			case "outOfOrderTimeWindow":
 				return ec.fieldContext_MimirLimits_outOfOrderTimeWindow(ctx, field)
 			case "outOfOrderBlocksExternalLabelEnabled":
@@ -13363,12 +18169,20 @@ func (ec *executionContext) fieldContext_ObservabilityTenantLimits_mimir(ctx con
 				return ec.fieldContext_MimirLimits_queryShardingMaxRegexpSizeBytes(ctx, field)
 			case "splitInstantQueriesByInterval":
 				return ec.fieldContext_MimirLimits_splitInstantQueriesByInterval(ctx, field)
+			case "QueryIngestersWithin":
+				return ec.fieldContext_MimirLimits_QueryIngestersWithin(ctx, field)
 			case "maxTotalQueryLength":
 				return ec.fieldContext_MimirLimits_maxTotalQueryLength(ctx, field)
 			case "resultsCacheTTL":
 				return ec.fieldContext_MimirLimits_resultsCacheTTL(ctx, field)
 			case "resultsCacheTTLForOutOfOrderTimeWindow":
 				return ec.fieldContext_MimirLimits_resultsCacheTTLForOutOfOrderTimeWindow(ctx, field)
+			case "resultsCacheTTLForCardinalityQuery":
+				return ec.fieldContext_MimirLimits_resultsCacheTTLForCardinalityQuery(ctx, field)
+			case "resultsCacheTTLForLabelsQuery":
+				return ec.fieldContext_MimirLimits_resultsCacheTTLForLabelsQuery(ctx, field)
+			case "resultsCacheForUnalignedQueryEnabled":
+				return ec.fieldContext_MimirLimits_resultsCacheForUnalignedQueryEnabled(ctx, field)
 			case "maxQueryExpressionSizeBytes":
 				return ec.fieldContext_MimirLimits_maxQueryExpressionSizeBytes(ctx, field)
 			case "cardinalityAnalysisEnabled":
@@ -13389,6 +18203,8 @@ func (ec *executionContext) fieldContext_ObservabilityTenantLimits_mimir(ctx con
 				return ec.fieldContext_MimirLimits_rulerRecordingRulesEvaluationEnabled(ctx, field)
 			case "rulerAlertingRulesEvaluationEnabled":
 				return ec.fieldContext_MimirLimits_rulerAlertingRulesEvaluationEnabled(ctx, field)
+			case "rulerSyncRulesOnChangesEnabled":
+				return ec.fieldContext_MimirLimits_rulerSyncRulesOnChangesEnabled(ctx, field)
 			case "storeGatewayTenantShardSize":
 				return ec.fieldContext_MimirLimits_storeGatewayTenantShardSize(ctx, field)
 			case "compactorBlocksRetentionPeriod":
@@ -13407,6 +18223,8 @@ func (ec *executionContext) fieldContext_ObservabilityTenantLimits_mimir(ctx con
 				return ec.fieldContext_MimirLimits_compactorBlockUploadValidationEnabled(ctx, field)
 			case "compactorBlockUploadVerifyChunks":
 				return ec.fieldContext_MimirLimits_compactorBlockUploadVerifyChunks(ctx, field)
+			case "compactorBlockUploadMaxBlockSizeBytes":
+				return ec.fieldContext_MimirLimits_compactorBlockUploadMaxBlockSizeBytes(ctx, field)
 			case "s3SSEType":
 				return ec.fieldContext_MimirLimits_s3SSEType(ctx, field)
 			case "s3SSEKMSKeyID":
@@ -13433,14 +18251,270 @@ func (ec *executionContext) fieldContext_ObservabilityTenantLimits_mimir(ctx con
 				return ec.fieldContext_MimirLimits_alertmanagerMaxAlertsCount(ctx, field)
 			case "alertmanagerMaxAlertsSizeBytes":
 				return ec.fieldContext_MimirLimits_alertmanagerMaxAlertsSizeBytes(ctx, field)
-			case "forwardingEndpoint":
-				return ec.fieldContext_MimirLimits_forwardingEndpoint(ctx, field)
-			case "forwardingDropOlderThan":
-				return ec.fieldContext_MimirLimits_forwardingDropOlderThan(ctx, field)
-			case "forwardingRules":
-				return ec.fieldContext_MimirLimits_forwardingRules(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type MimirLimits", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ObservabilityTenantLimits_loki(ctx context.Context, field graphql.CollectedField, obj *model.ObservabilityTenantLimits) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ObservabilityTenantLimits_loki(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp := ec._fieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Loki, nil
+	})
+
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*v1alpha1.LokiLimits)
+	fc.Result = res
+	return ec.marshalOLokiLimits2ᚖgithubᚗcomᚋpluralshᚋtraceᚑshieldᚑcontrollerᚋapiᚋobservabilityᚋv1alpha1ᚐLokiLimits(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ObservabilityTenantLimits_loki(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ObservabilityTenantLimits",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "ingestionRateStrategy":
+				return ec.fieldContext_LokiLimits_ingestionRateStrategy(ctx, field)
+			case "ingestionRateMB":
+				return ec.fieldContext_LokiLimits_ingestionRateMB(ctx, field)
+			case "ingestionBurstSizeMB":
+				return ec.fieldContext_LokiLimits_ingestionBurstSizeMB(ctx, field)
+			case "maxLabelNameLength":
+				return ec.fieldContext_LokiLimits_maxLabelNameLength(ctx, field)
+			case "maxLabelValueLength":
+				return ec.fieldContext_LokiLimits_maxLabelValueLength(ctx, field)
+			case "maxLabelNamesPerSeries":
+				return ec.fieldContext_LokiLimits_maxLabelNamesPerSeries(ctx, field)
+			case "rejectOldSamples":
+				return ec.fieldContext_LokiLimits_rejectOldSamples(ctx, field)
+			case "rejectOldSamplesMaxAge":
+				return ec.fieldContext_LokiLimits_rejectOldSamplesMaxAge(ctx, field)
+			case "creationGracePeriod":
+				return ec.fieldContext_LokiLimits_creationGracePeriod(ctx, field)
+			case "enforceMetricName":
+				return ec.fieldContext_LokiLimits_enforceMetricName(ctx, field)
+			case "maxLineSize":
+				return ec.fieldContext_LokiLimits_maxLineSize(ctx, field)
+			case "maxLineSizeTruncate":
+				return ec.fieldContext_LokiLimits_maxLineSizeTruncate(ctx, field)
+			case "incrementDuplicateTimestamp":
+				return ec.fieldContext_LokiLimits_incrementDuplicateTimestamp(ctx, field)
+			case "maxLocalStreamsPerUser":
+				return ec.fieldContext_LokiLimits_maxLocalStreamsPerUser(ctx, field)
+			case "maxGlobalStreamsPerUser":
+				return ec.fieldContext_LokiLimits_maxGlobalStreamsPerUser(ctx, field)
+			case "unorderedWrites":
+				return ec.fieldContext_LokiLimits_unorderedWrites(ctx, field)
+			case "perStreamRateLimit":
+				return ec.fieldContext_LokiLimits_perStreamRateLimit(ctx, field)
+			case "perStreamRateLimitBurst":
+				return ec.fieldContext_LokiLimits_perStreamRateLimitBurst(ctx, field)
+			case "maxChunksPerQuery":
+				return ec.fieldContext_LokiLimits_maxChunksPerQuery(ctx, field)
+			case "maxQuerySeries":
+				return ec.fieldContext_LokiLimits_maxQuerySeries(ctx, field)
+			case "maxQueryLookback":
+				return ec.fieldContext_LokiLimits_maxQueryLookback(ctx, field)
+			case "maxQueryLength":
+				return ec.fieldContext_LokiLimits_maxQueryLength(ctx, field)
+			case "maxQueryRange":
+				return ec.fieldContext_LokiLimits_maxQueryRange(ctx, field)
+			case "maxQueryParallelism":
+				return ec.fieldContext_LokiLimits_maxQueryParallelism(ctx, field)
+			case "tsdbMaxQueryParallelism":
+				return ec.fieldContext_LokiLimits_tsdbMaxQueryParallelism(ctx, field)
+			case "tsdbMaxBytesPerShard":
+				return ec.fieldContext_LokiLimits_tsdbMaxBytesPerShard(ctx, field)
+			case "cardinalityLimit":
+				return ec.fieldContext_LokiLimits_cardinalityLimit(ctx, field)
+			case "maxStreamsMatchersPerQuery":
+				return ec.fieldContext_LokiLimits_maxStreamsMatchersPerQuery(ctx, field)
+			case "maxConcurrentTailRequests":
+				return ec.fieldContext_LokiLimits_maxConcurrentTailRequests(ctx, field)
+			case "maxEntriesLimitPerQuery":
+				return ec.fieldContext_LokiLimits_maxEntriesLimitPerQuery(ctx, field)
+			case "maxCacheFreshness":
+				return ec.fieldContext_LokiLimits_maxCacheFreshness(ctx, field)
+			case "maxStatsCacheFreshness":
+				return ec.fieldContext_LokiLimits_maxStatsCacheFreshness(ctx, field)
+			case "maxQueriersPerTenant":
+				return ec.fieldContext_LokiLimits_maxQueriersPerTenant(ctx, field)
+			case "queryReadyIndexNumDays":
+				return ec.fieldContext_LokiLimits_queryReadyIndexNumDays(ctx, field)
+			case "queryTimeout":
+				return ec.fieldContext_LokiLimits_queryTimeout(ctx, field)
+			case "querySplitDuration":
+				return ec.fieldContext_LokiLimits_querySplitDuration(ctx, field)
+			case "minShardingLookback":
+				return ec.fieldContext_LokiLimits_minShardingLookback(ctx, field)
+			case "maxQueryBytesRead":
+				return ec.fieldContext_LokiLimits_maxQueryBytesRead(ctx, field)
+			case "maxQuerierBytesRead":
+				return ec.fieldContext_LokiLimits_maxQuerierBytesRead(ctx, field)
+			case "volumeEnabled":
+				return ec.fieldContext_LokiLimits_volumeEnabled(ctx, field)
+			case "volumeMaxSeries":
+				return ec.fieldContext_LokiLimits_volumeMaxSeries(ctx, field)
+			case "rulerEvaluationDelay":
+				return ec.fieldContext_LokiLimits_rulerEvaluationDelay(ctx, field)
+			case "rulerMaxRulesPerRuleGroup":
+				return ec.fieldContext_LokiLimits_rulerMaxRulesPerRuleGroup(ctx, field)
+			case "rulerMaxRuleGroupsPerTenant":
+				return ec.fieldContext_LokiLimits_rulerMaxRuleGroupsPerTenant(ctx, field)
+			case "rulerAlertManagerConfig":
+				return ec.fieldContext_LokiLimits_rulerAlertManagerConfig(ctx, field)
+			case "rulerTenantShardSize":
+				return ec.fieldContext_LokiLimits_rulerTenantShardSize(ctx, field)
+			case "rulerRemoteWriteDisabled":
+				return ec.fieldContext_LokiLimits_rulerRemoteWriteDisabled(ctx, field)
+			case "rulerRemoteEvaluationTimeout":
+				return ec.fieldContext_LokiLimits_rulerRemoteEvaluationTimeout(ctx, field)
+			case "rulerRemoteEvaluationMaxResponseSize":
+				return ec.fieldContext_LokiLimits_rulerRemoteEvaluationMaxResponseSize(ctx, field)
+			case "deletionMode":
+				return ec.fieldContext_LokiLimits_deletionMode(ctx, field)
+			case "retentionPeriod":
+				return ec.fieldContext_LokiLimits_retentionPeriod(ctx, field)
+			case "streamRetention":
+				return ec.fieldContext_LokiLimits_streamRetention(ctx, field)
+			case "shardStreams":
+				return ec.fieldContext_LokiLimits_shardStreams(ctx, field)
+			case "blockedQueries":
+				return ec.fieldContext_LokiLimits_blockedQueries(ctx, field)
+			case "requiredLabels":
+				return ec.fieldContext_LokiLimits_requiredLabels(ctx, field)
+			case "requiredNumberLabels":
+				return ec.fieldContext_LokiLimits_requiredNumberLabels(ctx, field)
+			case "indexGatewayShardSize":
+				return ec.fieldContext_LokiLimits_indexGatewayShardSize(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type LokiLimits", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ObservabilityTenantLimits_tempo(ctx context.Context, field graphql.CollectedField, obj *model.ObservabilityTenantLimits) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ObservabilityTenantLimits_tempo(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp := ec._fieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Tempo, nil
+	})
+
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*v1alpha1.TempoLimits)
+	fc.Result = res
+	return ec.marshalOTempoLimits2ᚖgithubᚗcomᚋpluralshᚋtraceᚑshieldᚑcontrollerᚋapiᚋobservabilityᚋv1alpha1ᚐTempoLimits(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ObservabilityTenantLimits_tempo(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ObservabilityTenantLimits",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "ingestionRateStrategy":
+				return ec.fieldContext_TempoLimits_ingestionRateStrategy(ctx, field)
+			case "ingestionRateLimitBytes":
+				return ec.fieldContext_TempoLimits_ingestionRateLimitBytes(ctx, field)
+			case "ingestionBurstSizeBytes":
+				return ec.fieldContext_TempoLimits_ingestionBurstSizeBytes(ctx, field)
+			case "maxLocalTracesPerUser":
+				return ec.fieldContext_TempoLimits_maxLocalTracesPerUser(ctx, field)
+			case "maxGlobalTracesPerUser":
+				return ec.fieldContext_TempoLimits_maxGlobalTracesPerUser(ctx, field)
+			case "forwarders":
+				return ec.fieldContext_TempoLimits_forwarders(ctx, field)
+			case "metricsGeneratorRingSize":
+				return ec.fieldContext_TempoLimits_metricsGeneratorRingSize(ctx, field)
+			case "metricsGeneratorProcessors":
+				return ec.fieldContext_TempoLimits_metricsGeneratorProcessors(ctx, field)
+			case "metricsGeneratorMaxActiveSeries":
+				return ec.fieldContext_TempoLimits_metricsGeneratorMaxActiveSeries(ctx, field)
+			case "metricsGeneratorCollectionInterval":
+				return ec.fieldContext_TempoLimits_metricsGeneratorCollectionInterval(ctx, field)
+			case "metricsGeneratorDisableCollection":
+				return ec.fieldContext_TempoLimits_metricsGeneratorDisableCollection(ctx, field)
+			case "metricsGeneratorForwarderQueueSize":
+				return ec.fieldContext_TempoLimits_metricsGeneratorForwarderQueueSize(ctx, field)
+			case "metricsGeneratorForwarderWorkers":
+				return ec.fieldContext_TempoLimits_metricsGeneratorForwarderWorkers(ctx, field)
+			case "metricsGeneratorProcessorServiceGraphsHistogramBuckets":
+				return ec.fieldContext_TempoLimits_metricsGeneratorProcessorServiceGraphsHistogramBuckets(ctx, field)
+			case "metricsGeneratorProcessorServiceGraphsDimensions":
+				return ec.fieldContext_TempoLimits_metricsGeneratorProcessorServiceGraphsDimensions(ctx, field)
+			case "metricsGeneratorProcessorServiceGraphsPeerAttributes":
+				return ec.fieldContext_TempoLimits_metricsGeneratorProcessorServiceGraphsPeerAttributes(ctx, field)
+			case "metricsGeneratorProcessorServiceGraphsEnableClientServerPrefix":
+				return ec.fieldContext_TempoLimits_metricsGeneratorProcessorServiceGraphsEnableClientServerPrefix(ctx, field)
+			case "metricsGeneratorProcessorSpanMetricsHistogramBuckets":
+				return ec.fieldContext_TempoLimits_metricsGeneratorProcessorSpanMetricsHistogramBuckets(ctx, field)
+			case "metricsGeneratorProcessorSpanMetricsDimensions":
+				return ec.fieldContext_TempoLimits_metricsGeneratorProcessorSpanMetricsDimensions(ctx, field)
+			case "metricsGeneratorProcessorSpanMetricsIntrinsicDimensions":
+				return ec.fieldContext_TempoLimits_metricsGeneratorProcessorSpanMetricsIntrinsicDimensions(ctx, field)
+			case "metricsGeneratorProcessorSpanMetricsFilterPolicies":
+				return ec.fieldContext_TempoLimits_metricsGeneratorProcessorSpanMetricsFilterPolicies(ctx, field)
+			case "metricsGeneratorProcessorSpanMetricsDimensionMappings":
+				return ec.fieldContext_TempoLimits_metricsGeneratorProcessorSpanMetricsDimensionMappings(ctx, field)
+			case "metricsGeneratorProcessorSpanMetricsEnableTargetInfo":
+				return ec.fieldContext_TempoLimits_metricsGeneratorProcessorSpanMetricsEnableTargetInfo(ctx, field)
+			case "metricsGeneratorProcessorLocalBlocksMaxLiveTraces":
+				return ec.fieldContext_TempoLimits_metricsGeneratorProcessorLocalBlocksMaxLiveTraces(ctx, field)
+			case "metricsGeneratorProcessorLocalBlocksMaxBlockDuration":
+				return ec.fieldContext_TempoLimits_metricsGeneratorProcessorLocalBlocksMaxBlockDuration(ctx, field)
+			case "metricsGeneratorProcessorLocalBlocksMaxBlockBytes":
+				return ec.fieldContext_TempoLimits_metricsGeneratorProcessorLocalBlocksMaxBlockBytes(ctx, field)
+			case "metricsGeneratorProcessorLocalBlocksFlushCheckPeriod":
+				return ec.fieldContext_TempoLimits_metricsGeneratorProcessorLocalBlocksFlushCheckPeriod(ctx, field)
+			case "metricsGeneratorProcessorLocalBlocksTraceIdlePeriod":
+				return ec.fieldContext_TempoLimits_metricsGeneratorProcessorLocalBlocksTraceIdlePeriod(ctx, field)
+			case "metricsGeneratorProcessorLocalBlocksCompleteBlockTimeout":
+				return ec.fieldContext_TempoLimits_metricsGeneratorProcessorLocalBlocksCompleteBlockTimeout(ctx, field)
+			case "blockRetention":
+				return ec.fieldContext_TempoLimits_blockRetention(ctx, field)
+			case "maxBytesPerTagValuesQuery":
+				return ec.fieldContext_TempoLimits_maxBytesPerTagValuesQuery(ctx, field)
+			case "maxBlocksPerTagValuesQuery":
+				return ec.fieldContext_TempoLimits_maxBlocksPerTagValuesQuery(ctx, field)
+			case "maxSearchDuration":
+				return ec.fieldContext_TempoLimits_maxSearchDuration(ctx, field)
+			case "maxBytesPerTrace":
+				return ec.fieldContext_TempoLimits_maxBytesPerTrace(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type TempoLimits", field.Name)
 		},
 	}
 	return fc, nil
@@ -13848,47 +18922,6 @@ func (ec *executionContext) fieldContext_OidcContext_uiLocales(ctx context.Conte
 	return fc, nil
 }
 
-func (ec *executionContext) _Organization_name(ctx context.Context, field graphql.CollectedField, obj *model.Organization) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Organization_name(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp := ec._fieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Name, nil
-	})
-
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(string)
-	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Organization_name(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Organization",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
 func (ec *executionContext) _Organization_admins(ctx context.Context, field graphql.CollectedField, obj *model.Organization) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Organization_admins(ctx, field)
 	if err != nil {
@@ -13934,6 +18967,88 @@ func (ec *executionContext) fieldContext_Organization_admins(ctx context.Context
 				return ec.fieldContext_User_recoveryLink(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type User", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _PolicyMatch_matchType(ctx context.Context, field graphql.CollectedField, obj *v1alpha1.PolicyMatch) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_PolicyMatch_matchType(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp := ec._fieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.MatchType, nil
+	})
+
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*v1alpha1.MatchType)
+	fc.Result = res
+	return ec.marshalOMatchType2ᚖgithubᚗcomᚋpluralshᚋtraceᚑshieldᚑcontrollerᚋapiᚋobservabilityᚋv1alpha1ᚐMatchType(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_PolicyMatch_matchType(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "PolicyMatch",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type MatchType does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _PolicyMatch_attributes(ctx context.Context, field graphql.CollectedField, obj *v1alpha1.PolicyMatch) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_PolicyMatch_attributes(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp := ec._fieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Attributes, nil
+	})
+
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.([]v1alpha1.MatchPolicyAttribute)
+	fc.Result = res
+	return ec.marshalOMatchPolicyAttribute2ᚕgithubᚗcomᚋpluralshᚋtraceᚑshieldᚑcontrollerᚋapiᚋobservabilityᚋv1alpha1ᚐMatchPolicyAttributeᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_PolicyMatch_attributes(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "PolicyMatch",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "key":
+				return ec.fieldContext_MatchPolicyAttribute_key(ctx, field)
+			case "value":
+				return ec.fieldContext_MatchPolicyAttribute_value(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type MatchPolicyAttribute", field.Name)
 		},
 	}
 	return fc, nil
@@ -14033,7 +19148,7 @@ func (ec *executionContext) _Query_getUser(ctx context.Context, field graphql.Co
 	resTmp := ec._fieldMiddleware(ctx, nil, func(rctx context.Context) (interface{}, error) {
 		directive0 := func(rctx context.Context) (interface{}, error) {
 			ctx = rctx // use context from middleware stack in children
-			return ec.resolvers.Query().GetUser(rctx, fc.Args["id"].(string))
+			return ec.resolvers.Query().GetUser(rctx, fc.Args["id"].(*string), fc.Args["email"].(*string))
 		}
 		directive1 := func(ctx context.Context) (interface{}, error) {
 			if ec.directives.CheckPermissions == nil {
@@ -14694,8 +19809,8 @@ func (ec *executionContext) fieldContext_Query_listObservabilityTenants(ctx cont
 			switch field.Name {
 			case "id":
 				return ec.fieldContext_ObservabilityTenant_id(ctx, field)
-			case "name":
-				return ec.fieldContext_ObservabilityTenant_name(ctx, field)
+			case "displayName":
+				return ec.fieldContext_ObservabilityTenant_displayName(ctx, field)
 			case "admins":
 				return ec.fieldContext_ObservabilityTenant_admins(ctx, field)
 			case "metricsReaders":
@@ -14803,8 +19918,8 @@ func (ec *executionContext) fieldContext_Query_getObservabilityTenant(ctx contex
 			switch field.Name {
 			case "id":
 				return ec.fieldContext_ObservabilityTenant_id(ctx, field)
-			case "name":
-				return ec.fieldContext_ObservabilityTenant_name(ctx, field)
+			case "displayName":
+				return ec.fieldContext_ObservabilityTenant_displayName(ctx, field)
 			case "admins":
 				return ec.fieldContext_ObservabilityTenant_admins(ctx, field)
 			case "metricsReaders":
@@ -14859,79 +19974,6 @@ func (ec *executionContext) fieldContext_Query_getObservabilityTenant(ctx contex
 	return fc, nil
 }
 
-func (ec *executionContext) _Query_listOrganizations(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Query_listOrganizations(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp := ec._fieldMiddleware(ctx, nil, func(rctx context.Context) (interface{}, error) {
-		directive0 := func(rctx context.Context) (interface{}, error) {
-			ctx = rctx // use context from middleware stack in children
-			return ec.resolvers.Query().ListOrganizations(rctx)
-		}
-		directive1 := func(ctx context.Context) (interface{}, error) {
-			if ec.directives.CheckPermissions == nil {
-				return nil, errors.New("directive checkPermissions is not implemented")
-			}
-			return ec.directives.CheckPermissions(ctx, nil, directive0)
-		}
-		directive2 := func(ctx context.Context) (interface{}, error) {
-			if ec.directives.IsAuthenticated == nil {
-				return nil, errors.New("directive isAuthenticated is not implemented")
-			}
-			return ec.directives.IsAuthenticated(ctx, nil, directive1)
-		}
-
-		tmp, err := directive2(rctx)
-		if err != nil {
-			return nil, graphql.ErrorOnPath(ctx, err)
-		}
-		if tmp == nil {
-			return nil, nil
-		}
-		if data, ok := tmp.([]*model.Organization); ok {
-			return data, nil
-		}
-		return nil, fmt.Errorf(`unexpected type %T from directive, should be []*github.com/pluralsh/trace-shield/graph/model.Organization`, tmp)
-	})
-
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.([]*model.Organization)
-	fc.Result = res
-	return ec.marshalNOrganization2ᚕᚖgithubᚗcomᚋpluralshᚋtraceᚑshieldᚋgraphᚋmodelᚐOrganizationᚄ(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Query_listOrganizations(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Query",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "name":
-				return ec.fieldContext_Organization_name(ctx, field)
-			case "admins":
-				return ec.fieldContext_Organization_admins(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type Organization", field.Name)
-		},
-	}
-	return fc, nil
-}
-
 func (ec *executionContext) _Query_organization(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Query_organization(ctx, field)
 	if err != nil {
@@ -14947,7 +19989,7 @@ func (ec *executionContext) _Query_organization(ctx context.Context, field graph
 	resTmp := ec._fieldMiddleware(ctx, nil, func(rctx context.Context) (interface{}, error) {
 		directive0 := func(rctx context.Context) (interface{}, error) {
 			ctx = rctx // use context from middleware stack in children
-			return ec.resolvers.Query().Organization(rctx, fc.Args["name"].(string))
+			return ec.resolvers.Query().Organization(rctx)
 		}
 		directive1 := func(ctx context.Context) (interface{}, error) {
 			if ec.directives.CheckPermissions == nil {
@@ -14994,24 +20036,11 @@ func (ec *executionContext) fieldContext_Query_organization(ctx context.Context,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
-			case "name":
-				return ec.fieldContext_Organization_name(ctx, field)
 			case "admins":
 				return ec.fieldContext_Organization_admins(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Organization", field.Name)
 		},
-	}
-	defer func() {
-		if r := recover(); r != nil {
-			err = ec.Recover(ctx, r)
-			ec.Error(ctx, err)
-		}
-	}()
-	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Query_organization_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
-		ec.Error(ctx, err)
-		return fc, err
 	}
 	return fc, nil
 }
@@ -15139,8 +20168,8 @@ func (ec *executionContext) fieldContext_Query___schema(ctx context.Context, fie
 	return fc, nil
 }
 
-func (ec *executionContext) _TempoLimits_requestRate(ctx context.Context, field graphql.CollectedField, obj *model.TempoLimits) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TempoLimits_requestRate(ctx, field)
+func (ec *executionContext) _RelabelConfig_sourceLabels(ctx context.Context, field graphql.CollectedField, obj *v1alpha1.RelabelConfig) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_RelabelConfig_sourceLabels(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -15153,18 +20182,1337 @@ func (ec *executionContext) _TempoLimits_requestRate(ctx context.Context, field 
 	}()
 	resTmp := ec._fieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.RequestRate, nil
+		return obj.SourceLabels, nil
 	})
 
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.(*float64)
+	res := resTmp.([]v1alpha1.LabelName)
 	fc.Result = res
-	return ec.marshalOFloat2ᚖfloat64(ctx, field.Selections, res)
+	return ec.marshalOLabelName2ᚕgithubᚗcomᚋpluralshᚋtraceᚑshieldᚑcontrollerᚋapiᚋobservabilityᚋv1alpha1ᚐLabelNameᚄ(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_TempoLimits_requestRate(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_RelabelConfig_sourceLabels(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "RelabelConfig",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type LabelName does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _RelabelConfig_separator(ctx context.Context, field graphql.CollectedField, obj *v1alpha1.RelabelConfig) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_RelabelConfig_separator(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp := ec._fieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Separator, nil
+	})
+
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_RelabelConfig_separator(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "RelabelConfig",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _RelabelConfig_regex(ctx context.Context, field graphql.CollectedField, obj *v1alpha1.RelabelConfig) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_RelabelConfig_regex(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp := ec._fieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Regex, nil
+	})
+
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_RelabelConfig_regex(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "RelabelConfig",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _RelabelConfig_modulus(ctx context.Context, field graphql.CollectedField, obj *v1alpha1.RelabelConfig) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_RelabelConfig_modulus(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp := ec._fieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Modulus, nil
+	})
+
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*uint64)
+	fc.Result = res
+	return ec.marshalOUInt2ᚖuint64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_RelabelConfig_modulus(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "RelabelConfig",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type UInt does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _RelabelConfig_targetLabel(ctx context.Context, field graphql.CollectedField, obj *v1alpha1.RelabelConfig) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_RelabelConfig_targetLabel(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp := ec._fieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.TargetLabel, nil
+	})
+
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_RelabelConfig_targetLabel(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "RelabelConfig",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _RelabelConfig_replacement(ctx context.Context, field graphql.CollectedField, obj *v1alpha1.RelabelConfig) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_RelabelConfig_replacement(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp := ec._fieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Replacement, nil
+	})
+
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_RelabelConfig_replacement(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "RelabelConfig",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _RelabelConfig_action(ctx context.Context, field graphql.CollectedField, obj *v1alpha1.RelabelConfig) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_RelabelConfig_action(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp := ec._fieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Action, nil
+	})
+
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*v1alpha1.RelabelAction)
+	fc.Result = res
+	return ec.marshalORelabelAction2ᚖgithubᚗcomᚋpluralshᚋtraceᚑshieldᚑcontrollerᚋapiᚋobservabilityᚋv1alpha1ᚐRelabelAction(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_RelabelConfig_action(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "RelabelConfig",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type RelabelAction does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _RulerAlertManagerConfig_alertmanagerURL(ctx context.Context, field graphql.CollectedField, obj *v1alpha1.RulerAlertManagerConfig) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_RulerAlertManagerConfig_alertmanagerURL(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp := ec._fieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.AlertmanagerURL, nil
+	})
+
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_RulerAlertManagerConfig_alertmanagerURL(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "RulerAlertManagerConfig",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _RulerAlertManagerConfig_alertmanagerDiscovery(ctx context.Context, field graphql.CollectedField, obj *v1alpha1.RulerAlertManagerConfig) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_RulerAlertManagerConfig_alertmanagerDiscovery(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp := ec._fieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.AlertmanagerDiscovery, nil
+	})
+
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*bool)
+	fc.Result = res
+	return ec.marshalOBoolean2ᚖbool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_RulerAlertManagerConfig_alertmanagerDiscovery(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "RulerAlertManagerConfig",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _RulerAlertManagerConfig_alertmanagerRefreshInterval(ctx context.Context, field graphql.CollectedField, obj *v1alpha1.RulerAlertManagerConfig) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_RulerAlertManagerConfig_alertmanagerRefreshInterval(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp := ec._fieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.AlertmanagerRefreshInterval, nil
+	})
+
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*v1.Duration)
+	fc.Result = res
+	return ec.marshalODuration2ᚖk8sᚗioᚋapimachineryᚋpkgᚋapisᚋmetaᚋv1ᚐDuration(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_RulerAlertManagerConfig_alertmanagerRefreshInterval(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "RulerAlertManagerConfig",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Duration does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _RulerAlertManagerConfig_alertmanangerEnableV2API(ctx context.Context, field graphql.CollectedField, obj *v1alpha1.RulerAlertManagerConfig) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_RulerAlertManagerConfig_alertmanangerEnableV2API(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp := ec._fieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.AlertmanangerEnableV2API, nil
+	})
+
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*bool)
+	fc.Result = res
+	return ec.marshalOBoolean2ᚖbool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_RulerAlertManagerConfig_alertmanangerEnableV2API(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "RulerAlertManagerConfig",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _RulerAlertManagerConfig_alertRelabelConfigs(ctx context.Context, field graphql.CollectedField, obj *v1alpha1.RulerAlertManagerConfig) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_RulerAlertManagerConfig_alertRelabelConfigs(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp := ec._fieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.AlertRelabelConfigs, nil
+	})
+
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.([]v1alpha1.RelabelConfig)
+	fc.Result = res
+	return ec.marshalORelabelConfig2ᚕgithubᚗcomᚋpluralshᚋtraceᚑshieldᚑcontrollerᚋapiᚋobservabilityᚋv1alpha1ᚐRelabelConfigᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_RulerAlertManagerConfig_alertRelabelConfigs(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "RulerAlertManagerConfig",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "sourceLabels":
+				return ec.fieldContext_RelabelConfig_sourceLabels(ctx, field)
+			case "separator":
+				return ec.fieldContext_RelabelConfig_separator(ctx, field)
+			case "regex":
+				return ec.fieldContext_RelabelConfig_regex(ctx, field)
+			case "modulus":
+				return ec.fieldContext_RelabelConfig_modulus(ctx, field)
+			case "targetLabel":
+				return ec.fieldContext_RelabelConfig_targetLabel(ctx, field)
+			case "replacement":
+				return ec.fieldContext_RelabelConfig_replacement(ctx, field)
+			case "action":
+				return ec.fieldContext_RelabelConfig_action(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type RelabelConfig", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _RulerAlertManagerConfig_notificationQueueCapacity(ctx context.Context, field graphql.CollectedField, obj *v1alpha1.RulerAlertManagerConfig) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_RulerAlertManagerConfig_notificationQueueCapacity(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp := ec._fieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.NotificationQueueCapacity, nil
+	})
+
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*int)
+	fc.Result = res
+	return ec.marshalOInt2ᚖint(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_RulerAlertManagerConfig_notificationQueueCapacity(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "RulerAlertManagerConfig",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _RulerAlertManagerConfig_notificationTimeout(ctx context.Context, field graphql.CollectedField, obj *v1alpha1.RulerAlertManagerConfig) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_RulerAlertManagerConfig_notificationTimeout(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp := ec._fieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.NotificationTimeout, nil
+	})
+
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*v1.Duration)
+	fc.Result = res
+	return ec.marshalODuration2ᚖk8sᚗioᚋapimachineryᚋpkgᚋapisᚋmetaᚋv1ᚐDuration(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_RulerAlertManagerConfig_notificationTimeout(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "RulerAlertManagerConfig",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Duration does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _RulerAlertManagerConfig_notifier(ctx context.Context, field graphql.CollectedField, obj *v1alpha1.RulerAlertManagerConfig) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_RulerAlertManagerConfig_notifier(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp := ec._fieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Notifier, nil
+	})
+
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*v1alpha1.NotifierConfig)
+	fc.Result = res
+	return ec.marshalONotifierConfig2ᚖgithubᚗcomᚋpluralshᚋtraceᚑshieldᚑcontrollerᚋapiᚋobservabilityᚋv1alpha1ᚐNotifierConfig(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_RulerAlertManagerConfig_notifier(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "RulerAlertManagerConfig",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "basicAuth":
+				return ec.fieldContext_NotifierConfig_basicAuth(ctx, field)
+			case "headerAuth":
+				return ec.fieldContext_NotifierConfig_headerAuth(ctx, field)
+			case "tls":
+				return ec.fieldContext_NotifierConfig_tls(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type NotifierConfig", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ShardstreamsConfig_enabled(ctx context.Context, field graphql.CollectedField, obj *v1alpha1.ShardstreamsConfig) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ShardstreamsConfig_enabled(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp := ec._fieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Enabled, nil
+	})
+
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*bool)
+	fc.Result = res
+	return ec.marshalOBoolean2ᚖbool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ShardstreamsConfig_enabled(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ShardstreamsConfig",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ShardstreamsConfig_loggingEnabled(ctx context.Context, field graphql.CollectedField, obj *v1alpha1.ShardstreamsConfig) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ShardstreamsConfig_loggingEnabled(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp := ec._fieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.LoggingEnabled, nil
+	})
+
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*bool)
+	fc.Result = res
+	return ec.marshalOBoolean2ᚖbool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ShardstreamsConfig_loggingEnabled(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ShardstreamsConfig",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ShardstreamsConfig_desiredRate(ctx context.Context, field graphql.CollectedField, obj *v1alpha1.ShardstreamsConfig) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ShardstreamsConfig_desiredRate(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp := ec._fieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.DesiredRate, nil
+	})
+
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*uint64)
+	fc.Result = res
+	return ec.marshalOUInt2ᚖuint64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ShardstreamsConfig_desiredRate(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ShardstreamsConfig",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type UInt does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _StreamRetention_period(ctx context.Context, field graphql.CollectedField, obj *v1alpha1.StreamRetention) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_StreamRetention_period(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp := ec._fieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Period, nil
+	})
+
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*v1.Duration)
+	fc.Result = res
+	return ec.marshalODuration2ᚖk8sᚗioᚋapimachineryᚋpkgᚋapisᚋmetaᚋv1ᚐDuration(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_StreamRetention_period(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "StreamRetention",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Duration does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _StreamRetention_priority(ctx context.Context, field graphql.CollectedField, obj *v1alpha1.StreamRetention) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_StreamRetention_priority(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp := ec._fieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Priority, nil
+	})
+
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*int)
+	fc.Result = res
+	return ec.marshalOInt2ᚖint(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_StreamRetention_priority(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "StreamRetention",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _StreamRetention_selector(ctx context.Context, field graphql.CollectedField, obj *v1alpha1.StreamRetention) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_StreamRetention_selector(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp := ec._fieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Selector, nil
+	})
+
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_StreamRetention_selector(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "StreamRetention",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TempoLimits_ingestionRateStrategy(ctx context.Context, field graphql.CollectedField, obj *v1alpha1.TempoLimits) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TempoLimits_ingestionRateStrategy(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp := ec._fieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.IngestionRateStrategy, nil
+	})
+
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TempoLimits_ingestionRateStrategy(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TempoLimits",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TempoLimits_ingestionRateLimitBytes(ctx context.Context, field graphql.CollectedField, obj *v1alpha1.TempoLimits) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TempoLimits_ingestionRateLimitBytes(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp := ec._fieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.IngestionRateLimitBytes, nil
+	})
+
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*int)
+	fc.Result = res
+	return ec.marshalOInt2ᚖint(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TempoLimits_ingestionRateLimitBytes(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TempoLimits",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TempoLimits_ingestionBurstSizeBytes(ctx context.Context, field graphql.CollectedField, obj *v1alpha1.TempoLimits) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TempoLimits_ingestionBurstSizeBytes(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp := ec._fieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.IngestionBurstSizeBytes, nil
+	})
+
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*int)
+	fc.Result = res
+	return ec.marshalOInt2ᚖint(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TempoLimits_ingestionBurstSizeBytes(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TempoLimits",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TempoLimits_maxLocalTracesPerUser(ctx context.Context, field graphql.CollectedField, obj *v1alpha1.TempoLimits) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TempoLimits_maxLocalTracesPerUser(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp := ec._fieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.MaxLocalTracesPerUser, nil
+	})
+
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*int)
+	fc.Result = res
+	return ec.marshalOInt2ᚖint(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TempoLimits_maxLocalTracesPerUser(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TempoLimits",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TempoLimits_maxGlobalTracesPerUser(ctx context.Context, field graphql.CollectedField, obj *v1alpha1.TempoLimits) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TempoLimits_maxGlobalTracesPerUser(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp := ec._fieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.MaxGlobalTracesPerUser, nil
+	})
+
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*int)
+	fc.Result = res
+	return ec.marshalOInt2ᚖint(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TempoLimits_maxGlobalTracesPerUser(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TempoLimits",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TempoLimits_forwarders(ctx context.Context, field graphql.CollectedField, obj *v1alpha1.TempoLimits) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TempoLimits_forwarders(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp := ec._fieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Forwarders, nil
+	})
+
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.([]string)
+	fc.Result = res
+	return ec.marshalOString2ᚕstringᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TempoLimits_forwarders(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TempoLimits",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TempoLimits_metricsGeneratorRingSize(ctx context.Context, field graphql.CollectedField, obj *v1alpha1.TempoLimits) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TempoLimits_metricsGeneratorRingSize(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp := ec._fieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.MetricsGeneratorRingSize, nil
+	})
+
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*int)
+	fc.Result = res
+	return ec.marshalOInt2ᚖint(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TempoLimits_metricsGeneratorRingSize(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TempoLimits",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TempoLimits_metricsGeneratorProcessors(ctx context.Context, field graphql.CollectedField, obj *v1alpha1.TempoLimits) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TempoLimits_metricsGeneratorProcessors(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp := ec._fieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.MetricsGeneratorProcessors, nil
+	})
+
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.([]string)
+	fc.Result = res
+	return ec.marshalOString2ᚕstringᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TempoLimits_metricsGeneratorProcessors(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TempoLimits",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TempoLimits_metricsGeneratorMaxActiveSeries(ctx context.Context, field graphql.CollectedField, obj *v1alpha1.TempoLimits) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TempoLimits_metricsGeneratorMaxActiveSeries(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp := ec._fieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.MetricsGeneratorMaxActiveSeries, nil
+	})
+
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*uint32)
+	fc.Result = res
+	return ec.marshalOUInt2ᚖuint32(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TempoLimits_metricsGeneratorMaxActiveSeries(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TempoLimits",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type UInt does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TempoLimits_metricsGeneratorCollectionInterval(ctx context.Context, field graphql.CollectedField, obj *v1alpha1.TempoLimits) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TempoLimits_metricsGeneratorCollectionInterval(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp := ec._fieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.MetricsGeneratorCollectionInterval, nil
+	})
+
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*v1.Duration)
+	fc.Result = res
+	return ec.marshalODuration2ᚖk8sᚗioᚋapimachineryᚋpkgᚋapisᚋmetaᚋv1ᚐDuration(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TempoLimits_metricsGeneratorCollectionInterval(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TempoLimits",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Duration does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TempoLimits_metricsGeneratorDisableCollection(ctx context.Context, field graphql.CollectedField, obj *v1alpha1.TempoLimits) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TempoLimits_metricsGeneratorDisableCollection(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp := ec._fieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.MetricsGeneratorDisableCollection, nil
+	})
+
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*bool)
+	fc.Result = res
+	return ec.marshalOBoolean2ᚖbool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TempoLimits_metricsGeneratorDisableCollection(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TempoLimits",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TempoLimits_metricsGeneratorForwarderQueueSize(ctx context.Context, field graphql.CollectedField, obj *v1alpha1.TempoLimits) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TempoLimits_metricsGeneratorForwarderQueueSize(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp := ec._fieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.MetricsGeneratorForwarderQueueSize, nil
+	})
+
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*int)
+	fc.Result = res
+	return ec.marshalOInt2ᚖint(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TempoLimits_metricsGeneratorForwarderQueueSize(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TempoLimits",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TempoLimits_metricsGeneratorForwarderWorkers(ctx context.Context, field graphql.CollectedField, obj *v1alpha1.TempoLimits) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TempoLimits_metricsGeneratorForwarderWorkers(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp := ec._fieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.MetricsGeneratorForwarderWorkers, nil
+	})
+
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*int)
+	fc.Result = res
+	return ec.marshalOInt2ᚖint(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TempoLimits_metricsGeneratorForwarderWorkers(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TempoLimits",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TempoLimits_metricsGeneratorProcessorServiceGraphsHistogramBuckets(ctx context.Context, field graphql.CollectedField, obj *v1alpha1.TempoLimits) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TempoLimits_metricsGeneratorProcessorServiceGraphsHistogramBuckets(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp := ec._fieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.MetricsGeneratorProcessorServiceGraphsHistogramBuckets, nil
+	})
+
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.([]float64)
+	fc.Result = res
+	return ec.marshalOFloat2ᚕfloat64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TempoLimits_metricsGeneratorProcessorServiceGraphsHistogramBuckets(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "TempoLimits",
 		Field:      field,
@@ -15172,6 +21520,780 @@ func (ec *executionContext) fieldContext_TempoLimits_requestRate(ctx context.Con
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type Float does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TempoLimits_metricsGeneratorProcessorServiceGraphsDimensions(ctx context.Context, field graphql.CollectedField, obj *v1alpha1.TempoLimits) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TempoLimits_metricsGeneratorProcessorServiceGraphsDimensions(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp := ec._fieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.MetricsGeneratorProcessorServiceGraphsDimensions, nil
+	})
+
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.([]string)
+	fc.Result = res
+	return ec.marshalOString2ᚕstringᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TempoLimits_metricsGeneratorProcessorServiceGraphsDimensions(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TempoLimits",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TempoLimits_metricsGeneratorProcessorServiceGraphsPeerAttributes(ctx context.Context, field graphql.CollectedField, obj *v1alpha1.TempoLimits) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TempoLimits_metricsGeneratorProcessorServiceGraphsPeerAttributes(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp := ec._fieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.MetricsGeneratorProcessorServiceGraphsPeerAttributes, nil
+	})
+
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.([]string)
+	fc.Result = res
+	return ec.marshalOString2ᚕstringᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TempoLimits_metricsGeneratorProcessorServiceGraphsPeerAttributes(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TempoLimits",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TempoLimits_metricsGeneratorProcessorServiceGraphsEnableClientServerPrefix(ctx context.Context, field graphql.CollectedField, obj *v1alpha1.TempoLimits) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TempoLimits_metricsGeneratorProcessorServiceGraphsEnableClientServerPrefix(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp := ec._fieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.MetricsGeneratorProcessorServiceGraphsEnableClientServerPrefix, nil
+	})
+
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*bool)
+	fc.Result = res
+	return ec.marshalOBoolean2ᚖbool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TempoLimits_metricsGeneratorProcessorServiceGraphsEnableClientServerPrefix(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TempoLimits",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TempoLimits_metricsGeneratorProcessorSpanMetricsHistogramBuckets(ctx context.Context, field graphql.CollectedField, obj *v1alpha1.TempoLimits) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TempoLimits_metricsGeneratorProcessorSpanMetricsHistogramBuckets(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp := ec._fieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.MetricsGeneratorProcessorSpanMetricsHistogramBuckets, nil
+	})
+
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.([]float64)
+	fc.Result = res
+	return ec.marshalOFloat2ᚕfloat64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TempoLimits_metricsGeneratorProcessorSpanMetricsHistogramBuckets(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TempoLimits",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Float does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TempoLimits_metricsGeneratorProcessorSpanMetricsDimensions(ctx context.Context, field graphql.CollectedField, obj *v1alpha1.TempoLimits) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TempoLimits_metricsGeneratorProcessorSpanMetricsDimensions(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp := ec._fieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.MetricsGeneratorProcessorSpanMetricsDimensions, nil
+	})
+
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.([]string)
+	fc.Result = res
+	return ec.marshalOString2ᚕstringᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TempoLimits_metricsGeneratorProcessorSpanMetricsDimensions(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TempoLimits",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TempoLimits_metricsGeneratorProcessorSpanMetricsIntrinsicDimensions(ctx context.Context, field graphql.CollectedField, obj *v1alpha1.TempoLimits) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TempoLimits_metricsGeneratorProcessorSpanMetricsIntrinsicDimensions(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp := ec._fieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.MetricsGeneratorProcessorSpanMetricsIntrinsicDimensions, nil
+	})
+
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(map[string]bool)
+	fc.Result = res
+	return ec.marshalOBoolMap2map(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TempoLimits_metricsGeneratorProcessorSpanMetricsIntrinsicDimensions(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TempoLimits",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type BoolMap does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TempoLimits_metricsGeneratorProcessorSpanMetricsFilterPolicies(ctx context.Context, field graphql.CollectedField, obj *v1alpha1.TempoLimits) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TempoLimits_metricsGeneratorProcessorSpanMetricsFilterPolicies(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp := ec._fieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.MetricsGeneratorProcessorSpanMetricsFilterPolicies, nil
+	})
+
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.([]v1alpha1.FilterPolicy)
+	fc.Result = res
+	return ec.marshalOFilterPolicy2ᚕgithubᚗcomᚋpluralshᚋtraceᚑshieldᚑcontrollerᚋapiᚋobservabilityᚋv1alpha1ᚐFilterPolicyᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TempoLimits_metricsGeneratorProcessorSpanMetricsFilterPolicies(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TempoLimits",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "include":
+				return ec.fieldContext_FilterPolicy_include(ctx, field)
+			case "exclude":
+				return ec.fieldContext_FilterPolicy_exclude(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type FilterPolicy", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TempoLimits_metricsGeneratorProcessorSpanMetricsDimensionMappings(ctx context.Context, field graphql.CollectedField, obj *v1alpha1.TempoLimits) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TempoLimits_metricsGeneratorProcessorSpanMetricsDimensionMappings(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp := ec._fieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.MetricsGeneratorProcessorSpanMetricsDimensionMappings, nil
+	})
+
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.([]v1alpha1.DimensionMappings)
+	fc.Result = res
+	return ec.marshalODimensionMappings2ᚕgithubᚗcomᚋpluralshᚋtraceᚑshieldᚑcontrollerᚋapiᚋobservabilityᚋv1alpha1ᚐDimensionMappingsᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TempoLimits_metricsGeneratorProcessorSpanMetricsDimensionMappings(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TempoLimits",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "name":
+				return ec.fieldContext_DimensionMappings_name(ctx, field)
+			case "sourceLabel":
+				return ec.fieldContext_DimensionMappings_sourceLabel(ctx, field)
+			case "join":
+				return ec.fieldContext_DimensionMappings_join(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type DimensionMappings", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TempoLimits_metricsGeneratorProcessorSpanMetricsEnableTargetInfo(ctx context.Context, field graphql.CollectedField, obj *v1alpha1.TempoLimits) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TempoLimits_metricsGeneratorProcessorSpanMetricsEnableTargetInfo(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp := ec._fieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.MetricsGeneratorProcessorSpanMetricsEnableTargetInfo, nil
+	})
+
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*bool)
+	fc.Result = res
+	return ec.marshalOBoolean2ᚖbool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TempoLimits_metricsGeneratorProcessorSpanMetricsEnableTargetInfo(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TempoLimits",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TempoLimits_metricsGeneratorProcessorLocalBlocksMaxLiveTraces(ctx context.Context, field graphql.CollectedField, obj *v1alpha1.TempoLimits) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TempoLimits_metricsGeneratorProcessorLocalBlocksMaxLiveTraces(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp := ec._fieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.MetricsGeneratorProcessorLocalBlocksMaxLiveTraces, nil
+	})
+
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*uint64)
+	fc.Result = res
+	return ec.marshalOUInt2ᚖuint64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TempoLimits_metricsGeneratorProcessorLocalBlocksMaxLiveTraces(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TempoLimits",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type UInt does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TempoLimits_metricsGeneratorProcessorLocalBlocksMaxBlockDuration(ctx context.Context, field graphql.CollectedField, obj *v1alpha1.TempoLimits) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TempoLimits_metricsGeneratorProcessorLocalBlocksMaxBlockDuration(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp := ec._fieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.MetricsGeneratorProcessorLocalBlocksMaxBlockDuration, nil
+	})
+
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*v1.Duration)
+	fc.Result = res
+	return ec.marshalODuration2ᚖk8sᚗioᚋapimachineryᚋpkgᚋapisᚋmetaᚋv1ᚐDuration(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TempoLimits_metricsGeneratorProcessorLocalBlocksMaxBlockDuration(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TempoLimits",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Duration does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TempoLimits_metricsGeneratorProcessorLocalBlocksMaxBlockBytes(ctx context.Context, field graphql.CollectedField, obj *v1alpha1.TempoLimits) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TempoLimits_metricsGeneratorProcessorLocalBlocksMaxBlockBytes(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp := ec._fieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.MetricsGeneratorProcessorLocalBlocksMaxBlockBytes, nil
+	})
+
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*uint64)
+	fc.Result = res
+	return ec.marshalOUInt2ᚖuint64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TempoLimits_metricsGeneratorProcessorLocalBlocksMaxBlockBytes(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TempoLimits",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type UInt does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TempoLimits_metricsGeneratorProcessorLocalBlocksFlushCheckPeriod(ctx context.Context, field graphql.CollectedField, obj *v1alpha1.TempoLimits) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TempoLimits_metricsGeneratorProcessorLocalBlocksFlushCheckPeriod(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp := ec._fieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.MetricsGeneratorProcessorLocalBlocksFlushCheckPeriod, nil
+	})
+
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*v1.Duration)
+	fc.Result = res
+	return ec.marshalODuration2ᚖk8sᚗioᚋapimachineryᚋpkgᚋapisᚋmetaᚋv1ᚐDuration(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TempoLimits_metricsGeneratorProcessorLocalBlocksFlushCheckPeriod(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TempoLimits",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Duration does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TempoLimits_metricsGeneratorProcessorLocalBlocksTraceIdlePeriod(ctx context.Context, field graphql.CollectedField, obj *v1alpha1.TempoLimits) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TempoLimits_metricsGeneratorProcessorLocalBlocksTraceIdlePeriod(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp := ec._fieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.MetricsGeneratorProcessorLocalBlocksTraceIdlePeriod, nil
+	})
+
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*v1.Duration)
+	fc.Result = res
+	return ec.marshalODuration2ᚖk8sᚗioᚋapimachineryᚋpkgᚋapisᚋmetaᚋv1ᚐDuration(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TempoLimits_metricsGeneratorProcessorLocalBlocksTraceIdlePeriod(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TempoLimits",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Duration does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TempoLimits_metricsGeneratorProcessorLocalBlocksCompleteBlockTimeout(ctx context.Context, field graphql.CollectedField, obj *v1alpha1.TempoLimits) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TempoLimits_metricsGeneratorProcessorLocalBlocksCompleteBlockTimeout(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp := ec._fieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.MetricsGeneratorProcessorLocalBlocksCompleteBlockTimeout, nil
+	})
+
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*v1.Duration)
+	fc.Result = res
+	return ec.marshalODuration2ᚖk8sᚗioᚋapimachineryᚋpkgᚋapisᚋmetaᚋv1ᚐDuration(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TempoLimits_metricsGeneratorProcessorLocalBlocksCompleteBlockTimeout(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TempoLimits",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Duration does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TempoLimits_blockRetention(ctx context.Context, field graphql.CollectedField, obj *v1alpha1.TempoLimits) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TempoLimits_blockRetention(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp := ec._fieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.BlockRetention, nil
+	})
+
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*v1.Duration)
+	fc.Result = res
+	return ec.marshalODuration2ᚖk8sᚗioᚋapimachineryᚋpkgᚋapisᚋmetaᚋv1ᚐDuration(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TempoLimits_blockRetention(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TempoLimits",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Duration does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TempoLimits_maxBytesPerTagValuesQuery(ctx context.Context, field graphql.CollectedField, obj *v1alpha1.TempoLimits) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TempoLimits_maxBytesPerTagValuesQuery(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp := ec._fieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.MaxBytesPerTagValuesQuery, nil
+	})
+
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*int)
+	fc.Result = res
+	return ec.marshalOInt2ᚖint(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TempoLimits_maxBytesPerTagValuesQuery(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TempoLimits",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TempoLimits_maxBlocksPerTagValuesQuery(ctx context.Context, field graphql.CollectedField, obj *v1alpha1.TempoLimits) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TempoLimits_maxBlocksPerTagValuesQuery(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp := ec._fieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.MaxBlocksPerTagValuesQuery, nil
+	})
+
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*int)
+	fc.Result = res
+	return ec.marshalOInt2ᚖint(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TempoLimits_maxBlocksPerTagValuesQuery(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TempoLimits",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TempoLimits_maxSearchDuration(ctx context.Context, field graphql.CollectedField, obj *v1alpha1.TempoLimits) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TempoLimits_maxSearchDuration(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp := ec._fieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.MaxSearchDuration, nil
+	})
+
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*v1.Duration)
+	fc.Result = res
+	return ec.marshalODuration2ᚖk8sᚗioᚋapimachineryᚋpkgᚋapisᚋmetaᚋv1ᚐDuration(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TempoLimits_maxSearchDuration(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TempoLimits",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Duration does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TempoLimits_maxBytesPerTrace(ctx context.Context, field graphql.CollectedField, obj *v1alpha1.TempoLimits) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TempoLimits_maxBytesPerTrace(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp := ec._fieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.MaxBytesPerTrace, nil
+	})
+
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*int)
+	fc.Result = res
+	return ec.marshalOInt2ᚖint(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TempoLimits_maxBytesPerTrace(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TempoLimits",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
 		},
 	}
 	return fc, nil
@@ -17091,29 +24213,172 @@ func (ec *executionContext) unmarshalInputAcceptOAuth2ConsentRequestSession(ctx 
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputAdmin(ctx context.Context, obj interface{}) (model.Admin, error) {
-	var it model.Admin
+func (ec *executionContext) unmarshalInputBlockedQueryInput(ctx context.Context, obj interface{}) (v1alpha1.BlockedQuery, error) {
+	var it v1alpha1.BlockedQuery
 	asMap := map[string]interface{}{}
 	for k, v := range obj.(map[string]interface{}) {
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"id"}
+	fieldsInOrder := [...]string{"pattern", "regex", "hash", "types"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
 			continue
 		}
 		switch k {
-		case "id":
+		case "pattern":
 			var err error
 
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
-			data, err := ec.unmarshalNID2string(ctx, v)
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("pattern"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
-			it.ID = data
+			it.Pattern = data
+		case "regex":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("regex"))
+			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Regex = data
+		case "hash":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("hash"))
+			data, err := ec.unmarshalOUInt2ᚖuint32(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Hash = data
+		case "types":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("types"))
+			data, err := ec.unmarshalOBlockedQueryType2ᚕgithubᚗcomᚋpluralshᚋtraceᚑshieldᚑcontrollerᚋapiᚋobservabilityᚋv1alpha1ᚐBlockedQueryTypeᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			if err = ec.resolvers.BlockedQueryInput().Types(ctx, &it, data); err != nil {
+				return it, err
+			}
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputDimensionMappingsInput(ctx context.Context, obj interface{}) (v1alpha1.DimensionMappings, error) {
+	var it v1alpha1.DimensionMappings
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"name", "sourceLabel", "join"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "name":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Name = data
+		case "sourceLabel":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("sourceLabel"))
+			data, err := ec.unmarshalOString2ᚕstringᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.SourceLabel = data
+		case "join":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("join"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Join = data
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputFilterPolicyInput(ctx context.Context, obj interface{}) (v1alpha1.FilterPolicy, error) {
+	var it v1alpha1.FilterPolicy
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"include", "exclude"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "include":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("include"))
+			data, err := ec.unmarshalOPolicyMatchInput2ᚖgithubᚗcomᚋpluralshᚋtraceᚑshieldᚑcontrollerᚋapiᚋobservabilityᚋv1alpha1ᚐPolicyMatch(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Include = data
+		case "exclude":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("exclude"))
+			data, err := ec.unmarshalOPolicyMatchInput2ᚖgithubᚗcomᚋpluralshᚋtraceᚑshieldᚑcontrollerᚋapiᚋobservabilityᚋv1alpha1ᚐPolicyMatch(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Exclude = data
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputGroupInput(ctx context.Context, obj interface{}) (model.GroupInput, error) {
+	var it model.GroupInput
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"name"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "name":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Name = data
 		}
 	}
 
@@ -17138,7 +24403,7 @@ func (ec *executionContext) unmarshalInputLoginBindingsInput(ctx context.Context
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("users"))
-			data, err := ec.unmarshalOID2ᚕstringᚄ(ctx, v)
+			data, err := ec.unmarshalOUserInput2ᚕᚖgithubᚗcomᚋpluralshᚋtraceᚑshieldᚋgraphᚋmodelᚐUserInputᚄ(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -17147,11 +24412,582 @@ func (ec *executionContext) unmarshalInputLoginBindingsInput(ctx context.Context
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("groups"))
-			data, err := ec.unmarshalOID2ᚕstringᚄ(ctx, v)
+			data, err := ec.unmarshalOGroupInput2ᚕᚖgithubᚗcomᚋpluralshᚋtraceᚑshieldᚋgraphᚋmodelᚐGroupInputᚄ(ctx, v)
 			if err != nil {
 				return it, err
 			}
 			it.Groups = data
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputLokiLimitsInput(ctx context.Context, obj interface{}) (v1alpha1.LokiLimitsInput, error) {
+	var it v1alpha1.LokiLimitsInput
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"ingestionRateStrategy", "ingestionRateMB", "ingestionBurstSizeMB", "maxLabelNameLength", "maxLabelValueLength", "maxLabelNamesPerSeries", "rejectOldSamples", "rejectOldSamplesMaxAge", "creationGracePeriod", "enforceMetricName", "maxLineSize", "maxLineSizeTruncate", "incrementDuplicateTimestamp", "maxLocalStreamsPerUser", "maxGlobalStreamsPerUser", "unorderedWrites", "perStreamRateLimit", "perStreamRateLimitBurst", "maxChunksPerQuery", "maxQuerySeries", "maxQueryLookback", "maxQueryLength", "maxQueryRange", "maxQueryParallelism", "tsdbMaxQueryParallelism", "tsdbMaxBytesPerShard", "cardinalityLimit", "maxStreamsMatchersPerQuery", "maxConcurrentTailRequests", "maxEntriesLimitPerQuery", "maxCacheFreshness", "maxStatsCacheFreshness", "maxQueriersPerTenant", "queryReadyIndexNumDays", "queryTimeout", "querySplitDuration", "minShardingLookback", "maxQueryBytesRead", "maxQuerierBytesRead", "volumeEnabled", "volumeMaxSeries", "rulerEvaluationDelay", "rulerMaxRulesPerRuleGroup", "rulerMaxRuleGroupsPerTenant", "rulerAlertManagerConfig", "rulerTenantShardSize", "rulerRemoteWriteDisabled", "rulerRemoteEvaluationTimeout", "rulerRemoteEvaluationMaxResponseSize", "deletionMode", "retentionPeriod", "streamRetention", "shardStreams", "blockedQueries", "requiredLabels", "requiredNumberLabels", "indexGatewayShardSize"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "ingestionRateStrategy":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("ingestionRateStrategy"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.IngestionRateStrategy = data
+		case "ingestionRateMB":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("ingestionRateMB"))
+			data, err := ec.unmarshalOFloat2ᚖfloat64(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.IngestionRateMB = data
+		case "ingestionBurstSizeMB":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("ingestionBurstSizeMB"))
+			data, err := ec.unmarshalOFloat2ᚖfloat64(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.IngestionBurstSizeMB = data
+		case "maxLabelNameLength":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("maxLabelNameLength"))
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.MaxLabelNameLength = data
+		case "maxLabelValueLength":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("maxLabelValueLength"))
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.MaxLabelValueLength = data
+		case "maxLabelNamesPerSeries":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("maxLabelNamesPerSeries"))
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.MaxLabelNamesPerSeries = data
+		case "rejectOldSamples":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("rejectOldSamples"))
+			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.RejectOldSamples = data
+		case "rejectOldSamplesMaxAge":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("rejectOldSamplesMaxAge"))
+			data, err := ec.unmarshalODuration2ᚖk8sᚗioᚋapimachineryᚋpkgᚋapisᚋmetaᚋv1ᚐDuration(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.RejectOldSamplesMaxAge = data
+		case "creationGracePeriod":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("creationGracePeriod"))
+			data, err := ec.unmarshalODuration2ᚖk8sᚗioᚋapimachineryᚋpkgᚋapisᚋmetaᚋv1ᚐDuration(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.CreationGracePeriod = data
+		case "enforceMetricName":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("enforceMetricName"))
+			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.EnforceMetricName = data
+		case "maxLineSize":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("maxLineSize"))
+			data, err := ec.unmarshalOUInt2ᚖuint64(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.MaxLineSize = data
+		case "maxLineSizeTruncate":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("maxLineSizeTruncate"))
+			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.MaxLineSizeTruncate = data
+		case "incrementDuplicateTimestamp":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("incrementDuplicateTimestamp"))
+			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.IncrementDuplicateTimestamp = data
+		case "maxLocalStreamsPerUser":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("maxLocalStreamsPerUser"))
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.MaxLocalStreamsPerUser = data
+		case "maxGlobalStreamsPerUser":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("maxGlobalStreamsPerUser"))
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.MaxGlobalStreamsPerUser = data
+		case "unorderedWrites":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("unorderedWrites"))
+			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.UnorderedWrites = data
+		case "perStreamRateLimit":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("perStreamRateLimit"))
+			data, err := ec.unmarshalOUInt2ᚖuint64(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.PerStreamRateLimit = data
+		case "perStreamRateLimitBurst":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("perStreamRateLimitBurst"))
+			data, err := ec.unmarshalOUInt2ᚖuint64(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.PerStreamRateLimitBurst = data
+		case "maxChunksPerQuery":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("maxChunksPerQuery"))
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.MaxChunksPerQuery = data
+		case "maxQuerySeries":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("maxQuerySeries"))
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.MaxQuerySeries = data
+		case "maxQueryLookback":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("maxQueryLookback"))
+			data, err := ec.unmarshalODuration2ᚖk8sᚗioᚋapimachineryᚋpkgᚋapisᚋmetaᚋv1ᚐDuration(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.MaxQueryLookback = data
+		case "maxQueryLength":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("maxQueryLength"))
+			data, err := ec.unmarshalODuration2ᚖk8sᚗioᚋapimachineryᚋpkgᚋapisᚋmetaᚋv1ᚐDuration(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.MaxQueryLength = data
+		case "maxQueryRange":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("maxQueryRange"))
+			data, err := ec.unmarshalODuration2ᚖk8sᚗioᚋapimachineryᚋpkgᚋapisᚋmetaᚋv1ᚐDuration(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.MaxQueryRange = data
+		case "maxQueryParallelism":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("maxQueryParallelism"))
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.MaxQueryParallelism = data
+		case "tsdbMaxQueryParallelism":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("tsdbMaxQueryParallelism"))
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.TSDBMaxQueryParallelism = data
+		case "tsdbMaxBytesPerShard":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("tsdbMaxBytesPerShard"))
+			data, err := ec.unmarshalOUInt2ᚖuint64(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.TSDBMaxBytesPerShard = data
+		case "cardinalityLimit":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("cardinalityLimit"))
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.CardinalityLimit = data
+		case "maxStreamsMatchersPerQuery":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("maxStreamsMatchersPerQuery"))
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.MaxStreamsMatchersPerQuery = data
+		case "maxConcurrentTailRequests":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("maxConcurrentTailRequests"))
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.MaxConcurrentTailRequests = data
+		case "maxEntriesLimitPerQuery":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("maxEntriesLimitPerQuery"))
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.MaxEntriesLimitPerQuery = data
+		case "maxCacheFreshness":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("maxCacheFreshness"))
+			data, err := ec.unmarshalODuration2ᚖk8sᚗioᚋapimachineryᚋpkgᚋapisᚋmetaᚋv1ᚐDuration(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.MaxCacheFreshness = data
+		case "maxStatsCacheFreshness":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("maxStatsCacheFreshness"))
+			data, err := ec.unmarshalODuration2ᚖk8sᚗioᚋapimachineryᚋpkgᚋapisᚋmetaᚋv1ᚐDuration(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.MaxStatsCacheFreshness = data
+		case "maxQueriersPerTenant":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("maxQueriersPerTenant"))
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.MaxQueriersPerTenant = data
+		case "queryReadyIndexNumDays":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("queryReadyIndexNumDays"))
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.QueryReadyIndexNumDays = data
+		case "queryTimeout":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("queryTimeout"))
+			data, err := ec.unmarshalODuration2ᚖk8sᚗioᚋapimachineryᚋpkgᚋapisᚋmetaᚋv1ᚐDuration(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.QueryTimeout = data
+		case "querySplitDuration":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("querySplitDuration"))
+			data, err := ec.unmarshalODuration2ᚖk8sᚗioᚋapimachineryᚋpkgᚋapisᚋmetaᚋv1ᚐDuration(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.QuerySplitDuration = data
+		case "minShardingLookback":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("minShardingLookback"))
+			data, err := ec.unmarshalODuration2ᚖk8sᚗioᚋapimachineryᚋpkgᚋapisᚋmetaᚋv1ᚐDuration(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.MinShardingLookback = data
+		case "maxQueryBytesRead":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("maxQueryBytesRead"))
+			data, err := ec.unmarshalOUInt2ᚖuint64(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.MaxQueryBytesRead = data
+		case "maxQuerierBytesRead":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("maxQuerierBytesRead"))
+			data, err := ec.unmarshalOUInt2ᚖuint64(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.MaxQuerierBytesRead = data
+		case "volumeEnabled":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("volumeEnabled"))
+			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.VolumeEnabled = data
+		case "volumeMaxSeries":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("volumeMaxSeries"))
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.VolumeMaxSeries = data
+		case "rulerEvaluationDelay":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("rulerEvaluationDelay"))
+			data, err := ec.unmarshalODuration2ᚖk8sᚗioᚋapimachineryᚋpkgᚋapisᚋmetaᚋv1ᚐDuration(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.RulerEvaluationDelay = data
+		case "rulerMaxRulesPerRuleGroup":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("rulerMaxRulesPerRuleGroup"))
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.RulerMaxRulesPerRuleGroup = data
+		case "rulerMaxRuleGroupsPerTenant":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("rulerMaxRuleGroupsPerTenant"))
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.RulerMaxRuleGroupsPerTenant = data
+		case "rulerAlertManagerConfig":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("rulerAlertManagerConfig"))
+			data, err := ec.unmarshalORulerAlertManagerConfigInput2ᚖgithubᚗcomᚋpluralshᚋtraceᚑshieldᚑcontrollerᚋapiᚋobservabilityᚋv1alpha1ᚐRulerAlertManagerConfig(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.RulerAlertManagerConfig = data
+		case "rulerTenantShardSize":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("rulerTenantShardSize"))
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.RulerTenantShardSize = data
+		case "rulerRemoteWriteDisabled":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("rulerRemoteWriteDisabled"))
+			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.RulerRemoteWriteDisabled = data
+		case "rulerRemoteEvaluationTimeout":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("rulerRemoteEvaluationTimeout"))
+			data, err := ec.unmarshalODuration2ᚖk8sᚗioᚋapimachineryᚋpkgᚋapisᚋmetaᚋv1ᚐDuration(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.RulerRemoteEvaluationTimeout = data
+		case "rulerRemoteEvaluationMaxResponseSize":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("rulerRemoteEvaluationMaxResponseSize"))
+			data, err := ec.unmarshalOInt2ᚖint64(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.RulerRemoteEvaluationMaxResponseSize = data
+		case "deletionMode":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("deletionMode"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.DeletionMode = data
+		case "retentionPeriod":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("retentionPeriod"))
+			data, err := ec.unmarshalODuration2ᚖk8sᚗioᚋapimachineryᚋpkgᚋapisᚋmetaᚋv1ᚐDuration(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.RetentionPeriod = data
+		case "streamRetention":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("streamRetention"))
+			data, err := ec.unmarshalOStreamRetentionInput2ᚕgithubᚗcomᚋpluralshᚋtraceᚑshieldᚑcontrollerᚋapiᚋobservabilityᚋv1alpha1ᚐStreamRetentionᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.StreamRetention = data
+		case "shardStreams":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("shardStreams"))
+			data, err := ec.unmarshalOShardstreamsConfigInput2ᚖgithubᚗcomᚋpluralshᚋtraceᚑshieldᚑcontrollerᚋapiᚋobservabilityᚋv1alpha1ᚐShardstreamsConfig(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ShardStreams = data
+		case "blockedQueries":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("blockedQueries"))
+			data, err := ec.unmarshalOBlockedQueryInput2ᚕgithubᚗcomᚋpluralshᚋtraceᚑshieldᚑcontrollerᚋapiᚋobservabilityᚋv1alpha1ᚐBlockedQueryᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.BlockedQueries = data
+		case "requiredLabels":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("requiredLabels"))
+			data, err := ec.unmarshalOString2ᚕstringᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.RequiredLabels = data
+		case "requiredNumberLabels":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("requiredNumberLabels"))
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.RequiredNumberLabels = data
+		case "indexGatewayShardSize":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("indexGatewayShardSize"))
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.IndexGatewayShardSize = data
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputMatchPolicyAttributeInput(ctx context.Context, obj interface{}) (v1alpha1.MatchPolicyAttribute, error) {
+	var it v1alpha1.MatchPolicyAttribute
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"key", "value"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "key":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("key"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Key = data
+		case "value":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("value"))
+			data, err := ec.unmarshalOMap2githubᚗcomᚋpluralshᚋtraceᚑshieldᚑcontrollerᚋapiᚋobservabilityᚋv1alpha1ᚐWrappedMap(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Value = data
 		}
 	}
 
@@ -17165,7 +25001,7 @@ func (ec *executionContext) unmarshalInputMimirLimitsInput(ctx context.Context, 
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"requestRate", "requestBurstSize", "ingestionRate", "ingestionBurstSize", "acceptHASamples", "haClusterLabel", "haReplicaLabel", "haMaxClusters", "dropLabels", "maxLabelNameLength", "maxLabelValueLength", "maxLabelNamesPerSeries", "maxMetadataLength", "creationGracePeriod", "enforceMetadataMetricName", "ingestionTenantShardSize", "maxGlobalSeriesPerUser", "maxGlobalSeriesPerMetric", "maxGlobalMetricsWithMetadataPerUser", "maxGlobalMetadataPerMetric", "maxGlobalExemplarsPerUser", "nativeHistogramsIngestionEnabled", "outOfOrderTimeWindow", "outOfOrderBlocksExternalLabelEnabled", "separateMetricsGroupLabel", "maxChunksPerQuery", "maxFetchedSeriesPerQuery", "maxFetchedChunkBytesPerQuery", "maxQueryLookback", "maxPartialQueryLength", "maxQueryParallelism", "maxLabelsQueryLength", "maxCacheFreshness", "maxQueriersPerTenant", "queryShardingTotalShards", "queryShardingMaxShardedQueries", "queryShardingMaxRegexpSizeBytes", "splitInstantQueriesByInterval", "maxTotalQueryLength", "resultsCacheTTL", "resultsCacheTTLForOutOfOrderTimeWindow", "maxQueryExpressionSizeBytes", "cardinalityAnalysisEnabled", "labelNamesAndValuesResultsMaxSizeBytes", "labelValuesMaxCardinalityLabelNamesPerRequest", "rulerEvaluationDelay", "rulerTenantShardSize", "rulerMaxRulesPerRuleGroup", "rulerMaxRuleGroupsPerTenant", "rulerRecordingRulesEvaluationEnabled", "rulerAlertingRulesEvaluationEnabled", "storeGatewayTenantShardSize", "compactorBlocksRetentionPeriod", "compactorSplitAndMergeShards", "compactorSplitGroups", "compactorTenantShardSize", "compactorPartialBlockDeletionDelay", "compactorBlockUploadEnabled", "compactorBlockUploadValidationEnabled", "compactorBlockUploadVerifyChunks", "s3SSEType", "s3SSEKMSKeyID", "s3SSEKMSEncryptionContext", "alertmanagerReceiversBlockCIDRNetworks", "alertmanagerReceiversBlockPrivateAddresses", "notificationRateLimit", "notificationRateLimitPerIntegration", "alertmanagerMaxConfigSizeBytes", "alertmanagerMaxTemplatesCount", "alertmanagerMaxTemplateSizeBytes", "alertmanagerMaxDispatcherAggregationGroups", "alertmanagerMaxAlertsCount", "alertmanagerMaxAlertsSizeBytes", "forwardingEndpoint", "forwardingDropOlderThan", "forwardingRules"}
+	fieldsInOrder := [...]string{"requestRate", "requestBurstSize", "ingestionRate", "ingestionBurstSize", "acceptHASamples", "haClusterLabel", "haReplicaLabel", "haMaxClusters", "dropLabels", "maxLabelNameLength", "maxLabelValueLength", "maxLabelNamesPerSeries", "maxMetadataLength", "maxNativeHistogramBuckets", "creationGracePeriod", "enforceMetadataMetricName", "ingestionTenantShardSize", "metricRelabelConfigs", "maxGlobalSeriesPerUser", "maxGlobalSeriesPerMetric", "maxGlobalMetricsWithMetadataPerUser", "maxGlobalMetadataPerMetric", "maxGlobalExemplarsPerUser", "nativeHistogramsIngestionEnabled", "activeSeriesCustomTrackersConfig", "outOfOrderTimeWindow", "outOfOrderBlocksExternalLabelEnabled", "separateMetricsGroupLabel", "maxChunksPerQuery", "maxFetchedSeriesPerQuery", "maxFetchedChunkBytesPerQuery", "maxQueryLookback", "maxPartialQueryLength", "maxQueryParallelism", "maxLabelsQueryLength", "maxCacheFreshness", "maxQueriersPerTenant", "queryShardingTotalShards", "queryShardingMaxShardedQueries", "queryShardingMaxRegexpSizeBytes", "splitInstantQueriesByInterval", "QueryIngestersWithin", "maxTotalQueryLength", "resultsCacheTTL", "resultsCacheTTLForOutOfOrderTimeWindow", "resultsCacheTTLForCardinalityQuery", "resultsCacheTTLForLabelsQuery", "resultsCacheForUnalignedQueryEnabled", "maxQueryExpressionSizeBytes", "cardinalityAnalysisEnabled", "labelNamesAndValuesResultsMaxSizeBytes", "labelValuesMaxCardinalityLabelNamesPerRequest", "rulerEvaluationDelay", "rulerTenantShardSize", "rulerMaxRulesPerRuleGroup", "rulerMaxRuleGroupsPerTenant", "rulerRecordingRulesEvaluationEnabled", "rulerAlertingRulesEvaluationEnabled", "rulerSyncRulesOnChangesEnabled", "storeGatewayTenantShardSize", "compactorBlocksRetentionPeriod", "compactorSplitAndMergeShards", "compactorSplitGroups", "compactorTenantShardSize", "compactorPartialBlockDeletionDelay", "compactorBlockUploadEnabled", "compactorBlockUploadValidationEnabled", "compactorBlockUploadVerifyChunks", "compactorBlockUploadMaxBlockSizeBytes", "s3SSEType", "s3SSEKMSKeyID", "s3SSEKMSEncryptionContext", "alertmanagerReceiversBlockCIDRNetworks", "alertmanagerReceiversBlockPrivateAddresses", "notificationRateLimit", "notificationRateLimitPerIntegration", "alertmanagerMaxConfigSizeBytes", "alertmanagerMaxTemplatesCount", "alertmanagerMaxTemplateSizeBytes", "alertmanagerMaxDispatcherAggregationGroups", "alertmanagerMaxAlertsCount", "alertmanagerMaxAlertsSizeBytes"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -17248,7 +25084,7 @@ func (ec *executionContext) unmarshalInputMimirLimitsInput(ctx context.Context, 
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("dropLabels"))
-			data, err := ec.unmarshalOString2ᚕᚖstring(ctx, v)
+			data, err := ec.unmarshalOString2ᚕstringᚄ(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -17289,6 +25125,15 @@ func (ec *executionContext) unmarshalInputMimirLimitsInput(ctx context.Context, 
 				return it, err
 			}
 			it.MaxMetadataLength = data
+		case "maxNativeHistogramBuckets":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("maxNativeHistogramBuckets"))
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.MaxNativeHistogramBuckets = data
 		case "creationGracePeriod":
 			var err error
 
@@ -17316,6 +25161,15 @@ func (ec *executionContext) unmarshalInputMimirLimitsInput(ctx context.Context, 
 				return it, err
 			}
 			it.IngestionTenantShardSize = data
+		case "metricRelabelConfigs":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("metricRelabelConfigs"))
+			data, err := ec.unmarshalORelabelConfigInput2ᚕgithubᚗcomᚋpluralshᚋtraceᚑshieldᚑcontrollerᚋapiᚋobservabilityᚋv1alpha1ᚐRelabelConfigᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.MetricRelabelConfigs = data
 		case "maxGlobalSeriesPerUser":
 			var err error
 
@@ -17370,6 +25224,15 @@ func (ec *executionContext) unmarshalInputMimirLimitsInput(ctx context.Context, 
 				return it, err
 			}
 			it.NativeHistogramsIngestionEnabled = data
+		case "activeSeriesCustomTrackersConfig":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("activeSeriesCustomTrackersConfig"))
+			data, err := ec.unmarshalOStringMap2map(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ActiveSeriesCustomTrackersConfig = data
 		case "outOfOrderTimeWindow":
 			var err error
 
@@ -17514,6 +25377,15 @@ func (ec *executionContext) unmarshalInputMimirLimitsInput(ctx context.Context, 
 				return it, err
 			}
 			it.SplitInstantQueriesByInterval = data
+		case "QueryIngestersWithin":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("QueryIngestersWithin"))
+			data, err := ec.unmarshalODuration2ᚖk8sᚗioᚋapimachineryᚋpkgᚋapisᚋmetaᚋv1ᚐDuration(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.QueryIngestersWithin = data
 		case "maxTotalQueryLength":
 			var err error
 
@@ -17541,6 +25413,33 @@ func (ec *executionContext) unmarshalInputMimirLimitsInput(ctx context.Context, 
 				return it, err
 			}
 			it.ResultsCacheTTLForOutOfOrderTimeWindow = data
+		case "resultsCacheTTLForCardinalityQuery":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("resultsCacheTTLForCardinalityQuery"))
+			data, err := ec.unmarshalODuration2ᚖk8sᚗioᚋapimachineryᚋpkgᚋapisᚋmetaᚋv1ᚐDuration(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ResultsCacheTTLForCardinalityQuery = data
+		case "resultsCacheTTLForLabelsQuery":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("resultsCacheTTLForLabelsQuery"))
+			data, err := ec.unmarshalODuration2ᚖk8sᚗioᚋapimachineryᚋpkgᚋapisᚋmetaᚋv1ᚐDuration(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ResultsCacheTTLForLabelsQuery = data
+		case "resultsCacheForUnalignedQueryEnabled":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("resultsCacheForUnalignedQueryEnabled"))
+			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ResultsCacheForUnalignedQueryEnabled = data
 		case "maxQueryExpressionSizeBytes":
 			var err error
 
@@ -17631,6 +25530,15 @@ func (ec *executionContext) unmarshalInputMimirLimitsInput(ctx context.Context, 
 				return it, err
 			}
 			it.RulerAlertingRulesEvaluationEnabled = data
+		case "rulerSyncRulesOnChangesEnabled":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("rulerSyncRulesOnChangesEnabled"))
+			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.RulerSyncRulesOnChangesEnabled = data
 		case "storeGatewayTenantShardSize":
 			var err error
 
@@ -17712,6 +25620,15 @@ func (ec *executionContext) unmarshalInputMimirLimitsInput(ctx context.Context, 
 				return it, err
 			}
 			it.CompactorBlockUploadVerifyChunks = data
+		case "compactorBlockUploadMaxBlockSizeBytes":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("compactorBlockUploadMaxBlockSizeBytes"))
+			data, err := ec.unmarshalOInt2ᚖint64(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.CompactorBlockUploadMaxBlockSizeBytes = data
 		case "s3SSEType":
 			var err error
 
@@ -17829,33 +25746,6 @@ func (ec *executionContext) unmarshalInputMimirLimitsInput(ctx context.Context, 
 				return it, err
 			}
 			it.AlertmanagerMaxAlertsSizeBytes = data
-		case "forwardingEndpoint":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("forwardingEndpoint"))
-			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
-			if err != nil {
-				return it, err
-			}
-			it.ForwardingEndpoint = data
-		case "forwardingDropOlderThan":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("forwardingDropOlderThan"))
-			data, err := ec.unmarshalODuration2ᚖk8sᚗioᚋapimachineryᚋpkgᚋapisᚋmetaᚋv1ᚐDuration(ctx, v)
-			if err != nil {
-				return it, err
-			}
-			it.ForwardingDropOlderThan = data
-		case "forwardingRules":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("forwardingRules"))
-			data, err := ec.unmarshalOForwardingRuleMap2map(ctx, v)
-			if err != nil {
-				return it, err
-			}
-			it.ForwardingRules = data
 		}
 	}
 
@@ -17900,6 +25790,250 @@ func (ec *executionContext) unmarshalInputNameInput(ctx context.Context, obj int
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputNotifierBasicAuthInput(ctx context.Context, obj interface{}) (v1alpha1.NotifierBasicAuth, error) {
+	var it v1alpha1.NotifierBasicAuth
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"username", "password"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "username":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("username"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Username = data
+		case "password":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("password"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Password = data
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputNotifierConfigInput(ctx context.Context, obj interface{}) (v1alpha1.NotifierConfig, error) {
+	var it v1alpha1.NotifierConfig
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"basicAuth", "headerAuth", "tls"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "basicAuth":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("basicAuth"))
+			data, err := ec.unmarshalONotifierBasicAuthInput2ᚖgithubᚗcomᚋpluralshᚋtraceᚑshieldᚑcontrollerᚋapiᚋobservabilityᚋv1alpha1ᚐNotifierBasicAuth(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.BasicAuth = data
+		case "headerAuth":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("headerAuth"))
+			data, err := ec.unmarshalONotifierHeaderAuthInput2ᚖgithubᚗcomᚋpluralshᚋtraceᚑshieldᚑcontrollerᚋapiᚋobservabilityᚋv1alpha1ᚐNotifierHeaderAuth(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.HeaderAuth = data
+		case "tls":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("tls"))
+			data, err := ec.unmarshalONotifierTLSClientConfigInput2ᚖgithubᚗcomᚋpluralshᚋtraceᚑshieldᚑcontrollerᚋapiᚋobservabilityᚋv1alpha1ᚐNotifierTLSClientConfig(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.TLS = data
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputNotifierHeaderAuthInput(ctx context.Context, obj interface{}) (v1alpha1.NotifierHeaderAuth, error) {
+	var it v1alpha1.NotifierHeaderAuth
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"type", "credentials", "credentialsFile"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "type":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("type"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Type = data
+		case "credentials":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("credentials"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Credentials = data
+		case "credentialsFile":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("credentialsFile"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.CredentialsFile = data
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputNotifierTLSClientConfigInput(ctx context.Context, obj interface{}) (v1alpha1.NotifierTLSClientConfig, error) {
+	var it v1alpha1.NotifierTLSClientConfig
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"certPath", "keyPath", "caPath", "serverName", "insecureSkipVerify", "cipherSuites", "minVersion"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "certPath":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("certPath"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.CertPath = data
+		case "keyPath":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("keyPath"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.KeyPath = data
+		case "caPath":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("caPath"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.CAPath = data
+		case "serverName":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("serverName"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ServerName = data
+		case "insecureSkipVerify":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("insecureSkipVerify"))
+			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.InsecureSkipVerify = data
+		case "cipherSuites":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("cipherSuites"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.CipherSuites = data
+		case "minVersion":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("minVersion"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.MinVersion = data
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputOAuth2ClientInput(ctx context.Context, obj interface{}) (model.OAuth2ClientInput, error) {
+	var it model.OAuth2ClientInput
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"clientId"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "clientId":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("clientId"))
+			data, err := ec.unmarshalNID2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ClientID = data
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputObservabilityTenantLimitsInput(ctx context.Context, obj interface{}) (model.ObservabilityTenantLimitsInput, error) {
 	var it model.ObservabilityTenantLimitsInput
 	asMap := map[string]interface{}{}
@@ -17907,7 +26041,7 @@ func (ec *executionContext) unmarshalInputObservabilityTenantLimitsInput(ctx con
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"mimir"}
+	fieldsInOrder := [...]string{"mimir", "loki", "tempo"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -17923,6 +26057,24 @@ func (ec *executionContext) unmarshalInputObservabilityTenantLimitsInput(ctx con
 				return it, err
 			}
 			it.Mimir = data
+		case "loki":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("loki"))
+			data, err := ec.unmarshalOLokiLimitsInput2ᚖgithubᚗcomᚋpluralshᚋtraceᚑshieldᚑcontrollerᚋapiᚋobservabilityᚋv1alpha1ᚐLokiLimitsInput(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Loki = data
+		case "tempo":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("tempo"))
+			data, err := ec.unmarshalOTempoLimitsInput2ᚖgithubᚗcomᚋpluralshᚋtraceᚑshieldᚑcontrollerᚋapiᚋobservabilityᚋv1alpha1ᚐTempoLimitsInput(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Tempo = data
 		}
 	}
 
@@ -17947,7 +26099,7 @@ func (ec *executionContext) unmarshalInputObservabilityTenantPermissionBindingsI
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("users"))
-			data, err := ec.unmarshalOString2ᚕstringᚄ(ctx, v)
+			data, err := ec.unmarshalOUserInput2ᚕᚖgithubᚗcomᚋpluralshᚋtraceᚑshieldᚋgraphᚋmodelᚐUserInputᚄ(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -17956,7 +26108,7 @@ func (ec *executionContext) unmarshalInputObservabilityTenantPermissionBindingsI
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("groups"))
-			data, err := ec.unmarshalOString2ᚕstringᚄ(ctx, v)
+			data, err := ec.unmarshalOGroupInput2ᚕᚖgithubᚗcomᚋpluralshᚋtraceᚑshieldᚋgraphᚋmodelᚐGroupInputᚄ(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -17965,11 +26117,682 @@ func (ec *executionContext) unmarshalInputObservabilityTenantPermissionBindingsI
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("oauth2Clients"))
-			data, err := ec.unmarshalOString2ᚕstringᚄ(ctx, v)
+			data, err := ec.unmarshalOOAuth2ClientInput2ᚕᚖgithubᚗcomᚋpluralshᚋtraceᚑshieldᚋgraphᚋmodelᚐOAuth2ClientInputᚄ(ctx, v)
 			if err != nil {
 				return it, err
 			}
 			it.Oauth2Clients = data
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputPolicyMatchInput(ctx context.Context, obj interface{}) (v1alpha1.PolicyMatch, error) {
+	var it v1alpha1.PolicyMatch
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"matchType", "attributes"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "matchType":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("matchType"))
+			data, err := ec.unmarshalOMatchType2ᚖgithubᚗcomᚋpluralshᚋtraceᚑshieldᚑcontrollerᚋapiᚋobservabilityᚋv1alpha1ᚐMatchType(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.MatchType = data
+		case "attributes":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("attributes"))
+			data, err := ec.unmarshalOMatchPolicyAttributeInput2ᚕgithubᚗcomᚋpluralshᚋtraceᚑshieldᚑcontrollerᚋapiᚋobservabilityᚋv1alpha1ᚐMatchPolicyAttributeᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Attributes = data
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputRelabelConfigInput(ctx context.Context, obj interface{}) (v1alpha1.RelabelConfig, error) {
+	var it v1alpha1.RelabelConfig
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"sourceLabels", "separator", "regex", "modulus", "targetLabel", "replacement", "action"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "sourceLabels":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("sourceLabels"))
+			data, err := ec.unmarshalOLabelName2ᚕgithubᚗcomᚋpluralshᚋtraceᚑshieldᚑcontrollerᚋapiᚋobservabilityᚋv1alpha1ᚐLabelNameᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.SourceLabels = data
+		case "separator":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("separator"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Separator = data
+		case "regex":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("regex"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Regex = data
+		case "modulus":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("modulus"))
+			data, err := ec.unmarshalOUInt2ᚖuint64(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Modulus = data
+		case "targetLabel":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("targetLabel"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.TargetLabel = data
+		case "replacement":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("replacement"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Replacement = data
+		case "action":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("action"))
+			data, err := ec.unmarshalORelabelAction2ᚖgithubᚗcomᚋpluralshᚋtraceᚑshieldᚑcontrollerᚋapiᚋobservabilityᚋv1alpha1ᚐRelabelAction(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Action = data
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputRulerAlertManagerConfigInput(ctx context.Context, obj interface{}) (v1alpha1.RulerAlertManagerConfig, error) {
+	var it v1alpha1.RulerAlertManagerConfig
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"alertmanagerURL", "alertmanagerDiscovery", "alertmanagerRefreshInterval", "alertmanangerEnableV2API", "alertRelabelConfigs", "notificationQueueCapacity", "notificationTimeout", "notifier"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "alertmanagerURL":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("alertmanagerURL"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.AlertmanagerURL = data
+		case "alertmanagerDiscovery":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("alertmanagerDiscovery"))
+			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.AlertmanagerDiscovery = data
+		case "alertmanagerRefreshInterval":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("alertmanagerRefreshInterval"))
+			data, err := ec.unmarshalODuration2ᚖk8sᚗioᚋapimachineryᚋpkgᚋapisᚋmetaᚋv1ᚐDuration(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.AlertmanagerRefreshInterval = data
+		case "alertmanangerEnableV2API":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("alertmanangerEnableV2API"))
+			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.AlertmanangerEnableV2API = data
+		case "alertRelabelConfigs":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("alertRelabelConfigs"))
+			data, err := ec.unmarshalORelabelConfigInput2ᚕgithubᚗcomᚋpluralshᚋtraceᚑshieldᚑcontrollerᚋapiᚋobservabilityᚋv1alpha1ᚐRelabelConfigᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.AlertRelabelConfigs = data
+		case "notificationQueueCapacity":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("notificationQueueCapacity"))
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.NotificationQueueCapacity = data
+		case "notificationTimeout":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("notificationTimeout"))
+			data, err := ec.unmarshalODuration2ᚖk8sᚗioᚋapimachineryᚋpkgᚋapisᚋmetaᚋv1ᚐDuration(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.NotificationTimeout = data
+		case "notifier":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("notifier"))
+			data, err := ec.unmarshalONotifierConfigInput2ᚖgithubᚗcomᚋpluralshᚋtraceᚑshieldᚑcontrollerᚋapiᚋobservabilityᚋv1alpha1ᚐNotifierConfig(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Notifier = data
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputShardstreamsConfigInput(ctx context.Context, obj interface{}) (v1alpha1.ShardstreamsConfig, error) {
+	var it v1alpha1.ShardstreamsConfig
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"enabled", "loggingEnabled", "desiredRate"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "enabled":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("enabled"))
+			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Enabled = data
+		case "loggingEnabled":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("loggingEnabled"))
+			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.LoggingEnabled = data
+		case "desiredRate":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("desiredRate"))
+			data, err := ec.unmarshalOUInt2ᚖuint64(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.DesiredRate = data
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputStreamRetentionInput(ctx context.Context, obj interface{}) (v1alpha1.StreamRetention, error) {
+	var it v1alpha1.StreamRetention
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"period", "priority", "selector"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "period":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("period"))
+			data, err := ec.unmarshalODuration2ᚖk8sᚗioᚋapimachineryᚋpkgᚋapisᚋmetaᚋv1ᚐDuration(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Period = data
+		case "priority":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("priority"))
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Priority = data
+		case "selector":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("selector"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Selector = data
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputTempoLimitsInput(ctx context.Context, obj interface{}) (v1alpha1.TempoLimitsInput, error) {
+	var it v1alpha1.TempoLimitsInput
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"ingestionRateStrategy", "ingestionRateLimitBytes", "ingestionBurstSizeBytes", "maxLocalTracesPerUser", "maxGlobalTracesPerUser", "forwarders", "metricsGeneratorRingSize", "metricsGeneratorProcessors", "metricsGeneratorMaxActiveSeries", "metricsGeneratorCollectionInterval", "metricsGeneratorDisableCollection", "metricsGeneratorForwarderQueueSize", "metricsGeneratorForwarderWorkers", "metricsGeneratorProcessorServiceGraphsHistogramBuckets", "metricsGeneratorProcessorServiceGraphsDimensions", "metricsGeneratorProcessorServiceGraphsPeerAttributes", "metricsGeneratorProcessorServiceGraphsEnableClientServerPrefix", "metricsGeneratorProcessorSpanMetricsHistogramBuckets", "metricsGeneratorProcessorSpanMetricsDimensions", "metricsGeneratorProcessorSpanMetricsIntrinsicDimensions", "metricsGeneratorProcessorSpanMetricsFilterPolicies", "metricsGeneratorProcessorSpanMetricsDimensionMappings", "metricsGeneratorProcessorSpanMetricsEnableTargetInfo", "metricsGeneratorProcessorLocalBlocksMaxLiveTraces", "metricsGeneratorProcessorLocalBlocksMaxBlockDuration", "metricsGeneratorProcessorLocalBlocksMaxBlockBytes", "metricsGeneratorProcessorLocalBlocksFlushCheckPeriod", "metricsGeneratorProcessorLocalBlocksTraceIdlePeriod", "metricsGeneratorProcessorLocalBlocksCompleteBlockTimeout", "blockRetention", "maxBytesPerTagValuesQuery", "maxBlocksPerTagValuesQuery", "maxSearchDuration", "maxBytesPerTrace"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "ingestionRateStrategy":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("ingestionRateStrategy"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.IngestionRateStrategy = data
+		case "ingestionRateLimitBytes":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("ingestionRateLimitBytes"))
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.IngestionRateLimitBytes = data
+		case "ingestionBurstSizeBytes":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("ingestionBurstSizeBytes"))
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.IngestionBurstSizeBytes = data
+		case "maxLocalTracesPerUser":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("maxLocalTracesPerUser"))
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.MaxLocalTracesPerUser = data
+		case "maxGlobalTracesPerUser":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("maxGlobalTracesPerUser"))
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.MaxGlobalTracesPerUser = data
+		case "forwarders":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("forwarders"))
+			data, err := ec.unmarshalOString2ᚕstringᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Forwarders = data
+		case "metricsGeneratorRingSize":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("metricsGeneratorRingSize"))
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.MetricsGeneratorRingSize = data
+		case "metricsGeneratorProcessors":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("metricsGeneratorProcessors"))
+			data, err := ec.unmarshalOString2ᚕstringᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.MetricsGeneratorProcessors = data
+		case "metricsGeneratorMaxActiveSeries":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("metricsGeneratorMaxActiveSeries"))
+			data, err := ec.unmarshalOUInt2ᚖuint32(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.MetricsGeneratorMaxActiveSeries = data
+		case "metricsGeneratorCollectionInterval":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("metricsGeneratorCollectionInterval"))
+			data, err := ec.unmarshalODuration2ᚖk8sᚗioᚋapimachineryᚋpkgᚋapisᚋmetaᚋv1ᚐDuration(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.MetricsGeneratorCollectionInterval = data
+		case "metricsGeneratorDisableCollection":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("metricsGeneratorDisableCollection"))
+			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.MetricsGeneratorDisableCollection = data
+		case "metricsGeneratorForwarderQueueSize":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("metricsGeneratorForwarderQueueSize"))
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.MetricsGeneratorForwarderQueueSize = data
+		case "metricsGeneratorForwarderWorkers":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("metricsGeneratorForwarderWorkers"))
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.MetricsGeneratorForwarderWorkers = data
+		case "metricsGeneratorProcessorServiceGraphsHistogramBuckets":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("metricsGeneratorProcessorServiceGraphsHistogramBuckets"))
+			data, err := ec.unmarshalOFloat2ᚕfloat64(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.MetricsGeneratorProcessorServiceGraphsHistogramBuckets = data
+		case "metricsGeneratorProcessorServiceGraphsDimensions":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("metricsGeneratorProcessorServiceGraphsDimensions"))
+			data, err := ec.unmarshalOString2ᚕstringᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.MetricsGeneratorProcessorServiceGraphsDimensions = data
+		case "metricsGeneratorProcessorServiceGraphsPeerAttributes":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("metricsGeneratorProcessorServiceGraphsPeerAttributes"))
+			data, err := ec.unmarshalOString2ᚕstringᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.MetricsGeneratorProcessorServiceGraphsPeerAttributes = data
+		case "metricsGeneratorProcessorServiceGraphsEnableClientServerPrefix":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("metricsGeneratorProcessorServiceGraphsEnableClientServerPrefix"))
+			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.MetricsGeneratorProcessorServiceGraphsEnableClientServerPrefix = data
+		case "metricsGeneratorProcessorSpanMetricsHistogramBuckets":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("metricsGeneratorProcessorSpanMetricsHistogramBuckets"))
+			data, err := ec.unmarshalOFloat2ᚕfloat64(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.MetricsGeneratorProcessorSpanMetricsHistogramBuckets = data
+		case "metricsGeneratorProcessorSpanMetricsDimensions":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("metricsGeneratorProcessorSpanMetricsDimensions"))
+			data, err := ec.unmarshalOString2ᚕstringᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.MetricsGeneratorProcessorSpanMetricsDimensions = data
+		case "metricsGeneratorProcessorSpanMetricsIntrinsicDimensions":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("metricsGeneratorProcessorSpanMetricsIntrinsicDimensions"))
+			data, err := ec.unmarshalOBoolMap2map(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.MetricsGeneratorProcessorSpanMetricsIntrinsicDimensions = data
+		case "metricsGeneratorProcessorSpanMetricsFilterPolicies":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("metricsGeneratorProcessorSpanMetricsFilterPolicies"))
+			data, err := ec.unmarshalOFilterPolicyInput2ᚕgithubᚗcomᚋpluralshᚋtraceᚑshieldᚑcontrollerᚋapiᚋobservabilityᚋv1alpha1ᚐFilterPolicyᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.MetricsGeneratorProcessorSpanMetricsFilterPolicies = data
+		case "metricsGeneratorProcessorSpanMetricsDimensionMappings":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("metricsGeneratorProcessorSpanMetricsDimensionMappings"))
+			data, err := ec.unmarshalODimensionMappingsInput2ᚕgithubᚗcomᚋpluralshᚋtraceᚑshieldᚑcontrollerᚋapiᚋobservabilityᚋv1alpha1ᚐDimensionMappingsᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.MetricsGeneratorProcessorSpanMetricsDimensionMappings = data
+		case "metricsGeneratorProcessorSpanMetricsEnableTargetInfo":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("metricsGeneratorProcessorSpanMetricsEnableTargetInfo"))
+			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.MetricsGeneratorProcessorSpanMetricsEnableTargetInfo = data
+		case "metricsGeneratorProcessorLocalBlocksMaxLiveTraces":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("metricsGeneratorProcessorLocalBlocksMaxLiveTraces"))
+			data, err := ec.unmarshalOUInt2ᚖuint64(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.MetricsGeneratorProcessorLocalBlocksMaxLiveTraces = data
+		case "metricsGeneratorProcessorLocalBlocksMaxBlockDuration":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("metricsGeneratorProcessorLocalBlocksMaxBlockDuration"))
+			data, err := ec.unmarshalODuration2ᚖk8sᚗioᚋapimachineryᚋpkgᚋapisᚋmetaᚋv1ᚐDuration(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.MetricsGeneratorProcessorLocalBlocksMaxBlockDuration = data
+		case "metricsGeneratorProcessorLocalBlocksMaxBlockBytes":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("metricsGeneratorProcessorLocalBlocksMaxBlockBytes"))
+			data, err := ec.unmarshalOUInt2ᚖuint64(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.MetricsGeneratorProcessorLocalBlocksMaxBlockBytes = data
+		case "metricsGeneratorProcessorLocalBlocksFlushCheckPeriod":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("metricsGeneratorProcessorLocalBlocksFlushCheckPeriod"))
+			data, err := ec.unmarshalODuration2ᚖk8sᚗioᚋapimachineryᚋpkgᚋapisᚋmetaᚋv1ᚐDuration(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.MetricsGeneratorProcessorLocalBlocksFlushCheckPeriod = data
+		case "metricsGeneratorProcessorLocalBlocksTraceIdlePeriod":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("metricsGeneratorProcessorLocalBlocksTraceIdlePeriod"))
+			data, err := ec.unmarshalODuration2ᚖk8sᚗioᚋapimachineryᚋpkgᚋapisᚋmetaᚋv1ᚐDuration(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.MetricsGeneratorProcessorLocalBlocksTraceIdlePeriod = data
+		case "metricsGeneratorProcessorLocalBlocksCompleteBlockTimeout":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("metricsGeneratorProcessorLocalBlocksCompleteBlockTimeout"))
+			data, err := ec.unmarshalODuration2ᚖk8sᚗioᚋapimachineryᚋpkgᚋapisᚋmetaᚋv1ᚐDuration(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.MetricsGeneratorProcessorLocalBlocksCompleteBlockTimeout = data
+		case "blockRetention":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("blockRetention"))
+			data, err := ec.unmarshalODuration2ᚖk8sᚗioᚋapimachineryᚋpkgᚋapisᚋmetaᚋv1ᚐDuration(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.BlockRetention = data
+		case "maxBytesPerTagValuesQuery":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("maxBytesPerTagValuesQuery"))
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.MaxBytesPerTagValuesQuery = data
+		case "maxBlocksPerTagValuesQuery":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("maxBlocksPerTagValuesQuery"))
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.MaxBlocksPerTagValuesQuery = data
+		case "maxSearchDuration":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("maxSearchDuration"))
+			data, err := ec.unmarshalODuration2ᚖk8sᚗioᚋapimachineryᚋpkgᚋapisᚋmetaᚋv1ᚐDuration(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.MaxSearchDuration = data
+		case "maxBytesPerTrace":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("maxBytesPerTrace"))
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.MaxBytesPerTrace = data
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputUserInput(ctx context.Context, obj interface{}) (model.UserInput, error) {
+	var it model.UserInput
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"id", "email"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "id":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
+			data, err := ec.unmarshalOID2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ID = data
+		case "email":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("email"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Email = data
 		}
 	}
 
@@ -17984,19 +26807,134 @@ func (ec *executionContext) unmarshalInputObservabilityTenantPermissionBindingsI
 
 // region    **************************** object.gotpl ****************************
 
-var forwardingRuleImplementors = []string{"ForwardingRule"}
+var blockedQueryImplementors = []string{"BlockedQuery"}
 
-func (ec *executionContext) _ForwardingRule(ctx context.Context, sel ast.SelectionSet, obj *v1alpha1.ForwardingRule) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, forwardingRuleImplementors)
+func (ec *executionContext) _BlockedQuery(ctx context.Context, sel ast.SelectionSet, obj *v1alpha1.BlockedQuery) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, blockedQueryImplementors)
 
 	out := graphql.NewFieldSet(fields)
 	deferred := make(map[string]*graphql.FieldSet)
 	for i, field := range fields {
 		switch field.Name {
 		case "__typename":
-			out.Values[i] = graphql.MarshalString("ForwardingRule")
-		case "ingest":
-			out.Values[i] = ec._ForwardingRule_ingest(ctx, field, obj)
+			out.Values[i] = graphql.MarshalString("BlockedQuery")
+		case "pattern":
+			out.Values[i] = ec._BlockedQuery_pattern(ctx, field, obj)
+		case "regex":
+			out.Values[i] = ec._BlockedQuery_regex(ctx, field, obj)
+		case "hash":
+			out.Values[i] = ec._BlockedQuery_hash(ctx, field, obj)
+		case "types":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._BlockedQuery_types(ctx, field, obj)
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var dimensionMappingsImplementors = []string{"DimensionMappings"}
+
+func (ec *executionContext) _DimensionMappings(ctx context.Context, sel ast.SelectionSet, obj *v1alpha1.DimensionMappings) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, dimensionMappingsImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("DimensionMappings")
+		case "name":
+			out.Values[i] = ec._DimensionMappings_name(ctx, field, obj)
+		case "sourceLabel":
+			out.Values[i] = ec._DimensionMappings_sourceLabel(ctx, field, obj)
+		case "join":
+			out.Values[i] = ec._DimensionMappings_join(ctx, field, obj)
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var filterPolicyImplementors = []string{"FilterPolicy"}
+
+func (ec *executionContext) _FilterPolicy(ctx context.Context, sel ast.SelectionSet, obj *v1alpha1.FilterPolicy) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, filterPolicyImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("FilterPolicy")
+		case "include":
+			out.Values[i] = ec._FilterPolicy_include(ctx, field, obj)
+		case "exclude":
+			out.Values[i] = ec._FilterPolicy_exclude(ctx, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -18194,7 +27132,7 @@ func (ec *executionContext) _LoginBindings(ctx context.Context, sel ast.Selectio
 
 var lokiLimitsImplementors = []string{"LokiLimits"}
 
-func (ec *executionContext) _LokiLimits(ctx context.Context, sel ast.SelectionSet, obj *model.LokiLimits) graphql.Marshaler {
+func (ec *executionContext) _LokiLimits(ctx context.Context, sel ast.SelectionSet, obj *v1alpha1.LokiLimits) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, lokiLimitsImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -18203,8 +27141,161 @@ func (ec *executionContext) _LokiLimits(ctx context.Context, sel ast.SelectionSe
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("LokiLimits")
-		case "requestRate":
-			out.Values[i] = ec._LokiLimits_requestRate(ctx, field, obj)
+		case "ingestionRateStrategy":
+			out.Values[i] = ec._LokiLimits_ingestionRateStrategy(ctx, field, obj)
+		case "ingestionRateMB":
+			out.Values[i] = ec._LokiLimits_ingestionRateMB(ctx, field, obj)
+		case "ingestionBurstSizeMB":
+			out.Values[i] = ec._LokiLimits_ingestionBurstSizeMB(ctx, field, obj)
+		case "maxLabelNameLength":
+			out.Values[i] = ec._LokiLimits_maxLabelNameLength(ctx, field, obj)
+		case "maxLabelValueLength":
+			out.Values[i] = ec._LokiLimits_maxLabelValueLength(ctx, field, obj)
+		case "maxLabelNamesPerSeries":
+			out.Values[i] = ec._LokiLimits_maxLabelNamesPerSeries(ctx, field, obj)
+		case "rejectOldSamples":
+			out.Values[i] = ec._LokiLimits_rejectOldSamples(ctx, field, obj)
+		case "rejectOldSamplesMaxAge":
+			out.Values[i] = ec._LokiLimits_rejectOldSamplesMaxAge(ctx, field, obj)
+		case "creationGracePeriod":
+			out.Values[i] = ec._LokiLimits_creationGracePeriod(ctx, field, obj)
+		case "enforceMetricName":
+			out.Values[i] = ec._LokiLimits_enforceMetricName(ctx, field, obj)
+		case "maxLineSize":
+			out.Values[i] = ec._LokiLimits_maxLineSize(ctx, field, obj)
+		case "maxLineSizeTruncate":
+			out.Values[i] = ec._LokiLimits_maxLineSizeTruncate(ctx, field, obj)
+		case "incrementDuplicateTimestamp":
+			out.Values[i] = ec._LokiLimits_incrementDuplicateTimestamp(ctx, field, obj)
+		case "maxLocalStreamsPerUser":
+			out.Values[i] = ec._LokiLimits_maxLocalStreamsPerUser(ctx, field, obj)
+		case "maxGlobalStreamsPerUser":
+			out.Values[i] = ec._LokiLimits_maxGlobalStreamsPerUser(ctx, field, obj)
+		case "unorderedWrites":
+			out.Values[i] = ec._LokiLimits_unorderedWrites(ctx, field, obj)
+		case "perStreamRateLimit":
+			out.Values[i] = ec._LokiLimits_perStreamRateLimit(ctx, field, obj)
+		case "perStreamRateLimitBurst":
+			out.Values[i] = ec._LokiLimits_perStreamRateLimitBurst(ctx, field, obj)
+		case "maxChunksPerQuery":
+			out.Values[i] = ec._LokiLimits_maxChunksPerQuery(ctx, field, obj)
+		case "maxQuerySeries":
+			out.Values[i] = ec._LokiLimits_maxQuerySeries(ctx, field, obj)
+		case "maxQueryLookback":
+			out.Values[i] = ec._LokiLimits_maxQueryLookback(ctx, field, obj)
+		case "maxQueryLength":
+			out.Values[i] = ec._LokiLimits_maxQueryLength(ctx, field, obj)
+		case "maxQueryRange":
+			out.Values[i] = ec._LokiLimits_maxQueryRange(ctx, field, obj)
+		case "maxQueryParallelism":
+			out.Values[i] = ec._LokiLimits_maxQueryParallelism(ctx, field, obj)
+		case "tsdbMaxQueryParallelism":
+			out.Values[i] = ec._LokiLimits_tsdbMaxQueryParallelism(ctx, field, obj)
+		case "tsdbMaxBytesPerShard":
+			out.Values[i] = ec._LokiLimits_tsdbMaxBytesPerShard(ctx, field, obj)
+		case "cardinalityLimit":
+			out.Values[i] = ec._LokiLimits_cardinalityLimit(ctx, field, obj)
+		case "maxStreamsMatchersPerQuery":
+			out.Values[i] = ec._LokiLimits_maxStreamsMatchersPerQuery(ctx, field, obj)
+		case "maxConcurrentTailRequests":
+			out.Values[i] = ec._LokiLimits_maxConcurrentTailRequests(ctx, field, obj)
+		case "maxEntriesLimitPerQuery":
+			out.Values[i] = ec._LokiLimits_maxEntriesLimitPerQuery(ctx, field, obj)
+		case "maxCacheFreshness":
+			out.Values[i] = ec._LokiLimits_maxCacheFreshness(ctx, field, obj)
+		case "maxStatsCacheFreshness":
+			out.Values[i] = ec._LokiLimits_maxStatsCacheFreshness(ctx, field, obj)
+		case "maxQueriersPerTenant":
+			out.Values[i] = ec._LokiLimits_maxQueriersPerTenant(ctx, field, obj)
+		case "queryReadyIndexNumDays":
+			out.Values[i] = ec._LokiLimits_queryReadyIndexNumDays(ctx, field, obj)
+		case "queryTimeout":
+			out.Values[i] = ec._LokiLimits_queryTimeout(ctx, field, obj)
+		case "querySplitDuration":
+			out.Values[i] = ec._LokiLimits_querySplitDuration(ctx, field, obj)
+		case "minShardingLookback":
+			out.Values[i] = ec._LokiLimits_minShardingLookback(ctx, field, obj)
+		case "maxQueryBytesRead":
+			out.Values[i] = ec._LokiLimits_maxQueryBytesRead(ctx, field, obj)
+		case "maxQuerierBytesRead":
+			out.Values[i] = ec._LokiLimits_maxQuerierBytesRead(ctx, field, obj)
+		case "volumeEnabled":
+			out.Values[i] = ec._LokiLimits_volumeEnabled(ctx, field, obj)
+		case "volumeMaxSeries":
+			out.Values[i] = ec._LokiLimits_volumeMaxSeries(ctx, field, obj)
+		case "rulerEvaluationDelay":
+			out.Values[i] = ec._LokiLimits_rulerEvaluationDelay(ctx, field, obj)
+		case "rulerMaxRulesPerRuleGroup":
+			out.Values[i] = ec._LokiLimits_rulerMaxRulesPerRuleGroup(ctx, field, obj)
+		case "rulerMaxRuleGroupsPerTenant":
+			out.Values[i] = ec._LokiLimits_rulerMaxRuleGroupsPerTenant(ctx, field, obj)
+		case "rulerAlertManagerConfig":
+			out.Values[i] = ec._LokiLimits_rulerAlertManagerConfig(ctx, field, obj)
+		case "rulerTenantShardSize":
+			out.Values[i] = ec._LokiLimits_rulerTenantShardSize(ctx, field, obj)
+		case "rulerRemoteWriteDisabled":
+			out.Values[i] = ec._LokiLimits_rulerRemoteWriteDisabled(ctx, field, obj)
+		case "rulerRemoteEvaluationTimeout":
+			out.Values[i] = ec._LokiLimits_rulerRemoteEvaluationTimeout(ctx, field, obj)
+		case "rulerRemoteEvaluationMaxResponseSize":
+			out.Values[i] = ec._LokiLimits_rulerRemoteEvaluationMaxResponseSize(ctx, field, obj)
+		case "deletionMode":
+			out.Values[i] = ec._LokiLimits_deletionMode(ctx, field, obj)
+		case "retentionPeriod":
+			out.Values[i] = ec._LokiLimits_retentionPeriod(ctx, field, obj)
+		case "streamRetention":
+			out.Values[i] = ec._LokiLimits_streamRetention(ctx, field, obj)
+		case "shardStreams":
+			out.Values[i] = ec._LokiLimits_shardStreams(ctx, field, obj)
+		case "blockedQueries":
+			out.Values[i] = ec._LokiLimits_blockedQueries(ctx, field, obj)
+		case "requiredLabels":
+			out.Values[i] = ec._LokiLimits_requiredLabels(ctx, field, obj)
+		case "requiredNumberLabels":
+			out.Values[i] = ec._LokiLimits_requiredNumberLabels(ctx, field, obj)
+		case "indexGatewayShardSize":
+			out.Values[i] = ec._LokiLimits_indexGatewayShardSize(ctx, field, obj)
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var matchPolicyAttributeImplementors = []string{"MatchPolicyAttribute"}
+
+func (ec *executionContext) _MatchPolicyAttribute(ctx context.Context, sel ast.SelectionSet, obj *v1alpha1.MatchPolicyAttribute) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, matchPolicyAttributeImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("MatchPolicyAttribute")
+		case "key":
+			out.Values[i] = ec._MatchPolicyAttribute_key(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "value":
+			out.Values[i] = ec._MatchPolicyAttribute_value(ctx, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -18265,12 +27356,16 @@ func (ec *executionContext) _MimirLimits(ctx context.Context, sel ast.SelectionS
 			out.Values[i] = ec._MimirLimits_maxLabelNamesPerSeries(ctx, field, obj)
 		case "maxMetadataLength":
 			out.Values[i] = ec._MimirLimits_maxMetadataLength(ctx, field, obj)
+		case "maxNativeHistogramBuckets":
+			out.Values[i] = ec._MimirLimits_maxNativeHistogramBuckets(ctx, field, obj)
 		case "creationGracePeriod":
 			out.Values[i] = ec._MimirLimits_creationGracePeriod(ctx, field, obj)
 		case "enforceMetadataMetricName":
 			out.Values[i] = ec._MimirLimits_enforceMetadataMetricName(ctx, field, obj)
 		case "ingestionTenantShardSize":
 			out.Values[i] = ec._MimirLimits_ingestionTenantShardSize(ctx, field, obj)
+		case "metricRelabelConfigs":
+			out.Values[i] = ec._MimirLimits_metricRelabelConfigs(ctx, field, obj)
 		case "maxGlobalSeriesPerUser":
 			out.Values[i] = ec._MimirLimits_maxGlobalSeriesPerUser(ctx, field, obj)
 		case "maxGlobalSeriesPerMetric":
@@ -18283,6 +27378,8 @@ func (ec *executionContext) _MimirLimits(ctx context.Context, sel ast.SelectionS
 			out.Values[i] = ec._MimirLimits_maxGlobalExemplarsPerUser(ctx, field, obj)
 		case "nativeHistogramsIngestionEnabled":
 			out.Values[i] = ec._MimirLimits_nativeHistogramsIngestionEnabled(ctx, field, obj)
+		case "activeSeriesCustomTrackersConfig":
+			out.Values[i] = ec._MimirLimits_activeSeriesCustomTrackersConfig(ctx, field, obj)
 		case "outOfOrderTimeWindow":
 			out.Values[i] = ec._MimirLimits_outOfOrderTimeWindow(ctx, field, obj)
 		case "outOfOrderBlocksExternalLabelEnabled":
@@ -18315,12 +27412,20 @@ func (ec *executionContext) _MimirLimits(ctx context.Context, sel ast.SelectionS
 			out.Values[i] = ec._MimirLimits_queryShardingMaxRegexpSizeBytes(ctx, field, obj)
 		case "splitInstantQueriesByInterval":
 			out.Values[i] = ec._MimirLimits_splitInstantQueriesByInterval(ctx, field, obj)
+		case "QueryIngestersWithin":
+			out.Values[i] = ec._MimirLimits_QueryIngestersWithin(ctx, field, obj)
 		case "maxTotalQueryLength":
 			out.Values[i] = ec._MimirLimits_maxTotalQueryLength(ctx, field, obj)
 		case "resultsCacheTTL":
 			out.Values[i] = ec._MimirLimits_resultsCacheTTL(ctx, field, obj)
 		case "resultsCacheTTLForOutOfOrderTimeWindow":
 			out.Values[i] = ec._MimirLimits_resultsCacheTTLForOutOfOrderTimeWindow(ctx, field, obj)
+		case "resultsCacheTTLForCardinalityQuery":
+			out.Values[i] = ec._MimirLimits_resultsCacheTTLForCardinalityQuery(ctx, field, obj)
+		case "resultsCacheTTLForLabelsQuery":
+			out.Values[i] = ec._MimirLimits_resultsCacheTTLForLabelsQuery(ctx, field, obj)
+		case "resultsCacheForUnalignedQueryEnabled":
+			out.Values[i] = ec._MimirLimits_resultsCacheForUnalignedQueryEnabled(ctx, field, obj)
 		case "maxQueryExpressionSizeBytes":
 			out.Values[i] = ec._MimirLimits_maxQueryExpressionSizeBytes(ctx, field, obj)
 		case "cardinalityAnalysisEnabled":
@@ -18341,6 +27446,8 @@ func (ec *executionContext) _MimirLimits(ctx context.Context, sel ast.SelectionS
 			out.Values[i] = ec._MimirLimits_rulerRecordingRulesEvaluationEnabled(ctx, field, obj)
 		case "rulerAlertingRulesEvaluationEnabled":
 			out.Values[i] = ec._MimirLimits_rulerAlertingRulesEvaluationEnabled(ctx, field, obj)
+		case "rulerSyncRulesOnChangesEnabled":
+			out.Values[i] = ec._MimirLimits_rulerSyncRulesOnChangesEnabled(ctx, field, obj)
 		case "storeGatewayTenantShardSize":
 			out.Values[i] = ec._MimirLimits_storeGatewayTenantShardSize(ctx, field, obj)
 		case "compactorBlocksRetentionPeriod":
@@ -18359,6 +27466,8 @@ func (ec *executionContext) _MimirLimits(ctx context.Context, sel ast.SelectionS
 			out.Values[i] = ec._MimirLimits_compactorBlockUploadValidationEnabled(ctx, field, obj)
 		case "compactorBlockUploadVerifyChunks":
 			out.Values[i] = ec._MimirLimits_compactorBlockUploadVerifyChunks(ctx, field, obj)
+		case "compactorBlockUploadMaxBlockSizeBytes":
+			out.Values[i] = ec._MimirLimits_compactorBlockUploadMaxBlockSizeBytes(ctx, field, obj)
 		case "s3SSEType":
 			out.Values[i] = ec._MimirLimits_s3SSEType(ctx, field, obj)
 		case "s3SSEKMSKeyID":
@@ -18385,12 +27494,6 @@ func (ec *executionContext) _MimirLimits(ctx context.Context, sel ast.SelectionS
 			out.Values[i] = ec._MimirLimits_alertmanagerMaxAlertsCount(ctx, field, obj)
 		case "alertmanagerMaxAlertsSizeBytes":
 			out.Values[i] = ec._MimirLimits_alertmanagerMaxAlertsSizeBytes(ctx, field, obj)
-		case "forwardingEndpoint":
-			out.Values[i] = ec._MimirLimits_forwardingEndpoint(ctx, field, obj)
-		case "forwardingDropOlderThan":
-			out.Values[i] = ec._MimirLimits_forwardingDropOlderThan(ctx, field, obj)
-		case "forwardingRules":
-			out.Values[i] = ec._MimirLimits_forwardingRules(ctx, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -18576,6 +27679,172 @@ func (ec *executionContext) _Name(ctx context.Context, sel ast.SelectionSet, obj
 			out.Values[i] = ec._Name_first(ctx, field, obj)
 		case "last":
 			out.Values[i] = ec._Name_last(ctx, field, obj)
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var notifierBasicAuthImplementors = []string{"NotifierBasicAuth"}
+
+func (ec *executionContext) _NotifierBasicAuth(ctx context.Context, sel ast.SelectionSet, obj *v1alpha1.NotifierBasicAuth) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, notifierBasicAuthImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("NotifierBasicAuth")
+		case "username":
+			out.Values[i] = ec._NotifierBasicAuth_username(ctx, field, obj)
+		case "password":
+			out.Values[i] = ec._NotifierBasicAuth_password(ctx, field, obj)
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var notifierConfigImplementors = []string{"NotifierConfig"}
+
+func (ec *executionContext) _NotifierConfig(ctx context.Context, sel ast.SelectionSet, obj *v1alpha1.NotifierConfig) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, notifierConfigImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("NotifierConfig")
+		case "basicAuth":
+			out.Values[i] = ec._NotifierConfig_basicAuth(ctx, field, obj)
+		case "headerAuth":
+			out.Values[i] = ec._NotifierConfig_headerAuth(ctx, field, obj)
+		case "tls":
+			out.Values[i] = ec._NotifierConfig_tls(ctx, field, obj)
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var notifierHeaderAuthImplementors = []string{"NotifierHeaderAuth"}
+
+func (ec *executionContext) _NotifierHeaderAuth(ctx context.Context, sel ast.SelectionSet, obj *v1alpha1.NotifierHeaderAuth) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, notifierHeaderAuthImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("NotifierHeaderAuth")
+		case "type":
+			out.Values[i] = ec._NotifierHeaderAuth_type(ctx, field, obj)
+		case "credentials":
+			out.Values[i] = ec._NotifierHeaderAuth_credentials(ctx, field, obj)
+		case "credentialsFile":
+			out.Values[i] = ec._NotifierHeaderAuth_credentialsFile(ctx, field, obj)
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var notifierTLSClientConfigImplementors = []string{"NotifierTLSClientConfig"}
+
+func (ec *executionContext) _NotifierTLSClientConfig(ctx context.Context, sel ast.SelectionSet, obj *v1alpha1.NotifierTLSClientConfig) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, notifierTLSClientConfigImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("NotifierTLSClientConfig")
+		case "certPath":
+			out.Values[i] = ec._NotifierTLSClientConfig_certPath(ctx, field, obj)
+		case "keyPath":
+			out.Values[i] = ec._NotifierTLSClientConfig_keyPath(ctx, field, obj)
+		case "caPath":
+			out.Values[i] = ec._NotifierTLSClientConfig_caPath(ctx, field, obj)
+		case "serverName":
+			out.Values[i] = ec._NotifierTLSClientConfig_serverName(ctx, field, obj)
+		case "insecureSkipVerify":
+			out.Values[i] = ec._NotifierTLSClientConfig_insecureSkipVerify(ctx, field, obj)
+		case "cipherSuites":
+			out.Values[i] = ec._NotifierTLSClientConfig_cipherSuites(ctx, field, obj)
+		case "minVersion":
+			out.Values[i] = ec._NotifierTLSClientConfig_minVersion(ctx, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -18962,8 +28231,8 @@ func (ec *executionContext) _ObservabilityTenant(ctx context.Context, sel ast.Se
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
-		case "name":
-			out.Values[i] = ec._ObservabilityTenant_name(ctx, field, obj)
+		case "displayName":
+			out.Values[i] = ec._ObservabilityTenant_displayName(ctx, field, obj)
 		case "admins":
 			field := field
 
@@ -19563,6 +28832,10 @@ func (ec *executionContext) _ObservabilityTenantLimits(ctx context.Context, sel 
 			out.Values[i] = graphql.MarshalString("ObservabilityTenantLimits")
 		case "mimir":
 			out.Values[i] = ec._ObservabilityTenantLimits_mimir(ctx, field, obj)
+		case "loki":
+			out.Values[i] = ec._ObservabilityTenantLimits_loki(ctx, field, obj)
+		case "tempo":
+			out.Values[i] = ec._ObservabilityTenantLimits_tempo(ctx, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -19774,11 +29047,6 @@ func (ec *executionContext) _Organization(ctx context.Context, sel ast.Selection
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("Organization")
-		case "name":
-			out.Values[i] = ec._Organization_name(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&out.Invalids, 1)
-			}
 		case "admins":
 			field := field
 
@@ -19812,6 +29080,44 @@ func (ec *executionContext) _Organization(ctx context.Context, sel ast.Selection
 			}
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var policyMatchImplementors = []string{"PolicyMatch"}
+
+func (ec *executionContext) _PolicyMatch(ctx context.Context, sel ast.SelectionSet, obj *v1alpha1.PolicyMatch) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, policyMatchImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("PolicyMatch")
+		case "matchType":
+			out.Values[i] = ec._PolicyMatch_matchType(ctx, field, obj)
+		case "attributes":
+			out.Values[i] = ec._PolicyMatch_attributes(ctx, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -20040,28 +29346,6 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 			}
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
-		case "listOrganizations":
-			field := field
-
-			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._Query_listOrganizations(ctx, field)
-				if res == graphql.Null {
-					atomic.AddUint32(&fs.Invalids, 1)
-				}
-				return res
-			}
-
-			rrm := func(ctx context.Context) graphql.Marshaler {
-				return ec.OperationContext.RootResolverMiddleware(ctx,
-					func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
-			}
-
-			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
 		case "organization":
 			field := field
 
@@ -20115,9 +29399,190 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 	return out
 }
 
+var relabelConfigImplementors = []string{"RelabelConfig"}
+
+func (ec *executionContext) _RelabelConfig(ctx context.Context, sel ast.SelectionSet, obj *v1alpha1.RelabelConfig) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, relabelConfigImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("RelabelConfig")
+		case "sourceLabels":
+			out.Values[i] = ec._RelabelConfig_sourceLabels(ctx, field, obj)
+		case "separator":
+			out.Values[i] = ec._RelabelConfig_separator(ctx, field, obj)
+		case "regex":
+			out.Values[i] = ec._RelabelConfig_regex(ctx, field, obj)
+		case "modulus":
+			out.Values[i] = ec._RelabelConfig_modulus(ctx, field, obj)
+		case "targetLabel":
+			out.Values[i] = ec._RelabelConfig_targetLabel(ctx, field, obj)
+		case "replacement":
+			out.Values[i] = ec._RelabelConfig_replacement(ctx, field, obj)
+		case "action":
+			out.Values[i] = ec._RelabelConfig_action(ctx, field, obj)
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var rulerAlertManagerConfigImplementors = []string{"RulerAlertManagerConfig"}
+
+func (ec *executionContext) _RulerAlertManagerConfig(ctx context.Context, sel ast.SelectionSet, obj *v1alpha1.RulerAlertManagerConfig) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, rulerAlertManagerConfigImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("RulerAlertManagerConfig")
+		case "alertmanagerURL":
+			out.Values[i] = ec._RulerAlertManagerConfig_alertmanagerURL(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "alertmanagerDiscovery":
+			out.Values[i] = ec._RulerAlertManagerConfig_alertmanagerDiscovery(ctx, field, obj)
+		case "alertmanagerRefreshInterval":
+			out.Values[i] = ec._RulerAlertManagerConfig_alertmanagerRefreshInterval(ctx, field, obj)
+		case "alertmanangerEnableV2API":
+			out.Values[i] = ec._RulerAlertManagerConfig_alertmanangerEnableV2API(ctx, field, obj)
+		case "alertRelabelConfigs":
+			out.Values[i] = ec._RulerAlertManagerConfig_alertRelabelConfigs(ctx, field, obj)
+		case "notificationQueueCapacity":
+			out.Values[i] = ec._RulerAlertManagerConfig_notificationQueueCapacity(ctx, field, obj)
+		case "notificationTimeout":
+			out.Values[i] = ec._RulerAlertManagerConfig_notificationTimeout(ctx, field, obj)
+		case "notifier":
+			out.Values[i] = ec._RulerAlertManagerConfig_notifier(ctx, field, obj)
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var shardstreamsConfigImplementors = []string{"ShardstreamsConfig"}
+
+func (ec *executionContext) _ShardstreamsConfig(ctx context.Context, sel ast.SelectionSet, obj *v1alpha1.ShardstreamsConfig) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, shardstreamsConfigImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("ShardstreamsConfig")
+		case "enabled":
+			out.Values[i] = ec._ShardstreamsConfig_enabled(ctx, field, obj)
+		case "loggingEnabled":
+			out.Values[i] = ec._ShardstreamsConfig_loggingEnabled(ctx, field, obj)
+		case "desiredRate":
+			out.Values[i] = ec._ShardstreamsConfig_desiredRate(ctx, field, obj)
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var streamRetentionImplementors = []string{"StreamRetention"}
+
+func (ec *executionContext) _StreamRetention(ctx context.Context, sel ast.SelectionSet, obj *v1alpha1.StreamRetention) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, streamRetentionImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("StreamRetention")
+		case "period":
+			out.Values[i] = ec._StreamRetention_period(ctx, field, obj)
+		case "priority":
+			out.Values[i] = ec._StreamRetention_priority(ctx, field, obj)
+		case "selector":
+			out.Values[i] = ec._StreamRetention_selector(ctx, field, obj)
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
 var tempoLimitsImplementors = []string{"TempoLimits"}
 
-func (ec *executionContext) _TempoLimits(ctx context.Context, sel ast.SelectionSet, obj *model.TempoLimits) graphql.Marshaler {
+func (ec *executionContext) _TempoLimits(ctx context.Context, sel ast.SelectionSet, obj *v1alpha1.TempoLimits) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, tempoLimitsImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -20126,8 +29591,74 @@ func (ec *executionContext) _TempoLimits(ctx context.Context, sel ast.SelectionS
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("TempoLimits")
-		case "requestRate":
-			out.Values[i] = ec._TempoLimits_requestRate(ctx, field, obj)
+		case "ingestionRateStrategy":
+			out.Values[i] = ec._TempoLimits_ingestionRateStrategy(ctx, field, obj)
+		case "ingestionRateLimitBytes":
+			out.Values[i] = ec._TempoLimits_ingestionRateLimitBytes(ctx, field, obj)
+		case "ingestionBurstSizeBytes":
+			out.Values[i] = ec._TempoLimits_ingestionBurstSizeBytes(ctx, field, obj)
+		case "maxLocalTracesPerUser":
+			out.Values[i] = ec._TempoLimits_maxLocalTracesPerUser(ctx, field, obj)
+		case "maxGlobalTracesPerUser":
+			out.Values[i] = ec._TempoLimits_maxGlobalTracesPerUser(ctx, field, obj)
+		case "forwarders":
+			out.Values[i] = ec._TempoLimits_forwarders(ctx, field, obj)
+		case "metricsGeneratorRingSize":
+			out.Values[i] = ec._TempoLimits_metricsGeneratorRingSize(ctx, field, obj)
+		case "metricsGeneratorProcessors":
+			out.Values[i] = ec._TempoLimits_metricsGeneratorProcessors(ctx, field, obj)
+		case "metricsGeneratorMaxActiveSeries":
+			out.Values[i] = ec._TempoLimits_metricsGeneratorMaxActiveSeries(ctx, field, obj)
+		case "metricsGeneratorCollectionInterval":
+			out.Values[i] = ec._TempoLimits_metricsGeneratorCollectionInterval(ctx, field, obj)
+		case "metricsGeneratorDisableCollection":
+			out.Values[i] = ec._TempoLimits_metricsGeneratorDisableCollection(ctx, field, obj)
+		case "metricsGeneratorForwarderQueueSize":
+			out.Values[i] = ec._TempoLimits_metricsGeneratorForwarderQueueSize(ctx, field, obj)
+		case "metricsGeneratorForwarderWorkers":
+			out.Values[i] = ec._TempoLimits_metricsGeneratorForwarderWorkers(ctx, field, obj)
+		case "metricsGeneratorProcessorServiceGraphsHistogramBuckets":
+			out.Values[i] = ec._TempoLimits_metricsGeneratorProcessorServiceGraphsHistogramBuckets(ctx, field, obj)
+		case "metricsGeneratorProcessorServiceGraphsDimensions":
+			out.Values[i] = ec._TempoLimits_metricsGeneratorProcessorServiceGraphsDimensions(ctx, field, obj)
+		case "metricsGeneratorProcessorServiceGraphsPeerAttributes":
+			out.Values[i] = ec._TempoLimits_metricsGeneratorProcessorServiceGraphsPeerAttributes(ctx, field, obj)
+		case "metricsGeneratorProcessorServiceGraphsEnableClientServerPrefix":
+			out.Values[i] = ec._TempoLimits_metricsGeneratorProcessorServiceGraphsEnableClientServerPrefix(ctx, field, obj)
+		case "metricsGeneratorProcessorSpanMetricsHistogramBuckets":
+			out.Values[i] = ec._TempoLimits_metricsGeneratorProcessorSpanMetricsHistogramBuckets(ctx, field, obj)
+		case "metricsGeneratorProcessorSpanMetricsDimensions":
+			out.Values[i] = ec._TempoLimits_metricsGeneratorProcessorSpanMetricsDimensions(ctx, field, obj)
+		case "metricsGeneratorProcessorSpanMetricsIntrinsicDimensions":
+			out.Values[i] = ec._TempoLimits_metricsGeneratorProcessorSpanMetricsIntrinsicDimensions(ctx, field, obj)
+		case "metricsGeneratorProcessorSpanMetricsFilterPolicies":
+			out.Values[i] = ec._TempoLimits_metricsGeneratorProcessorSpanMetricsFilterPolicies(ctx, field, obj)
+		case "metricsGeneratorProcessorSpanMetricsDimensionMappings":
+			out.Values[i] = ec._TempoLimits_metricsGeneratorProcessorSpanMetricsDimensionMappings(ctx, field, obj)
+		case "metricsGeneratorProcessorSpanMetricsEnableTargetInfo":
+			out.Values[i] = ec._TempoLimits_metricsGeneratorProcessorSpanMetricsEnableTargetInfo(ctx, field, obj)
+		case "metricsGeneratorProcessorLocalBlocksMaxLiveTraces":
+			out.Values[i] = ec._TempoLimits_metricsGeneratorProcessorLocalBlocksMaxLiveTraces(ctx, field, obj)
+		case "metricsGeneratorProcessorLocalBlocksMaxBlockDuration":
+			out.Values[i] = ec._TempoLimits_metricsGeneratorProcessorLocalBlocksMaxBlockDuration(ctx, field, obj)
+		case "metricsGeneratorProcessorLocalBlocksMaxBlockBytes":
+			out.Values[i] = ec._TempoLimits_metricsGeneratorProcessorLocalBlocksMaxBlockBytes(ctx, field, obj)
+		case "metricsGeneratorProcessorLocalBlocksFlushCheckPeriod":
+			out.Values[i] = ec._TempoLimits_metricsGeneratorProcessorLocalBlocksFlushCheckPeriod(ctx, field, obj)
+		case "metricsGeneratorProcessorLocalBlocksTraceIdlePeriod":
+			out.Values[i] = ec._TempoLimits_metricsGeneratorProcessorLocalBlocksTraceIdlePeriod(ctx, field, obj)
+		case "metricsGeneratorProcessorLocalBlocksCompleteBlockTimeout":
+			out.Values[i] = ec._TempoLimits_metricsGeneratorProcessorLocalBlocksCompleteBlockTimeout(ctx, field, obj)
+		case "blockRetention":
+			out.Values[i] = ec._TempoLimits_blockRetention(ctx, field, obj)
+		case "maxBytesPerTagValuesQuery":
+			out.Values[i] = ec._TempoLimits_maxBytesPerTagValuesQuery(ctx, field, obj)
+		case "maxBlocksPerTagValuesQuery":
+			out.Values[i] = ec._TempoLimits_maxBlocksPerTagValuesQuery(ctx, field, obj)
+		case "maxSearchDuration":
+			out.Values[i] = ec._TempoLimits_maxSearchDuration(ctx, field, obj)
+		case "maxBytesPerTrace":
+			out.Values[i] = ec._TempoLimits_maxBytesPerTrace(ctx, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -20558,6 +30089,25 @@ func (ec *executionContext) ___Type(ctx context.Context, sel ast.SelectionSet, o
 
 // region    ***************************** type.gotpl *****************************
 
+func (ec *executionContext) marshalNBlockedQuery2githubᚗcomᚋpluralshᚋtraceᚑshieldᚑcontrollerᚋapiᚋobservabilityᚋv1alpha1ᚐBlockedQuery(ctx context.Context, sel ast.SelectionSet, v v1alpha1.BlockedQuery) graphql.Marshaler {
+	return ec._BlockedQuery(ctx, sel, &v)
+}
+
+func (ec *executionContext) unmarshalNBlockedQueryInput2githubᚗcomᚋpluralshᚋtraceᚑshieldᚑcontrollerᚋapiᚋobservabilityᚋv1alpha1ᚐBlockedQuery(ctx context.Context, v interface{}) (v1alpha1.BlockedQuery, error) {
+	res, err := ec.unmarshalInputBlockedQueryInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalNBlockedQueryType2githubᚗcomᚋpluralshᚋtraceᚑshieldᚑcontrollerᚋapiᚋobservabilityᚋv1alpha1ᚐBlockedQueryType(ctx context.Context, v interface{}) (v1alpha1.BlockedQueryType, error) {
+	var res v1alpha1.BlockedQueryType
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNBlockedQueryType2githubᚗcomᚋpluralshᚋtraceᚑshieldᚑcontrollerᚋapiᚋobservabilityᚋv1alpha1ᚐBlockedQueryType(ctx context.Context, sel ast.SelectionSet, v v1alpha1.BlockedQueryType) graphql.Marshaler {
+	return v
+}
+
 func (ec *executionContext) unmarshalNBoolean2bool(ctx context.Context, v interface{}) (bool, error) {
 	res, err := graphql.UnmarshalBoolean(v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -20571,6 +30121,24 @@ func (ec *executionContext) marshalNBoolean2bool(ctx context.Context, sel ast.Se
 		}
 	}
 	return res
+}
+
+func (ec *executionContext) marshalNDimensionMappings2githubᚗcomᚋpluralshᚋtraceᚑshieldᚑcontrollerᚋapiᚋobservabilityᚋv1alpha1ᚐDimensionMappings(ctx context.Context, sel ast.SelectionSet, v v1alpha1.DimensionMappings) graphql.Marshaler {
+	return ec._DimensionMappings(ctx, sel, &v)
+}
+
+func (ec *executionContext) unmarshalNDimensionMappingsInput2githubᚗcomᚋpluralshᚋtraceᚑshieldᚑcontrollerᚋapiᚋobservabilityᚋv1alpha1ᚐDimensionMappings(ctx context.Context, v interface{}) (v1alpha1.DimensionMappings, error) {
+	res, err := ec.unmarshalInputDimensionMappingsInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNFilterPolicy2githubᚗcomᚋpluralshᚋtraceᚑshieldᚑcontrollerᚋapiᚋobservabilityᚋv1alpha1ᚐFilterPolicy(ctx context.Context, sel ast.SelectionSet, v v1alpha1.FilterPolicy) graphql.Marshaler {
+	return ec._FilterPolicy(ctx, sel, &v)
+}
+
+func (ec *executionContext) unmarshalNFilterPolicyInput2githubᚗcomᚋpluralshᚋtraceᚑshieldᚑcontrollerᚋapiᚋobservabilityᚋv1alpha1ᚐFilterPolicy(ctx context.Context, v interface{}) (v1alpha1.FilterPolicy, error) {
+	res, err := ec.unmarshalInputFilterPolicyInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) marshalNGroup2githubᚗcomᚋpluralshᚋtraceᚑshieldᚋgraphᚋmodelᚐGroup(ctx context.Context, sel ast.SelectionSet, v model.Group) graphql.Marshaler {
@@ -20587,6 +30155,11 @@ func (ec *executionContext) marshalNGroup2ᚖgithubᚗcomᚋpluralshᚋtraceᚑs
 	return ec._Group(ctx, sel, v)
 }
 
+func (ec *executionContext) unmarshalNGroupInput2ᚖgithubᚗcomᚋpluralshᚋtraceᚑshieldᚋgraphᚋmodelᚐGroupInput(ctx context.Context, v interface{}) (*model.GroupInput, error) {
+	res, err := ec.unmarshalInputGroupInput(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
 func (ec *executionContext) unmarshalNID2string(ctx context.Context, v interface{}) (string, error) {
 	res, err := graphql.UnmarshalID(v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -20600,6 +30173,25 @@ func (ec *executionContext) marshalNID2string(ctx context.Context, sel ast.Selec
 		}
 	}
 	return res
+}
+
+func (ec *executionContext) unmarshalNLabelName2githubᚗcomᚋpluralshᚋtraceᚑshieldᚑcontrollerᚋapiᚋobservabilityᚋv1alpha1ᚐLabelName(ctx context.Context, v interface{}) (v1alpha1.LabelName, error) {
+	var res v1alpha1.LabelName
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNLabelName2githubᚗcomᚋpluralshᚋtraceᚑshieldᚑcontrollerᚋapiᚋobservabilityᚋv1alpha1ᚐLabelName(ctx context.Context, sel ast.SelectionSet, v v1alpha1.LabelName) graphql.Marshaler {
+	return v
+}
+
+func (ec *executionContext) marshalNMatchPolicyAttribute2githubᚗcomᚋpluralshᚋtraceᚑshieldᚑcontrollerᚋapiᚋobservabilityᚋv1alpha1ᚐMatchPolicyAttribute(ctx context.Context, sel ast.SelectionSet, v v1alpha1.MatchPolicyAttribute) graphql.Marshaler {
+	return ec._MatchPolicyAttribute(ctx, sel, &v)
+}
+
+func (ec *executionContext) unmarshalNMatchPolicyAttributeInput2githubᚗcomᚋpluralshᚋtraceᚑshieldᚑcontrollerᚋapiᚋobservabilityᚋv1alpha1ᚐMatchPolicyAttribute(ctx context.Context, v interface{}) (v1alpha1.MatchPolicyAttribute, error) {
+	res, err := ec.unmarshalInputMatchPolicyAttributeInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) marshalNOAuth2Client2githubᚗcomᚋpluralshᚋtraceᚑshieldᚋgraphᚋmodelᚐOAuth2Client(ctx context.Context, sel ast.SelectionSet, v model.OAuth2Client) graphql.Marshaler {
@@ -20658,6 +30250,11 @@ func (ec *executionContext) marshalNOAuth2Client2ᚖgithubᚗcomᚋpluralshᚋtr
 		return graphql.Null
 	}
 	return ec._OAuth2Client(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalNOAuth2ClientInput2ᚖgithubᚗcomᚋpluralshᚋtraceᚑshieldᚋgraphᚋmodelᚐOAuth2ClientInput(ctx context.Context, v interface{}) (*model.OAuth2ClientInput, error) {
+	res, err := ec.unmarshalInputOAuth2ClientInput(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) marshalNOAuth2RedirectTo2githubᚗcomᚋpluralshᚋtraceᚑshieldᚋgraphᚋmodelᚐOAuth2RedirectTo(ctx context.Context, sel ast.SelectionSet, v model.OAuth2RedirectTo) graphql.Marshaler {
@@ -20736,50 +30333,6 @@ func (ec *executionContext) marshalNOrganization2githubᚗcomᚋpluralshᚋtrace
 	return ec._Organization(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNOrganization2ᚕᚖgithubᚗcomᚋpluralshᚋtraceᚑshieldᚋgraphᚋmodelᚐOrganizationᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.Organization) graphql.Marshaler {
-	ret := make(graphql.Array, len(v))
-	var wg sync.WaitGroup
-	isLen1 := len(v) == 1
-	if !isLen1 {
-		wg.Add(len(v))
-	}
-	for i := range v {
-		i := i
-		fc := &graphql.FieldContext{
-			Index:  &i,
-			Result: &v[i],
-		}
-		ctx := graphql.WithFieldContext(ctx, fc)
-		f := func(i int) {
-			defer func() {
-				if r := recover(); r != nil {
-					ec.Error(ctx, ec.Recover(ctx, r))
-					ret = nil
-				}
-			}()
-			if !isLen1 {
-				defer wg.Done()
-			}
-			ret[i] = ec.marshalNOrganization2ᚖgithubᚗcomᚋpluralshᚋtraceᚑshieldᚋgraphᚋmodelᚐOrganization(ctx, sel, v[i])
-		}
-		if isLen1 {
-			f(i)
-		} else {
-			go f(i)
-		}
-
-	}
-	wg.Wait()
-
-	for _, e := range ret {
-		if e == graphql.Null {
-			return graphql.Null
-		}
-	}
-
-	return ret
-}
-
 func (ec *executionContext) marshalNOrganization2ᚖgithubᚗcomᚋpluralshᚋtraceᚑshieldᚋgraphᚋmodelᚐOrganization(ctx context.Context, sel ast.SelectionSet, v *model.Organization) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
@@ -20788,6 +30341,24 @@ func (ec *executionContext) marshalNOrganization2ᚖgithubᚗcomᚋpluralshᚋtr
 		return graphql.Null
 	}
 	return ec._Organization(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNRelabelConfig2githubᚗcomᚋpluralshᚋtraceᚑshieldᚑcontrollerᚋapiᚋobservabilityᚋv1alpha1ᚐRelabelConfig(ctx context.Context, sel ast.SelectionSet, v v1alpha1.RelabelConfig) graphql.Marshaler {
+	return ec._RelabelConfig(ctx, sel, &v)
+}
+
+func (ec *executionContext) unmarshalNRelabelConfigInput2githubᚗcomᚋpluralshᚋtraceᚑshieldᚑcontrollerᚋapiᚋobservabilityᚋv1alpha1ᚐRelabelConfig(ctx context.Context, v interface{}) (v1alpha1.RelabelConfig, error) {
+	res, err := ec.unmarshalInputRelabelConfigInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNStreamRetention2githubᚗcomᚋpluralshᚋtraceᚑshieldᚑcontrollerᚋapiᚋobservabilityᚋv1alpha1ᚐStreamRetention(ctx context.Context, sel ast.SelectionSet, v v1alpha1.StreamRetention) graphql.Marshaler {
+	return ec._StreamRetention(ctx, sel, &v)
+}
+
+func (ec *executionContext) unmarshalNStreamRetentionInput2githubᚗcomᚋpluralshᚋtraceᚑshieldᚑcontrollerᚋapiᚋobservabilityᚋv1alpha1ᚐStreamRetention(ctx context.Context, v interface{}) (v1alpha1.StreamRetention, error) {
+	res, err := ec.unmarshalInputStreamRetentionInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) unmarshalNString2string(ctx context.Context, v interface{}) (string, error) {
@@ -20803,38 +30374,6 @@ func (ec *executionContext) marshalNString2string(ctx context.Context, sel ast.S
 		}
 	}
 	return res
-}
-
-func (ec *executionContext) unmarshalNString2ᚕstringᚄ(ctx context.Context, v interface{}) ([]string, error) {
-	var vSlice []interface{}
-	if v != nil {
-		vSlice = graphql.CoerceList(v)
-	}
-	var err error
-	res := make([]string, len(vSlice))
-	for i := range vSlice {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
-		res[i], err = ec.unmarshalNString2string(ctx, vSlice[i])
-		if err != nil {
-			return nil, err
-		}
-	}
-	return res, nil
-}
-
-func (ec *executionContext) marshalNString2ᚕstringᚄ(ctx context.Context, sel ast.SelectionSet, v []string) graphql.Marshaler {
-	ret := make(graphql.Array, len(v))
-	for i := range v {
-		ret[i] = ec.marshalNString2string(ctx, sel, v[i])
-	}
-
-	for _, e := range ret {
-		if e == graphql.Null {
-			return graphql.Null
-		}
-	}
-
-	return ret
 }
 
 func (ec *executionContext) marshalNUser2githubᚗcomᚋpluralshᚋtraceᚑshieldᚋgraphᚋmodelᚐUser(ctx context.Context, sel ast.SelectionSet, v model.User) graphql.Marshaler {
@@ -20893,6 +30432,11 @@ func (ec *executionContext) marshalNUser2ᚖgithubᚗcomᚋpluralshᚋtraceᚑsh
 		return graphql.Null
 	}
 	return ec._User(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalNUserInput2ᚖgithubᚗcomᚋpluralshᚋtraceᚑshieldᚋgraphᚋmodelᚐUserInput(ctx context.Context, v interface{}) (*model.UserInput, error) {
+	res, err := ec.unmarshalInputUserInput(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) marshalN__Directive2githubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐDirective(ctx context.Context, sel ast.SelectionSet, v introspection.Directive) graphql.Marshaler {
@@ -21148,6 +30692,156 @@ func (ec *executionContext) marshalN__TypeKind2string(ctx context.Context, sel a
 	return res
 }
 
+func (ec *executionContext) marshalOBlockedQuery2ᚕgithubᚗcomᚋpluralshᚋtraceᚑshieldᚑcontrollerᚋapiᚋobservabilityᚋv1alpha1ᚐBlockedQueryᚄ(ctx context.Context, sel ast.SelectionSet, v []v1alpha1.BlockedQuery) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNBlockedQuery2githubᚗcomᚋpluralshᚋtraceᚑshieldᚑcontrollerᚋapiᚋobservabilityᚋv1alpha1ᚐBlockedQuery(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
+func (ec *executionContext) unmarshalOBlockedQueryInput2ᚕgithubᚗcomᚋpluralshᚋtraceᚑshieldᚑcontrollerᚋapiᚋobservabilityᚋv1alpha1ᚐBlockedQueryᚄ(ctx context.Context, v interface{}) ([]v1alpha1.BlockedQuery, error) {
+	if v == nil {
+		return nil, nil
+	}
+	var vSlice []interface{}
+	if v != nil {
+		vSlice = graphql.CoerceList(v)
+	}
+	var err error
+	res := make([]v1alpha1.BlockedQuery, len(vSlice))
+	for i := range vSlice {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
+		res[i], err = ec.unmarshalNBlockedQueryInput2githubᚗcomᚋpluralshᚋtraceᚑshieldᚑcontrollerᚋapiᚋobservabilityᚋv1alpha1ᚐBlockedQuery(ctx, vSlice[i])
+		if err != nil {
+			return nil, err
+		}
+	}
+	return res, nil
+}
+
+func (ec *executionContext) unmarshalOBlockedQueryType2ᚕgithubᚗcomᚋpluralshᚋtraceᚑshieldᚑcontrollerᚋapiᚋobservabilityᚋv1alpha1ᚐBlockedQueryTypeᚄ(ctx context.Context, v interface{}) ([]v1alpha1.BlockedQueryType, error) {
+	if v == nil {
+		return nil, nil
+	}
+	var vSlice []interface{}
+	if v != nil {
+		vSlice = graphql.CoerceList(v)
+	}
+	var err error
+	res := make([]v1alpha1.BlockedQueryType, len(vSlice))
+	for i := range vSlice {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
+		res[i], err = ec.unmarshalNBlockedQueryType2githubᚗcomᚋpluralshᚋtraceᚑshieldᚑcontrollerᚋapiᚋobservabilityᚋv1alpha1ᚐBlockedQueryType(ctx, vSlice[i])
+		if err != nil {
+			return nil, err
+		}
+	}
+	return res, nil
+}
+
+func (ec *executionContext) marshalOBlockedQueryType2ᚕgithubᚗcomᚋpluralshᚋtraceᚑshieldᚑcontrollerᚋapiᚋobservabilityᚋv1alpha1ᚐBlockedQueryTypeᚄ(ctx context.Context, sel ast.SelectionSet, v []v1alpha1.BlockedQueryType) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNBlockedQueryType2githubᚗcomᚋpluralshᚋtraceᚑshieldᚑcontrollerᚋapiᚋobservabilityᚋv1alpha1ᚐBlockedQueryType(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
+func (ec *executionContext) unmarshalOBoolMap2map(ctx context.Context, v interface{}) (map[string]bool, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := custom.UnmarshalBoolMap(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalOBoolMap2map(ctx context.Context, sel ast.SelectionSet, v map[string]bool) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	res := custom.MarshalBoolMap(v)
+	return res
+}
+
 func (ec *executionContext) unmarshalOBoolean2bool(ctx context.Context, v interface{}) (bool, error) {
 	res, err := graphql.UnmarshalBoolean(v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -21174,6 +30868,73 @@ func (ec *executionContext) marshalOBoolean2ᚖbool(ctx context.Context, sel ast
 	return res
 }
 
+func (ec *executionContext) marshalODimensionMappings2ᚕgithubᚗcomᚋpluralshᚋtraceᚑshieldᚑcontrollerᚋapiᚋobservabilityᚋv1alpha1ᚐDimensionMappingsᚄ(ctx context.Context, sel ast.SelectionSet, v []v1alpha1.DimensionMappings) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNDimensionMappings2githubᚗcomᚋpluralshᚋtraceᚑshieldᚑcontrollerᚋapiᚋobservabilityᚋv1alpha1ᚐDimensionMappings(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
+func (ec *executionContext) unmarshalODimensionMappingsInput2ᚕgithubᚗcomᚋpluralshᚋtraceᚑshieldᚑcontrollerᚋapiᚋobservabilityᚋv1alpha1ᚐDimensionMappingsᚄ(ctx context.Context, v interface{}) ([]v1alpha1.DimensionMappings, error) {
+	if v == nil {
+		return nil, nil
+	}
+	var vSlice []interface{}
+	if v != nil {
+		vSlice = graphql.CoerceList(v)
+	}
+	var err error
+	res := make([]v1alpha1.DimensionMappings, len(vSlice))
+	for i := range vSlice {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
+		res[i], err = ec.unmarshalNDimensionMappingsInput2githubᚗcomᚋpluralshᚋtraceᚑshieldᚑcontrollerᚋapiᚋobservabilityᚋv1alpha1ᚐDimensionMappings(ctx, vSlice[i])
+		if err != nil {
+			return nil, err
+		}
+	}
+	return res, nil
+}
+
 func (ec *executionContext) unmarshalODuration2ᚖk8sᚗioᚋapimachineryᚋpkgᚋapisᚋmetaᚋv1ᚐDuration(ctx context.Context, v interface{}) (*v1.Duration, error) {
 	if v == nil {
 		return nil, nil
@@ -21188,6 +30949,115 @@ func (ec *executionContext) marshalODuration2ᚖk8sᚗioᚋapimachineryᚋpkgᚋ
 	}
 	res := custom.MarshalDuration(*v)
 	return res
+}
+
+func (ec *executionContext) marshalOFilterPolicy2ᚕgithubᚗcomᚋpluralshᚋtraceᚑshieldᚑcontrollerᚋapiᚋobservabilityᚋv1alpha1ᚐFilterPolicyᚄ(ctx context.Context, sel ast.SelectionSet, v []v1alpha1.FilterPolicy) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNFilterPolicy2githubᚗcomᚋpluralshᚋtraceᚑshieldᚑcontrollerᚋapiᚋobservabilityᚋv1alpha1ᚐFilterPolicy(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
+func (ec *executionContext) unmarshalOFilterPolicyInput2ᚕgithubᚗcomᚋpluralshᚋtraceᚑshieldᚑcontrollerᚋapiᚋobservabilityᚋv1alpha1ᚐFilterPolicyᚄ(ctx context.Context, v interface{}) ([]v1alpha1.FilterPolicy, error) {
+	if v == nil {
+		return nil, nil
+	}
+	var vSlice []interface{}
+	if v != nil {
+		vSlice = graphql.CoerceList(v)
+	}
+	var err error
+	res := make([]v1alpha1.FilterPolicy, len(vSlice))
+	for i := range vSlice {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
+		res[i], err = ec.unmarshalNFilterPolicyInput2githubᚗcomᚋpluralshᚋtraceᚑshieldᚑcontrollerᚋapiᚋobservabilityᚋv1alpha1ᚐFilterPolicy(ctx, vSlice[i])
+		if err != nil {
+			return nil, err
+		}
+	}
+	return res, nil
+}
+
+func (ec *executionContext) unmarshalOFloat2float64(ctx context.Context, v interface{}) (float64, error) {
+	res, err := graphql.UnmarshalFloat(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalOFloat2float64(ctx context.Context, sel ast.SelectionSet, v float64) graphql.Marshaler {
+	res := graphql.MarshalFloat(v)
+	return res
+}
+
+func (ec *executionContext) unmarshalOFloat2ᚕfloat64(ctx context.Context, v interface{}) ([]float64, error) {
+	if v == nil {
+		return nil, nil
+	}
+	var vSlice []interface{}
+	if v != nil {
+		vSlice = graphql.CoerceList(v)
+	}
+	var err error
+	res := make([]float64, len(vSlice))
+	for i := range vSlice {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
+		res[i], err = ec.unmarshalOFloat2float64(ctx, vSlice[i])
+		if err != nil {
+			return nil, err
+		}
+	}
+	return res, nil
+}
+
+func (ec *executionContext) marshalOFloat2ᚕfloat64(ctx context.Context, sel ast.SelectionSet, v []float64) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	ret := make(graphql.Array, len(v))
+	for i := range v {
+		ret[i] = ec.marshalOFloat2float64(ctx, sel, v[i])
+	}
+
+	return ret
 }
 
 func (ec *executionContext) unmarshalOFloat2ᚖfloat64(ctx context.Context, v interface{}) (*float64, error) {
@@ -21206,7 +31076,7 @@ func (ec *executionContext) marshalOFloat2ᚖfloat64(ctx context.Context, sel as
 	return res
 }
 
-func (ec *executionContext) unmarshalOFloatMap2map(ctx context.Context, v interface{}) (map[string]*float64, error) {
+func (ec *executionContext) unmarshalOFloatMap2map(ctx context.Context, v interface{}) (map[string]float64, error) {
 	if v == nil {
 		return nil, nil
 	}
@@ -21214,27 +31084,11 @@ func (ec *executionContext) unmarshalOFloatMap2map(ctx context.Context, v interf
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalOFloatMap2map(ctx context.Context, sel ast.SelectionSet, v map[string]*float64) graphql.Marshaler {
+func (ec *executionContext) marshalOFloatMap2map(ctx context.Context, sel ast.SelectionSet, v map[string]float64) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
 	res := custom.MarshalFloatMap(v)
-	return res
-}
-
-func (ec *executionContext) unmarshalOForwardingRuleMap2map(ctx context.Context, v interface{}) (map[string]*v1alpha1.ForwardingRule, error) {
-	if v == nil {
-		return nil, nil
-	}
-	res, err := custom.UnmarshalForwardingRuleMap(v)
-	return res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) marshalOForwardingRuleMap2map(ctx context.Context, sel ast.SelectionSet, v map[string]*v1alpha1.ForwardingRule) graphql.Marshaler {
-	if v == nil {
-		return graphql.Null
-	}
-	res := custom.MarshalForwardingRuleMap(v)
 	return res
 }
 
@@ -21285,7 +31139,7 @@ func (ec *executionContext) marshalOGroup2ᚕᚖgithubᚗcomᚋpluralshᚋtrace�
 	return ret
 }
 
-func (ec *executionContext) unmarshalOID2ᚕstringᚄ(ctx context.Context, v interface{}) ([]string, error) {
+func (ec *executionContext) unmarshalOGroupInput2ᚕᚖgithubᚗcomᚋpluralshᚋtraceᚑshieldᚋgraphᚋmodelᚐGroupInputᚄ(ctx context.Context, v interface{}) ([]*model.GroupInput, error) {
 	if v == nil {
 		return nil, nil
 	}
@@ -21294,10 +31148,10 @@ func (ec *executionContext) unmarshalOID2ᚕstringᚄ(ctx context.Context, v int
 		vSlice = graphql.CoerceList(v)
 	}
 	var err error
-	res := make([]string, len(vSlice))
+	res := make([]*model.GroupInput, len(vSlice))
 	for i := range vSlice {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
-		res[i], err = ec.unmarshalNID2string(ctx, vSlice[i])
+		res[i], err = ec.unmarshalNGroupInput2ᚖgithubᚗcomᚋpluralshᚋtraceᚑshieldᚋgraphᚋmodelᚐGroupInput(ctx, vSlice[i])
 		if err != nil {
 			return nil, err
 		}
@@ -21305,22 +31159,20 @@ func (ec *executionContext) unmarshalOID2ᚕstringᚄ(ctx context.Context, v int
 	return res, nil
 }
 
-func (ec *executionContext) marshalOID2ᚕstringᚄ(ctx context.Context, sel ast.SelectionSet, v []string) graphql.Marshaler {
+func (ec *executionContext) unmarshalOID2ᚖstring(ctx context.Context, v interface{}) (*string, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := graphql.UnmarshalID(v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalOID2ᚖstring(ctx context.Context, sel ast.SelectionSet, v *string) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
-	ret := make(graphql.Array, len(v))
-	for i := range v {
-		ret[i] = ec.marshalNID2string(ctx, sel, v[i])
-	}
-
-	for _, e := range ret {
-		if e == graphql.Null {
-			return graphql.Null
-		}
-	}
-
-	return ret
+	res := graphql.MarshalID(*v)
+	return res
 }
 
 func (ec *executionContext) unmarshalOInt2ᚖint(ctx context.Context, v interface{}) (*int, error) {
@@ -21355,6 +31207,44 @@ func (ec *executionContext) marshalOInt2ᚖint64(ctx context.Context, sel ast.Se
 	return res
 }
 
+func (ec *executionContext) unmarshalOLabelName2ᚕgithubᚗcomᚋpluralshᚋtraceᚑshieldᚑcontrollerᚋapiᚋobservabilityᚋv1alpha1ᚐLabelNameᚄ(ctx context.Context, v interface{}) ([]v1alpha1.LabelName, error) {
+	if v == nil {
+		return nil, nil
+	}
+	var vSlice []interface{}
+	if v != nil {
+		vSlice = graphql.CoerceList(v)
+	}
+	var err error
+	res := make([]v1alpha1.LabelName, len(vSlice))
+	for i := range vSlice {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
+		res[i], err = ec.unmarshalNLabelName2githubᚗcomᚋpluralshᚋtraceᚑshieldᚑcontrollerᚋapiᚋobservabilityᚋv1alpha1ᚐLabelName(ctx, vSlice[i])
+		if err != nil {
+			return nil, err
+		}
+	}
+	return res, nil
+}
+
+func (ec *executionContext) marshalOLabelName2ᚕgithubᚗcomᚋpluralshᚋtraceᚑshieldᚑcontrollerᚋapiᚋobservabilityᚋv1alpha1ᚐLabelNameᚄ(ctx context.Context, sel ast.SelectionSet, v []v1alpha1.LabelName) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	ret := make(graphql.Array, len(v))
+	for i := range v {
+		ret[i] = ec.marshalNLabelName2githubᚗcomᚋpluralshᚋtraceᚑshieldᚑcontrollerᚋapiᚋobservabilityᚋv1alpha1ᚐLabelName(ctx, sel, v[i])
+	}
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
 func (ec *executionContext) marshalOLoginBindings2ᚖgithubᚗcomᚋpluralshᚋtraceᚑshieldᚋgraphᚋmodelᚐLoginBindings(ctx context.Context, sel ast.SelectionSet, v *model.LoginBindings) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
@@ -21368,6 +31258,31 @@ func (ec *executionContext) unmarshalOLoginBindingsInput2ᚖgithubᚗcomᚋplura
 	}
 	res, err := ec.unmarshalInputLoginBindingsInput(ctx, v)
 	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalOLokiLimits2ᚖgithubᚗcomᚋpluralshᚋtraceᚑshieldᚑcontrollerᚋapiᚋobservabilityᚋv1alpha1ᚐLokiLimits(ctx context.Context, sel ast.SelectionSet, v *v1alpha1.LokiLimits) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._LokiLimits(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalOLokiLimitsInput2ᚖgithubᚗcomᚋpluralshᚋtraceᚑshieldᚑcontrollerᚋapiᚋobservabilityᚋv1alpha1ᚐLokiLimitsInput(ctx context.Context, v interface{}) (*v1alpha1.LokiLimitsInput, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputLokiLimitsInput(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalOMap2githubᚗcomᚋpluralshᚋtraceᚑshieldᚑcontrollerᚋapiᚋobservabilityᚋv1alpha1ᚐWrappedMap(ctx context.Context, v interface{}) (v1alpha1.WrappedMap, error) {
+	var res v1alpha1.WrappedMap
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalOMap2githubᚗcomᚋpluralshᚋtraceᚑshieldᚑcontrollerᚋapiᚋobservabilityᚋv1alpha1ᚐWrappedMap(ctx context.Context, sel ast.SelectionSet, v v1alpha1.WrappedMap) graphql.Marshaler {
+	return v
 }
 
 func (ec *executionContext) unmarshalOMap2map(ctx context.Context, v interface{}) (map[string]interface{}, error) {
@@ -21384,6 +31299,89 @@ func (ec *executionContext) marshalOMap2map(ctx context.Context, sel ast.Selecti
 	}
 	res := graphql.MarshalMap(v)
 	return res
+}
+
+func (ec *executionContext) marshalOMatchPolicyAttribute2ᚕgithubᚗcomᚋpluralshᚋtraceᚑshieldᚑcontrollerᚋapiᚋobservabilityᚋv1alpha1ᚐMatchPolicyAttributeᚄ(ctx context.Context, sel ast.SelectionSet, v []v1alpha1.MatchPolicyAttribute) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNMatchPolicyAttribute2githubᚗcomᚋpluralshᚋtraceᚑshieldᚑcontrollerᚋapiᚋobservabilityᚋv1alpha1ᚐMatchPolicyAttribute(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
+func (ec *executionContext) unmarshalOMatchPolicyAttributeInput2ᚕgithubᚗcomᚋpluralshᚋtraceᚑshieldᚑcontrollerᚋapiᚋobservabilityᚋv1alpha1ᚐMatchPolicyAttributeᚄ(ctx context.Context, v interface{}) ([]v1alpha1.MatchPolicyAttribute, error) {
+	if v == nil {
+		return nil, nil
+	}
+	var vSlice []interface{}
+	if v != nil {
+		vSlice = graphql.CoerceList(v)
+	}
+	var err error
+	res := make([]v1alpha1.MatchPolicyAttribute, len(vSlice))
+	for i := range vSlice {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
+		res[i], err = ec.unmarshalNMatchPolicyAttributeInput2githubᚗcomᚋpluralshᚋtraceᚑshieldᚑcontrollerᚋapiᚋobservabilityᚋv1alpha1ᚐMatchPolicyAttribute(ctx, vSlice[i])
+		if err != nil {
+			return nil, err
+		}
+	}
+	return res, nil
+}
+
+func (ec *executionContext) unmarshalOMatchType2ᚖgithubᚗcomᚋpluralshᚋtraceᚑshieldᚑcontrollerᚋapiᚋobservabilityᚋv1alpha1ᚐMatchType(ctx context.Context, v interface{}) (*v1alpha1.MatchType, error) {
+	if v == nil {
+		return nil, nil
+	}
+	var res = new(v1alpha1.MatchType)
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalOMatchType2ᚖgithubᚗcomᚋpluralshᚋtraceᚑshieldᚑcontrollerᚋapiᚋobservabilityᚋv1alpha1ᚐMatchType(ctx context.Context, sel ast.SelectionSet, v *v1alpha1.MatchType) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return v
 }
 
 func (ec *executionContext) marshalOMimirLimits2ᚖgithubᚗcomᚋpluralshᚋtraceᚑshieldᚑcontrollerᚋapiᚋobservabilityᚋv1alpha1ᚐMimirLimits(ctx context.Context, sel ast.SelectionSet, v *v1alpha1.MimirLimits) graphql.Marshaler {
@@ -21413,6 +31411,66 @@ func (ec *executionContext) unmarshalONameInput2ᚖgithubᚗcomᚋpluralshᚋtra
 		return nil, nil
 	}
 	res, err := ec.unmarshalInputNameInput(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalONotifierBasicAuth2ᚖgithubᚗcomᚋpluralshᚋtraceᚑshieldᚑcontrollerᚋapiᚋobservabilityᚋv1alpha1ᚐNotifierBasicAuth(ctx context.Context, sel ast.SelectionSet, v *v1alpha1.NotifierBasicAuth) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._NotifierBasicAuth(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalONotifierBasicAuthInput2ᚖgithubᚗcomᚋpluralshᚋtraceᚑshieldᚑcontrollerᚋapiᚋobservabilityᚋv1alpha1ᚐNotifierBasicAuth(ctx context.Context, v interface{}) (*v1alpha1.NotifierBasicAuth, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputNotifierBasicAuthInput(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalONotifierConfig2ᚖgithubᚗcomᚋpluralshᚋtraceᚑshieldᚑcontrollerᚋapiᚋobservabilityᚋv1alpha1ᚐNotifierConfig(ctx context.Context, sel ast.SelectionSet, v *v1alpha1.NotifierConfig) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._NotifierConfig(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalONotifierConfigInput2ᚖgithubᚗcomᚋpluralshᚋtraceᚑshieldᚑcontrollerᚋapiᚋobservabilityᚋv1alpha1ᚐNotifierConfig(ctx context.Context, v interface{}) (*v1alpha1.NotifierConfig, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputNotifierConfigInput(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalONotifierHeaderAuth2ᚖgithubᚗcomᚋpluralshᚋtraceᚑshieldᚑcontrollerᚋapiᚋobservabilityᚋv1alpha1ᚐNotifierHeaderAuth(ctx context.Context, sel ast.SelectionSet, v *v1alpha1.NotifierHeaderAuth) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._NotifierHeaderAuth(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalONotifierHeaderAuthInput2ᚖgithubᚗcomᚋpluralshᚋtraceᚑshieldᚑcontrollerᚋapiᚋobservabilityᚋv1alpha1ᚐNotifierHeaderAuth(ctx context.Context, v interface{}) (*v1alpha1.NotifierHeaderAuth, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputNotifierHeaderAuthInput(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalONotifierTLSClientConfig2ᚖgithubᚗcomᚋpluralshᚋtraceᚑshieldᚑcontrollerᚋapiᚋobservabilityᚋv1alpha1ᚐNotifierTLSClientConfig(ctx context.Context, sel ast.SelectionSet, v *v1alpha1.NotifierTLSClientConfig) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._NotifierTLSClientConfig(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalONotifierTLSClientConfigInput2ᚖgithubᚗcomᚋpluralshᚋtraceᚑshieldᚑcontrollerᚋapiᚋobservabilityᚋv1alpha1ᚐNotifierTLSClientConfig(ctx context.Context, v interface{}) (*v1alpha1.NotifierTLSClientConfig, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputNotifierTLSClientConfigInput(ctx, v)
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
@@ -21470,6 +31528,26 @@ func (ec *executionContext) marshalOOAuth2Client2ᚖgithubᚗcomᚋpluralshᚋtr
 	return ec._OAuth2Client(ctx, sel, v)
 }
 
+func (ec *executionContext) unmarshalOOAuth2ClientInput2ᚕᚖgithubᚗcomᚋpluralshᚋtraceᚑshieldᚋgraphᚋmodelᚐOAuth2ClientInputᚄ(ctx context.Context, v interface{}) ([]*model.OAuth2ClientInput, error) {
+	if v == nil {
+		return nil, nil
+	}
+	var vSlice []interface{}
+	if v != nil {
+		vSlice = graphql.CoerceList(v)
+	}
+	var err error
+	res := make([]*model.OAuth2ClientInput, len(vSlice))
+	for i := range vSlice {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
+		res[i], err = ec.unmarshalNOAuth2ClientInput2ᚖgithubᚗcomᚋpluralshᚋtraceᚑshieldᚋgraphᚋmodelᚐOAuth2ClientInput(ctx, vSlice[i])
+		if err != nil {
+			return nil, err
+		}
+	}
+	return res, nil
+}
+
 func (ec *executionContext) marshalOOAuth2ConsentRequest2ᚖgithubᚗcomᚋpluralshᚋtraceᚑshieldᚋgraphᚋmodelᚐOAuth2ConsentRequest(ctx context.Context, sel ast.SelectionSet, v *model.OAuth2ConsentRequest) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
@@ -21521,6 +31599,201 @@ func (ec *executionContext) marshalOOidcContext2ᚖgithubᚗcomᚋpluralshᚋtra
 	return ec._OidcContext(ctx, sel, v)
 }
 
+func (ec *executionContext) marshalOPolicyMatch2ᚖgithubᚗcomᚋpluralshᚋtraceᚑshieldᚑcontrollerᚋapiᚋobservabilityᚋv1alpha1ᚐPolicyMatch(ctx context.Context, sel ast.SelectionSet, v *v1alpha1.PolicyMatch) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._PolicyMatch(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalOPolicyMatchInput2ᚖgithubᚗcomᚋpluralshᚋtraceᚑshieldᚑcontrollerᚋapiᚋobservabilityᚋv1alpha1ᚐPolicyMatch(ctx context.Context, v interface{}) (*v1alpha1.PolicyMatch, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputPolicyMatchInput(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalORelabelAction2ᚖgithubᚗcomᚋpluralshᚋtraceᚑshieldᚑcontrollerᚋapiᚋobservabilityᚋv1alpha1ᚐRelabelAction(ctx context.Context, v interface{}) (*v1alpha1.RelabelAction, error) {
+	if v == nil {
+		return nil, nil
+	}
+	var res = new(v1alpha1.RelabelAction)
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalORelabelAction2ᚖgithubᚗcomᚋpluralshᚋtraceᚑshieldᚑcontrollerᚋapiᚋobservabilityᚋv1alpha1ᚐRelabelAction(ctx context.Context, sel ast.SelectionSet, v *v1alpha1.RelabelAction) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return v
+}
+
+func (ec *executionContext) marshalORelabelConfig2ᚕgithubᚗcomᚋpluralshᚋtraceᚑshieldᚑcontrollerᚋapiᚋobservabilityᚋv1alpha1ᚐRelabelConfigᚄ(ctx context.Context, sel ast.SelectionSet, v []v1alpha1.RelabelConfig) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNRelabelConfig2githubᚗcomᚋpluralshᚋtraceᚑshieldᚑcontrollerᚋapiᚋobservabilityᚋv1alpha1ᚐRelabelConfig(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
+func (ec *executionContext) unmarshalORelabelConfigInput2ᚕgithubᚗcomᚋpluralshᚋtraceᚑshieldᚑcontrollerᚋapiᚋobservabilityᚋv1alpha1ᚐRelabelConfigᚄ(ctx context.Context, v interface{}) ([]v1alpha1.RelabelConfig, error) {
+	if v == nil {
+		return nil, nil
+	}
+	var vSlice []interface{}
+	if v != nil {
+		vSlice = graphql.CoerceList(v)
+	}
+	var err error
+	res := make([]v1alpha1.RelabelConfig, len(vSlice))
+	for i := range vSlice {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
+		res[i], err = ec.unmarshalNRelabelConfigInput2githubᚗcomᚋpluralshᚋtraceᚑshieldᚑcontrollerᚋapiᚋobservabilityᚋv1alpha1ᚐRelabelConfig(ctx, vSlice[i])
+		if err != nil {
+			return nil, err
+		}
+	}
+	return res, nil
+}
+
+func (ec *executionContext) marshalORulerAlertManagerConfig2ᚖgithubᚗcomᚋpluralshᚋtraceᚑshieldᚑcontrollerᚋapiᚋobservabilityᚋv1alpha1ᚐRulerAlertManagerConfig(ctx context.Context, sel ast.SelectionSet, v *v1alpha1.RulerAlertManagerConfig) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._RulerAlertManagerConfig(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalORulerAlertManagerConfigInput2ᚖgithubᚗcomᚋpluralshᚋtraceᚑshieldᚑcontrollerᚋapiᚋobservabilityᚋv1alpha1ᚐRulerAlertManagerConfig(ctx context.Context, v interface{}) (*v1alpha1.RulerAlertManagerConfig, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputRulerAlertManagerConfigInput(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalOShardstreamsConfig2ᚖgithubᚗcomᚋpluralshᚋtraceᚑshieldᚑcontrollerᚋapiᚋobservabilityᚋv1alpha1ᚐShardstreamsConfig(ctx context.Context, sel ast.SelectionSet, v *v1alpha1.ShardstreamsConfig) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._ShardstreamsConfig(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalOShardstreamsConfigInput2ᚖgithubᚗcomᚋpluralshᚋtraceᚑshieldᚑcontrollerᚋapiᚋobservabilityᚋv1alpha1ᚐShardstreamsConfig(ctx context.Context, v interface{}) (*v1alpha1.ShardstreamsConfig, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputShardstreamsConfigInput(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalOStreamRetention2ᚕgithubᚗcomᚋpluralshᚋtraceᚑshieldᚑcontrollerᚋapiᚋobservabilityᚋv1alpha1ᚐStreamRetentionᚄ(ctx context.Context, sel ast.SelectionSet, v []v1alpha1.StreamRetention) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNStreamRetention2githubᚗcomᚋpluralshᚋtraceᚑshieldᚑcontrollerᚋapiᚋobservabilityᚋv1alpha1ᚐStreamRetention(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
+func (ec *executionContext) unmarshalOStreamRetentionInput2ᚕgithubᚗcomᚋpluralshᚋtraceᚑshieldᚑcontrollerᚋapiᚋobservabilityᚋv1alpha1ᚐStreamRetentionᚄ(ctx context.Context, v interface{}) ([]v1alpha1.StreamRetention, error) {
+	if v == nil {
+		return nil, nil
+	}
+	var vSlice []interface{}
+	if v != nil {
+		vSlice = graphql.CoerceList(v)
+	}
+	var err error
+	res := make([]v1alpha1.StreamRetention, len(vSlice))
+	for i := range vSlice {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
+		res[i], err = ec.unmarshalNStreamRetentionInput2githubᚗcomᚋpluralshᚋtraceᚑshieldᚑcontrollerᚋapiᚋobservabilityᚋv1alpha1ᚐStreamRetention(ctx, vSlice[i])
+		if err != nil {
+			return nil, err
+		}
+	}
+	return res, nil
+}
+
 func (ec *executionContext) unmarshalOString2ᚕstringᚄ(ctx context.Context, v interface{}) ([]string, error) {
 	if v == nil {
 		return nil, nil
@@ -21559,38 +31832,6 @@ func (ec *executionContext) marshalOString2ᚕstringᚄ(ctx context.Context, sel
 	return ret
 }
 
-func (ec *executionContext) unmarshalOString2ᚕᚖstring(ctx context.Context, v interface{}) ([]*string, error) {
-	if v == nil {
-		return nil, nil
-	}
-	var vSlice []interface{}
-	if v != nil {
-		vSlice = graphql.CoerceList(v)
-	}
-	var err error
-	res := make([]*string, len(vSlice))
-	for i := range vSlice {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
-		res[i], err = ec.unmarshalOString2ᚖstring(ctx, vSlice[i])
-		if err != nil {
-			return nil, err
-		}
-	}
-	return res, nil
-}
-
-func (ec *executionContext) marshalOString2ᚕᚖstring(ctx context.Context, sel ast.SelectionSet, v []*string) graphql.Marshaler {
-	if v == nil {
-		return graphql.Null
-	}
-	ret := make(graphql.Array, len(v))
-	for i := range v {
-		ret[i] = ec.marshalOString2ᚖstring(ctx, sel, v[i])
-	}
-
-	return ret
-}
-
 func (ec *executionContext) unmarshalOString2ᚖstring(ctx context.Context, v interface{}) (*string, error) {
 	if v == nil {
 		return nil, nil
@@ -21607,6 +31848,37 @@ func (ec *executionContext) marshalOString2ᚖstring(ctx context.Context, sel as
 	return res
 }
 
+func (ec *executionContext) unmarshalOStringMap2map(ctx context.Context, v interface{}) (map[string]string, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := custom.UnmarshalStringMap(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalOStringMap2map(ctx context.Context, sel ast.SelectionSet, v map[string]string) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	res := custom.MarshalStringMap(v)
+	return res
+}
+
+func (ec *executionContext) marshalOTempoLimits2ᚖgithubᚗcomᚋpluralshᚋtraceᚑshieldᚑcontrollerᚋapiᚋobservabilityᚋv1alpha1ᚐTempoLimits(ctx context.Context, sel ast.SelectionSet, v *v1alpha1.TempoLimits) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._TempoLimits(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalOTempoLimitsInput2ᚖgithubᚗcomᚋpluralshᚋtraceᚑshieldᚑcontrollerᚋapiᚋobservabilityᚋv1alpha1ᚐTempoLimitsInput(ctx context.Context, v interface{}) (*v1alpha1.TempoLimitsInput, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputTempoLimitsInput(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
 func (ec *executionContext) unmarshalOTime2ᚖtimeᚐTime(ctx context.Context, v interface{}) (*time.Time, error) {
 	if v == nil {
 		return nil, nil
@@ -21620,6 +31892,38 @@ func (ec *executionContext) marshalOTime2ᚖtimeᚐTime(ctx context.Context, sel
 		return graphql.Null
 	}
 	res := graphql.MarshalTime(*v)
+	return res
+}
+
+func (ec *executionContext) unmarshalOUInt2ᚖuint32(ctx context.Context, v interface{}) (*uint32, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := custom.UnmarshalUInt32(v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalOUInt2ᚖuint32(ctx context.Context, sel ast.SelectionSet, v *uint32) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	res := custom.MarshalUInt32(*v)
+	return res
+}
+
+func (ec *executionContext) unmarshalOUInt2ᚖuint64(ctx context.Context, v interface{}) (*uint64, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := custom.UnmarshalUInt64(v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalOUInt2ᚖuint64(ctx context.Context, sel ast.SelectionSet, v *uint64) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	res := custom.MarshalUInt64(*v)
 	return res
 }
 
@@ -21668,6 +31972,26 @@ func (ec *executionContext) marshalOUser2ᚕᚖgithubᚗcomᚋpluralshᚋtrace�
 	}
 
 	return ret
+}
+
+func (ec *executionContext) unmarshalOUserInput2ᚕᚖgithubᚗcomᚋpluralshᚋtraceᚑshieldᚋgraphᚋmodelᚐUserInputᚄ(ctx context.Context, v interface{}) ([]*model.UserInput, error) {
+	if v == nil {
+		return nil, nil
+	}
+	var vSlice []interface{}
+	if v != nil {
+		vSlice = graphql.CoerceList(v)
+	}
+	var err error
+	res := make([]*model.UserInput, len(vSlice))
+	for i := range vSlice {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
+		res[i], err = ec.unmarshalNUserInput2ᚖgithubᚗcomᚋpluralshᚋtraceᚑshieldᚋgraphᚋmodelᚐUserInput(ctx, vSlice[i])
+		if err != nil {
+			return nil, err
+		}
+	}
+	return res, nil
 }
 
 func (ec *executionContext) marshalO__EnumValue2ᚕgithubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐEnumValueᚄ(ctx context.Context, sel ast.SelectionSet, v []introspection.EnumValue) graphql.Marshaler {

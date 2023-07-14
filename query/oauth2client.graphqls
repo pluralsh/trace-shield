@@ -1,4 +1,4 @@
-query ListOAuth2Clients() {
+query ListOAuth2Clients {
     listOAuth2Clients {
         ...OAuth2ClientFragment
     }

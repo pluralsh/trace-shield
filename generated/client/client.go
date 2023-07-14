@@ -9,26 +9,33 @@ import (
 
 	"github.com/Yamashou/gqlgenc/clientv2"
 	"github.com/pluralsh/trace-shield-controller/api/observability/v1alpha1"
+	"github.com/pluralsh/trace-shield/graph/model"
 	"k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
 type TraceShieldGraphQLClient interface {
 	ListGroups(ctx context.Context, interceptors ...clientv2.RequestInterceptor) (*ListGroups, error)
-	UpdateGroup(ctx context.Context, name string, members []string, interceptors ...clientv2.RequestInterceptor) (*UpdateGroup, error)
+	UpdateGroup(ctx context.Context, name string, members []*model.UserInput, interceptors ...clientv2.RequestInterceptor) (*UpdateGroup, error)
 	DeleteGroup(ctx context.Context, name string, interceptors ...clientv2.RequestInterceptor) (*DeleteGroup, error)
 	ListOAuth2Clients(ctx context.Context, interceptors ...clientv2.RequestInterceptor) (*ListOAuth2Clients, error)
 	GetOAuth2Client(ctx context.Context, clientID string, interceptors ...clientv2.RequestInterceptor) (*GetOAuth2Client, error)
 	DeleteOAuth2Client(ctx context.Context, clientID string, interceptors ...clientv2.RequestInterceptor) (*DeleteOAuth2Client, error)
-	UpdateOAuth2Client(ctx context.Context, allowedCorsOrigins []string, audience []string, authorizationCodeGrantAccessTokenLifespan *string, authorizationCodeGrantIDTokenLifespan *string, authorizationCodeGrantRefreshTokenLifespan *string, backChannelLogoutSessionRequired *bool, backChannelLogoutURI *string, clientCredentialsGrantAccessTokenLifespan *string, clientID string, clientName *string, clientSecret *string, clientSecretExpiresAt *int64, clientURI *string, contacts []string, frontchannelLogoutSessionRequired *bool, frontchannelLogoutURI *string, grantTypes []string, implicitGrantAccessTokenLifespan *string, implicitGrantIDTokenLifespan *string, jwks map[string]interface{}, jwksURI *string, jwtBearerGrantAccessTokenLifespan *string, logoURI *string, metadata map[string]interface{}, policyURI *string, postLogoutRedirectUris []string, redirectUris []string, responseTypes []string, scope *string, sectorIdentifierURI *string, subjectType *string, tokenEndpointAuthMethod *string, tokenEndpointAuthSigningAlgorithm *string, tosURI *string, userinfoSignedResponseAlgorithm *string, loginBindings *LoginBindingsInput, interceptors ...clientv2.RequestInterceptor) (*UpdateOAuth2Client, error)
-	CreateOAuth2Client(ctx context.Context, allowedCorsOrigins []string, audience []string, authorizationCodeGrantAccessTokenLifespan *string, authorizationCodeGrantIDTokenLifespan *string, authorizationCodeGrantRefreshTokenLifespan *string, backChannelLogoutSessionRequired *bool, backChannelLogoutURI *string, clientCredentialsGrantAccessTokenLifespan *string, clientName *string, clientSecret *string, clientSecretExpiresAt *int64, clientURI *string, contacts []string, frontchannelLogoutSessionRequired *bool, frontchannelLogoutURI *string, grantTypes []string, implicitGrantAccessTokenLifespan *string, implicitGrantIDTokenLifespan *string, jwks map[string]interface{}, jwksURI *string, jwtBearerGrantAccessTokenLifespan *string, logoURI *string, metadata map[string]interface{}, policyURI *string, postLogoutRedirectUris []string, redirectUris []string, responseTypes []string, scope *string, sectorIdentifierURI *string, subjectType *string, tokenEndpointAuthMethod *string, tokenEndpointAuthSigningAlgorithm *string, tosURI *string, userinfoSignedResponseAlgorithm *string, loginBindings *LoginBindingsInput, interceptors ...clientv2.RequestInterceptor) (*CreateOAuth2Client, error)
+	UpdateOAuth2Client(ctx context.Context, allowedCorsOrigins []string, audience []string, authorizationCodeGrantAccessTokenLifespan *string, authorizationCodeGrantIDTokenLifespan *string, authorizationCodeGrantRefreshTokenLifespan *string, backChannelLogoutSessionRequired *bool, backChannelLogoutURI *string, clientCredentialsGrantAccessTokenLifespan *string, clientID string, clientName *string, clientSecret *string, clientSecretExpiresAt *int64, clientURI *string, contacts []string, frontchannelLogoutSessionRequired *bool, frontchannelLogoutURI *string, grantTypes []string, implicitGrantAccessTokenLifespan *string, implicitGrantIDTokenLifespan *string, jwks map[string]interface{}, jwksURI *string, jwtBearerGrantAccessTokenLifespan *string, logoURI *string, metadata map[string]interface{}, policyURI *string, postLogoutRedirectUris []string, redirectUris []string, responseTypes []string, scope *string, sectorIdentifierURI *string, subjectType *string, tokenEndpointAuthMethod *string, tokenEndpointAuthSigningAlgorithm *string, tosURI *string, userinfoSignedResponseAlgorithm *string, loginBindings *model.LoginBindingsInput, interceptors ...clientv2.RequestInterceptor) (*UpdateOAuth2Client, error)
+	CreateOAuth2Client(ctx context.Context, allowedCorsOrigins []string, audience []string, authorizationCodeGrantAccessTokenLifespan *string, authorizationCodeGrantIDTokenLifespan *string, authorizationCodeGrantRefreshTokenLifespan *string, backChannelLogoutSessionRequired *bool, backChannelLogoutURI *string, clientCredentialsGrantAccessTokenLifespan *string, clientName *string, clientSecret *string, clientSecretExpiresAt *int64, clientURI *string, contacts []string, frontchannelLogoutSessionRequired *bool, frontchannelLogoutURI *string, grantTypes []string, implicitGrantAccessTokenLifespan *string, implicitGrantIDTokenLifespan *string, jwks map[string]interface{}, jwksURI *string, jwtBearerGrantAccessTokenLifespan *string, logoURI *string, metadata map[string]interface{}, policyURI *string, postLogoutRedirectUris []string, redirectUris []string, responseTypes []string, scope *string, sectorIdentifierURI *string, subjectType *string, tokenEndpointAuthMethod *string, tokenEndpointAuthSigningAlgorithm *string, tosURI *string, userinfoSignedResponseAlgorithm *string, loginBindings *model.LoginBindingsInput, interceptors ...clientv2.RequestInterceptor) (*CreateOAuth2Client, error)
+	GetOAuth2ConsentRequest(ctx context.Context, challenge string, interceptors ...clientv2.RequestInterceptor) (*GetOAuth2ConsentRequest, error)
+	AcceptOAuth2ConsentRequest(ctx context.Context, challenge string, grantScope []string, remember *bool, rememberFor *int64, interceptors ...clientv2.RequestInterceptor) (*AcceptOAuth2ConsentRequest, error)
+	RejectOAuth2ConsentRequest(ctx context.Context, challenge string, interceptors ...clientv2.RequestInterceptor) (*RejectOAuth2ConsentRequest, error)
+	GetOAuth2LoginRequest(ctx context.Context, challenge string, interceptors ...clientv2.RequestInterceptor) (*GetOAuth2LoginRequest, error)
+	AcceptOAuth2LoginRequest(ctx context.Context, challenge string, acr *string, amr []string, context map[string]interface{}, remember *bool, rememberFor *int64, subject string, interceptors ...clientv2.RequestInterceptor) (*AcceptOAuth2LoginRequest, error)
+	RejectOAuth2LoginRequest(ctx context.Context, challenge string, interceptors ...clientv2.RequestInterceptor) (*RejectOAuth2LoginRequest, error)
 	ListObservabilityTenants(ctx context.Context, interceptors ...clientv2.RequestInterceptor) (*ListObservabilityTenants, error)
 	GetObservabilityTenant(ctx context.Context, id string, interceptors ...clientv2.RequestInterceptor) (*GetObservabilityTenant, error)
-	CreateObservabilityTenant(ctx context.Context, id string, name *string, admins *ObservabilityTenantPermissionBindingsInput, metricsReaders *ObservabilityTenantPermissionBindingsInput, metricsWriters *ObservabilityTenantPermissionBindingsInput, metricsRulesReaders *ObservabilityTenantPermissionBindingsInput, metricsRulesWriters *ObservabilityTenantPermissionBindingsInput, metricsRulesDeleters *ObservabilityTenantPermissionBindingsInput, metricsAlertsReaders *ObservabilityTenantPermissionBindingsInput, metricsAlertsWriters *ObservabilityTenantPermissionBindingsInput, logsReaders *ObservabilityTenantPermissionBindingsInput, logsWriters *ObservabilityTenantPermissionBindingsInput, logsRulesReaders *ObservabilityTenantPermissionBindingsInput, logsRulesWriters *ObservabilityTenantPermissionBindingsInput, logsRulesDeleters *ObservabilityTenantPermissionBindingsInput, tracesReaders *ObservabilityTenantPermissionBindingsInput, tracesWriters *ObservabilityTenantPermissionBindingsInput, limits *ObservabilityTenantLimitsInput, interceptors ...clientv2.RequestInterceptor) (*CreateObservabilityTenant, error)
-	UpdateObservabilityTenant(ctx context.Context, id string, name *string, admins *ObservabilityTenantPermissionBindingsInput, metricsReaders *ObservabilityTenantPermissionBindingsInput, metricsWriters *ObservabilityTenantPermissionBindingsInput, metricsRulesReaders *ObservabilityTenantPermissionBindingsInput, metricsRulesWriters *ObservabilityTenantPermissionBindingsInput, metricsRulesDeleters *ObservabilityTenantPermissionBindingsInput, metricsAlertsReaders *ObservabilityTenantPermissionBindingsInput, metricsAlertsWriters *ObservabilityTenantPermissionBindingsInput, logsReaders *ObservabilityTenantPermissionBindingsInput, logsWriters *ObservabilityTenantPermissionBindingsInput, logsRulesReaders *ObservabilityTenantPermissionBindingsInput, logsRulesWriters *ObservabilityTenantPermissionBindingsInput, logsRulesDeleters *ObservabilityTenantPermissionBindingsInput, tracesReaders *ObservabilityTenantPermissionBindingsInput, tracesWriters *ObservabilityTenantPermissionBindingsInput, limits *ObservabilityTenantLimitsInput, interceptors ...clientv2.RequestInterceptor) (*UpdateObservabilityTenant, error)
+	CreateObservabilityTenant(ctx context.Context, id string, name *string, admins *model.ObservabilityTenantPermissionBindingsInput, metricsReaders *model.ObservabilityTenantPermissionBindingsInput, metricsWriters *model.ObservabilityTenantPermissionBindingsInput, metricsRulesReaders *model.ObservabilityTenantPermissionBindingsInput, metricsRulesWriters *model.ObservabilityTenantPermissionBindingsInput, metricsRulesDeleters *model.ObservabilityTenantPermissionBindingsInput, metricsAlertsReaders *model.ObservabilityTenantPermissionBindingsInput, metricsAlertsWriters *model.ObservabilityTenantPermissionBindingsInput, logsReaders *model.ObservabilityTenantPermissionBindingsInput, logsWriters *model.ObservabilityTenantPermissionBindingsInput, logsRulesReaders *model.ObservabilityTenantPermissionBindingsInput, logsRulesWriters *model.ObservabilityTenantPermissionBindingsInput, logsRulesDeleters *model.ObservabilityTenantPermissionBindingsInput, tracesReaders *model.ObservabilityTenantPermissionBindingsInput, tracesWriters *model.ObservabilityTenantPermissionBindingsInput, limits *model.ObservabilityTenantLimitsInput, interceptors ...clientv2.RequestInterceptor) (*CreateObservabilityTenant, error)
+	UpdateObservabilityTenant(ctx context.Context, id string, name *string, admins *model.ObservabilityTenantPermissionBindingsInput, metricsReaders *model.ObservabilityTenantPermissionBindingsInput, metricsWriters *model.ObservabilityTenantPermissionBindingsInput, metricsRulesReaders *model.ObservabilityTenantPermissionBindingsInput, metricsRulesWriters *model.ObservabilityTenantPermissionBindingsInput, metricsRulesDeleters *model.ObservabilityTenantPermissionBindingsInput, metricsAlertsReaders *model.ObservabilityTenantPermissionBindingsInput, metricsAlertsWriters *model.ObservabilityTenantPermissionBindingsInput, logsReaders *model.ObservabilityTenantPermissionBindingsInput, logsWriters *model.ObservabilityTenantPermissionBindingsInput, logsRulesReaders *model.ObservabilityTenantPermissionBindingsInput, logsRulesWriters *model.ObservabilityTenantPermissionBindingsInput, logsRulesDeleters *model.ObservabilityTenantPermissionBindingsInput, tracesReaders *model.ObservabilityTenantPermissionBindingsInput, tracesWriters *model.ObservabilityTenantPermissionBindingsInput, limits *model.ObservabilityTenantLimitsInput, interceptors ...clientv2.RequestInterceptor) (*UpdateObservabilityTenant, error)
 	DeleteObservabilityTenant(ctx context.Context, id string, interceptors ...clientv2.RequestInterceptor) (*DeleteObservabilityTenant, error)
 	ListUsers(ctx context.Context, interceptors ...clientv2.RequestInterceptor) (*ListUsers, error)
 	GetUser(ctx context.Context, id string, interceptors ...clientv2.RequestInterceptor) (*GetUser, error)
-	CreateUser(ctx context.Context, email string, name *NameInput, interceptors ...clientv2.RequestInterceptor) (*CreateUser, error)
+	CreateUser(ctx context.Context, email string, name *model.NameInput, interceptors ...clientv2.RequestInterceptor) (*CreateUser, error)
 	DeleteUser(ctx context.Context, id string, interceptors ...clientv2.RequestInterceptor) (*DeleteUser, error)
 }
 
@@ -41,34 +48,33 @@ func NewClient(cli *http.Client, baseURL string, options *clientv2.Options, inte
 }
 
 type Query struct {
-	ListUsers                []*User                "json:\"listUsers\" graphql:\"listUsers\""
-	GetUser                  User                   "json:\"getUser\" graphql:\"getUser\""
-	ListGroups               []*Group               "json:\"listGroups,omitempty\" graphql:\"listGroups\""
-	ListOAuth2Clients        []*OAuth2Client        "json:\"listOAuth2Clients\" graphql:\"listOAuth2Clients\""
-	GetOAuth2Client          *OAuth2Client          "json:\"getOAuth2Client,omitempty\" graphql:\"getOAuth2Client\""
-	Oauth2ConsentRequest     *OAuth2ConsentRequest  "json:\"oauth2ConsentRequest,omitempty\" graphql:\"oauth2ConsentRequest\""
-	Oauth2LoginRequest       *OAuth2LoginRequest    "json:\"oauth2LoginRequest,omitempty\" graphql:\"oauth2LoginRequest\""
-	ListObservabilityTenants []*ObservabilityTenant "json:\"listObservabilityTenants\" graphql:\"listObservabilityTenants\""
-	GetObservabilityTenant   ObservabilityTenant    "json:\"getObservabilityTenant\" graphql:\"getObservabilityTenant\""
-	ListOrganizations        []*Organization        "json:\"listOrganizations\" graphql:\"listOrganizations\""
-	Organization             Organization           "json:\"organization\" graphql:\"organization\""
+	ListUsers                []*model.User                "json:\"listUsers\" graphql:\"listUsers\""
+	GetUser                  model.User                   "json:\"getUser\" graphql:\"getUser\""
+	ListGroups               []*model.Group               "json:\"listGroups,omitempty\" graphql:\"listGroups\""
+	ListOAuth2Clients        []*model.OAuth2Client        "json:\"listOAuth2Clients\" graphql:\"listOAuth2Clients\""
+	GetOAuth2Client          *model.OAuth2Client          "json:\"getOAuth2Client,omitempty\" graphql:\"getOAuth2Client\""
+	Oauth2ConsentRequest     *model.OAuth2ConsentRequest  "json:\"oauth2ConsentRequest,omitempty\" graphql:\"oauth2ConsentRequest\""
+	Oauth2LoginRequest       *model.OAuth2LoginRequest    "json:\"oauth2LoginRequest,omitempty\" graphql:\"oauth2LoginRequest\""
+	ListObservabilityTenants []*model.ObservabilityTenant "json:\"listObservabilityTenants\" graphql:\"listObservabilityTenants\""
+	GetObservabilityTenant   model.ObservabilityTenant    "json:\"getObservabilityTenant\" graphql:\"getObservabilityTenant\""
+	Organization             model.Organization           "json:\"organization\" graphql:\"organization\""
 }
 type Mutation struct {
-	CreateUser                 User                "json:\"createUser\" graphql:\"createUser\""
-	DeleteUser                 User                "json:\"deleteUser\" graphql:\"deleteUser\""
-	Group                      Group               "json:\"group\" graphql:\"group\""
-	DeleteGroup                Group               "json:\"deleteGroup\" graphql:\"deleteGroup\""
-	CreateOAuth2Client         OAuth2Client        "json:\"createOAuth2Client\" graphql:\"createOAuth2Client\""
-	UpdateOAuth2Client         OAuth2Client        "json:\"updateOAuth2Client\" graphql:\"updateOAuth2Client\""
-	DeleteOAuth2Client         OAuth2Client        "json:\"deleteOAuth2Client\" graphql:\"deleteOAuth2Client\""
-	AcceptOAuth2ConsentRequest OAuth2RedirectTo    "json:\"acceptOAuth2ConsentRequest\" graphql:\"acceptOAuth2ConsentRequest\""
-	RejectOAuth2ConsentRequest OAuth2RedirectTo    "json:\"rejectOAuth2ConsentRequest\" graphql:\"rejectOAuth2ConsentRequest\""
-	AcceptOAuth2LoginRequest   OAuth2RedirectTo    "json:\"acceptOAuth2LoginRequest\" graphql:\"acceptOAuth2LoginRequest\""
-	RejectOAuth2LoginRequest   OAuth2RedirectTo    "json:\"rejectOAuth2LoginRequest\" graphql:\"rejectOAuth2LoginRequest\""
-	CreateObservabilityTenant  ObservabilityTenant "json:\"createObservabilityTenant\" graphql:\"createObservabilityTenant\""
-	UpdateObservabilityTenant  ObservabilityTenant "json:\"updateObservabilityTenant\" graphql:\"updateObservabilityTenant\""
-	DeleteObservabilityTenant  ObservabilityTenant "json:\"deleteObservabilityTenant\" graphql:\"deleteObservabilityTenant\""
-	Organization               Organization        "json:\"organization\" graphql:\"organization\""
+	CreateUser                 model.User                "json:\"createUser\" graphql:\"createUser\""
+	DeleteUser                 model.User                "json:\"deleteUser\" graphql:\"deleteUser\""
+	Group                      model.Group               "json:\"group\" graphql:\"group\""
+	DeleteGroup                model.Group               "json:\"deleteGroup\" graphql:\"deleteGroup\""
+	CreateOAuth2Client         model.OAuth2Client        "json:\"createOAuth2Client\" graphql:\"createOAuth2Client\""
+	UpdateOAuth2Client         model.OAuth2Client        "json:\"updateOAuth2Client\" graphql:\"updateOAuth2Client\""
+	DeleteOAuth2Client         model.OAuth2Client        "json:\"deleteOAuth2Client\" graphql:\"deleteOAuth2Client\""
+	AcceptOAuth2ConsentRequest model.OAuth2RedirectTo    "json:\"acceptOAuth2ConsentRequest\" graphql:\"acceptOAuth2ConsentRequest\""
+	RejectOAuth2ConsentRequest model.OAuth2RedirectTo    "json:\"rejectOAuth2ConsentRequest\" graphql:\"rejectOAuth2ConsentRequest\""
+	AcceptOAuth2LoginRequest   model.OAuth2RedirectTo    "json:\"acceptOAuth2LoginRequest\" graphql:\"acceptOAuth2LoginRequest\""
+	RejectOAuth2LoginRequest   model.OAuth2RedirectTo    "json:\"rejectOAuth2LoginRequest\" graphql:\"rejectOAuth2LoginRequest\""
+	CreateObservabilityTenant  model.ObservabilityTenant "json:\"createObservabilityTenant\" graphql:\"createObservabilityTenant\""
+	UpdateObservabilityTenant  model.ObservabilityTenant "json:\"updateObservabilityTenant\" graphql:\"updateObservabilityTenant\""
+	DeleteObservabilityTenant  model.ObservabilityTenant "json:\"deleteObservabilityTenant\" graphql:\"deleteObservabilityTenant\""
+	Organization               model.Organization        "json:\"organization\" graphql:\"organization\""
 }
 type GroupFragment struct {
 	Name    string                  "json:\"name\" graphql:\"name\""
@@ -358,9 +364,341 @@ func (t *OAuth2ClientFragment) GetLoginBindings() *OAuth2ClientFragment_LoginBin
 	return t.LoginBindings
 }
 
+type OAuth2ConsentRequestFragment struct {
+	Challenge                    string                   "json:\"challenge\" graphql:\"challenge\""
+	Client                       *OAuth2ConsentClient     "json:\"client\" graphql:\"client\""
+	Context                      map[string]interface{}   "json:\"context,omitempty\" graphql:\"context\""
+	LoginChallenge               *string                  "json:\"loginChallenge,omitempty\" graphql:\"loginChallenge\""
+	LoginSessionID               *string                  "json:\"loginSessionId,omitempty\" graphql:\"loginSessionId\""
+	OidcContext                  *OAuthConsentOIDCContext "json:\"oidcContext,omitempty\" graphql:\"oidcContext\""
+	RequestURL                   *string                  "json:\"requestUrl,omitempty\" graphql:\"requestUrl\""
+	RequestedAccessTokenAudience []string                 "json:\"requestedAccessTokenAudience,omitempty\" graphql:\"requestedAccessTokenAudience\""
+	RequestedScope               []string                 "json:\"requestedScope,omitempty\" graphql:\"requestedScope\""
+	Skip                         *bool                    "json:\"skip,omitempty\" graphql:\"skip\""
+	Subject                      string                   "json:\"subject\" graphql:\"subject\""
+	RedirectTo                   *string                  "json:\"redirectTo,omitempty\" graphql:\"redirectTo\""
+}
+
+func (t *OAuth2ConsentRequestFragment) GetChallenge() string {
+	if t == nil {
+		t = &OAuth2ConsentRequestFragment{}
+	}
+	return t.Challenge
+}
+func (t *OAuth2ConsentRequestFragment) GetClient() *OAuth2ConsentClient {
+	if t == nil {
+		t = &OAuth2ConsentRequestFragment{}
+	}
+	return t.Client
+}
+func (t *OAuth2ConsentRequestFragment) GetContext() map[string]interface{} {
+	if t == nil {
+		t = &OAuth2ConsentRequestFragment{}
+	}
+	return t.Context
+}
+func (t *OAuth2ConsentRequestFragment) GetLoginChallenge() *string {
+	if t == nil {
+		t = &OAuth2ConsentRequestFragment{}
+	}
+	return t.LoginChallenge
+}
+func (t *OAuth2ConsentRequestFragment) GetLoginSessionID() *string {
+	if t == nil {
+		t = &OAuth2ConsentRequestFragment{}
+	}
+	return t.LoginSessionID
+}
+func (t *OAuth2ConsentRequestFragment) GetOidcContext() *OAuthConsentOIDCContext {
+	if t == nil {
+		t = &OAuth2ConsentRequestFragment{}
+	}
+	return t.OidcContext
+}
+func (t *OAuth2ConsentRequestFragment) GetRequestURL() *string {
+	if t == nil {
+		t = &OAuth2ConsentRequestFragment{}
+	}
+	return t.RequestURL
+}
+func (t *OAuth2ConsentRequestFragment) GetRequestedAccessTokenAudience() []string {
+	if t == nil {
+		t = &OAuth2ConsentRequestFragment{}
+	}
+	return t.RequestedAccessTokenAudience
+}
+func (t *OAuth2ConsentRequestFragment) GetRequestedScope() []string {
+	if t == nil {
+		t = &OAuth2ConsentRequestFragment{}
+	}
+	return t.RequestedScope
+}
+func (t *OAuth2ConsentRequestFragment) GetSkip() *bool {
+	if t == nil {
+		t = &OAuth2ConsentRequestFragment{}
+	}
+	return t.Skip
+}
+func (t *OAuth2ConsentRequestFragment) GetSubject() string {
+	if t == nil {
+		t = &OAuth2ConsentRequestFragment{}
+	}
+	return t.Subject
+}
+func (t *OAuth2ConsentRequestFragment) GetRedirectTo() *string {
+	if t == nil {
+		t = &OAuth2ConsentRequestFragment{}
+	}
+	return t.RedirectTo
+}
+
+type OAuthConsentOIDCContext struct {
+	AcrValues         []string               "json:\"acrValues,omitempty\" graphql:\"acrValues\""
+	Display           *string                "json:\"display,omitempty\" graphql:\"display\""
+	IDTokenHintClaims map[string]interface{} "json:\"idTokenHintClaims,omitempty\" graphql:\"idTokenHintClaims\""
+	LoginHint         *string                "json:\"loginHint,omitempty\" graphql:\"loginHint\""
+	UILocales         []string               "json:\"uiLocales,omitempty\" graphql:\"uiLocales\""
+}
+
+func (t *OAuthConsentOIDCContext) GetAcrValues() []string {
+	if t == nil {
+		t = &OAuthConsentOIDCContext{}
+	}
+	return t.AcrValues
+}
+func (t *OAuthConsentOIDCContext) GetDisplay() *string {
+	if t == nil {
+		t = &OAuthConsentOIDCContext{}
+	}
+	return t.Display
+}
+func (t *OAuthConsentOIDCContext) GetIDTokenHintClaims() map[string]interface{} {
+	if t == nil {
+		t = &OAuthConsentOIDCContext{}
+	}
+	return t.IDTokenHintClaims
+}
+func (t *OAuthConsentOIDCContext) GetLoginHint() *string {
+	if t == nil {
+		t = &OAuthConsentOIDCContext{}
+	}
+	return t.LoginHint
+}
+func (t *OAuthConsentOIDCContext) GetUILocales() []string {
+	if t == nil {
+		t = &OAuthConsentOIDCContext{}
+	}
+	return t.UILocales
+}
+
+type OAuth2ConsentClient struct {
+	ClientID   *string "json:\"clientId,omitempty\" graphql:\"clientId\""
+	ClientName *string "json:\"clientName,omitempty\" graphql:\"clientName\""
+	LogoURI    *string "json:\"logoUri,omitempty\" graphql:\"logoUri\""
+	PolicyURI  *string "json:\"policyUri,omitempty\" graphql:\"policyUri\""
+	Scope      *string "json:\"scope,omitempty\" graphql:\"scope\""
+	TosURI     *string "json:\"tosUri,omitempty\" graphql:\"tosUri\""
+}
+
+func (t *OAuth2ConsentClient) GetClientID() *string {
+	if t == nil {
+		t = &OAuth2ConsentClient{}
+	}
+	return t.ClientID
+}
+func (t *OAuth2ConsentClient) GetClientName() *string {
+	if t == nil {
+		t = &OAuth2ConsentClient{}
+	}
+	return t.ClientName
+}
+func (t *OAuth2ConsentClient) GetLogoURI() *string {
+	if t == nil {
+		t = &OAuth2ConsentClient{}
+	}
+	return t.LogoURI
+}
+func (t *OAuth2ConsentClient) GetPolicyURI() *string {
+	if t == nil {
+		t = &OAuth2ConsentClient{}
+	}
+	return t.PolicyURI
+}
+func (t *OAuth2ConsentClient) GetScope() *string {
+	if t == nil {
+		t = &OAuth2ConsentClient{}
+	}
+	return t.Scope
+}
+func (t *OAuth2ConsentClient) GetTosURI() *string {
+	if t == nil {
+		t = &OAuth2ConsentClient{}
+	}
+	return t.TosURI
+}
+
+type OAuth2LoginRequestFragment struct {
+	Challenge                    string                 "json:\"challenge\" graphql:\"challenge\""
+	Client                       *OAuth2LoginClient     "json:\"client\" graphql:\"client\""
+	OidcContext                  *OAuthLoginOIDCContext "json:\"oidcContext,omitempty\" graphql:\"oidcContext\""
+	RequestURL                   *string                "json:\"requestUrl,omitempty\" graphql:\"requestUrl\""
+	RequestedAccessTokenAudience []string               "json:\"requestedAccessTokenAudience,omitempty\" graphql:\"requestedAccessTokenAudience\""
+	RequestedScope               []string               "json:\"requestedScope,omitempty\" graphql:\"requestedScope\""
+	SessionID                    *string                "json:\"sessionId,omitempty\" graphql:\"sessionId\""
+	Skip                         *bool                  "json:\"skip,omitempty\" graphql:\"skip\""
+	Subject                      string                 "json:\"subject\" graphql:\"subject\""
+	RedirectTo                   *string                "json:\"redirectTo,omitempty\" graphql:\"redirectTo\""
+}
+
+func (t *OAuth2LoginRequestFragment) GetChallenge() string {
+	if t == nil {
+		t = &OAuth2LoginRequestFragment{}
+	}
+	return t.Challenge
+}
+func (t *OAuth2LoginRequestFragment) GetClient() *OAuth2LoginClient {
+	if t == nil {
+		t = &OAuth2LoginRequestFragment{}
+	}
+	return t.Client
+}
+func (t *OAuth2LoginRequestFragment) GetOidcContext() *OAuthLoginOIDCContext {
+	if t == nil {
+		t = &OAuth2LoginRequestFragment{}
+	}
+	return t.OidcContext
+}
+func (t *OAuth2LoginRequestFragment) GetRequestURL() *string {
+	if t == nil {
+		t = &OAuth2LoginRequestFragment{}
+	}
+	return t.RequestURL
+}
+func (t *OAuth2LoginRequestFragment) GetRequestedAccessTokenAudience() []string {
+	if t == nil {
+		t = &OAuth2LoginRequestFragment{}
+	}
+	return t.RequestedAccessTokenAudience
+}
+func (t *OAuth2LoginRequestFragment) GetRequestedScope() []string {
+	if t == nil {
+		t = &OAuth2LoginRequestFragment{}
+	}
+	return t.RequestedScope
+}
+func (t *OAuth2LoginRequestFragment) GetSessionID() *string {
+	if t == nil {
+		t = &OAuth2LoginRequestFragment{}
+	}
+	return t.SessionID
+}
+func (t *OAuth2LoginRequestFragment) GetSkip() *bool {
+	if t == nil {
+		t = &OAuth2LoginRequestFragment{}
+	}
+	return t.Skip
+}
+func (t *OAuth2LoginRequestFragment) GetSubject() string {
+	if t == nil {
+		t = &OAuth2LoginRequestFragment{}
+	}
+	return t.Subject
+}
+func (t *OAuth2LoginRequestFragment) GetRedirectTo() *string {
+	if t == nil {
+		t = &OAuth2LoginRequestFragment{}
+	}
+	return t.RedirectTo
+}
+
+type OAuthLoginOIDCContext struct {
+	AcrValues         []string               "json:\"acrValues,omitempty\" graphql:\"acrValues\""
+	Display           *string                "json:\"display,omitempty\" graphql:\"display\""
+	IDTokenHintClaims map[string]interface{} "json:\"idTokenHintClaims,omitempty\" graphql:\"idTokenHintClaims\""
+	LoginHint         *string                "json:\"loginHint,omitempty\" graphql:\"loginHint\""
+	UILocales         []string               "json:\"uiLocales,omitempty\" graphql:\"uiLocales\""
+}
+
+func (t *OAuthLoginOIDCContext) GetAcrValues() []string {
+	if t == nil {
+		t = &OAuthLoginOIDCContext{}
+	}
+	return t.AcrValues
+}
+func (t *OAuthLoginOIDCContext) GetDisplay() *string {
+	if t == nil {
+		t = &OAuthLoginOIDCContext{}
+	}
+	return t.Display
+}
+func (t *OAuthLoginOIDCContext) GetIDTokenHintClaims() map[string]interface{} {
+	if t == nil {
+		t = &OAuthLoginOIDCContext{}
+	}
+	return t.IDTokenHintClaims
+}
+func (t *OAuthLoginOIDCContext) GetLoginHint() *string {
+	if t == nil {
+		t = &OAuthLoginOIDCContext{}
+	}
+	return t.LoginHint
+}
+func (t *OAuthLoginOIDCContext) GetUILocales() []string {
+	if t == nil {
+		t = &OAuthLoginOIDCContext{}
+	}
+	return t.UILocales
+}
+
+type OAuth2LoginClient struct {
+	ClientID   *string "json:\"clientId,omitempty\" graphql:\"clientId\""
+	ClientName *string "json:\"clientName,omitempty\" graphql:\"clientName\""
+	LogoURI    *string "json:\"logoUri,omitempty\" graphql:\"logoUri\""
+	PolicyURI  *string "json:\"policyUri,omitempty\" graphql:\"policyUri\""
+	Scope      *string "json:\"scope,omitempty\" graphql:\"scope\""
+	TosURI     *string "json:\"tosUri,omitempty\" graphql:\"tosUri\""
+}
+
+func (t *OAuth2LoginClient) GetClientID() *string {
+	if t == nil {
+		t = &OAuth2LoginClient{}
+	}
+	return t.ClientID
+}
+func (t *OAuth2LoginClient) GetClientName() *string {
+	if t == nil {
+		t = &OAuth2LoginClient{}
+	}
+	return t.ClientName
+}
+func (t *OAuth2LoginClient) GetLogoURI() *string {
+	if t == nil {
+		t = &OAuth2LoginClient{}
+	}
+	return t.LogoURI
+}
+func (t *OAuth2LoginClient) GetPolicyURI() *string {
+	if t == nil {
+		t = &OAuth2LoginClient{}
+	}
+	return t.PolicyURI
+}
+func (t *OAuth2LoginClient) GetScope() *string {
+	if t == nil {
+		t = &OAuth2LoginClient{}
+	}
+	return t.Scope
+}
+func (t *OAuth2LoginClient) GetTosURI() *string {
+	if t == nil {
+		t = &OAuth2LoginClient{}
+	}
+	return t.TosURI
+}
+
 type ObservabilityTenantFragment struct {
 	ID                   string                                         "json:\"id\" graphql:\"id\""
-	Name                 *string                                        "json:\"name,omitempty\" graphql:\"name\""
+	DisplayName          *string                                        "json:\"displayName,omitempty\" graphql:\"displayName\""
 	Admins               *ObservabilityTenantPermissionBindingsFragment "json:\"admins,omitempty\" graphql:\"admins\""
 	MetricsReaders       *ObservabilityTenantPermissionBindingsFragment "json:\"metricsReaders,omitempty\" graphql:\"metricsReaders\""
 	MetricsWriters       *ObservabilityTenantPermissionBindingsFragment "json:\"metricsWriters,omitempty\" graphql:\"metricsWriters\""
@@ -385,11 +723,11 @@ func (t *ObservabilityTenantFragment) GetID() string {
 	}
 	return t.ID
 }
-func (t *ObservabilityTenantFragment) GetName() *string {
+func (t *ObservabilityTenantFragment) GetDisplayName() *string {
 	if t == nil {
 		t = &ObservabilityTenantFragment{}
 	}
-	return t.Name
+	return t.DisplayName
 }
 func (t *ObservabilityTenantFragment) GetAdmins() *ObservabilityTenantPermissionBindingsFragment {
 	if t == nil {
@@ -514,14 +852,1450 @@ func (t *ObservabilityTenantPermissionBindingsFragment) GetOauth2Clients() []*OA
 }
 
 type ObservabilityTenantLimitsFragment struct {
-	Mimir *ObservabilityTenantLimitsFragment_Mimir "json:\"mimir,omitempty\" graphql:\"mimir\""
+	Mimir *MimirLimitsFragment "json:\"mimir,omitempty\" graphql:\"mimir\""
+	Loki  *LokiLimitsFragment  "json:\"loki,omitempty\" graphql:\"loki\""
+	Tempo *TempoLimitsFragment "json:\"tempo,omitempty\" graphql:\"tempo\""
 }
 
-func (t *ObservabilityTenantLimitsFragment) GetMimir() *ObservabilityTenantLimitsFragment_Mimir {
+func (t *ObservabilityTenantLimitsFragment) GetMimir() *MimirLimitsFragment {
 	if t == nil {
 		t = &ObservabilityTenantLimitsFragment{}
 	}
 	return t.Mimir
+}
+func (t *ObservabilityTenantLimitsFragment) GetLoki() *LokiLimitsFragment {
+	if t == nil {
+		t = &ObservabilityTenantLimitsFragment{}
+	}
+	return t.Loki
+}
+func (t *ObservabilityTenantLimitsFragment) GetTempo() *TempoLimitsFragment {
+	if t == nil {
+		t = &ObservabilityTenantLimitsFragment{}
+	}
+	return t.Tempo
+}
+
+type MimirLimitsFragment struct {
+	RequestRate                                   *float64                 "json:\"requestRate,omitempty\" graphql:\"requestRate\""
+	RequestBurstSize                              *int64                   "json:\"requestBurstSize,omitempty\" graphql:\"requestBurstSize\""
+	IngestionRate                                 *float64                 "json:\"ingestionRate,omitempty\" graphql:\"ingestionRate\""
+	IngestionBurstSize                            *int64                   "json:\"ingestionBurstSize,omitempty\" graphql:\"ingestionBurstSize\""
+	AcceptHASamples                               *bool                    "json:\"acceptHASamples,omitempty\" graphql:\"acceptHASamples\""
+	HaClusterLabel                                *string                  "json:\"haClusterLabel,omitempty\" graphql:\"haClusterLabel\""
+	HaReplicaLabel                                *string                  "json:\"haReplicaLabel,omitempty\" graphql:\"haReplicaLabel\""
+	HaMaxClusters                                 *int64                   "json:\"haMaxClusters,omitempty\" graphql:\"haMaxClusters\""
+	DropLabels                                    []string                 "json:\"dropLabels,omitempty\" graphql:\"dropLabels\""
+	MaxLabelNameLength                            *int64                   "json:\"maxLabelNameLength,omitempty\" graphql:\"maxLabelNameLength\""
+	MaxLabelValueLength                           *int64                   "json:\"maxLabelValueLength,omitempty\" graphql:\"maxLabelValueLength\""
+	MaxLabelNamesPerSeries                        *int64                   "json:\"maxLabelNamesPerSeries,omitempty\" graphql:\"maxLabelNamesPerSeries\""
+	MaxMetadataLength                             *int64                   "json:\"maxMetadataLength,omitempty\" graphql:\"maxMetadataLength\""
+	MaxNativeHistogramBuckets                     *int64                   "json:\"maxNativeHistogramBuckets,omitempty\" graphql:\"maxNativeHistogramBuckets\""
+	CreationGracePeriod                           *v1.Duration             "json:\"creationGracePeriod,omitempty\" graphql:\"creationGracePeriod\""
+	EnforceMetadataMetricName                     *bool                    "json:\"enforceMetadataMetricName,omitempty\" graphql:\"enforceMetadataMetricName\""
+	IngestionTenantShardSize                      *int64                   "json:\"ingestionTenantShardSize,omitempty\" graphql:\"ingestionTenantShardSize\""
+	MetricRelabelConfigs                          []*RelabelConfigFragment "json:\"metricRelabelConfigs,omitempty\" graphql:\"metricRelabelConfigs\""
+	MaxGlobalSeriesPerUser                        *int64                   "json:\"maxGlobalSeriesPerUser,omitempty\" graphql:\"maxGlobalSeriesPerUser\""
+	MaxGlobalSeriesPerMetric                      *int64                   "json:\"maxGlobalSeriesPerMetric,omitempty\" graphql:\"maxGlobalSeriesPerMetric\""
+	MaxGlobalMetricsWithMetadataPerUser           *int64                   "json:\"maxGlobalMetricsWithMetadataPerUser,omitempty\" graphql:\"maxGlobalMetricsWithMetadataPerUser\""
+	MaxGlobalMetadataPerMetric                    *int64                   "json:\"maxGlobalMetadataPerMetric,omitempty\" graphql:\"maxGlobalMetadataPerMetric\""
+	MaxGlobalExemplarsPerUser                     *int64                   "json:\"maxGlobalExemplarsPerUser,omitempty\" graphql:\"maxGlobalExemplarsPerUser\""
+	NativeHistogramsIngestionEnabled              *bool                    "json:\"nativeHistogramsIngestionEnabled,omitempty\" graphql:\"nativeHistogramsIngestionEnabled\""
+	ActiveSeriesCustomTrackersConfig              map[string]string        "json:\"activeSeriesCustomTrackersConfig,omitempty\" graphql:\"activeSeriesCustomTrackersConfig\""
+	OutOfOrderTimeWindow                          *v1.Duration             "json:\"outOfOrderTimeWindow,omitempty\" graphql:\"outOfOrderTimeWindow\""
+	OutOfOrderBlocksExternalLabelEnabled          *bool                    "json:\"outOfOrderBlocksExternalLabelEnabled,omitempty\" graphql:\"outOfOrderBlocksExternalLabelEnabled\""
+	SeparateMetricsGroupLabel                     *string                  "json:\"separateMetricsGroupLabel,omitempty\" graphql:\"separateMetricsGroupLabel\""
+	MaxChunksPerQuery                             *int64                   "json:\"maxChunksPerQuery,omitempty\" graphql:\"maxChunksPerQuery\""
+	MaxFetchedSeriesPerQuery                      *int64                   "json:\"maxFetchedSeriesPerQuery,omitempty\" graphql:\"maxFetchedSeriesPerQuery\""
+	MaxFetchedChunkBytesPerQuery                  *int64                   "json:\"maxFetchedChunkBytesPerQuery,omitempty\" graphql:\"maxFetchedChunkBytesPerQuery\""
+	MaxQueryLookback                              *v1.Duration             "json:\"maxQueryLookback,omitempty\" graphql:\"maxQueryLookback\""
+	MaxPartialQueryLength                         *v1.Duration             "json:\"maxPartialQueryLength,omitempty\" graphql:\"maxPartialQueryLength\""
+	MaxQueryParallelism                           *int64                   "json:\"maxQueryParallelism,omitempty\" graphql:\"maxQueryParallelism\""
+	MaxLabelsQueryLength                          *v1.Duration             "json:\"maxLabelsQueryLength,omitempty\" graphql:\"maxLabelsQueryLength\""
+	MaxCacheFreshness                             *v1.Duration             "json:\"maxCacheFreshness,omitempty\" graphql:\"maxCacheFreshness\""
+	MaxQueriersPerTenant                          *int64                   "json:\"maxQueriersPerTenant,omitempty\" graphql:\"maxQueriersPerTenant\""
+	QueryShardingTotalShards                      *int64                   "json:\"queryShardingTotalShards,omitempty\" graphql:\"queryShardingTotalShards\""
+	QueryShardingMaxShardedQueries                *int64                   "json:\"queryShardingMaxShardedQueries,omitempty\" graphql:\"queryShardingMaxShardedQueries\""
+	QueryShardingMaxRegexpSizeBytes               *int64                   "json:\"queryShardingMaxRegexpSizeBytes,omitempty\" graphql:\"queryShardingMaxRegexpSizeBytes\""
+	SplitInstantQueriesByInterval                 *v1.Duration             "json:\"splitInstantQueriesByInterval,omitempty\" graphql:\"splitInstantQueriesByInterval\""
+	QueryIngestersWithin                          *v1.Duration             "json:\"QueryIngestersWithin,omitempty\" graphql:\"QueryIngestersWithin\""
+	MaxTotalQueryLength                           *v1.Duration             "json:\"maxTotalQueryLength,omitempty\" graphql:\"maxTotalQueryLength\""
+	ResultsCacheTTL                               *v1.Duration             "json:\"resultsCacheTTL,omitempty\" graphql:\"resultsCacheTTL\""
+	ResultsCacheTTLForOutOfOrderTimeWindow        *v1.Duration             "json:\"resultsCacheTTLForOutOfOrderTimeWindow,omitempty\" graphql:\"resultsCacheTTLForOutOfOrderTimeWindow\""
+	ResultsCacheTTLForCardinalityQuery            *v1.Duration             "json:\"resultsCacheTTLForCardinalityQuery,omitempty\" graphql:\"resultsCacheTTLForCardinalityQuery\""
+	ResultsCacheTTLForLabelsQuery                 *v1.Duration             "json:\"resultsCacheTTLForLabelsQuery,omitempty\" graphql:\"resultsCacheTTLForLabelsQuery\""
+	ResultsCacheForUnalignedQueryEnabled          *bool                    "json:\"resultsCacheForUnalignedQueryEnabled,omitempty\" graphql:\"resultsCacheForUnalignedQueryEnabled\""
+	MaxQueryExpressionSizeBytes                   *int64                   "json:\"maxQueryExpressionSizeBytes,omitempty\" graphql:\"maxQueryExpressionSizeBytes\""
+	CardinalityAnalysisEnabled                    *bool                    "json:\"cardinalityAnalysisEnabled,omitempty\" graphql:\"cardinalityAnalysisEnabled\""
+	LabelNamesAndValuesResultsMaxSizeBytes        *int64                   "json:\"labelNamesAndValuesResultsMaxSizeBytes,omitempty\" graphql:\"labelNamesAndValuesResultsMaxSizeBytes\""
+	LabelValuesMaxCardinalityLabelNamesPerRequest *int64                   "json:\"labelValuesMaxCardinalityLabelNamesPerRequest,omitempty\" graphql:\"labelValuesMaxCardinalityLabelNamesPerRequest\""
+	RulerEvaluationDelay                          *v1.Duration             "json:\"rulerEvaluationDelay,omitempty\" graphql:\"rulerEvaluationDelay\""
+	RulerTenantShardSize                          *int64                   "json:\"rulerTenantShardSize,omitempty\" graphql:\"rulerTenantShardSize\""
+	RulerMaxRulesPerRuleGroup                     *int64                   "json:\"rulerMaxRulesPerRuleGroup,omitempty\" graphql:\"rulerMaxRulesPerRuleGroup\""
+	RulerMaxRuleGroupsPerTenant                   *int64                   "json:\"rulerMaxRuleGroupsPerTenant,omitempty\" graphql:\"rulerMaxRuleGroupsPerTenant\""
+	RulerRecordingRulesEvaluationEnabled          *bool                    "json:\"rulerRecordingRulesEvaluationEnabled,omitempty\" graphql:\"rulerRecordingRulesEvaluationEnabled\""
+	RulerAlertingRulesEvaluationEnabled           *bool                    "json:\"rulerAlertingRulesEvaluationEnabled,omitempty\" graphql:\"rulerAlertingRulesEvaluationEnabled\""
+	RulerSyncRulesOnChangesEnabled                *bool                    "json:\"rulerSyncRulesOnChangesEnabled,omitempty\" graphql:\"rulerSyncRulesOnChangesEnabled\""
+	StoreGatewayTenantShardSize                   *int64                   "json:\"storeGatewayTenantShardSize,omitempty\" graphql:\"storeGatewayTenantShardSize\""
+	CompactorBlocksRetentionPeriod                *v1.Duration             "json:\"compactorBlocksRetentionPeriod,omitempty\" graphql:\"compactorBlocksRetentionPeriod\""
+	CompactorSplitAndMergeShards                  *int64                   "json:\"compactorSplitAndMergeShards,omitempty\" graphql:\"compactorSplitAndMergeShards\""
+	CompactorSplitGroups                          *int64                   "json:\"compactorSplitGroups,omitempty\" graphql:\"compactorSplitGroups\""
+	CompactorTenantShardSize                      *int64                   "json:\"compactorTenantShardSize,omitempty\" graphql:\"compactorTenantShardSize\""
+	CompactorPartialBlockDeletionDelay            *v1.Duration             "json:\"compactorPartialBlockDeletionDelay,omitempty\" graphql:\"compactorPartialBlockDeletionDelay\""
+	CompactorBlockUploadEnabled                   *bool                    "json:\"compactorBlockUploadEnabled,omitempty\" graphql:\"compactorBlockUploadEnabled\""
+	CompactorBlockUploadValidationEnabled         *bool                    "json:\"compactorBlockUploadValidationEnabled,omitempty\" graphql:\"compactorBlockUploadValidationEnabled\""
+	CompactorBlockUploadVerifyChunks              *bool                    "json:\"compactorBlockUploadVerifyChunks,omitempty\" graphql:\"compactorBlockUploadVerifyChunks\""
+	CompactorBlockUploadMaxBlockSizeBytes         *int64                   "json:\"compactorBlockUploadMaxBlockSizeBytes,omitempty\" graphql:\"compactorBlockUploadMaxBlockSizeBytes\""
+	S3SSEType                                     *string                  "json:\"s3SSEType,omitempty\" graphql:\"s3SSEType\""
+	S3SSEKMSKeyID                                 *string                  "json:\"s3SSEKMSKeyID,omitempty\" graphql:\"s3SSEKMSKeyID\""
+	S3SSEKMSEncryptionContext                     *string                  "json:\"s3SSEKMSEncryptionContext,omitempty\" graphql:\"s3SSEKMSEncryptionContext\""
+	AlertmanagerReceiversBlockCIDRNetworks        *string                  "json:\"alertmanagerReceiversBlockCIDRNetworks,omitempty\" graphql:\"alertmanagerReceiversBlockCIDRNetworks\""
+	AlertmanagerReceiversBlockPrivateAddresses    *bool                    "json:\"alertmanagerReceiversBlockPrivateAddresses,omitempty\" graphql:\"alertmanagerReceiversBlockPrivateAddresses\""
+	NotificationRateLimit                         *float64                 "json:\"notificationRateLimit,omitempty\" graphql:\"notificationRateLimit\""
+	NotificationRateLimitPerIntegration           map[string]float64       "json:\"notificationRateLimitPerIntegration,omitempty\" graphql:\"notificationRateLimitPerIntegration\""
+	AlertmanagerMaxConfigSizeBytes                *int64                   "json:\"alertmanagerMaxConfigSizeBytes,omitempty\" graphql:\"alertmanagerMaxConfigSizeBytes\""
+	AlertmanagerMaxTemplatesCount                 *int64                   "json:\"alertmanagerMaxTemplatesCount,omitempty\" graphql:\"alertmanagerMaxTemplatesCount\""
+	AlertmanagerMaxTemplateSizeBytes              *int64                   "json:\"alertmanagerMaxTemplateSizeBytes,omitempty\" graphql:\"alertmanagerMaxTemplateSizeBytes\""
+	AlertmanagerMaxDispatcherAggregationGroups    *int64                   "json:\"alertmanagerMaxDispatcherAggregationGroups,omitempty\" graphql:\"alertmanagerMaxDispatcherAggregationGroups\""
+	AlertmanagerMaxAlertsCount                    *int64                   "json:\"alertmanagerMaxAlertsCount,omitempty\" graphql:\"alertmanagerMaxAlertsCount\""
+	AlertmanagerMaxAlertsSizeBytes                *int64                   "json:\"alertmanagerMaxAlertsSizeBytes,omitempty\" graphql:\"alertmanagerMaxAlertsSizeBytes\""
+}
+
+func (t *MimirLimitsFragment) GetRequestRate() *float64 {
+	if t == nil {
+		t = &MimirLimitsFragment{}
+	}
+	return t.RequestRate
+}
+func (t *MimirLimitsFragment) GetRequestBurstSize() *int64 {
+	if t == nil {
+		t = &MimirLimitsFragment{}
+	}
+	return t.RequestBurstSize
+}
+func (t *MimirLimitsFragment) GetIngestionRate() *float64 {
+	if t == nil {
+		t = &MimirLimitsFragment{}
+	}
+	return t.IngestionRate
+}
+func (t *MimirLimitsFragment) GetIngestionBurstSize() *int64 {
+	if t == nil {
+		t = &MimirLimitsFragment{}
+	}
+	return t.IngestionBurstSize
+}
+func (t *MimirLimitsFragment) GetAcceptHASamples() *bool {
+	if t == nil {
+		t = &MimirLimitsFragment{}
+	}
+	return t.AcceptHASamples
+}
+func (t *MimirLimitsFragment) GetHaClusterLabel() *string {
+	if t == nil {
+		t = &MimirLimitsFragment{}
+	}
+	return t.HaClusterLabel
+}
+func (t *MimirLimitsFragment) GetHaReplicaLabel() *string {
+	if t == nil {
+		t = &MimirLimitsFragment{}
+	}
+	return t.HaReplicaLabel
+}
+func (t *MimirLimitsFragment) GetHaMaxClusters() *int64 {
+	if t == nil {
+		t = &MimirLimitsFragment{}
+	}
+	return t.HaMaxClusters
+}
+func (t *MimirLimitsFragment) GetDropLabels() []string {
+	if t == nil {
+		t = &MimirLimitsFragment{}
+	}
+	return t.DropLabels
+}
+func (t *MimirLimitsFragment) GetMaxLabelNameLength() *int64 {
+	if t == nil {
+		t = &MimirLimitsFragment{}
+	}
+	return t.MaxLabelNameLength
+}
+func (t *MimirLimitsFragment) GetMaxLabelValueLength() *int64 {
+	if t == nil {
+		t = &MimirLimitsFragment{}
+	}
+	return t.MaxLabelValueLength
+}
+func (t *MimirLimitsFragment) GetMaxLabelNamesPerSeries() *int64 {
+	if t == nil {
+		t = &MimirLimitsFragment{}
+	}
+	return t.MaxLabelNamesPerSeries
+}
+func (t *MimirLimitsFragment) GetMaxMetadataLength() *int64 {
+	if t == nil {
+		t = &MimirLimitsFragment{}
+	}
+	return t.MaxMetadataLength
+}
+func (t *MimirLimitsFragment) GetMaxNativeHistogramBuckets() *int64 {
+	if t == nil {
+		t = &MimirLimitsFragment{}
+	}
+	return t.MaxNativeHistogramBuckets
+}
+func (t *MimirLimitsFragment) GetCreationGracePeriod() *v1.Duration {
+	if t == nil {
+		t = &MimirLimitsFragment{}
+	}
+	return t.CreationGracePeriod
+}
+func (t *MimirLimitsFragment) GetEnforceMetadataMetricName() *bool {
+	if t == nil {
+		t = &MimirLimitsFragment{}
+	}
+	return t.EnforceMetadataMetricName
+}
+func (t *MimirLimitsFragment) GetIngestionTenantShardSize() *int64 {
+	if t == nil {
+		t = &MimirLimitsFragment{}
+	}
+	return t.IngestionTenantShardSize
+}
+func (t *MimirLimitsFragment) GetMetricRelabelConfigs() []*RelabelConfigFragment {
+	if t == nil {
+		t = &MimirLimitsFragment{}
+	}
+	return t.MetricRelabelConfigs
+}
+func (t *MimirLimitsFragment) GetMaxGlobalSeriesPerUser() *int64 {
+	if t == nil {
+		t = &MimirLimitsFragment{}
+	}
+	return t.MaxGlobalSeriesPerUser
+}
+func (t *MimirLimitsFragment) GetMaxGlobalSeriesPerMetric() *int64 {
+	if t == nil {
+		t = &MimirLimitsFragment{}
+	}
+	return t.MaxGlobalSeriesPerMetric
+}
+func (t *MimirLimitsFragment) GetMaxGlobalMetricsWithMetadataPerUser() *int64 {
+	if t == nil {
+		t = &MimirLimitsFragment{}
+	}
+	return t.MaxGlobalMetricsWithMetadataPerUser
+}
+func (t *MimirLimitsFragment) GetMaxGlobalMetadataPerMetric() *int64 {
+	if t == nil {
+		t = &MimirLimitsFragment{}
+	}
+	return t.MaxGlobalMetadataPerMetric
+}
+func (t *MimirLimitsFragment) GetMaxGlobalExemplarsPerUser() *int64 {
+	if t == nil {
+		t = &MimirLimitsFragment{}
+	}
+	return t.MaxGlobalExemplarsPerUser
+}
+func (t *MimirLimitsFragment) GetNativeHistogramsIngestionEnabled() *bool {
+	if t == nil {
+		t = &MimirLimitsFragment{}
+	}
+	return t.NativeHistogramsIngestionEnabled
+}
+func (t *MimirLimitsFragment) GetActiveSeriesCustomTrackersConfig() map[string]string {
+	if t == nil {
+		t = &MimirLimitsFragment{}
+	}
+	return t.ActiveSeriesCustomTrackersConfig
+}
+func (t *MimirLimitsFragment) GetOutOfOrderTimeWindow() *v1.Duration {
+	if t == nil {
+		t = &MimirLimitsFragment{}
+	}
+	return t.OutOfOrderTimeWindow
+}
+func (t *MimirLimitsFragment) GetOutOfOrderBlocksExternalLabelEnabled() *bool {
+	if t == nil {
+		t = &MimirLimitsFragment{}
+	}
+	return t.OutOfOrderBlocksExternalLabelEnabled
+}
+func (t *MimirLimitsFragment) GetSeparateMetricsGroupLabel() *string {
+	if t == nil {
+		t = &MimirLimitsFragment{}
+	}
+	return t.SeparateMetricsGroupLabel
+}
+func (t *MimirLimitsFragment) GetMaxChunksPerQuery() *int64 {
+	if t == nil {
+		t = &MimirLimitsFragment{}
+	}
+	return t.MaxChunksPerQuery
+}
+func (t *MimirLimitsFragment) GetMaxFetchedSeriesPerQuery() *int64 {
+	if t == nil {
+		t = &MimirLimitsFragment{}
+	}
+	return t.MaxFetchedSeriesPerQuery
+}
+func (t *MimirLimitsFragment) GetMaxFetchedChunkBytesPerQuery() *int64 {
+	if t == nil {
+		t = &MimirLimitsFragment{}
+	}
+	return t.MaxFetchedChunkBytesPerQuery
+}
+func (t *MimirLimitsFragment) GetMaxQueryLookback() *v1.Duration {
+	if t == nil {
+		t = &MimirLimitsFragment{}
+	}
+	return t.MaxQueryLookback
+}
+func (t *MimirLimitsFragment) GetMaxPartialQueryLength() *v1.Duration {
+	if t == nil {
+		t = &MimirLimitsFragment{}
+	}
+	return t.MaxPartialQueryLength
+}
+func (t *MimirLimitsFragment) GetMaxQueryParallelism() *int64 {
+	if t == nil {
+		t = &MimirLimitsFragment{}
+	}
+	return t.MaxQueryParallelism
+}
+func (t *MimirLimitsFragment) GetMaxLabelsQueryLength() *v1.Duration {
+	if t == nil {
+		t = &MimirLimitsFragment{}
+	}
+	return t.MaxLabelsQueryLength
+}
+func (t *MimirLimitsFragment) GetMaxCacheFreshness() *v1.Duration {
+	if t == nil {
+		t = &MimirLimitsFragment{}
+	}
+	return t.MaxCacheFreshness
+}
+func (t *MimirLimitsFragment) GetMaxQueriersPerTenant() *int64 {
+	if t == nil {
+		t = &MimirLimitsFragment{}
+	}
+	return t.MaxQueriersPerTenant
+}
+func (t *MimirLimitsFragment) GetQueryShardingTotalShards() *int64 {
+	if t == nil {
+		t = &MimirLimitsFragment{}
+	}
+	return t.QueryShardingTotalShards
+}
+func (t *MimirLimitsFragment) GetQueryShardingMaxShardedQueries() *int64 {
+	if t == nil {
+		t = &MimirLimitsFragment{}
+	}
+	return t.QueryShardingMaxShardedQueries
+}
+func (t *MimirLimitsFragment) GetQueryShardingMaxRegexpSizeBytes() *int64 {
+	if t == nil {
+		t = &MimirLimitsFragment{}
+	}
+	return t.QueryShardingMaxRegexpSizeBytes
+}
+func (t *MimirLimitsFragment) GetSplitInstantQueriesByInterval() *v1.Duration {
+	if t == nil {
+		t = &MimirLimitsFragment{}
+	}
+	return t.SplitInstantQueriesByInterval
+}
+func (t *MimirLimitsFragment) GetQueryIngestersWithin() *v1.Duration {
+	if t == nil {
+		t = &MimirLimitsFragment{}
+	}
+	return t.QueryIngestersWithin
+}
+func (t *MimirLimitsFragment) GetMaxTotalQueryLength() *v1.Duration {
+	if t == nil {
+		t = &MimirLimitsFragment{}
+	}
+	return t.MaxTotalQueryLength
+}
+func (t *MimirLimitsFragment) GetResultsCacheTTL() *v1.Duration {
+	if t == nil {
+		t = &MimirLimitsFragment{}
+	}
+	return t.ResultsCacheTTL
+}
+func (t *MimirLimitsFragment) GetResultsCacheTTLForOutOfOrderTimeWindow() *v1.Duration {
+	if t == nil {
+		t = &MimirLimitsFragment{}
+	}
+	return t.ResultsCacheTTLForOutOfOrderTimeWindow
+}
+func (t *MimirLimitsFragment) GetResultsCacheTTLForCardinalityQuery() *v1.Duration {
+	if t == nil {
+		t = &MimirLimitsFragment{}
+	}
+	return t.ResultsCacheTTLForCardinalityQuery
+}
+func (t *MimirLimitsFragment) GetResultsCacheTTLForLabelsQuery() *v1.Duration {
+	if t == nil {
+		t = &MimirLimitsFragment{}
+	}
+	return t.ResultsCacheTTLForLabelsQuery
+}
+func (t *MimirLimitsFragment) GetResultsCacheForUnalignedQueryEnabled() *bool {
+	if t == nil {
+		t = &MimirLimitsFragment{}
+	}
+	return t.ResultsCacheForUnalignedQueryEnabled
+}
+func (t *MimirLimitsFragment) GetMaxQueryExpressionSizeBytes() *int64 {
+	if t == nil {
+		t = &MimirLimitsFragment{}
+	}
+	return t.MaxQueryExpressionSizeBytes
+}
+func (t *MimirLimitsFragment) GetCardinalityAnalysisEnabled() *bool {
+	if t == nil {
+		t = &MimirLimitsFragment{}
+	}
+	return t.CardinalityAnalysisEnabled
+}
+func (t *MimirLimitsFragment) GetLabelNamesAndValuesResultsMaxSizeBytes() *int64 {
+	if t == nil {
+		t = &MimirLimitsFragment{}
+	}
+	return t.LabelNamesAndValuesResultsMaxSizeBytes
+}
+func (t *MimirLimitsFragment) GetLabelValuesMaxCardinalityLabelNamesPerRequest() *int64 {
+	if t == nil {
+		t = &MimirLimitsFragment{}
+	}
+	return t.LabelValuesMaxCardinalityLabelNamesPerRequest
+}
+func (t *MimirLimitsFragment) GetRulerEvaluationDelay() *v1.Duration {
+	if t == nil {
+		t = &MimirLimitsFragment{}
+	}
+	return t.RulerEvaluationDelay
+}
+func (t *MimirLimitsFragment) GetRulerTenantShardSize() *int64 {
+	if t == nil {
+		t = &MimirLimitsFragment{}
+	}
+	return t.RulerTenantShardSize
+}
+func (t *MimirLimitsFragment) GetRulerMaxRulesPerRuleGroup() *int64 {
+	if t == nil {
+		t = &MimirLimitsFragment{}
+	}
+	return t.RulerMaxRulesPerRuleGroup
+}
+func (t *MimirLimitsFragment) GetRulerMaxRuleGroupsPerTenant() *int64 {
+	if t == nil {
+		t = &MimirLimitsFragment{}
+	}
+	return t.RulerMaxRuleGroupsPerTenant
+}
+func (t *MimirLimitsFragment) GetRulerRecordingRulesEvaluationEnabled() *bool {
+	if t == nil {
+		t = &MimirLimitsFragment{}
+	}
+	return t.RulerRecordingRulesEvaluationEnabled
+}
+func (t *MimirLimitsFragment) GetRulerAlertingRulesEvaluationEnabled() *bool {
+	if t == nil {
+		t = &MimirLimitsFragment{}
+	}
+	return t.RulerAlertingRulesEvaluationEnabled
+}
+func (t *MimirLimitsFragment) GetRulerSyncRulesOnChangesEnabled() *bool {
+	if t == nil {
+		t = &MimirLimitsFragment{}
+	}
+	return t.RulerSyncRulesOnChangesEnabled
+}
+func (t *MimirLimitsFragment) GetStoreGatewayTenantShardSize() *int64 {
+	if t == nil {
+		t = &MimirLimitsFragment{}
+	}
+	return t.StoreGatewayTenantShardSize
+}
+func (t *MimirLimitsFragment) GetCompactorBlocksRetentionPeriod() *v1.Duration {
+	if t == nil {
+		t = &MimirLimitsFragment{}
+	}
+	return t.CompactorBlocksRetentionPeriod
+}
+func (t *MimirLimitsFragment) GetCompactorSplitAndMergeShards() *int64 {
+	if t == nil {
+		t = &MimirLimitsFragment{}
+	}
+	return t.CompactorSplitAndMergeShards
+}
+func (t *MimirLimitsFragment) GetCompactorSplitGroups() *int64 {
+	if t == nil {
+		t = &MimirLimitsFragment{}
+	}
+	return t.CompactorSplitGroups
+}
+func (t *MimirLimitsFragment) GetCompactorTenantShardSize() *int64 {
+	if t == nil {
+		t = &MimirLimitsFragment{}
+	}
+	return t.CompactorTenantShardSize
+}
+func (t *MimirLimitsFragment) GetCompactorPartialBlockDeletionDelay() *v1.Duration {
+	if t == nil {
+		t = &MimirLimitsFragment{}
+	}
+	return t.CompactorPartialBlockDeletionDelay
+}
+func (t *MimirLimitsFragment) GetCompactorBlockUploadEnabled() *bool {
+	if t == nil {
+		t = &MimirLimitsFragment{}
+	}
+	return t.CompactorBlockUploadEnabled
+}
+func (t *MimirLimitsFragment) GetCompactorBlockUploadValidationEnabled() *bool {
+	if t == nil {
+		t = &MimirLimitsFragment{}
+	}
+	return t.CompactorBlockUploadValidationEnabled
+}
+func (t *MimirLimitsFragment) GetCompactorBlockUploadVerifyChunks() *bool {
+	if t == nil {
+		t = &MimirLimitsFragment{}
+	}
+	return t.CompactorBlockUploadVerifyChunks
+}
+func (t *MimirLimitsFragment) GetCompactorBlockUploadMaxBlockSizeBytes() *int64 {
+	if t == nil {
+		t = &MimirLimitsFragment{}
+	}
+	return t.CompactorBlockUploadMaxBlockSizeBytes
+}
+func (t *MimirLimitsFragment) GetS3SSEType() *string {
+	if t == nil {
+		t = &MimirLimitsFragment{}
+	}
+	return t.S3SSEType
+}
+func (t *MimirLimitsFragment) GetS3SSEKMSKeyID() *string {
+	if t == nil {
+		t = &MimirLimitsFragment{}
+	}
+	return t.S3SSEKMSKeyID
+}
+func (t *MimirLimitsFragment) GetS3SSEKMSEncryptionContext() *string {
+	if t == nil {
+		t = &MimirLimitsFragment{}
+	}
+	return t.S3SSEKMSEncryptionContext
+}
+func (t *MimirLimitsFragment) GetAlertmanagerReceiversBlockCIDRNetworks() *string {
+	if t == nil {
+		t = &MimirLimitsFragment{}
+	}
+	return t.AlertmanagerReceiversBlockCIDRNetworks
+}
+func (t *MimirLimitsFragment) GetAlertmanagerReceiversBlockPrivateAddresses() *bool {
+	if t == nil {
+		t = &MimirLimitsFragment{}
+	}
+	return t.AlertmanagerReceiversBlockPrivateAddresses
+}
+func (t *MimirLimitsFragment) GetNotificationRateLimit() *float64 {
+	if t == nil {
+		t = &MimirLimitsFragment{}
+	}
+	return t.NotificationRateLimit
+}
+func (t *MimirLimitsFragment) GetNotificationRateLimitPerIntegration() map[string]float64 {
+	if t == nil {
+		t = &MimirLimitsFragment{}
+	}
+	return t.NotificationRateLimitPerIntegration
+}
+func (t *MimirLimitsFragment) GetAlertmanagerMaxConfigSizeBytes() *int64 {
+	if t == nil {
+		t = &MimirLimitsFragment{}
+	}
+	return t.AlertmanagerMaxConfigSizeBytes
+}
+func (t *MimirLimitsFragment) GetAlertmanagerMaxTemplatesCount() *int64 {
+	if t == nil {
+		t = &MimirLimitsFragment{}
+	}
+	return t.AlertmanagerMaxTemplatesCount
+}
+func (t *MimirLimitsFragment) GetAlertmanagerMaxTemplateSizeBytes() *int64 {
+	if t == nil {
+		t = &MimirLimitsFragment{}
+	}
+	return t.AlertmanagerMaxTemplateSizeBytes
+}
+func (t *MimirLimitsFragment) GetAlertmanagerMaxDispatcherAggregationGroups() *int64 {
+	if t == nil {
+		t = &MimirLimitsFragment{}
+	}
+	return t.AlertmanagerMaxDispatcherAggregationGroups
+}
+func (t *MimirLimitsFragment) GetAlertmanagerMaxAlertsCount() *int64 {
+	if t == nil {
+		t = &MimirLimitsFragment{}
+	}
+	return t.AlertmanagerMaxAlertsCount
+}
+func (t *MimirLimitsFragment) GetAlertmanagerMaxAlertsSizeBytes() *int64 {
+	if t == nil {
+		t = &MimirLimitsFragment{}
+	}
+	return t.AlertmanagerMaxAlertsSizeBytes
+}
+
+type RelabelConfigFragment struct {
+	SourceLabels []v1alpha1.LabelName    "json:\"sourceLabels,omitempty\" graphql:\"sourceLabels\""
+	Separator    *string                 "json:\"separator,omitempty\" graphql:\"separator\""
+	Regex        *string                 "json:\"regex,omitempty\" graphql:\"regex\""
+	Modulus      *uint64                 "json:\"modulus,omitempty\" graphql:\"modulus\""
+	TargetLabel  *string                 "json:\"targetLabel,omitempty\" graphql:\"targetLabel\""
+	Replacement  *string                 "json:\"replacement,omitempty\" graphql:\"replacement\""
+	Action       *v1alpha1.RelabelAction "json:\"action,omitempty\" graphql:\"action\""
+}
+
+func (t *RelabelConfigFragment) GetSourceLabels() []v1alpha1.LabelName {
+	if t == nil {
+		t = &RelabelConfigFragment{}
+	}
+	return t.SourceLabels
+}
+func (t *RelabelConfigFragment) GetSeparator() *string {
+	if t == nil {
+		t = &RelabelConfigFragment{}
+	}
+	return t.Separator
+}
+func (t *RelabelConfigFragment) GetRegex() *string {
+	if t == nil {
+		t = &RelabelConfigFragment{}
+	}
+	return t.Regex
+}
+func (t *RelabelConfigFragment) GetModulus() *uint64 {
+	if t == nil {
+		t = &RelabelConfigFragment{}
+	}
+	return t.Modulus
+}
+func (t *RelabelConfigFragment) GetTargetLabel() *string {
+	if t == nil {
+		t = &RelabelConfigFragment{}
+	}
+	return t.TargetLabel
+}
+func (t *RelabelConfigFragment) GetReplacement() *string {
+	if t == nil {
+		t = &RelabelConfigFragment{}
+	}
+	return t.Replacement
+}
+func (t *RelabelConfigFragment) GetAction() *v1alpha1.RelabelAction {
+	if t == nil {
+		t = &RelabelConfigFragment{}
+	}
+	return t.Action
+}
+
+type LokiLimitsFragment struct {
+	IngestionRateStrategy                *string                               "json:\"ingestionRateStrategy,omitempty\" graphql:\"ingestionRateStrategy\""
+	IngestionRateMb                      *float64                              "json:\"ingestionRateMB,omitempty\" graphql:\"ingestionRateMB\""
+	IngestionBurstSizeMb                 *float64                              "json:\"ingestionBurstSizeMB,omitempty\" graphql:\"ingestionBurstSizeMB\""
+	MaxLabelNameLength                   *int64                                "json:\"maxLabelNameLength,omitempty\" graphql:\"maxLabelNameLength\""
+	MaxLabelValueLength                  *int64                                "json:\"maxLabelValueLength,omitempty\" graphql:\"maxLabelValueLength\""
+	MaxLabelNamesPerSeries               *int64                                "json:\"maxLabelNamesPerSeries,omitempty\" graphql:\"maxLabelNamesPerSeries\""
+	RejectOldSamples                     *bool                                 "json:\"rejectOldSamples,omitempty\" graphql:\"rejectOldSamples\""
+	RejectOldSamplesMaxAge               *v1.Duration                          "json:\"rejectOldSamplesMaxAge,omitempty\" graphql:\"rejectOldSamplesMaxAge\""
+	CreationGracePeriod                  *v1.Duration                          "json:\"creationGracePeriod,omitempty\" graphql:\"creationGracePeriod\""
+	EnforceMetricName                    *bool                                 "json:\"enforceMetricName,omitempty\" graphql:\"enforceMetricName\""
+	MaxLineSize                          *uint64                               "json:\"maxLineSize,omitempty\" graphql:\"maxLineSize\""
+	MaxLineSizeTruncate                  *bool                                 "json:\"maxLineSizeTruncate,omitempty\" graphql:\"maxLineSizeTruncate\""
+	IncrementDuplicateTimestamp          *bool                                 "json:\"incrementDuplicateTimestamp,omitempty\" graphql:\"incrementDuplicateTimestamp\""
+	MaxLocalStreamsPerUser               *int64                                "json:\"maxLocalStreamsPerUser,omitempty\" graphql:\"maxLocalStreamsPerUser\""
+	MaxGlobalStreamsPerUser              *int64                                "json:\"maxGlobalStreamsPerUser,omitempty\" graphql:\"maxGlobalStreamsPerUser\""
+	UnorderedWrites                      *bool                                 "json:\"unorderedWrites,omitempty\" graphql:\"unorderedWrites\""
+	PerStreamRateLimit                   *uint64                               "json:\"perStreamRateLimit,omitempty\" graphql:\"perStreamRateLimit\""
+	PerStreamRateLimitBurst              *uint64                               "json:\"perStreamRateLimitBurst,omitempty\" graphql:\"perStreamRateLimitBurst\""
+	MaxChunksPerQuery                    *int64                                "json:\"maxChunksPerQuery,omitempty\" graphql:\"maxChunksPerQuery\""
+	MaxQuerySeries                       *int64                                "json:\"maxQuerySeries,omitempty\" graphql:\"maxQuerySeries\""
+	MaxQueryLookback                     *v1.Duration                          "json:\"maxQueryLookback,omitempty\" graphql:\"maxQueryLookback\""
+	MaxQueryLength                       *v1.Duration                          "json:\"maxQueryLength,omitempty\" graphql:\"maxQueryLength\""
+	MaxQueryRange                        *v1.Duration                          "json:\"maxQueryRange,omitempty\" graphql:\"maxQueryRange\""
+	MaxQueryParallelism                  *int64                                "json:\"maxQueryParallelism,omitempty\" graphql:\"maxQueryParallelism\""
+	TsdbMaxQueryParallelism              *int64                                "json:\"tsdbMaxQueryParallelism,omitempty\" graphql:\"tsdbMaxQueryParallelism\""
+	TsdbMaxBytesPerShard                 *uint64                               "json:\"tsdbMaxBytesPerShard,omitempty\" graphql:\"tsdbMaxBytesPerShard\""
+	CardinalityLimit                     *int64                                "json:\"cardinalityLimit,omitempty\" graphql:\"cardinalityLimit\""
+	MaxStreamsMatchersPerQuery           *int64                                "json:\"maxStreamsMatchersPerQuery,omitempty\" graphql:\"maxStreamsMatchersPerQuery\""
+	MaxConcurrentTailRequests            *int64                                "json:\"maxConcurrentTailRequests,omitempty\" graphql:\"maxConcurrentTailRequests\""
+	MaxEntriesLimitPerQuery              *int64                                "json:\"maxEntriesLimitPerQuery,omitempty\" graphql:\"maxEntriesLimitPerQuery\""
+	MaxCacheFreshness                    *v1.Duration                          "json:\"maxCacheFreshness,omitempty\" graphql:\"maxCacheFreshness\""
+	MaxStatsCacheFreshness               *v1.Duration                          "json:\"maxStatsCacheFreshness,omitempty\" graphql:\"maxStatsCacheFreshness\""
+	MaxQueriersPerTenant                 *int64                                "json:\"maxQueriersPerTenant,omitempty\" graphql:\"maxQueriersPerTenant\""
+	QueryReadyIndexNumDays               *int64                                "json:\"queryReadyIndexNumDays,omitempty\" graphql:\"queryReadyIndexNumDays\""
+	QueryTimeout                         *v1.Duration                          "json:\"queryTimeout,omitempty\" graphql:\"queryTimeout\""
+	QuerySplitDuration                   *v1.Duration                          "json:\"querySplitDuration,omitempty\" graphql:\"querySplitDuration\""
+	MinShardingLookback                  *v1.Duration                          "json:\"minShardingLookback,omitempty\" graphql:\"minShardingLookback\""
+	MaxQueryBytesRead                    *uint64                               "json:\"maxQueryBytesRead,omitempty\" graphql:\"maxQueryBytesRead\""
+	MaxQuerierBytesRead                  *uint64                               "json:\"maxQuerierBytesRead,omitempty\" graphql:\"maxQuerierBytesRead\""
+	VolumeEnabled                        *bool                                 "json:\"volumeEnabled,omitempty\" graphql:\"volumeEnabled\""
+	VolumeMaxSeries                      *int64                                "json:\"volumeMaxSeries,omitempty\" graphql:\"volumeMaxSeries\""
+	RulerEvaluationDelay                 *v1.Duration                          "json:\"rulerEvaluationDelay,omitempty\" graphql:\"rulerEvaluationDelay\""
+	RulerMaxRulesPerRuleGroup            *int64                                "json:\"rulerMaxRulesPerRuleGroup,omitempty\" graphql:\"rulerMaxRulesPerRuleGroup\""
+	RulerMaxRuleGroupsPerTenant          *int64                                "json:\"rulerMaxRuleGroupsPerTenant,omitempty\" graphql:\"rulerMaxRuleGroupsPerTenant\""
+	RulerAlertManagerConfig              *RulerAlertManagerConfigFragment      "json:\"rulerAlertManagerConfig,omitempty\" graphql:\"rulerAlertManagerConfig\""
+	RulerTenantShardSize                 *int64                                "json:\"rulerTenantShardSize,omitempty\" graphql:\"rulerTenantShardSize\""
+	RulerRemoteWriteDisabled             *bool                                 "json:\"rulerRemoteWriteDisabled,omitempty\" graphql:\"rulerRemoteWriteDisabled\""
+	RulerRemoteEvaluationTimeout         *v1.Duration                          "json:\"rulerRemoteEvaluationTimeout,omitempty\" graphql:\"rulerRemoteEvaluationTimeout\""
+	RulerRemoteEvaluationMaxResponseSize *int64                                "json:\"rulerRemoteEvaluationMaxResponseSize,omitempty\" graphql:\"rulerRemoteEvaluationMaxResponseSize\""
+	DeletionMode                         *string                               "json:\"deletionMode,omitempty\" graphql:\"deletionMode\""
+	RetentionPeriod                      *v1.Duration                          "json:\"retentionPeriod,omitempty\" graphql:\"retentionPeriod\""
+	StreamRetention                      []*LokiLimitsFragment_StreamRetention "json:\"streamRetention,omitempty\" graphql:\"streamRetention\""
+	ShardStreams                         *LokiLimitsFragment_ShardStreams      "json:\"shardStreams,omitempty\" graphql:\"shardStreams\""
+	BlockedQueries                       []*LokiLimitsFragment_BlockedQueries  "json:\"blockedQueries,omitempty\" graphql:\"blockedQueries\""
+	RequiredLabels                       []string                              "json:\"requiredLabels,omitempty\" graphql:\"requiredLabels\""
+	RequiredNumberLabels                 *int64                                "json:\"requiredNumberLabels,omitempty\" graphql:\"requiredNumberLabels\""
+	IndexGatewayShardSize                *int64                                "json:\"indexGatewayShardSize,omitempty\" graphql:\"indexGatewayShardSize\""
+}
+
+func (t *LokiLimitsFragment) GetIngestionRateStrategy() *string {
+	if t == nil {
+		t = &LokiLimitsFragment{}
+	}
+	return t.IngestionRateStrategy
+}
+func (t *LokiLimitsFragment) GetIngestionRateMb() *float64 {
+	if t == nil {
+		t = &LokiLimitsFragment{}
+	}
+	return t.IngestionRateMb
+}
+func (t *LokiLimitsFragment) GetIngestionBurstSizeMb() *float64 {
+	if t == nil {
+		t = &LokiLimitsFragment{}
+	}
+	return t.IngestionBurstSizeMb
+}
+func (t *LokiLimitsFragment) GetMaxLabelNameLength() *int64 {
+	if t == nil {
+		t = &LokiLimitsFragment{}
+	}
+	return t.MaxLabelNameLength
+}
+func (t *LokiLimitsFragment) GetMaxLabelValueLength() *int64 {
+	if t == nil {
+		t = &LokiLimitsFragment{}
+	}
+	return t.MaxLabelValueLength
+}
+func (t *LokiLimitsFragment) GetMaxLabelNamesPerSeries() *int64 {
+	if t == nil {
+		t = &LokiLimitsFragment{}
+	}
+	return t.MaxLabelNamesPerSeries
+}
+func (t *LokiLimitsFragment) GetRejectOldSamples() *bool {
+	if t == nil {
+		t = &LokiLimitsFragment{}
+	}
+	return t.RejectOldSamples
+}
+func (t *LokiLimitsFragment) GetRejectOldSamplesMaxAge() *v1.Duration {
+	if t == nil {
+		t = &LokiLimitsFragment{}
+	}
+	return t.RejectOldSamplesMaxAge
+}
+func (t *LokiLimitsFragment) GetCreationGracePeriod() *v1.Duration {
+	if t == nil {
+		t = &LokiLimitsFragment{}
+	}
+	return t.CreationGracePeriod
+}
+func (t *LokiLimitsFragment) GetEnforceMetricName() *bool {
+	if t == nil {
+		t = &LokiLimitsFragment{}
+	}
+	return t.EnforceMetricName
+}
+func (t *LokiLimitsFragment) GetMaxLineSize() *uint64 {
+	if t == nil {
+		t = &LokiLimitsFragment{}
+	}
+	return t.MaxLineSize
+}
+func (t *LokiLimitsFragment) GetMaxLineSizeTruncate() *bool {
+	if t == nil {
+		t = &LokiLimitsFragment{}
+	}
+	return t.MaxLineSizeTruncate
+}
+func (t *LokiLimitsFragment) GetIncrementDuplicateTimestamp() *bool {
+	if t == nil {
+		t = &LokiLimitsFragment{}
+	}
+	return t.IncrementDuplicateTimestamp
+}
+func (t *LokiLimitsFragment) GetMaxLocalStreamsPerUser() *int64 {
+	if t == nil {
+		t = &LokiLimitsFragment{}
+	}
+	return t.MaxLocalStreamsPerUser
+}
+func (t *LokiLimitsFragment) GetMaxGlobalStreamsPerUser() *int64 {
+	if t == nil {
+		t = &LokiLimitsFragment{}
+	}
+	return t.MaxGlobalStreamsPerUser
+}
+func (t *LokiLimitsFragment) GetUnorderedWrites() *bool {
+	if t == nil {
+		t = &LokiLimitsFragment{}
+	}
+	return t.UnorderedWrites
+}
+func (t *LokiLimitsFragment) GetPerStreamRateLimit() *uint64 {
+	if t == nil {
+		t = &LokiLimitsFragment{}
+	}
+	return t.PerStreamRateLimit
+}
+func (t *LokiLimitsFragment) GetPerStreamRateLimitBurst() *uint64 {
+	if t == nil {
+		t = &LokiLimitsFragment{}
+	}
+	return t.PerStreamRateLimitBurst
+}
+func (t *LokiLimitsFragment) GetMaxChunksPerQuery() *int64 {
+	if t == nil {
+		t = &LokiLimitsFragment{}
+	}
+	return t.MaxChunksPerQuery
+}
+func (t *LokiLimitsFragment) GetMaxQuerySeries() *int64 {
+	if t == nil {
+		t = &LokiLimitsFragment{}
+	}
+	return t.MaxQuerySeries
+}
+func (t *LokiLimitsFragment) GetMaxQueryLookback() *v1.Duration {
+	if t == nil {
+		t = &LokiLimitsFragment{}
+	}
+	return t.MaxQueryLookback
+}
+func (t *LokiLimitsFragment) GetMaxQueryLength() *v1.Duration {
+	if t == nil {
+		t = &LokiLimitsFragment{}
+	}
+	return t.MaxQueryLength
+}
+func (t *LokiLimitsFragment) GetMaxQueryRange() *v1.Duration {
+	if t == nil {
+		t = &LokiLimitsFragment{}
+	}
+	return t.MaxQueryRange
+}
+func (t *LokiLimitsFragment) GetMaxQueryParallelism() *int64 {
+	if t == nil {
+		t = &LokiLimitsFragment{}
+	}
+	return t.MaxQueryParallelism
+}
+func (t *LokiLimitsFragment) GetTsdbMaxQueryParallelism() *int64 {
+	if t == nil {
+		t = &LokiLimitsFragment{}
+	}
+	return t.TsdbMaxQueryParallelism
+}
+func (t *LokiLimitsFragment) GetTsdbMaxBytesPerShard() *uint64 {
+	if t == nil {
+		t = &LokiLimitsFragment{}
+	}
+	return t.TsdbMaxBytesPerShard
+}
+func (t *LokiLimitsFragment) GetCardinalityLimit() *int64 {
+	if t == nil {
+		t = &LokiLimitsFragment{}
+	}
+	return t.CardinalityLimit
+}
+func (t *LokiLimitsFragment) GetMaxStreamsMatchersPerQuery() *int64 {
+	if t == nil {
+		t = &LokiLimitsFragment{}
+	}
+	return t.MaxStreamsMatchersPerQuery
+}
+func (t *LokiLimitsFragment) GetMaxConcurrentTailRequests() *int64 {
+	if t == nil {
+		t = &LokiLimitsFragment{}
+	}
+	return t.MaxConcurrentTailRequests
+}
+func (t *LokiLimitsFragment) GetMaxEntriesLimitPerQuery() *int64 {
+	if t == nil {
+		t = &LokiLimitsFragment{}
+	}
+	return t.MaxEntriesLimitPerQuery
+}
+func (t *LokiLimitsFragment) GetMaxCacheFreshness() *v1.Duration {
+	if t == nil {
+		t = &LokiLimitsFragment{}
+	}
+	return t.MaxCacheFreshness
+}
+func (t *LokiLimitsFragment) GetMaxStatsCacheFreshness() *v1.Duration {
+	if t == nil {
+		t = &LokiLimitsFragment{}
+	}
+	return t.MaxStatsCacheFreshness
+}
+func (t *LokiLimitsFragment) GetMaxQueriersPerTenant() *int64 {
+	if t == nil {
+		t = &LokiLimitsFragment{}
+	}
+	return t.MaxQueriersPerTenant
+}
+func (t *LokiLimitsFragment) GetQueryReadyIndexNumDays() *int64 {
+	if t == nil {
+		t = &LokiLimitsFragment{}
+	}
+	return t.QueryReadyIndexNumDays
+}
+func (t *LokiLimitsFragment) GetQueryTimeout() *v1.Duration {
+	if t == nil {
+		t = &LokiLimitsFragment{}
+	}
+	return t.QueryTimeout
+}
+func (t *LokiLimitsFragment) GetQuerySplitDuration() *v1.Duration {
+	if t == nil {
+		t = &LokiLimitsFragment{}
+	}
+	return t.QuerySplitDuration
+}
+func (t *LokiLimitsFragment) GetMinShardingLookback() *v1.Duration {
+	if t == nil {
+		t = &LokiLimitsFragment{}
+	}
+	return t.MinShardingLookback
+}
+func (t *LokiLimitsFragment) GetMaxQueryBytesRead() *uint64 {
+	if t == nil {
+		t = &LokiLimitsFragment{}
+	}
+	return t.MaxQueryBytesRead
+}
+func (t *LokiLimitsFragment) GetMaxQuerierBytesRead() *uint64 {
+	if t == nil {
+		t = &LokiLimitsFragment{}
+	}
+	return t.MaxQuerierBytesRead
+}
+func (t *LokiLimitsFragment) GetVolumeEnabled() *bool {
+	if t == nil {
+		t = &LokiLimitsFragment{}
+	}
+	return t.VolumeEnabled
+}
+func (t *LokiLimitsFragment) GetVolumeMaxSeries() *int64 {
+	if t == nil {
+		t = &LokiLimitsFragment{}
+	}
+	return t.VolumeMaxSeries
+}
+func (t *LokiLimitsFragment) GetRulerEvaluationDelay() *v1.Duration {
+	if t == nil {
+		t = &LokiLimitsFragment{}
+	}
+	return t.RulerEvaluationDelay
+}
+func (t *LokiLimitsFragment) GetRulerMaxRulesPerRuleGroup() *int64 {
+	if t == nil {
+		t = &LokiLimitsFragment{}
+	}
+	return t.RulerMaxRulesPerRuleGroup
+}
+func (t *LokiLimitsFragment) GetRulerMaxRuleGroupsPerTenant() *int64 {
+	if t == nil {
+		t = &LokiLimitsFragment{}
+	}
+	return t.RulerMaxRuleGroupsPerTenant
+}
+func (t *LokiLimitsFragment) GetRulerAlertManagerConfig() *RulerAlertManagerConfigFragment {
+	if t == nil {
+		t = &LokiLimitsFragment{}
+	}
+	return t.RulerAlertManagerConfig
+}
+func (t *LokiLimitsFragment) GetRulerTenantShardSize() *int64 {
+	if t == nil {
+		t = &LokiLimitsFragment{}
+	}
+	return t.RulerTenantShardSize
+}
+func (t *LokiLimitsFragment) GetRulerRemoteWriteDisabled() *bool {
+	if t == nil {
+		t = &LokiLimitsFragment{}
+	}
+	return t.RulerRemoteWriteDisabled
+}
+func (t *LokiLimitsFragment) GetRulerRemoteEvaluationTimeout() *v1.Duration {
+	if t == nil {
+		t = &LokiLimitsFragment{}
+	}
+	return t.RulerRemoteEvaluationTimeout
+}
+func (t *LokiLimitsFragment) GetRulerRemoteEvaluationMaxResponseSize() *int64 {
+	if t == nil {
+		t = &LokiLimitsFragment{}
+	}
+	return t.RulerRemoteEvaluationMaxResponseSize
+}
+func (t *LokiLimitsFragment) GetDeletionMode() *string {
+	if t == nil {
+		t = &LokiLimitsFragment{}
+	}
+	return t.DeletionMode
+}
+func (t *LokiLimitsFragment) GetRetentionPeriod() *v1.Duration {
+	if t == nil {
+		t = &LokiLimitsFragment{}
+	}
+	return t.RetentionPeriod
+}
+func (t *LokiLimitsFragment) GetStreamRetention() []*LokiLimitsFragment_StreamRetention {
+	if t == nil {
+		t = &LokiLimitsFragment{}
+	}
+	return t.StreamRetention
+}
+func (t *LokiLimitsFragment) GetShardStreams() *LokiLimitsFragment_ShardStreams {
+	if t == nil {
+		t = &LokiLimitsFragment{}
+	}
+	return t.ShardStreams
+}
+func (t *LokiLimitsFragment) GetBlockedQueries() []*LokiLimitsFragment_BlockedQueries {
+	if t == nil {
+		t = &LokiLimitsFragment{}
+	}
+	return t.BlockedQueries
+}
+func (t *LokiLimitsFragment) GetRequiredLabels() []string {
+	if t == nil {
+		t = &LokiLimitsFragment{}
+	}
+	return t.RequiredLabels
+}
+func (t *LokiLimitsFragment) GetRequiredNumberLabels() *int64 {
+	if t == nil {
+		t = &LokiLimitsFragment{}
+	}
+	return t.RequiredNumberLabels
+}
+func (t *LokiLimitsFragment) GetIndexGatewayShardSize() *int64 {
+	if t == nil {
+		t = &LokiLimitsFragment{}
+	}
+	return t.IndexGatewayShardSize
+}
+
+type RulerAlertManagerConfigFragment struct {
+	AlertmanagerURL             string                   "json:\"alertmanagerURL\" graphql:\"alertmanagerURL\""
+	AlertmanagerDiscovery       *bool                    "json:\"alertmanagerDiscovery,omitempty\" graphql:\"alertmanagerDiscovery\""
+	AlertmanagerRefreshInterval *v1.Duration             "json:\"alertmanagerRefreshInterval,omitempty\" graphql:\"alertmanagerRefreshInterval\""
+	AlertmanangerEnableV2api    *bool                    "json:\"alertmanangerEnableV2API,omitempty\" graphql:\"alertmanangerEnableV2API\""
+	AlertRelabelConfigs         []*RelabelConfigFragment "json:\"alertRelabelConfigs,omitempty\" graphql:\"alertRelabelConfigs\""
+	NotificationQueueCapacity   *int64                   "json:\"notificationQueueCapacity,omitempty\" graphql:\"notificationQueueCapacity\""
+	NotificationTimeout         *v1.Duration             "json:\"notificationTimeout,omitempty\" graphql:\"notificationTimeout\""
+	Notifier                    *NotifierConfigFragment  "json:\"notifier,omitempty\" graphql:\"notifier\""
+}
+
+func (t *RulerAlertManagerConfigFragment) GetAlertmanagerURL() string {
+	if t == nil {
+		t = &RulerAlertManagerConfigFragment{}
+	}
+	return t.AlertmanagerURL
+}
+func (t *RulerAlertManagerConfigFragment) GetAlertmanagerDiscovery() *bool {
+	if t == nil {
+		t = &RulerAlertManagerConfigFragment{}
+	}
+	return t.AlertmanagerDiscovery
+}
+func (t *RulerAlertManagerConfigFragment) GetAlertmanagerRefreshInterval() *v1.Duration {
+	if t == nil {
+		t = &RulerAlertManagerConfigFragment{}
+	}
+	return t.AlertmanagerRefreshInterval
+}
+func (t *RulerAlertManagerConfigFragment) GetAlertmanangerEnableV2api() *bool {
+	if t == nil {
+		t = &RulerAlertManagerConfigFragment{}
+	}
+	return t.AlertmanangerEnableV2api
+}
+func (t *RulerAlertManagerConfigFragment) GetAlertRelabelConfigs() []*RelabelConfigFragment {
+	if t == nil {
+		t = &RulerAlertManagerConfigFragment{}
+	}
+	return t.AlertRelabelConfigs
+}
+func (t *RulerAlertManagerConfigFragment) GetNotificationQueueCapacity() *int64 {
+	if t == nil {
+		t = &RulerAlertManagerConfigFragment{}
+	}
+	return t.NotificationQueueCapacity
+}
+func (t *RulerAlertManagerConfigFragment) GetNotificationTimeout() *v1.Duration {
+	if t == nil {
+		t = &RulerAlertManagerConfigFragment{}
+	}
+	return t.NotificationTimeout
+}
+func (t *RulerAlertManagerConfigFragment) GetNotifier() *NotifierConfigFragment {
+	if t == nil {
+		t = &RulerAlertManagerConfigFragment{}
+	}
+	return t.Notifier
+}
+
+type NotifierConfigFragment struct {
+	BasicAuth  *NotifierConfigFragment_BasicAuth  "json:\"basicAuth,omitempty\" graphql:\"basicAuth\""
+	HeaderAuth *NotifierConfigFragment_HeaderAuth "json:\"headerAuth,omitempty\" graphql:\"headerAuth\""
+	TLS        *NotifierConfigFragment_TLS        "json:\"tls,omitempty\" graphql:\"tls\""
+}
+
+func (t *NotifierConfigFragment) GetBasicAuth() *NotifierConfigFragment_BasicAuth {
+	if t == nil {
+		t = &NotifierConfigFragment{}
+	}
+	return t.BasicAuth
+}
+func (t *NotifierConfigFragment) GetHeaderAuth() *NotifierConfigFragment_HeaderAuth {
+	if t == nil {
+		t = &NotifierConfigFragment{}
+	}
+	return t.HeaderAuth
+}
+func (t *NotifierConfigFragment) GetTLS() *NotifierConfigFragment_TLS {
+	if t == nil {
+		t = &NotifierConfigFragment{}
+	}
+	return t.TLS
+}
+
+type TempoLimitsFragment struct {
+	IngestionRateStrategy                                          *string                      "json:\"ingestionRateStrategy,omitempty\" graphql:\"ingestionRateStrategy\""
+	IngestionRateLimitBytes                                        *int64                       "json:\"ingestionRateLimitBytes,omitempty\" graphql:\"ingestionRateLimitBytes\""
+	IngestionBurstSizeBytes                                        *int64                       "json:\"ingestionBurstSizeBytes,omitempty\" graphql:\"ingestionBurstSizeBytes\""
+	MaxLocalTracesPerUser                                          *int64                       "json:\"maxLocalTracesPerUser,omitempty\" graphql:\"maxLocalTracesPerUser\""
+	MaxGlobalTracesPerUser                                         *int64                       "json:\"maxGlobalTracesPerUser,omitempty\" graphql:\"maxGlobalTracesPerUser\""
+	Forwarders                                                     []string                     "json:\"forwarders,omitempty\" graphql:\"forwarders\""
+	MetricsGeneratorRingSize                                       *int64                       "json:\"metricsGeneratorRingSize,omitempty\" graphql:\"metricsGeneratorRingSize\""
+	MetricsGeneratorProcessors                                     []string                     "json:\"metricsGeneratorProcessors,omitempty\" graphql:\"metricsGeneratorProcessors\""
+	MetricsGeneratorMaxActiveSeries                                *uint64                      "json:\"metricsGeneratorMaxActiveSeries,omitempty\" graphql:\"metricsGeneratorMaxActiveSeries\""
+	MetricsGeneratorCollectionInterval                             *v1.Duration                 "json:\"metricsGeneratorCollectionInterval,omitempty\" graphql:\"metricsGeneratorCollectionInterval\""
+	MetricsGeneratorDisableCollection                              *bool                        "json:\"metricsGeneratorDisableCollection,omitempty\" graphql:\"metricsGeneratorDisableCollection\""
+	MetricsGeneratorForwarderQueueSize                             *int64                       "json:\"metricsGeneratorForwarderQueueSize,omitempty\" graphql:\"metricsGeneratorForwarderQueueSize\""
+	MetricsGeneratorForwarderWorkers                               *int64                       "json:\"metricsGeneratorForwarderWorkers,omitempty\" graphql:\"metricsGeneratorForwarderWorkers\""
+	MetricsGeneratorProcessorServiceGraphsHistogramBuckets         []*float64                   "json:\"metricsGeneratorProcessorServiceGraphsHistogramBuckets,omitempty\" graphql:\"metricsGeneratorProcessorServiceGraphsHistogramBuckets\""
+	MetricsGeneratorProcessorServiceGraphsDimensions               []string                     "json:\"metricsGeneratorProcessorServiceGraphsDimensions,omitempty\" graphql:\"metricsGeneratorProcessorServiceGraphsDimensions\""
+	MetricsGeneratorProcessorServiceGraphsPeerAttributes           []string                     "json:\"metricsGeneratorProcessorServiceGraphsPeerAttributes,omitempty\" graphql:\"metricsGeneratorProcessorServiceGraphsPeerAttributes\""
+	MetricsGeneratorProcessorServiceGraphsEnableClientServerPrefix *bool                        "json:\"metricsGeneratorProcessorServiceGraphsEnableClientServerPrefix,omitempty\" graphql:\"metricsGeneratorProcessorServiceGraphsEnableClientServerPrefix\""
+	MetricsGeneratorProcessorSpanMetricsHistogramBuckets           []*float64                   "json:\"metricsGeneratorProcessorSpanMetricsHistogramBuckets,omitempty\" graphql:\"metricsGeneratorProcessorSpanMetricsHistogramBuckets\""
+	MetricsGeneratorProcessorSpanMetricsDimensions                 []string                     "json:\"metricsGeneratorProcessorSpanMetricsDimensions,omitempty\" graphql:\"metricsGeneratorProcessorSpanMetricsDimensions\""
+	MetricsGeneratorProcessorSpanMetricsIntrinsicDimensions        map[string]bool              "json:\"metricsGeneratorProcessorSpanMetricsIntrinsicDimensions,omitempty\" graphql:\"metricsGeneratorProcessorSpanMetricsIntrinsicDimensions\""
+	MetricsGeneratorProcessorSpanMetricsFilterPolicies             []*FilterPolicyFragment      "json:\"metricsGeneratorProcessorSpanMetricsFilterPolicies,omitempty\" graphql:\"metricsGeneratorProcessorSpanMetricsFilterPolicies\""
+	MetricsGeneratorProcessorSpanMetricsDimensionMappings          []*DimensionMappingsFragment "json:\"metricsGeneratorProcessorSpanMetricsDimensionMappings,omitempty\" graphql:\"metricsGeneratorProcessorSpanMetricsDimensionMappings\""
+	MetricsGeneratorProcessorSpanMetricsEnableTargetInfo           *bool                        "json:\"metricsGeneratorProcessorSpanMetricsEnableTargetInfo,omitempty\" graphql:\"metricsGeneratorProcessorSpanMetricsEnableTargetInfo\""
+	MetricsGeneratorProcessorLocalBlocksMaxLiveTraces              *uint64                      "json:\"metricsGeneratorProcessorLocalBlocksMaxLiveTraces,omitempty\" graphql:\"metricsGeneratorProcessorLocalBlocksMaxLiveTraces\""
+	MetricsGeneratorProcessorLocalBlocksMaxBlockDuration           *v1.Duration                 "json:\"metricsGeneratorProcessorLocalBlocksMaxBlockDuration,omitempty\" graphql:\"metricsGeneratorProcessorLocalBlocksMaxBlockDuration\""
+	MetricsGeneratorProcessorLocalBlocksMaxBlockBytes              *uint64                      "json:\"metricsGeneratorProcessorLocalBlocksMaxBlockBytes,omitempty\" graphql:\"metricsGeneratorProcessorLocalBlocksMaxBlockBytes\""
+	MetricsGeneratorProcessorLocalBlocksFlushCheckPeriod           *v1.Duration                 "json:\"metricsGeneratorProcessorLocalBlocksFlushCheckPeriod,omitempty\" graphql:\"metricsGeneratorProcessorLocalBlocksFlushCheckPeriod\""
+	MetricsGeneratorProcessorLocalBlocksTraceIdlePeriod            *v1.Duration                 "json:\"metricsGeneratorProcessorLocalBlocksTraceIdlePeriod,omitempty\" graphql:\"metricsGeneratorProcessorLocalBlocksTraceIdlePeriod\""
+	MetricsGeneratorProcessorLocalBlocksCompleteBlockTimeout       *v1.Duration                 "json:\"metricsGeneratorProcessorLocalBlocksCompleteBlockTimeout,omitempty\" graphql:\"metricsGeneratorProcessorLocalBlocksCompleteBlockTimeout\""
+	BlockRetention                                                 *v1.Duration                 "json:\"blockRetention,omitempty\" graphql:\"blockRetention\""
+	MaxBytesPerTagValuesQuery                                      *int64                       "json:\"maxBytesPerTagValuesQuery,omitempty\" graphql:\"maxBytesPerTagValuesQuery\""
+	MaxBlocksPerTagValuesQuery                                     *int64                       "json:\"maxBlocksPerTagValuesQuery,omitempty\" graphql:\"maxBlocksPerTagValuesQuery\""
+	MaxSearchDuration                                              *v1.Duration                 "json:\"maxSearchDuration,omitempty\" graphql:\"maxSearchDuration\""
+	MaxBytesPerTrace                                               *int64                       "json:\"maxBytesPerTrace,omitempty\" graphql:\"maxBytesPerTrace\""
+}
+
+func (t *TempoLimitsFragment) GetIngestionRateStrategy() *string {
+	if t == nil {
+		t = &TempoLimitsFragment{}
+	}
+	return t.IngestionRateStrategy
+}
+func (t *TempoLimitsFragment) GetIngestionRateLimitBytes() *int64 {
+	if t == nil {
+		t = &TempoLimitsFragment{}
+	}
+	return t.IngestionRateLimitBytes
+}
+func (t *TempoLimitsFragment) GetIngestionBurstSizeBytes() *int64 {
+	if t == nil {
+		t = &TempoLimitsFragment{}
+	}
+	return t.IngestionBurstSizeBytes
+}
+func (t *TempoLimitsFragment) GetMaxLocalTracesPerUser() *int64 {
+	if t == nil {
+		t = &TempoLimitsFragment{}
+	}
+	return t.MaxLocalTracesPerUser
+}
+func (t *TempoLimitsFragment) GetMaxGlobalTracesPerUser() *int64 {
+	if t == nil {
+		t = &TempoLimitsFragment{}
+	}
+	return t.MaxGlobalTracesPerUser
+}
+func (t *TempoLimitsFragment) GetForwarders() []string {
+	if t == nil {
+		t = &TempoLimitsFragment{}
+	}
+	return t.Forwarders
+}
+func (t *TempoLimitsFragment) GetMetricsGeneratorRingSize() *int64 {
+	if t == nil {
+		t = &TempoLimitsFragment{}
+	}
+	return t.MetricsGeneratorRingSize
+}
+func (t *TempoLimitsFragment) GetMetricsGeneratorProcessors() []string {
+	if t == nil {
+		t = &TempoLimitsFragment{}
+	}
+	return t.MetricsGeneratorProcessors
+}
+func (t *TempoLimitsFragment) GetMetricsGeneratorMaxActiveSeries() *uint64 {
+	if t == nil {
+		t = &TempoLimitsFragment{}
+	}
+	return t.MetricsGeneratorMaxActiveSeries
+}
+func (t *TempoLimitsFragment) GetMetricsGeneratorCollectionInterval() *v1.Duration {
+	if t == nil {
+		t = &TempoLimitsFragment{}
+	}
+	return t.MetricsGeneratorCollectionInterval
+}
+func (t *TempoLimitsFragment) GetMetricsGeneratorDisableCollection() *bool {
+	if t == nil {
+		t = &TempoLimitsFragment{}
+	}
+	return t.MetricsGeneratorDisableCollection
+}
+func (t *TempoLimitsFragment) GetMetricsGeneratorForwarderQueueSize() *int64 {
+	if t == nil {
+		t = &TempoLimitsFragment{}
+	}
+	return t.MetricsGeneratorForwarderQueueSize
+}
+func (t *TempoLimitsFragment) GetMetricsGeneratorForwarderWorkers() *int64 {
+	if t == nil {
+		t = &TempoLimitsFragment{}
+	}
+	return t.MetricsGeneratorForwarderWorkers
+}
+func (t *TempoLimitsFragment) GetMetricsGeneratorProcessorServiceGraphsHistogramBuckets() []*float64 {
+	if t == nil {
+		t = &TempoLimitsFragment{}
+	}
+	return t.MetricsGeneratorProcessorServiceGraphsHistogramBuckets
+}
+func (t *TempoLimitsFragment) GetMetricsGeneratorProcessorServiceGraphsDimensions() []string {
+	if t == nil {
+		t = &TempoLimitsFragment{}
+	}
+	return t.MetricsGeneratorProcessorServiceGraphsDimensions
+}
+func (t *TempoLimitsFragment) GetMetricsGeneratorProcessorServiceGraphsPeerAttributes() []string {
+	if t == nil {
+		t = &TempoLimitsFragment{}
+	}
+	return t.MetricsGeneratorProcessorServiceGraphsPeerAttributes
+}
+func (t *TempoLimitsFragment) GetMetricsGeneratorProcessorServiceGraphsEnableClientServerPrefix() *bool {
+	if t == nil {
+		t = &TempoLimitsFragment{}
+	}
+	return t.MetricsGeneratorProcessorServiceGraphsEnableClientServerPrefix
+}
+func (t *TempoLimitsFragment) GetMetricsGeneratorProcessorSpanMetricsHistogramBuckets() []*float64 {
+	if t == nil {
+		t = &TempoLimitsFragment{}
+	}
+	return t.MetricsGeneratorProcessorSpanMetricsHistogramBuckets
+}
+func (t *TempoLimitsFragment) GetMetricsGeneratorProcessorSpanMetricsDimensions() []string {
+	if t == nil {
+		t = &TempoLimitsFragment{}
+	}
+	return t.MetricsGeneratorProcessorSpanMetricsDimensions
+}
+func (t *TempoLimitsFragment) GetMetricsGeneratorProcessorSpanMetricsIntrinsicDimensions() map[string]bool {
+	if t == nil {
+		t = &TempoLimitsFragment{}
+	}
+	return t.MetricsGeneratorProcessorSpanMetricsIntrinsicDimensions
+}
+func (t *TempoLimitsFragment) GetMetricsGeneratorProcessorSpanMetricsFilterPolicies() []*FilterPolicyFragment {
+	if t == nil {
+		t = &TempoLimitsFragment{}
+	}
+	return t.MetricsGeneratorProcessorSpanMetricsFilterPolicies
+}
+func (t *TempoLimitsFragment) GetMetricsGeneratorProcessorSpanMetricsDimensionMappings() []*DimensionMappingsFragment {
+	if t == nil {
+		t = &TempoLimitsFragment{}
+	}
+	return t.MetricsGeneratorProcessorSpanMetricsDimensionMappings
+}
+func (t *TempoLimitsFragment) GetMetricsGeneratorProcessorSpanMetricsEnableTargetInfo() *bool {
+	if t == nil {
+		t = &TempoLimitsFragment{}
+	}
+	return t.MetricsGeneratorProcessorSpanMetricsEnableTargetInfo
+}
+func (t *TempoLimitsFragment) GetMetricsGeneratorProcessorLocalBlocksMaxLiveTraces() *uint64 {
+	if t == nil {
+		t = &TempoLimitsFragment{}
+	}
+	return t.MetricsGeneratorProcessorLocalBlocksMaxLiveTraces
+}
+func (t *TempoLimitsFragment) GetMetricsGeneratorProcessorLocalBlocksMaxBlockDuration() *v1.Duration {
+	if t == nil {
+		t = &TempoLimitsFragment{}
+	}
+	return t.MetricsGeneratorProcessorLocalBlocksMaxBlockDuration
+}
+func (t *TempoLimitsFragment) GetMetricsGeneratorProcessorLocalBlocksMaxBlockBytes() *uint64 {
+	if t == nil {
+		t = &TempoLimitsFragment{}
+	}
+	return t.MetricsGeneratorProcessorLocalBlocksMaxBlockBytes
+}
+func (t *TempoLimitsFragment) GetMetricsGeneratorProcessorLocalBlocksFlushCheckPeriod() *v1.Duration {
+	if t == nil {
+		t = &TempoLimitsFragment{}
+	}
+	return t.MetricsGeneratorProcessorLocalBlocksFlushCheckPeriod
+}
+func (t *TempoLimitsFragment) GetMetricsGeneratorProcessorLocalBlocksTraceIdlePeriod() *v1.Duration {
+	if t == nil {
+		t = &TempoLimitsFragment{}
+	}
+	return t.MetricsGeneratorProcessorLocalBlocksTraceIdlePeriod
+}
+func (t *TempoLimitsFragment) GetMetricsGeneratorProcessorLocalBlocksCompleteBlockTimeout() *v1.Duration {
+	if t == nil {
+		t = &TempoLimitsFragment{}
+	}
+	return t.MetricsGeneratorProcessorLocalBlocksCompleteBlockTimeout
+}
+func (t *TempoLimitsFragment) GetBlockRetention() *v1.Duration {
+	if t == nil {
+		t = &TempoLimitsFragment{}
+	}
+	return t.BlockRetention
+}
+func (t *TempoLimitsFragment) GetMaxBytesPerTagValuesQuery() *int64 {
+	if t == nil {
+		t = &TempoLimitsFragment{}
+	}
+	return t.MaxBytesPerTagValuesQuery
+}
+func (t *TempoLimitsFragment) GetMaxBlocksPerTagValuesQuery() *int64 {
+	if t == nil {
+		t = &TempoLimitsFragment{}
+	}
+	return t.MaxBlocksPerTagValuesQuery
+}
+func (t *TempoLimitsFragment) GetMaxSearchDuration() *v1.Duration {
+	if t == nil {
+		t = &TempoLimitsFragment{}
+	}
+	return t.MaxSearchDuration
+}
+func (t *TempoLimitsFragment) GetMaxBytesPerTrace() *int64 {
+	if t == nil {
+		t = &TempoLimitsFragment{}
+	}
+	return t.MaxBytesPerTrace
+}
+
+type FilterPolicyFragment struct {
+	Include *PolicyMatchFragment "json:\"include,omitempty\" graphql:\"include\""
+	Exclude *PolicyMatchFragment "json:\"exclude,omitempty\" graphql:\"exclude\""
+}
+
+func (t *FilterPolicyFragment) GetInclude() *PolicyMatchFragment {
+	if t == nil {
+		t = &FilterPolicyFragment{}
+	}
+	return t.Include
+}
+func (t *FilterPolicyFragment) GetExclude() *PolicyMatchFragment {
+	if t == nil {
+		t = &FilterPolicyFragment{}
+	}
+	return t.Exclude
+}
+
+type PolicyMatchFragment struct {
+	MatchType  *v1alpha1.MatchType               "json:\"matchType,omitempty\" graphql:\"matchType\""
+	Attributes []*PolicyMatchFragment_Attributes "json:\"attributes,omitempty\" graphql:\"attributes\""
+}
+
+func (t *PolicyMatchFragment) GetMatchType() *v1alpha1.MatchType {
+	if t == nil {
+		t = &PolicyMatchFragment{}
+	}
+	return t.MatchType
+}
+func (t *PolicyMatchFragment) GetAttributes() []*PolicyMatchFragment_Attributes {
+	if t == nil {
+		t = &PolicyMatchFragment{}
+	}
+	return t.Attributes
+}
+
+type DimensionMappingsFragment struct {
+	Name        *string  "json:\"name,omitempty\" graphql:\"name\""
+	SourceLabel []string "json:\"sourceLabel,omitempty\" graphql:\"sourceLabel\""
+	Join        *string  "json:\"join,omitempty\" graphql:\"join\""
+}
+
+func (t *DimensionMappingsFragment) GetName() *string {
+	if t == nil {
+		t = &DimensionMappingsFragment{}
+	}
+	return t.Name
+}
+func (t *DimensionMappingsFragment) GetSourceLabel() []string {
+	if t == nil {
+		t = &DimensionMappingsFragment{}
+	}
+	return t.SourceLabel
+}
+func (t *DimensionMappingsFragment) GetJoin() *string {
+	if t == nil {
+		t = &DimensionMappingsFragment{}
+	}
+	return t.Join
 }
 
 type UserFragment struct {
@@ -1891,540 +3665,218 @@ func (t *ObservabilityTenantFragment_TracesWriters_ObservabilityTenantPermission
 	return t.Groups
 }
 
-type ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir struct {
-	RequestRate                                   *float64                            "json:\"requestRate,omitempty\" graphql:\"requestRate\""
-	RequestBurstSize                              *int64                              "json:\"requestBurstSize,omitempty\" graphql:\"requestBurstSize\""
-	IngestionRate                                 *float64                            "json:\"ingestionRate,omitempty\" graphql:\"ingestionRate\""
-	IngestionBurstSize                            *int64                              "json:\"ingestionBurstSize,omitempty\" graphql:\"ingestionBurstSize\""
-	AcceptHASamples                               *bool                               "json:\"acceptHASamples,omitempty\" graphql:\"acceptHASamples\""
-	HaClusterLabel                                *string                             "json:\"haClusterLabel,omitempty\" graphql:\"haClusterLabel\""
-	HaReplicaLabel                                *string                             "json:\"haReplicaLabel,omitempty\" graphql:\"haReplicaLabel\""
-	HaMaxClusters                                 *int64                              "json:\"haMaxClusters,omitempty\" graphql:\"haMaxClusters\""
-	DropLabels                                    []*string                           "json:\"dropLabels,omitempty\" graphql:\"dropLabels\""
-	MaxLabelNameLength                            *int64                              "json:\"maxLabelNameLength,omitempty\" graphql:\"maxLabelNameLength\""
-	MaxLabelValueLength                           *int64                              "json:\"maxLabelValueLength,omitempty\" graphql:\"maxLabelValueLength\""
-	MaxLabelNamesPerSeries                        *int64                              "json:\"maxLabelNamesPerSeries,omitempty\" graphql:\"maxLabelNamesPerSeries\""
-	MaxMetadataLength                             *int64                              "json:\"maxMetadataLength,omitempty\" graphql:\"maxMetadataLength\""
-	CreationGracePeriod                           *v1.Duration                        "json:\"creationGracePeriod,omitempty\" graphql:\"creationGracePeriod\""
-	EnforceMetadataMetricName                     *bool                               "json:\"enforceMetadataMetricName,omitempty\" graphql:\"enforceMetadataMetricName\""
-	IngestionTenantShardSize                      *int64                              "json:\"ingestionTenantShardSize,omitempty\" graphql:\"ingestionTenantShardSize\""
-	MaxGlobalSeriesPerUser                        *int64                              "json:\"maxGlobalSeriesPerUser,omitempty\" graphql:\"maxGlobalSeriesPerUser\""
-	MaxGlobalSeriesPerMetric                      *int64                              "json:\"maxGlobalSeriesPerMetric,omitempty\" graphql:\"maxGlobalSeriesPerMetric\""
-	MaxGlobalMetricsWithMetadataPerUser           *int64                              "json:\"maxGlobalMetricsWithMetadataPerUser,omitempty\" graphql:\"maxGlobalMetricsWithMetadataPerUser\""
-	MaxGlobalMetadataPerMetric                    *int64                              "json:\"maxGlobalMetadataPerMetric,omitempty\" graphql:\"maxGlobalMetadataPerMetric\""
-	MaxGlobalExemplarsPerUser                     *int64                              "json:\"maxGlobalExemplarsPerUser,omitempty\" graphql:\"maxGlobalExemplarsPerUser\""
-	NativeHistogramsIngestionEnabled              *bool                               "json:\"nativeHistogramsIngestionEnabled,omitempty\" graphql:\"nativeHistogramsIngestionEnabled\""
-	OutOfOrderTimeWindow                          *v1.Duration                        "json:\"outOfOrderTimeWindow,omitempty\" graphql:\"outOfOrderTimeWindow\""
-	OutOfOrderBlocksExternalLabelEnabled          *bool                               "json:\"outOfOrderBlocksExternalLabelEnabled,omitempty\" graphql:\"outOfOrderBlocksExternalLabelEnabled\""
-	SeparateMetricsGroupLabel                     *string                             "json:\"separateMetricsGroupLabel,omitempty\" graphql:\"separateMetricsGroupLabel\""
-	MaxChunksPerQuery                             *int64                              "json:\"maxChunksPerQuery,omitempty\" graphql:\"maxChunksPerQuery\""
-	MaxFetchedSeriesPerQuery                      *int64                              "json:\"maxFetchedSeriesPerQuery,omitempty\" graphql:\"maxFetchedSeriesPerQuery\""
-	MaxFetchedChunkBytesPerQuery                  *int64                              "json:\"maxFetchedChunkBytesPerQuery,omitempty\" graphql:\"maxFetchedChunkBytesPerQuery\""
-	MaxQueryLookback                              *v1.Duration                        "json:\"maxQueryLookback,omitempty\" graphql:\"maxQueryLookback\""
-	MaxPartialQueryLength                         *v1.Duration                        "json:\"maxPartialQueryLength,omitempty\" graphql:\"maxPartialQueryLength\""
-	MaxQueryParallelism                           *int64                              "json:\"maxQueryParallelism,omitempty\" graphql:\"maxQueryParallelism\""
-	MaxLabelsQueryLength                          *v1.Duration                        "json:\"maxLabelsQueryLength,omitempty\" graphql:\"maxLabelsQueryLength\""
-	MaxCacheFreshness                             *v1.Duration                        "json:\"maxCacheFreshness,omitempty\" graphql:\"maxCacheFreshness\""
-	MaxQueriersPerTenant                          *int64                              "json:\"maxQueriersPerTenant,omitempty\" graphql:\"maxQueriersPerTenant\""
-	QueryShardingTotalShards                      *int64                              "json:\"queryShardingTotalShards,omitempty\" graphql:\"queryShardingTotalShards\""
-	QueryShardingMaxShardedQueries                *int64                              "json:\"queryShardingMaxShardedQueries,omitempty\" graphql:\"queryShardingMaxShardedQueries\""
-	QueryShardingMaxRegexpSizeBytes               *int64                              "json:\"queryShardingMaxRegexpSizeBytes,omitempty\" graphql:\"queryShardingMaxRegexpSizeBytes\""
-	SplitInstantQueriesByInterval                 *v1.Duration                        "json:\"splitInstantQueriesByInterval,omitempty\" graphql:\"splitInstantQueriesByInterval\""
-	MaxTotalQueryLength                           *v1.Duration                        "json:\"maxTotalQueryLength,omitempty\" graphql:\"maxTotalQueryLength\""
-	ResultsCacheTTL                               *v1.Duration                        "json:\"resultsCacheTTL,omitempty\" graphql:\"resultsCacheTTL\""
-	ResultsCacheTTLForOutOfOrderTimeWindow        *v1.Duration                        "json:\"resultsCacheTTLForOutOfOrderTimeWindow,omitempty\" graphql:\"resultsCacheTTLForOutOfOrderTimeWindow\""
-	MaxQueryExpressionSizeBytes                   *int64                              "json:\"maxQueryExpressionSizeBytes,omitempty\" graphql:\"maxQueryExpressionSizeBytes\""
-	CardinalityAnalysisEnabled                    *bool                               "json:\"cardinalityAnalysisEnabled,omitempty\" graphql:\"cardinalityAnalysisEnabled\""
-	LabelNamesAndValuesResultsMaxSizeBytes        *int64                              "json:\"labelNamesAndValuesResultsMaxSizeBytes,omitempty\" graphql:\"labelNamesAndValuesResultsMaxSizeBytes\""
-	LabelValuesMaxCardinalityLabelNamesPerRequest *int64                              "json:\"labelValuesMaxCardinalityLabelNamesPerRequest,omitempty\" graphql:\"labelValuesMaxCardinalityLabelNamesPerRequest\""
-	RulerEvaluationDelay                          *v1.Duration                        "json:\"rulerEvaluationDelay,omitempty\" graphql:\"rulerEvaluationDelay\""
-	RulerTenantShardSize                          *int64                              "json:\"rulerTenantShardSize,omitempty\" graphql:\"rulerTenantShardSize\""
-	RulerMaxRulesPerRuleGroup                     *int64                              "json:\"rulerMaxRulesPerRuleGroup,omitempty\" graphql:\"rulerMaxRulesPerRuleGroup\""
-	RulerMaxRuleGroupsPerTenant                   *int64                              "json:\"rulerMaxRuleGroupsPerTenant,omitempty\" graphql:\"rulerMaxRuleGroupsPerTenant\""
-	RulerRecordingRulesEvaluationEnabled          *bool                               "json:\"rulerRecordingRulesEvaluationEnabled,omitempty\" graphql:\"rulerRecordingRulesEvaluationEnabled\""
-	RulerAlertingRulesEvaluationEnabled           *bool                               "json:\"rulerAlertingRulesEvaluationEnabled,omitempty\" graphql:\"rulerAlertingRulesEvaluationEnabled\""
-	StoreGatewayTenantShardSize                   *int64                              "json:\"storeGatewayTenantShardSize,omitempty\" graphql:\"storeGatewayTenantShardSize\""
-	CompactorBlocksRetentionPeriod                *v1.Duration                        "json:\"compactorBlocksRetentionPeriod,omitempty\" graphql:\"compactorBlocksRetentionPeriod\""
-	CompactorSplitAndMergeShards                  *int64                              "json:\"compactorSplitAndMergeShards,omitempty\" graphql:\"compactorSplitAndMergeShards\""
-	CompactorSplitGroups                          *int64                              "json:\"compactorSplitGroups,omitempty\" graphql:\"compactorSplitGroups\""
-	CompactorTenantShardSize                      *int64                              "json:\"compactorTenantShardSize,omitempty\" graphql:\"compactorTenantShardSize\""
-	CompactorPartialBlockDeletionDelay            *v1.Duration                        "json:\"compactorPartialBlockDeletionDelay,omitempty\" graphql:\"compactorPartialBlockDeletionDelay\""
-	CompactorBlockUploadEnabled                   *bool                               "json:\"compactorBlockUploadEnabled,omitempty\" graphql:\"compactorBlockUploadEnabled\""
-	CompactorBlockUploadValidationEnabled         *bool                               "json:\"compactorBlockUploadValidationEnabled,omitempty\" graphql:\"compactorBlockUploadValidationEnabled\""
-	CompactorBlockUploadVerifyChunks              *bool                               "json:\"compactorBlockUploadVerifyChunks,omitempty\" graphql:\"compactorBlockUploadVerifyChunks\""
-	S3SSEType                                     *string                             "json:\"s3SSEType,omitempty\" graphql:\"s3SSEType\""
-	S3SSEKMSKeyID                                 *string                             "json:\"s3SSEKMSKeyID,omitempty\" graphql:\"s3SSEKMSKeyID\""
-	S3SSEKMSEncryptionContext                     *string                             "json:\"s3SSEKMSEncryptionContext,omitempty\" graphql:\"s3SSEKMSEncryptionContext\""
-	AlertmanagerReceiversBlockCIDRNetworks        *string                             "json:\"alertmanagerReceiversBlockCIDRNetworks,omitempty\" graphql:\"alertmanagerReceiversBlockCIDRNetworks\""
-	AlertmanagerReceiversBlockPrivateAddresses    *bool                               "json:\"alertmanagerReceiversBlockPrivateAddresses,omitempty\" graphql:\"alertmanagerReceiversBlockPrivateAddresses\""
-	NotificationRateLimit                         *float64                            "json:\"notificationRateLimit,omitempty\" graphql:\"notificationRateLimit\""
-	NotificationRateLimitPerIntegration           map[string]*float64                 "json:\"notificationRateLimitPerIntegration,omitempty\" graphql:\"notificationRateLimitPerIntegration\""
-	AlertmanagerMaxConfigSizeBytes                *int64                              "json:\"alertmanagerMaxConfigSizeBytes,omitempty\" graphql:\"alertmanagerMaxConfigSizeBytes\""
-	AlertmanagerMaxTemplatesCount                 *int64                              "json:\"alertmanagerMaxTemplatesCount,omitempty\" graphql:\"alertmanagerMaxTemplatesCount\""
-	AlertmanagerMaxTemplateSizeBytes              *int64                              "json:\"alertmanagerMaxTemplateSizeBytes,omitempty\" graphql:\"alertmanagerMaxTemplateSizeBytes\""
-	AlertmanagerMaxDispatcherAggregationGroups    *int64                              "json:\"alertmanagerMaxDispatcherAggregationGroups,omitempty\" graphql:\"alertmanagerMaxDispatcherAggregationGroups\""
-	AlertmanagerMaxAlertsCount                    *int64                              "json:\"alertmanagerMaxAlertsCount,omitempty\" graphql:\"alertmanagerMaxAlertsCount\""
-	AlertmanagerMaxAlertsSizeBytes                *int64                              "json:\"alertmanagerMaxAlertsSizeBytes,omitempty\" graphql:\"alertmanagerMaxAlertsSizeBytes\""
-	ForwardingEndpoint                            *string                             "json:\"forwardingEndpoint,omitempty\" graphql:\"forwardingEndpoint\""
-	ForwardingDropOlderThan                       *v1.Duration                        "json:\"forwardingDropOlderThan,omitempty\" graphql:\"forwardingDropOlderThan\""
-	ForwardingRules                               map[string]*v1alpha1.ForwardingRule "json:\"forwardingRules,omitempty\" graphql:\"forwardingRules\""
+type ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_RulerAlertManagerConfig_RulerAlertManagerConfigFragment_Notifier_NotifierConfigFragment_BasicAuth struct {
+	Username *string "json:\"username,omitempty\" graphql:\"username\""
+	Password *string "json:\"password,omitempty\" graphql:\"password\""
 }
 
-func (t *ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetRequestRate() *float64 {
+func (t *ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_RulerAlertManagerConfig_RulerAlertManagerConfigFragment_Notifier_NotifierConfigFragment_BasicAuth) GetUsername() *string {
 	if t == nil {
-		t = &ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+		t = &ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_RulerAlertManagerConfig_RulerAlertManagerConfigFragment_Notifier_NotifierConfigFragment_BasicAuth{}
 	}
-	return t.RequestRate
+	return t.Username
 }
-func (t *ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetRequestBurstSize() *int64 {
+func (t *ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_RulerAlertManagerConfig_RulerAlertManagerConfigFragment_Notifier_NotifierConfigFragment_BasicAuth) GetPassword() *string {
 	if t == nil {
-		t = &ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+		t = &ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_RulerAlertManagerConfig_RulerAlertManagerConfigFragment_Notifier_NotifierConfigFragment_BasicAuth{}
 	}
-	return t.RequestBurstSize
+	return t.Password
 }
-func (t *ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetIngestionRate() *float64 {
-	if t == nil {
-		t = &ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.IngestionRate
-}
-func (t *ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetIngestionBurstSize() *int64 {
-	if t == nil {
-		t = &ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.IngestionBurstSize
-}
-func (t *ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetAcceptHASamples() *bool {
-	if t == nil {
-		t = &ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.AcceptHASamples
-}
-func (t *ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetHaClusterLabel() *string {
-	if t == nil {
-		t = &ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.HaClusterLabel
-}
-func (t *ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetHaReplicaLabel() *string {
-	if t == nil {
-		t = &ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.HaReplicaLabel
-}
-func (t *ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetHaMaxClusters() *int64 {
-	if t == nil {
-		t = &ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.HaMaxClusters
-}
-func (t *ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetDropLabels() []*string {
-	if t == nil {
-		t = &ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.DropLabels
-}
-func (t *ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetMaxLabelNameLength() *int64 {
-	if t == nil {
-		t = &ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.MaxLabelNameLength
-}
-func (t *ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetMaxLabelValueLength() *int64 {
-	if t == nil {
-		t = &ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.MaxLabelValueLength
-}
-func (t *ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetMaxLabelNamesPerSeries() *int64 {
-	if t == nil {
-		t = &ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.MaxLabelNamesPerSeries
-}
-func (t *ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetMaxMetadataLength() *int64 {
-	if t == nil {
-		t = &ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.MaxMetadataLength
-}
-func (t *ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetCreationGracePeriod() *v1.Duration {
-	if t == nil {
-		t = &ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.CreationGracePeriod
-}
-func (t *ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetEnforceMetadataMetricName() *bool {
-	if t == nil {
-		t = &ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.EnforceMetadataMetricName
-}
-func (t *ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetIngestionTenantShardSize() *int64 {
-	if t == nil {
-		t = &ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.IngestionTenantShardSize
-}
-func (t *ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetMaxGlobalSeriesPerUser() *int64 {
-	if t == nil {
-		t = &ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.MaxGlobalSeriesPerUser
-}
-func (t *ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetMaxGlobalSeriesPerMetric() *int64 {
-	if t == nil {
-		t = &ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.MaxGlobalSeriesPerMetric
-}
-func (t *ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetMaxGlobalMetricsWithMetadataPerUser() *int64 {
-	if t == nil {
-		t = &ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.MaxGlobalMetricsWithMetadataPerUser
-}
-func (t *ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetMaxGlobalMetadataPerMetric() *int64 {
-	if t == nil {
-		t = &ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.MaxGlobalMetadataPerMetric
-}
-func (t *ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetMaxGlobalExemplarsPerUser() *int64 {
-	if t == nil {
-		t = &ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.MaxGlobalExemplarsPerUser
-}
-func (t *ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetNativeHistogramsIngestionEnabled() *bool {
-	if t == nil {
-		t = &ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.NativeHistogramsIngestionEnabled
-}
-func (t *ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetOutOfOrderTimeWindow() *v1.Duration {
-	if t == nil {
-		t = &ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.OutOfOrderTimeWindow
-}
-func (t *ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetOutOfOrderBlocksExternalLabelEnabled() *bool {
-	if t == nil {
-		t = &ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.OutOfOrderBlocksExternalLabelEnabled
-}
-func (t *ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetSeparateMetricsGroupLabel() *string {
-	if t == nil {
-		t = &ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.SeparateMetricsGroupLabel
-}
-func (t *ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetMaxChunksPerQuery() *int64 {
-	if t == nil {
-		t = &ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.MaxChunksPerQuery
+
+type ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_RulerAlertManagerConfig_RulerAlertManagerConfigFragment_Notifier_NotifierConfigFragment_HeaderAuth struct {
+	Type            *string "json:\"type,omitempty\" graphql:\"type\""
+	Credentials     *string "json:\"credentials,omitempty\" graphql:\"credentials\""
+	CredentialsFile *string "json:\"credentialsFile,omitempty\" graphql:\"credentialsFile\""
 }
-func (t *ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetMaxFetchedSeriesPerQuery() *int64 {
+
+func (t *ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_RulerAlertManagerConfig_RulerAlertManagerConfigFragment_Notifier_NotifierConfigFragment_HeaderAuth) GetType() *string {
 	if t == nil {
-		t = &ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+		t = &ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_RulerAlertManagerConfig_RulerAlertManagerConfigFragment_Notifier_NotifierConfigFragment_HeaderAuth{}
 	}
-	return t.MaxFetchedSeriesPerQuery
+	return t.Type
 }
-func (t *ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetMaxFetchedChunkBytesPerQuery() *int64 {
+func (t *ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_RulerAlertManagerConfig_RulerAlertManagerConfigFragment_Notifier_NotifierConfigFragment_HeaderAuth) GetCredentials() *string {
 	if t == nil {
-		t = &ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+		t = &ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_RulerAlertManagerConfig_RulerAlertManagerConfigFragment_Notifier_NotifierConfigFragment_HeaderAuth{}
 	}
-	return t.MaxFetchedChunkBytesPerQuery
+	return t.Credentials
 }
-func (t *ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetMaxQueryLookback() *v1.Duration {
+func (t *ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_RulerAlertManagerConfig_RulerAlertManagerConfigFragment_Notifier_NotifierConfigFragment_HeaderAuth) GetCredentialsFile() *string {
 	if t == nil {
-		t = &ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+		t = &ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_RulerAlertManagerConfig_RulerAlertManagerConfigFragment_Notifier_NotifierConfigFragment_HeaderAuth{}
 	}
-	return t.MaxQueryLookback
+	return t.CredentialsFile
 }
-func (t *ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetMaxPartialQueryLength() *v1.Duration {
-	if t == nil {
-		t = &ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.MaxPartialQueryLength
-}
-func (t *ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetMaxQueryParallelism() *int64 {
-	if t == nil {
-		t = &ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.MaxQueryParallelism
-}
-func (t *ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetMaxLabelsQueryLength() *v1.Duration {
-	if t == nil {
-		t = &ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.MaxLabelsQueryLength
-}
-func (t *ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetMaxCacheFreshness() *v1.Duration {
-	if t == nil {
-		t = &ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.MaxCacheFreshness
-}
-func (t *ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetMaxQueriersPerTenant() *int64 {
-	if t == nil {
-		t = &ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.MaxQueriersPerTenant
-}
-func (t *ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetQueryShardingTotalShards() *int64 {
-	if t == nil {
-		t = &ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.QueryShardingTotalShards
-}
-func (t *ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetQueryShardingMaxShardedQueries() *int64 {
-	if t == nil {
-		t = &ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.QueryShardingMaxShardedQueries
-}
-func (t *ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetQueryShardingMaxRegexpSizeBytes() *int64 {
-	if t == nil {
-		t = &ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.QueryShardingMaxRegexpSizeBytes
-}
-func (t *ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetSplitInstantQueriesByInterval() *v1.Duration {
-	if t == nil {
-		t = &ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.SplitInstantQueriesByInterval
-}
-func (t *ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetMaxTotalQueryLength() *v1.Duration {
-	if t == nil {
-		t = &ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.MaxTotalQueryLength
-}
-func (t *ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetResultsCacheTTL() *v1.Duration {
-	if t == nil {
-		t = &ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.ResultsCacheTTL
-}
-func (t *ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetResultsCacheTTLForOutOfOrderTimeWindow() *v1.Duration {
-	if t == nil {
-		t = &ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.ResultsCacheTTLForOutOfOrderTimeWindow
-}
-func (t *ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetMaxQueryExpressionSizeBytes() *int64 {
-	if t == nil {
-		t = &ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.MaxQueryExpressionSizeBytes
-}
-func (t *ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetCardinalityAnalysisEnabled() *bool {
-	if t == nil {
-		t = &ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.CardinalityAnalysisEnabled
-}
-func (t *ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetLabelNamesAndValuesResultsMaxSizeBytes() *int64 {
-	if t == nil {
-		t = &ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.LabelNamesAndValuesResultsMaxSizeBytes
-}
-func (t *ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetLabelValuesMaxCardinalityLabelNamesPerRequest() *int64 {
-	if t == nil {
-		t = &ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.LabelValuesMaxCardinalityLabelNamesPerRequest
-}
-func (t *ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetRulerEvaluationDelay() *v1.Duration {
-	if t == nil {
-		t = &ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.RulerEvaluationDelay
-}
-func (t *ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetRulerTenantShardSize() *int64 {
-	if t == nil {
-		t = &ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.RulerTenantShardSize
-}
-func (t *ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetRulerMaxRulesPerRuleGroup() *int64 {
-	if t == nil {
-		t = &ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.RulerMaxRulesPerRuleGroup
-}
-func (t *ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetRulerMaxRuleGroupsPerTenant() *int64 {
-	if t == nil {
-		t = &ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.RulerMaxRuleGroupsPerTenant
-}
-func (t *ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetRulerRecordingRulesEvaluationEnabled() *bool {
-	if t == nil {
-		t = &ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.RulerRecordingRulesEvaluationEnabled
+
+type ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_RulerAlertManagerConfig_RulerAlertManagerConfigFragment_Notifier_NotifierConfigFragment_TLS struct {
+	CertPath           *string "json:\"certPath,omitempty\" graphql:\"certPath\""
+	KeyPath            *string "json:\"keyPath,omitempty\" graphql:\"keyPath\""
+	CaPath             *string "json:\"caPath,omitempty\" graphql:\"caPath\""
+	ServerName         *string "json:\"serverName,omitempty\" graphql:\"serverName\""
+	InsecureSkipVerify *bool   "json:\"insecureSkipVerify,omitempty\" graphql:\"insecureSkipVerify\""
+	CipherSuites       *string "json:\"cipherSuites,omitempty\" graphql:\"cipherSuites\""
+	MinVersion         *string "json:\"minVersion,omitempty\" graphql:\"minVersion\""
 }
-func (t *ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetRulerAlertingRulesEvaluationEnabled() *bool {
+
+func (t *ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_RulerAlertManagerConfig_RulerAlertManagerConfigFragment_Notifier_NotifierConfigFragment_TLS) GetCertPath() *string {
 	if t == nil {
-		t = &ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+		t = &ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_RulerAlertManagerConfig_RulerAlertManagerConfigFragment_Notifier_NotifierConfigFragment_TLS{}
 	}
-	return t.RulerAlertingRulesEvaluationEnabled
+	return t.CertPath
 }
-func (t *ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetStoreGatewayTenantShardSize() *int64 {
+func (t *ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_RulerAlertManagerConfig_RulerAlertManagerConfigFragment_Notifier_NotifierConfigFragment_TLS) GetKeyPath() *string {
 	if t == nil {
-		t = &ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+		t = &ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_RulerAlertManagerConfig_RulerAlertManagerConfigFragment_Notifier_NotifierConfigFragment_TLS{}
 	}
-	return t.StoreGatewayTenantShardSize
+	return t.KeyPath
 }
-func (t *ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetCompactorBlocksRetentionPeriod() *v1.Duration {
+func (t *ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_RulerAlertManagerConfig_RulerAlertManagerConfigFragment_Notifier_NotifierConfigFragment_TLS) GetCaPath() *string {
 	if t == nil {
-		t = &ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+		t = &ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_RulerAlertManagerConfig_RulerAlertManagerConfigFragment_Notifier_NotifierConfigFragment_TLS{}
 	}
-	return t.CompactorBlocksRetentionPeriod
+	return t.CaPath
 }
-func (t *ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetCompactorSplitAndMergeShards() *int64 {
+func (t *ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_RulerAlertManagerConfig_RulerAlertManagerConfigFragment_Notifier_NotifierConfigFragment_TLS) GetServerName() *string {
 	if t == nil {
-		t = &ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+		t = &ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_RulerAlertManagerConfig_RulerAlertManagerConfigFragment_Notifier_NotifierConfigFragment_TLS{}
 	}
-	return t.CompactorSplitAndMergeShards
+	return t.ServerName
 }
-func (t *ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetCompactorSplitGroups() *int64 {
+func (t *ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_RulerAlertManagerConfig_RulerAlertManagerConfigFragment_Notifier_NotifierConfigFragment_TLS) GetInsecureSkipVerify() *bool {
 	if t == nil {
-		t = &ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+		t = &ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_RulerAlertManagerConfig_RulerAlertManagerConfigFragment_Notifier_NotifierConfigFragment_TLS{}
 	}
-	return t.CompactorSplitGroups
+	return t.InsecureSkipVerify
 }
-func (t *ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetCompactorTenantShardSize() *int64 {
+func (t *ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_RulerAlertManagerConfig_RulerAlertManagerConfigFragment_Notifier_NotifierConfigFragment_TLS) GetCipherSuites() *string {
 	if t == nil {
-		t = &ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+		t = &ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_RulerAlertManagerConfig_RulerAlertManagerConfigFragment_Notifier_NotifierConfigFragment_TLS{}
 	}
-	return t.CompactorTenantShardSize
+	return t.CipherSuites
 }
-func (t *ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetCompactorPartialBlockDeletionDelay() *v1.Duration {
+func (t *ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_RulerAlertManagerConfig_RulerAlertManagerConfigFragment_Notifier_NotifierConfigFragment_TLS) GetMinVersion() *string {
 	if t == nil {
-		t = &ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+		t = &ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_RulerAlertManagerConfig_RulerAlertManagerConfigFragment_Notifier_NotifierConfigFragment_TLS{}
 	}
-	return t.CompactorPartialBlockDeletionDelay
+	return t.MinVersion
 }
-func (t *ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetCompactorBlockUploadEnabled() *bool {
-	if t == nil {
-		t = &ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.CompactorBlockUploadEnabled
+
+type ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_StreamRetention struct {
+	Period   *v1.Duration "json:\"period,omitempty\" graphql:\"period\""
+	Priority *int64       "json:\"priority,omitempty\" graphql:\"priority\""
+	Selector *string      "json:\"selector,omitempty\" graphql:\"selector\""
 }
-func (t *ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetCompactorBlockUploadValidationEnabled() *bool {
+
+func (t *ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_StreamRetention) GetPeriod() *v1.Duration {
 	if t == nil {
-		t = &ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+		t = &ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_StreamRetention{}
 	}
-	return t.CompactorBlockUploadValidationEnabled
+	return t.Period
 }
-func (t *ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetCompactorBlockUploadVerifyChunks() *bool {
+func (t *ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_StreamRetention) GetPriority() *int64 {
 	if t == nil {
-		t = &ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+		t = &ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_StreamRetention{}
 	}
-	return t.CompactorBlockUploadVerifyChunks
+	return t.Priority
 }
-func (t *ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetS3SSEType() *string {
+func (t *ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_StreamRetention) GetSelector() *string {
 	if t == nil {
-		t = &ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+		t = &ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_StreamRetention{}
 	}
-	return t.S3SSEType
+	return t.Selector
 }
-func (t *ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetS3SSEKMSKeyID() *string {
-	if t == nil {
-		t = &ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.S3SSEKMSKeyID
+
+type ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_ShardStreams struct {
+	Enabled        *bool   "json:\"enabled,omitempty\" graphql:\"enabled\""
+	LoggingEnabled *bool   "json:\"loggingEnabled,omitempty\" graphql:\"loggingEnabled\""
+	DesiredRate    *uint64 "json:\"desiredRate,omitempty\" graphql:\"desiredRate\""
 }
-func (t *ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetS3SSEKMSEncryptionContext() *string {
+
+func (t *ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_ShardStreams) GetEnabled() *bool {
 	if t == nil {
-		t = &ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+		t = &ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_ShardStreams{}
 	}
-	return t.S3SSEKMSEncryptionContext
+	return t.Enabled
 }
-func (t *ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetAlertmanagerReceiversBlockCIDRNetworks() *string {
+func (t *ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_ShardStreams) GetLoggingEnabled() *bool {
 	if t == nil {
-		t = &ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+		t = &ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_ShardStreams{}
 	}
-	return t.AlertmanagerReceiversBlockCIDRNetworks
+	return t.LoggingEnabled
 }
-func (t *ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetAlertmanagerReceiversBlockPrivateAddresses() *bool {
+func (t *ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_ShardStreams) GetDesiredRate() *uint64 {
 	if t == nil {
-		t = &ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+		t = &ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_ShardStreams{}
 	}
-	return t.AlertmanagerReceiversBlockPrivateAddresses
+	return t.DesiredRate
 }
-func (t *ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetNotificationRateLimit() *float64 {
-	if t == nil {
-		t = &ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.NotificationRateLimit
+
+type ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_BlockedQueries struct {
+	Pattern *string                     "json:\"pattern,omitempty\" graphql:\"pattern\""
+	Regex   *bool                       "json:\"regex,omitempty\" graphql:\"regex\""
+	Hash    *uint64                     "json:\"hash,omitempty\" graphql:\"hash\""
+	Types   []v1alpha1.BlockedQueryType "json:\"types,omitempty\" graphql:\"types\""
 }
-func (t *ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetNotificationRateLimitPerIntegration() map[string]*float64 {
+
+func (t *ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_BlockedQueries) GetPattern() *string {
 	if t == nil {
-		t = &ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+		t = &ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_BlockedQueries{}
 	}
-	return t.NotificationRateLimitPerIntegration
+	return t.Pattern
 }
-func (t *ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetAlertmanagerMaxConfigSizeBytes() *int64 {
+func (t *ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_BlockedQueries) GetRegex() *bool {
 	if t == nil {
-		t = &ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+		t = &ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_BlockedQueries{}
 	}
-	return t.AlertmanagerMaxConfigSizeBytes
+	return t.Regex
 }
-func (t *ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetAlertmanagerMaxTemplatesCount() *int64 {
+func (t *ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_BlockedQueries) GetHash() *uint64 {
 	if t == nil {
-		t = &ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+		t = &ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_BlockedQueries{}
 	}
-	return t.AlertmanagerMaxTemplatesCount
+	return t.Hash
 }
-func (t *ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetAlertmanagerMaxTemplateSizeBytes() *int64 {
+func (t *ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_BlockedQueries) GetTypes() []v1alpha1.BlockedQueryType {
 	if t == nil {
-		t = &ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+		t = &ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_BlockedQueries{}
 	}
-	return t.AlertmanagerMaxTemplateSizeBytes
+	return t.Types
 }
-func (t *ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetAlertmanagerMaxDispatcherAggregationGroups() *int64 {
-	if t == nil {
-		t = &ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.AlertmanagerMaxDispatcherAggregationGroups
+
+type ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Tempo_TempoLimitsFragment_MetricsGeneratorProcessorSpanMetricsFilterPolicies_FilterPolicyFragment_Include_PolicyMatchFragment_Attributes struct {
+	Key   string                 "json:\"key\" graphql:\"key\""
+	Value map[string]interface{} "json:\"value,omitempty\" graphql:\"value\""
 }
-func (t *ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetAlertmanagerMaxAlertsCount() *int64 {
+
+func (t *ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Tempo_TempoLimitsFragment_MetricsGeneratorProcessorSpanMetricsFilterPolicies_FilterPolicyFragment_Include_PolicyMatchFragment_Attributes) GetKey() string {
 	if t == nil {
-		t = &ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+		t = &ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Tempo_TempoLimitsFragment_MetricsGeneratorProcessorSpanMetricsFilterPolicies_FilterPolicyFragment_Include_PolicyMatchFragment_Attributes{}
 	}
-	return t.AlertmanagerMaxAlertsCount
+	return t.Key
 }
-func (t *ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetAlertmanagerMaxAlertsSizeBytes() *int64 {
+func (t *ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Tempo_TempoLimitsFragment_MetricsGeneratorProcessorSpanMetricsFilterPolicies_FilterPolicyFragment_Include_PolicyMatchFragment_Attributes) GetValue() map[string]interface{} {
 	if t == nil {
-		t = &ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+		t = &ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Tempo_TempoLimitsFragment_MetricsGeneratorProcessorSpanMetricsFilterPolicies_FilterPolicyFragment_Include_PolicyMatchFragment_Attributes{}
 	}
-	return t.AlertmanagerMaxAlertsSizeBytes
+	return t.Value
 }
-func (t *ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetForwardingEndpoint() *string {
-	if t == nil {
-		t = &ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.ForwardingEndpoint
+
+type ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Tempo_TempoLimitsFragment_MetricsGeneratorProcessorSpanMetricsFilterPolicies_FilterPolicyFragment_Exclude_PolicyMatchFragment_Attributes struct {
+	Key   string                 "json:\"key\" graphql:\"key\""
+	Value map[string]interface{} "json:\"value,omitempty\" graphql:\"value\""
 }
-func (t *ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetForwardingDropOlderThan() *v1.Duration {
+
+func (t *ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Tempo_TempoLimitsFragment_MetricsGeneratorProcessorSpanMetricsFilterPolicies_FilterPolicyFragment_Exclude_PolicyMatchFragment_Attributes) GetKey() string {
 	if t == nil {
-		t = &ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+		t = &ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Tempo_TempoLimitsFragment_MetricsGeneratorProcessorSpanMetricsFilterPolicies_FilterPolicyFragment_Exclude_PolicyMatchFragment_Attributes{}
 	}
-	return t.ForwardingDropOlderThan
+	return t.Key
 }
-func (t *ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetForwardingRules() map[string]*v1alpha1.ForwardingRule {
+func (t *ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Tempo_TempoLimitsFragment_MetricsGeneratorProcessorSpanMetricsFilterPolicies_FilterPolicyFragment_Exclude_PolicyMatchFragment_Attributes) GetValue() map[string]interface{} {
 	if t == nil {
-		t = &ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+		t = &ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Tempo_TempoLimitsFragment_MetricsGeneratorProcessorSpanMetricsFilterPolicies_FilterPolicyFragment_Exclude_PolicyMatchFragment_Attributes{}
 	}
-	return t.ForwardingRules
+	return t.Value
 }
 
 type ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name struct {
@@ -2510,540 +3962,678 @@ func (t *ObservabilityTenantPermissionBindingsFragment_Oauth2Clients_OAuth2Clien
 	return t.Groups
 }
 
-type ObservabilityTenantLimitsFragment_Mimir struct {
-	RequestRate                                   *float64                            "json:\"requestRate,omitempty\" graphql:\"requestRate\""
-	RequestBurstSize                              *int64                              "json:\"requestBurstSize,omitempty\" graphql:\"requestBurstSize\""
-	IngestionRate                                 *float64                            "json:\"ingestionRate,omitempty\" graphql:\"ingestionRate\""
-	IngestionBurstSize                            *int64                              "json:\"ingestionBurstSize,omitempty\" graphql:\"ingestionBurstSize\""
-	AcceptHASamples                               *bool                               "json:\"acceptHASamples,omitempty\" graphql:\"acceptHASamples\""
-	HaClusterLabel                                *string                             "json:\"haClusterLabel,omitempty\" graphql:\"haClusterLabel\""
-	HaReplicaLabel                                *string                             "json:\"haReplicaLabel,omitempty\" graphql:\"haReplicaLabel\""
-	HaMaxClusters                                 *int64                              "json:\"haMaxClusters,omitempty\" graphql:\"haMaxClusters\""
-	DropLabels                                    []*string                           "json:\"dropLabels,omitempty\" graphql:\"dropLabels\""
-	MaxLabelNameLength                            *int64                              "json:\"maxLabelNameLength,omitempty\" graphql:\"maxLabelNameLength\""
-	MaxLabelValueLength                           *int64                              "json:\"maxLabelValueLength,omitempty\" graphql:\"maxLabelValueLength\""
-	MaxLabelNamesPerSeries                        *int64                              "json:\"maxLabelNamesPerSeries,omitempty\" graphql:\"maxLabelNamesPerSeries\""
-	MaxMetadataLength                             *int64                              "json:\"maxMetadataLength,omitempty\" graphql:\"maxMetadataLength\""
-	CreationGracePeriod                           *v1.Duration                        "json:\"creationGracePeriod,omitempty\" graphql:\"creationGracePeriod\""
-	EnforceMetadataMetricName                     *bool                               "json:\"enforceMetadataMetricName,omitempty\" graphql:\"enforceMetadataMetricName\""
-	IngestionTenantShardSize                      *int64                              "json:\"ingestionTenantShardSize,omitempty\" graphql:\"ingestionTenantShardSize\""
-	MaxGlobalSeriesPerUser                        *int64                              "json:\"maxGlobalSeriesPerUser,omitempty\" graphql:\"maxGlobalSeriesPerUser\""
-	MaxGlobalSeriesPerMetric                      *int64                              "json:\"maxGlobalSeriesPerMetric,omitempty\" graphql:\"maxGlobalSeriesPerMetric\""
-	MaxGlobalMetricsWithMetadataPerUser           *int64                              "json:\"maxGlobalMetricsWithMetadataPerUser,omitempty\" graphql:\"maxGlobalMetricsWithMetadataPerUser\""
-	MaxGlobalMetadataPerMetric                    *int64                              "json:\"maxGlobalMetadataPerMetric,omitempty\" graphql:\"maxGlobalMetadataPerMetric\""
-	MaxGlobalExemplarsPerUser                     *int64                              "json:\"maxGlobalExemplarsPerUser,omitempty\" graphql:\"maxGlobalExemplarsPerUser\""
-	NativeHistogramsIngestionEnabled              *bool                               "json:\"nativeHistogramsIngestionEnabled,omitempty\" graphql:\"nativeHistogramsIngestionEnabled\""
-	OutOfOrderTimeWindow                          *v1.Duration                        "json:\"outOfOrderTimeWindow,omitempty\" graphql:\"outOfOrderTimeWindow\""
-	OutOfOrderBlocksExternalLabelEnabled          *bool                               "json:\"outOfOrderBlocksExternalLabelEnabled,omitempty\" graphql:\"outOfOrderBlocksExternalLabelEnabled\""
-	SeparateMetricsGroupLabel                     *string                             "json:\"separateMetricsGroupLabel,omitempty\" graphql:\"separateMetricsGroupLabel\""
-	MaxChunksPerQuery                             *int64                              "json:\"maxChunksPerQuery,omitempty\" graphql:\"maxChunksPerQuery\""
-	MaxFetchedSeriesPerQuery                      *int64                              "json:\"maxFetchedSeriesPerQuery,omitempty\" graphql:\"maxFetchedSeriesPerQuery\""
-	MaxFetchedChunkBytesPerQuery                  *int64                              "json:\"maxFetchedChunkBytesPerQuery,omitempty\" graphql:\"maxFetchedChunkBytesPerQuery\""
-	MaxQueryLookback                              *v1.Duration                        "json:\"maxQueryLookback,omitempty\" graphql:\"maxQueryLookback\""
-	MaxPartialQueryLength                         *v1.Duration                        "json:\"maxPartialQueryLength,omitempty\" graphql:\"maxPartialQueryLength\""
-	MaxQueryParallelism                           *int64                              "json:\"maxQueryParallelism,omitempty\" graphql:\"maxQueryParallelism\""
-	MaxLabelsQueryLength                          *v1.Duration                        "json:\"maxLabelsQueryLength,omitempty\" graphql:\"maxLabelsQueryLength\""
-	MaxCacheFreshness                             *v1.Duration                        "json:\"maxCacheFreshness,omitempty\" graphql:\"maxCacheFreshness\""
-	MaxQueriersPerTenant                          *int64                              "json:\"maxQueriersPerTenant,omitempty\" graphql:\"maxQueriersPerTenant\""
-	QueryShardingTotalShards                      *int64                              "json:\"queryShardingTotalShards,omitempty\" graphql:\"queryShardingTotalShards\""
-	QueryShardingMaxShardedQueries                *int64                              "json:\"queryShardingMaxShardedQueries,omitempty\" graphql:\"queryShardingMaxShardedQueries\""
-	QueryShardingMaxRegexpSizeBytes               *int64                              "json:\"queryShardingMaxRegexpSizeBytes,omitempty\" graphql:\"queryShardingMaxRegexpSizeBytes\""
-	SplitInstantQueriesByInterval                 *v1.Duration                        "json:\"splitInstantQueriesByInterval,omitempty\" graphql:\"splitInstantQueriesByInterval\""
-	MaxTotalQueryLength                           *v1.Duration                        "json:\"maxTotalQueryLength,omitempty\" graphql:\"maxTotalQueryLength\""
-	ResultsCacheTTL                               *v1.Duration                        "json:\"resultsCacheTTL,omitempty\" graphql:\"resultsCacheTTL\""
-	ResultsCacheTTLForOutOfOrderTimeWindow        *v1.Duration                        "json:\"resultsCacheTTLForOutOfOrderTimeWindow,omitempty\" graphql:\"resultsCacheTTLForOutOfOrderTimeWindow\""
-	MaxQueryExpressionSizeBytes                   *int64                              "json:\"maxQueryExpressionSizeBytes,omitempty\" graphql:\"maxQueryExpressionSizeBytes\""
-	CardinalityAnalysisEnabled                    *bool                               "json:\"cardinalityAnalysisEnabled,omitempty\" graphql:\"cardinalityAnalysisEnabled\""
-	LabelNamesAndValuesResultsMaxSizeBytes        *int64                              "json:\"labelNamesAndValuesResultsMaxSizeBytes,omitempty\" graphql:\"labelNamesAndValuesResultsMaxSizeBytes\""
-	LabelValuesMaxCardinalityLabelNamesPerRequest *int64                              "json:\"labelValuesMaxCardinalityLabelNamesPerRequest,omitempty\" graphql:\"labelValuesMaxCardinalityLabelNamesPerRequest\""
-	RulerEvaluationDelay                          *v1.Duration                        "json:\"rulerEvaluationDelay,omitempty\" graphql:\"rulerEvaluationDelay\""
-	RulerTenantShardSize                          *int64                              "json:\"rulerTenantShardSize,omitempty\" graphql:\"rulerTenantShardSize\""
-	RulerMaxRulesPerRuleGroup                     *int64                              "json:\"rulerMaxRulesPerRuleGroup,omitempty\" graphql:\"rulerMaxRulesPerRuleGroup\""
-	RulerMaxRuleGroupsPerTenant                   *int64                              "json:\"rulerMaxRuleGroupsPerTenant,omitempty\" graphql:\"rulerMaxRuleGroupsPerTenant\""
-	RulerRecordingRulesEvaluationEnabled          *bool                               "json:\"rulerRecordingRulesEvaluationEnabled,omitempty\" graphql:\"rulerRecordingRulesEvaluationEnabled\""
-	RulerAlertingRulesEvaluationEnabled           *bool                               "json:\"rulerAlertingRulesEvaluationEnabled,omitempty\" graphql:\"rulerAlertingRulesEvaluationEnabled\""
-	StoreGatewayTenantShardSize                   *int64                              "json:\"storeGatewayTenantShardSize,omitempty\" graphql:\"storeGatewayTenantShardSize\""
-	CompactorBlocksRetentionPeriod                *v1.Duration                        "json:\"compactorBlocksRetentionPeriod,omitempty\" graphql:\"compactorBlocksRetentionPeriod\""
-	CompactorSplitAndMergeShards                  *int64                              "json:\"compactorSplitAndMergeShards,omitempty\" graphql:\"compactorSplitAndMergeShards\""
-	CompactorSplitGroups                          *int64                              "json:\"compactorSplitGroups,omitempty\" graphql:\"compactorSplitGroups\""
-	CompactorTenantShardSize                      *int64                              "json:\"compactorTenantShardSize,omitempty\" graphql:\"compactorTenantShardSize\""
-	CompactorPartialBlockDeletionDelay            *v1.Duration                        "json:\"compactorPartialBlockDeletionDelay,omitempty\" graphql:\"compactorPartialBlockDeletionDelay\""
-	CompactorBlockUploadEnabled                   *bool                               "json:\"compactorBlockUploadEnabled,omitempty\" graphql:\"compactorBlockUploadEnabled\""
-	CompactorBlockUploadValidationEnabled         *bool                               "json:\"compactorBlockUploadValidationEnabled,omitempty\" graphql:\"compactorBlockUploadValidationEnabled\""
-	CompactorBlockUploadVerifyChunks              *bool                               "json:\"compactorBlockUploadVerifyChunks,omitempty\" graphql:\"compactorBlockUploadVerifyChunks\""
-	S3SSEType                                     *string                             "json:\"s3SSEType,omitempty\" graphql:\"s3SSEType\""
-	S3SSEKMSKeyID                                 *string                             "json:\"s3SSEKMSKeyID,omitempty\" graphql:\"s3SSEKMSKeyID\""
-	S3SSEKMSEncryptionContext                     *string                             "json:\"s3SSEKMSEncryptionContext,omitempty\" graphql:\"s3SSEKMSEncryptionContext\""
-	AlertmanagerReceiversBlockCIDRNetworks        *string                             "json:\"alertmanagerReceiversBlockCIDRNetworks,omitempty\" graphql:\"alertmanagerReceiversBlockCIDRNetworks\""
-	AlertmanagerReceiversBlockPrivateAddresses    *bool                               "json:\"alertmanagerReceiversBlockPrivateAddresses,omitempty\" graphql:\"alertmanagerReceiversBlockPrivateAddresses\""
-	NotificationRateLimit                         *float64                            "json:\"notificationRateLimit,omitempty\" graphql:\"notificationRateLimit\""
-	NotificationRateLimitPerIntegration           map[string]*float64                 "json:\"notificationRateLimitPerIntegration,omitempty\" graphql:\"notificationRateLimitPerIntegration\""
-	AlertmanagerMaxConfigSizeBytes                *int64                              "json:\"alertmanagerMaxConfigSizeBytes,omitempty\" graphql:\"alertmanagerMaxConfigSizeBytes\""
-	AlertmanagerMaxTemplatesCount                 *int64                              "json:\"alertmanagerMaxTemplatesCount,omitempty\" graphql:\"alertmanagerMaxTemplatesCount\""
-	AlertmanagerMaxTemplateSizeBytes              *int64                              "json:\"alertmanagerMaxTemplateSizeBytes,omitempty\" graphql:\"alertmanagerMaxTemplateSizeBytes\""
-	AlertmanagerMaxDispatcherAggregationGroups    *int64                              "json:\"alertmanagerMaxDispatcherAggregationGroups,omitempty\" graphql:\"alertmanagerMaxDispatcherAggregationGroups\""
-	AlertmanagerMaxAlertsCount                    *int64                              "json:\"alertmanagerMaxAlertsCount,omitempty\" graphql:\"alertmanagerMaxAlertsCount\""
-	AlertmanagerMaxAlertsSizeBytes                *int64                              "json:\"alertmanagerMaxAlertsSizeBytes,omitempty\" graphql:\"alertmanagerMaxAlertsSizeBytes\""
-	ForwardingEndpoint                            *string                             "json:\"forwardingEndpoint,omitempty\" graphql:\"forwardingEndpoint\""
-	ForwardingDropOlderThan                       *v1.Duration                        "json:\"forwardingDropOlderThan,omitempty\" graphql:\"forwardingDropOlderThan\""
-	ForwardingRules                               map[string]*v1alpha1.ForwardingRule "json:\"forwardingRules,omitempty\" graphql:\"forwardingRules\""
+type ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_RulerAlertManagerConfig_RulerAlertManagerConfigFragment_Notifier_NotifierConfigFragment_BasicAuth struct {
+	Username *string "json:\"username,omitempty\" graphql:\"username\""
+	Password *string "json:\"password,omitempty\" graphql:\"password\""
 }
 
-func (t *ObservabilityTenantLimitsFragment_Mimir) GetRequestRate() *float64 {
+func (t *ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_RulerAlertManagerConfig_RulerAlertManagerConfigFragment_Notifier_NotifierConfigFragment_BasicAuth) GetUsername() *string {
 	if t == nil {
-		t = &ObservabilityTenantLimitsFragment_Mimir{}
+		t = &ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_RulerAlertManagerConfig_RulerAlertManagerConfigFragment_Notifier_NotifierConfigFragment_BasicAuth{}
 	}
-	return t.RequestRate
+	return t.Username
 }
-func (t *ObservabilityTenantLimitsFragment_Mimir) GetRequestBurstSize() *int64 {
+func (t *ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_RulerAlertManagerConfig_RulerAlertManagerConfigFragment_Notifier_NotifierConfigFragment_BasicAuth) GetPassword() *string {
 	if t == nil {
-		t = &ObservabilityTenantLimitsFragment_Mimir{}
+		t = &ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_RulerAlertManagerConfig_RulerAlertManagerConfigFragment_Notifier_NotifierConfigFragment_BasicAuth{}
 	}
-	return t.RequestBurstSize
+	return t.Password
 }
-func (t *ObservabilityTenantLimitsFragment_Mimir) GetIngestionRate() *float64 {
+
+type ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_RulerAlertManagerConfig_RulerAlertManagerConfigFragment_Notifier_NotifierConfigFragment_HeaderAuth struct {
+	Type            *string "json:\"type,omitempty\" graphql:\"type\""
+	Credentials     *string "json:\"credentials,omitempty\" graphql:\"credentials\""
+	CredentialsFile *string "json:\"credentialsFile,omitempty\" graphql:\"credentialsFile\""
+}
+
+func (t *ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_RulerAlertManagerConfig_RulerAlertManagerConfigFragment_Notifier_NotifierConfigFragment_HeaderAuth) GetType() *string {
+	if t == nil {
+		t = &ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_RulerAlertManagerConfig_RulerAlertManagerConfigFragment_Notifier_NotifierConfigFragment_HeaderAuth{}
+	}
+	return t.Type
+}
+func (t *ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_RulerAlertManagerConfig_RulerAlertManagerConfigFragment_Notifier_NotifierConfigFragment_HeaderAuth) GetCredentials() *string {
+	if t == nil {
+		t = &ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_RulerAlertManagerConfig_RulerAlertManagerConfigFragment_Notifier_NotifierConfigFragment_HeaderAuth{}
+	}
+	return t.Credentials
+}
+func (t *ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_RulerAlertManagerConfig_RulerAlertManagerConfigFragment_Notifier_NotifierConfigFragment_HeaderAuth) GetCredentialsFile() *string {
+	if t == nil {
+		t = &ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_RulerAlertManagerConfig_RulerAlertManagerConfigFragment_Notifier_NotifierConfigFragment_HeaderAuth{}
+	}
+	return t.CredentialsFile
+}
+
+type ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_RulerAlertManagerConfig_RulerAlertManagerConfigFragment_Notifier_NotifierConfigFragment_TLS struct {
+	CertPath           *string "json:\"certPath,omitempty\" graphql:\"certPath\""
+	KeyPath            *string "json:\"keyPath,omitempty\" graphql:\"keyPath\""
+	CaPath             *string "json:\"caPath,omitempty\" graphql:\"caPath\""
+	ServerName         *string "json:\"serverName,omitempty\" graphql:\"serverName\""
+	InsecureSkipVerify *bool   "json:\"insecureSkipVerify,omitempty\" graphql:\"insecureSkipVerify\""
+	CipherSuites       *string "json:\"cipherSuites,omitempty\" graphql:\"cipherSuites\""
+	MinVersion         *string "json:\"minVersion,omitempty\" graphql:\"minVersion\""
+}
+
+func (t *ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_RulerAlertManagerConfig_RulerAlertManagerConfigFragment_Notifier_NotifierConfigFragment_TLS) GetCertPath() *string {
+	if t == nil {
+		t = &ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_RulerAlertManagerConfig_RulerAlertManagerConfigFragment_Notifier_NotifierConfigFragment_TLS{}
+	}
+	return t.CertPath
+}
+func (t *ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_RulerAlertManagerConfig_RulerAlertManagerConfigFragment_Notifier_NotifierConfigFragment_TLS) GetKeyPath() *string {
+	if t == nil {
+		t = &ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_RulerAlertManagerConfig_RulerAlertManagerConfigFragment_Notifier_NotifierConfigFragment_TLS{}
+	}
+	return t.KeyPath
+}
+func (t *ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_RulerAlertManagerConfig_RulerAlertManagerConfigFragment_Notifier_NotifierConfigFragment_TLS) GetCaPath() *string {
+	if t == nil {
+		t = &ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_RulerAlertManagerConfig_RulerAlertManagerConfigFragment_Notifier_NotifierConfigFragment_TLS{}
+	}
+	return t.CaPath
+}
+func (t *ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_RulerAlertManagerConfig_RulerAlertManagerConfigFragment_Notifier_NotifierConfigFragment_TLS) GetServerName() *string {
 	if t == nil {
-		t = &ObservabilityTenantLimitsFragment_Mimir{}
+		t = &ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_RulerAlertManagerConfig_RulerAlertManagerConfigFragment_Notifier_NotifierConfigFragment_TLS{}
 	}
-	return t.IngestionRate
+	return t.ServerName
 }
-func (t *ObservabilityTenantLimitsFragment_Mimir) GetIngestionBurstSize() *int64 {
+func (t *ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_RulerAlertManagerConfig_RulerAlertManagerConfigFragment_Notifier_NotifierConfigFragment_TLS) GetInsecureSkipVerify() *bool {
 	if t == nil {
-		t = &ObservabilityTenantLimitsFragment_Mimir{}
+		t = &ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_RulerAlertManagerConfig_RulerAlertManagerConfigFragment_Notifier_NotifierConfigFragment_TLS{}
 	}
-	return t.IngestionBurstSize
+	return t.InsecureSkipVerify
 }
-func (t *ObservabilityTenantLimitsFragment_Mimir) GetAcceptHASamples() *bool {
+func (t *ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_RulerAlertManagerConfig_RulerAlertManagerConfigFragment_Notifier_NotifierConfigFragment_TLS) GetCipherSuites() *string {
 	if t == nil {
-		t = &ObservabilityTenantLimitsFragment_Mimir{}
+		t = &ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_RulerAlertManagerConfig_RulerAlertManagerConfigFragment_Notifier_NotifierConfigFragment_TLS{}
 	}
-	return t.AcceptHASamples
+	return t.CipherSuites
 }
-func (t *ObservabilityTenantLimitsFragment_Mimir) GetHaClusterLabel() *string {
+func (t *ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_RulerAlertManagerConfig_RulerAlertManagerConfigFragment_Notifier_NotifierConfigFragment_TLS) GetMinVersion() *string {
 	if t == nil {
-		t = &ObservabilityTenantLimitsFragment_Mimir{}
+		t = &ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_RulerAlertManagerConfig_RulerAlertManagerConfigFragment_Notifier_NotifierConfigFragment_TLS{}
 	}
-	return t.HaClusterLabel
+	return t.MinVersion
+}
+
+type ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_StreamRetention struct {
+	Period   *v1.Duration "json:\"period,omitempty\" graphql:\"period\""
+	Priority *int64       "json:\"priority,omitempty\" graphql:\"priority\""
+	Selector *string      "json:\"selector,omitempty\" graphql:\"selector\""
 }
-func (t *ObservabilityTenantLimitsFragment_Mimir) GetHaReplicaLabel() *string {
+
+func (t *ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_StreamRetention) GetPeriod() *v1.Duration {
 	if t == nil {
-		t = &ObservabilityTenantLimitsFragment_Mimir{}
+		t = &ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_StreamRetention{}
 	}
-	return t.HaReplicaLabel
+	return t.Period
 }
-func (t *ObservabilityTenantLimitsFragment_Mimir) GetHaMaxClusters() *int64 {
+func (t *ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_StreamRetention) GetPriority() *int64 {
 	if t == nil {
-		t = &ObservabilityTenantLimitsFragment_Mimir{}
+		t = &ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_StreamRetention{}
 	}
-	return t.HaMaxClusters
+	return t.Priority
 }
-func (t *ObservabilityTenantLimitsFragment_Mimir) GetDropLabels() []*string {
+func (t *ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_StreamRetention) GetSelector() *string {
 	if t == nil {
-		t = &ObservabilityTenantLimitsFragment_Mimir{}
+		t = &ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_StreamRetention{}
 	}
-	return t.DropLabels
+	return t.Selector
 }
-func (t *ObservabilityTenantLimitsFragment_Mimir) GetMaxLabelNameLength() *int64 {
+
+type ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_ShardStreams struct {
+	Enabled        *bool   "json:\"enabled,omitempty\" graphql:\"enabled\""
+	LoggingEnabled *bool   "json:\"loggingEnabled,omitempty\" graphql:\"loggingEnabled\""
+	DesiredRate    *uint64 "json:\"desiredRate,omitempty\" graphql:\"desiredRate\""
+}
+
+func (t *ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_ShardStreams) GetEnabled() *bool {
 	if t == nil {
-		t = &ObservabilityTenantLimitsFragment_Mimir{}
+		t = &ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_ShardStreams{}
 	}
-	return t.MaxLabelNameLength
+	return t.Enabled
 }
-func (t *ObservabilityTenantLimitsFragment_Mimir) GetMaxLabelValueLength() *int64 {
+func (t *ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_ShardStreams) GetLoggingEnabled() *bool {
 	if t == nil {
-		t = &ObservabilityTenantLimitsFragment_Mimir{}
+		t = &ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_ShardStreams{}
 	}
-	return t.MaxLabelValueLength
+	return t.LoggingEnabled
 }
-func (t *ObservabilityTenantLimitsFragment_Mimir) GetMaxLabelNamesPerSeries() *int64 {
+func (t *ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_ShardStreams) GetDesiredRate() *uint64 {
 	if t == nil {
-		t = &ObservabilityTenantLimitsFragment_Mimir{}
+		t = &ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_ShardStreams{}
 	}
-	return t.MaxLabelNamesPerSeries
+	return t.DesiredRate
+}
+
+type ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_BlockedQueries struct {
+	Pattern *string                     "json:\"pattern,omitempty\" graphql:\"pattern\""
+	Regex   *bool                       "json:\"regex,omitempty\" graphql:\"regex\""
+	Hash    *uint64                     "json:\"hash,omitempty\" graphql:\"hash\""
+	Types   []v1alpha1.BlockedQueryType "json:\"types,omitempty\" graphql:\"types\""
 }
-func (t *ObservabilityTenantLimitsFragment_Mimir) GetMaxMetadataLength() *int64 {
+
+func (t *ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_BlockedQueries) GetPattern() *string {
 	if t == nil {
-		t = &ObservabilityTenantLimitsFragment_Mimir{}
+		t = &ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_BlockedQueries{}
 	}
-	return t.MaxMetadataLength
+	return t.Pattern
 }
-func (t *ObservabilityTenantLimitsFragment_Mimir) GetCreationGracePeriod() *v1.Duration {
+func (t *ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_BlockedQueries) GetRegex() *bool {
 	if t == nil {
-		t = &ObservabilityTenantLimitsFragment_Mimir{}
+		t = &ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_BlockedQueries{}
 	}
-	return t.CreationGracePeriod
+	return t.Regex
 }
-func (t *ObservabilityTenantLimitsFragment_Mimir) GetEnforceMetadataMetricName() *bool {
+func (t *ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_BlockedQueries) GetHash() *uint64 {
 	if t == nil {
-		t = &ObservabilityTenantLimitsFragment_Mimir{}
+		t = &ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_BlockedQueries{}
 	}
-	return t.EnforceMetadataMetricName
+	return t.Hash
 }
-func (t *ObservabilityTenantLimitsFragment_Mimir) GetIngestionTenantShardSize() *int64 {
+func (t *ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_BlockedQueries) GetTypes() []v1alpha1.BlockedQueryType {
 	if t == nil {
-		t = &ObservabilityTenantLimitsFragment_Mimir{}
+		t = &ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_BlockedQueries{}
 	}
-	return t.IngestionTenantShardSize
+	return t.Types
 }
-func (t *ObservabilityTenantLimitsFragment_Mimir) GetMaxGlobalSeriesPerUser() *int64 {
+
+type ObservabilityTenantLimitsFragment_Tempo_TempoLimitsFragment_MetricsGeneratorProcessorSpanMetricsFilterPolicies_FilterPolicyFragment_Include_PolicyMatchFragment_Attributes struct {
+	Key   string                 "json:\"key\" graphql:\"key\""
+	Value map[string]interface{} "json:\"value,omitempty\" graphql:\"value\""
+}
+
+func (t *ObservabilityTenantLimitsFragment_Tempo_TempoLimitsFragment_MetricsGeneratorProcessorSpanMetricsFilterPolicies_FilterPolicyFragment_Include_PolicyMatchFragment_Attributes) GetKey() string {
 	if t == nil {
-		t = &ObservabilityTenantLimitsFragment_Mimir{}
+		t = &ObservabilityTenantLimitsFragment_Tempo_TempoLimitsFragment_MetricsGeneratorProcessorSpanMetricsFilterPolicies_FilterPolicyFragment_Include_PolicyMatchFragment_Attributes{}
 	}
-	return t.MaxGlobalSeriesPerUser
+	return t.Key
 }
-func (t *ObservabilityTenantLimitsFragment_Mimir) GetMaxGlobalSeriesPerMetric() *int64 {
+func (t *ObservabilityTenantLimitsFragment_Tempo_TempoLimitsFragment_MetricsGeneratorProcessorSpanMetricsFilterPolicies_FilterPolicyFragment_Include_PolicyMatchFragment_Attributes) GetValue() map[string]interface{} {
 	if t == nil {
-		t = &ObservabilityTenantLimitsFragment_Mimir{}
+		t = &ObservabilityTenantLimitsFragment_Tempo_TempoLimitsFragment_MetricsGeneratorProcessorSpanMetricsFilterPolicies_FilterPolicyFragment_Include_PolicyMatchFragment_Attributes{}
 	}
-	return t.MaxGlobalSeriesPerMetric
+	return t.Value
 }
-func (t *ObservabilityTenantLimitsFragment_Mimir) GetMaxGlobalMetricsWithMetadataPerUser() *int64 {
+
+type ObservabilityTenantLimitsFragment_Tempo_TempoLimitsFragment_MetricsGeneratorProcessorSpanMetricsFilterPolicies_FilterPolicyFragment_Exclude_PolicyMatchFragment_Attributes struct {
+	Key   string                 "json:\"key\" graphql:\"key\""
+	Value map[string]interface{} "json:\"value,omitempty\" graphql:\"value\""
+}
+
+func (t *ObservabilityTenantLimitsFragment_Tempo_TempoLimitsFragment_MetricsGeneratorProcessorSpanMetricsFilterPolicies_FilterPolicyFragment_Exclude_PolicyMatchFragment_Attributes) GetKey() string {
 	if t == nil {
-		t = &ObservabilityTenantLimitsFragment_Mimir{}
+		t = &ObservabilityTenantLimitsFragment_Tempo_TempoLimitsFragment_MetricsGeneratorProcessorSpanMetricsFilterPolicies_FilterPolicyFragment_Exclude_PolicyMatchFragment_Attributes{}
 	}
-	return t.MaxGlobalMetricsWithMetadataPerUser
+	return t.Key
 }
-func (t *ObservabilityTenantLimitsFragment_Mimir) GetMaxGlobalMetadataPerMetric() *int64 {
+func (t *ObservabilityTenantLimitsFragment_Tempo_TempoLimitsFragment_MetricsGeneratorProcessorSpanMetricsFilterPolicies_FilterPolicyFragment_Exclude_PolicyMatchFragment_Attributes) GetValue() map[string]interface{} {
 	if t == nil {
-		t = &ObservabilityTenantLimitsFragment_Mimir{}
+		t = &ObservabilityTenantLimitsFragment_Tempo_TempoLimitsFragment_MetricsGeneratorProcessorSpanMetricsFilterPolicies_FilterPolicyFragment_Exclude_PolicyMatchFragment_Attributes{}
 	}
-	return t.MaxGlobalMetadataPerMetric
+	return t.Value
+}
+
+type LokiLimitsFragment_RulerAlertManagerConfig_RulerAlertManagerConfigFragment_Notifier_NotifierConfigFragment_BasicAuth struct {
+	Username *string "json:\"username,omitempty\" graphql:\"username\""
+	Password *string "json:\"password,omitempty\" graphql:\"password\""
 }
-func (t *ObservabilityTenantLimitsFragment_Mimir) GetMaxGlobalExemplarsPerUser() *int64 {
+
+func (t *LokiLimitsFragment_RulerAlertManagerConfig_RulerAlertManagerConfigFragment_Notifier_NotifierConfigFragment_BasicAuth) GetUsername() *string {
 	if t == nil {
-		t = &ObservabilityTenantLimitsFragment_Mimir{}
+		t = &LokiLimitsFragment_RulerAlertManagerConfig_RulerAlertManagerConfigFragment_Notifier_NotifierConfigFragment_BasicAuth{}
 	}
-	return t.MaxGlobalExemplarsPerUser
+	return t.Username
 }
-func (t *ObservabilityTenantLimitsFragment_Mimir) GetNativeHistogramsIngestionEnabled() *bool {
+func (t *LokiLimitsFragment_RulerAlertManagerConfig_RulerAlertManagerConfigFragment_Notifier_NotifierConfigFragment_BasicAuth) GetPassword() *string {
 	if t == nil {
-		t = &ObservabilityTenantLimitsFragment_Mimir{}
+		t = &LokiLimitsFragment_RulerAlertManagerConfig_RulerAlertManagerConfigFragment_Notifier_NotifierConfigFragment_BasicAuth{}
 	}
-	return t.NativeHistogramsIngestionEnabled
+	return t.Password
 }
-func (t *ObservabilityTenantLimitsFragment_Mimir) GetOutOfOrderTimeWindow() *v1.Duration {
+
+type LokiLimitsFragment_RulerAlertManagerConfig_RulerAlertManagerConfigFragment_Notifier_NotifierConfigFragment_HeaderAuth struct {
+	Type            *string "json:\"type,omitempty\" graphql:\"type\""
+	Credentials     *string "json:\"credentials,omitempty\" graphql:\"credentials\""
+	CredentialsFile *string "json:\"credentialsFile,omitempty\" graphql:\"credentialsFile\""
+}
+
+func (t *LokiLimitsFragment_RulerAlertManagerConfig_RulerAlertManagerConfigFragment_Notifier_NotifierConfigFragment_HeaderAuth) GetType() *string {
 	if t == nil {
-		t = &ObservabilityTenantLimitsFragment_Mimir{}
+		t = &LokiLimitsFragment_RulerAlertManagerConfig_RulerAlertManagerConfigFragment_Notifier_NotifierConfigFragment_HeaderAuth{}
 	}
-	return t.OutOfOrderTimeWindow
+	return t.Type
 }
-func (t *ObservabilityTenantLimitsFragment_Mimir) GetOutOfOrderBlocksExternalLabelEnabled() *bool {
+func (t *LokiLimitsFragment_RulerAlertManagerConfig_RulerAlertManagerConfigFragment_Notifier_NotifierConfigFragment_HeaderAuth) GetCredentials() *string {
 	if t == nil {
-		t = &ObservabilityTenantLimitsFragment_Mimir{}
+		t = &LokiLimitsFragment_RulerAlertManagerConfig_RulerAlertManagerConfigFragment_Notifier_NotifierConfigFragment_HeaderAuth{}
 	}
-	return t.OutOfOrderBlocksExternalLabelEnabled
+	return t.Credentials
 }
-func (t *ObservabilityTenantLimitsFragment_Mimir) GetSeparateMetricsGroupLabel() *string {
+func (t *LokiLimitsFragment_RulerAlertManagerConfig_RulerAlertManagerConfigFragment_Notifier_NotifierConfigFragment_HeaderAuth) GetCredentialsFile() *string {
 	if t == nil {
-		t = &ObservabilityTenantLimitsFragment_Mimir{}
+		t = &LokiLimitsFragment_RulerAlertManagerConfig_RulerAlertManagerConfigFragment_Notifier_NotifierConfigFragment_HeaderAuth{}
 	}
-	return t.SeparateMetricsGroupLabel
+	return t.CredentialsFile
+}
+
+type LokiLimitsFragment_RulerAlertManagerConfig_RulerAlertManagerConfigFragment_Notifier_NotifierConfigFragment_TLS struct {
+	CertPath           *string "json:\"certPath,omitempty\" graphql:\"certPath\""
+	KeyPath            *string "json:\"keyPath,omitempty\" graphql:\"keyPath\""
+	CaPath             *string "json:\"caPath,omitempty\" graphql:\"caPath\""
+	ServerName         *string "json:\"serverName,omitempty\" graphql:\"serverName\""
+	InsecureSkipVerify *bool   "json:\"insecureSkipVerify,omitempty\" graphql:\"insecureSkipVerify\""
+	CipherSuites       *string "json:\"cipherSuites,omitempty\" graphql:\"cipherSuites\""
+	MinVersion         *string "json:\"minVersion,omitempty\" graphql:\"minVersion\""
 }
-func (t *ObservabilityTenantLimitsFragment_Mimir) GetMaxChunksPerQuery() *int64 {
+
+func (t *LokiLimitsFragment_RulerAlertManagerConfig_RulerAlertManagerConfigFragment_Notifier_NotifierConfigFragment_TLS) GetCertPath() *string {
 	if t == nil {
-		t = &ObservabilityTenantLimitsFragment_Mimir{}
+		t = &LokiLimitsFragment_RulerAlertManagerConfig_RulerAlertManagerConfigFragment_Notifier_NotifierConfigFragment_TLS{}
 	}
-	return t.MaxChunksPerQuery
+	return t.CertPath
 }
-func (t *ObservabilityTenantLimitsFragment_Mimir) GetMaxFetchedSeriesPerQuery() *int64 {
+func (t *LokiLimitsFragment_RulerAlertManagerConfig_RulerAlertManagerConfigFragment_Notifier_NotifierConfigFragment_TLS) GetKeyPath() *string {
 	if t == nil {
-		t = &ObservabilityTenantLimitsFragment_Mimir{}
+		t = &LokiLimitsFragment_RulerAlertManagerConfig_RulerAlertManagerConfigFragment_Notifier_NotifierConfigFragment_TLS{}
 	}
-	return t.MaxFetchedSeriesPerQuery
+	return t.KeyPath
 }
-func (t *ObservabilityTenantLimitsFragment_Mimir) GetMaxFetchedChunkBytesPerQuery() *int64 {
+func (t *LokiLimitsFragment_RulerAlertManagerConfig_RulerAlertManagerConfigFragment_Notifier_NotifierConfigFragment_TLS) GetCaPath() *string {
 	if t == nil {
-		t = &ObservabilityTenantLimitsFragment_Mimir{}
+		t = &LokiLimitsFragment_RulerAlertManagerConfig_RulerAlertManagerConfigFragment_Notifier_NotifierConfigFragment_TLS{}
 	}
-	return t.MaxFetchedChunkBytesPerQuery
+	return t.CaPath
 }
-func (t *ObservabilityTenantLimitsFragment_Mimir) GetMaxQueryLookback() *v1.Duration {
+func (t *LokiLimitsFragment_RulerAlertManagerConfig_RulerAlertManagerConfigFragment_Notifier_NotifierConfigFragment_TLS) GetServerName() *string {
 	if t == nil {
-		t = &ObservabilityTenantLimitsFragment_Mimir{}
+		t = &LokiLimitsFragment_RulerAlertManagerConfig_RulerAlertManagerConfigFragment_Notifier_NotifierConfigFragment_TLS{}
 	}
-	return t.MaxQueryLookback
+	return t.ServerName
 }
-func (t *ObservabilityTenantLimitsFragment_Mimir) GetMaxPartialQueryLength() *v1.Duration {
+func (t *LokiLimitsFragment_RulerAlertManagerConfig_RulerAlertManagerConfigFragment_Notifier_NotifierConfigFragment_TLS) GetInsecureSkipVerify() *bool {
 	if t == nil {
-		t = &ObservabilityTenantLimitsFragment_Mimir{}
+		t = &LokiLimitsFragment_RulerAlertManagerConfig_RulerAlertManagerConfigFragment_Notifier_NotifierConfigFragment_TLS{}
 	}
-	return t.MaxPartialQueryLength
+	return t.InsecureSkipVerify
 }
-func (t *ObservabilityTenantLimitsFragment_Mimir) GetMaxQueryParallelism() *int64 {
+func (t *LokiLimitsFragment_RulerAlertManagerConfig_RulerAlertManagerConfigFragment_Notifier_NotifierConfigFragment_TLS) GetCipherSuites() *string {
 	if t == nil {
-		t = &ObservabilityTenantLimitsFragment_Mimir{}
+		t = &LokiLimitsFragment_RulerAlertManagerConfig_RulerAlertManagerConfigFragment_Notifier_NotifierConfigFragment_TLS{}
 	}
-	return t.MaxQueryParallelism
+	return t.CipherSuites
 }
-func (t *ObservabilityTenantLimitsFragment_Mimir) GetMaxLabelsQueryLength() *v1.Duration {
+func (t *LokiLimitsFragment_RulerAlertManagerConfig_RulerAlertManagerConfigFragment_Notifier_NotifierConfigFragment_TLS) GetMinVersion() *string {
 	if t == nil {
-		t = &ObservabilityTenantLimitsFragment_Mimir{}
+		t = &LokiLimitsFragment_RulerAlertManagerConfig_RulerAlertManagerConfigFragment_Notifier_NotifierConfigFragment_TLS{}
 	}
-	return t.MaxLabelsQueryLength
+	return t.MinVersion
 }
-func (t *ObservabilityTenantLimitsFragment_Mimir) GetMaxCacheFreshness() *v1.Duration {
+
+type LokiLimitsFragment_StreamRetention struct {
+	Period   *v1.Duration "json:\"period,omitempty\" graphql:\"period\""
+	Priority *int64       "json:\"priority,omitempty\" graphql:\"priority\""
+	Selector *string      "json:\"selector,omitempty\" graphql:\"selector\""
+}
+
+func (t *LokiLimitsFragment_StreamRetention) GetPeriod() *v1.Duration {
 	if t == nil {
-		t = &ObservabilityTenantLimitsFragment_Mimir{}
+		t = &LokiLimitsFragment_StreamRetention{}
 	}
-	return t.MaxCacheFreshness
+	return t.Period
 }
-func (t *ObservabilityTenantLimitsFragment_Mimir) GetMaxQueriersPerTenant() *int64 {
+func (t *LokiLimitsFragment_StreamRetention) GetPriority() *int64 {
 	if t == nil {
-		t = &ObservabilityTenantLimitsFragment_Mimir{}
+		t = &LokiLimitsFragment_StreamRetention{}
 	}
-	return t.MaxQueriersPerTenant
+	return t.Priority
 }
-func (t *ObservabilityTenantLimitsFragment_Mimir) GetQueryShardingTotalShards() *int64 {
+func (t *LokiLimitsFragment_StreamRetention) GetSelector() *string {
 	if t == nil {
-		t = &ObservabilityTenantLimitsFragment_Mimir{}
+		t = &LokiLimitsFragment_StreamRetention{}
 	}
-	return t.QueryShardingTotalShards
+	return t.Selector
 }
-func (t *ObservabilityTenantLimitsFragment_Mimir) GetQueryShardingMaxShardedQueries() *int64 {
+
+type LokiLimitsFragment_ShardStreams struct {
+	Enabled        *bool   "json:\"enabled,omitempty\" graphql:\"enabled\""
+	LoggingEnabled *bool   "json:\"loggingEnabled,omitempty\" graphql:\"loggingEnabled\""
+	DesiredRate    *uint64 "json:\"desiredRate,omitempty\" graphql:\"desiredRate\""
+}
+
+func (t *LokiLimitsFragment_ShardStreams) GetEnabled() *bool {
 	if t == nil {
-		t = &ObservabilityTenantLimitsFragment_Mimir{}
+		t = &LokiLimitsFragment_ShardStreams{}
 	}
-	return t.QueryShardingMaxShardedQueries
+	return t.Enabled
 }
-func (t *ObservabilityTenantLimitsFragment_Mimir) GetQueryShardingMaxRegexpSizeBytes() *int64 {
+func (t *LokiLimitsFragment_ShardStreams) GetLoggingEnabled() *bool {
 	if t == nil {
-		t = &ObservabilityTenantLimitsFragment_Mimir{}
+		t = &LokiLimitsFragment_ShardStreams{}
 	}
-	return t.QueryShardingMaxRegexpSizeBytes
+	return t.LoggingEnabled
 }
-func (t *ObservabilityTenantLimitsFragment_Mimir) GetSplitInstantQueriesByInterval() *v1.Duration {
+func (t *LokiLimitsFragment_ShardStreams) GetDesiredRate() *uint64 {
 	if t == nil {
-		t = &ObservabilityTenantLimitsFragment_Mimir{}
+		t = &LokiLimitsFragment_ShardStreams{}
 	}
-	return t.SplitInstantQueriesByInterval
+	return t.DesiredRate
+}
+
+type LokiLimitsFragment_BlockedQueries struct {
+	Pattern *string                     "json:\"pattern,omitempty\" graphql:\"pattern\""
+	Regex   *bool                       "json:\"regex,omitempty\" graphql:\"regex\""
+	Hash    *uint64                     "json:\"hash,omitempty\" graphql:\"hash\""
+	Types   []v1alpha1.BlockedQueryType "json:\"types,omitempty\" graphql:\"types\""
 }
-func (t *ObservabilityTenantLimitsFragment_Mimir) GetMaxTotalQueryLength() *v1.Duration {
+
+func (t *LokiLimitsFragment_BlockedQueries) GetPattern() *string {
 	if t == nil {
-		t = &ObservabilityTenantLimitsFragment_Mimir{}
+		t = &LokiLimitsFragment_BlockedQueries{}
 	}
-	return t.MaxTotalQueryLength
+	return t.Pattern
 }
-func (t *ObservabilityTenantLimitsFragment_Mimir) GetResultsCacheTTL() *v1.Duration {
+func (t *LokiLimitsFragment_BlockedQueries) GetRegex() *bool {
 	if t == nil {
-		t = &ObservabilityTenantLimitsFragment_Mimir{}
+		t = &LokiLimitsFragment_BlockedQueries{}
 	}
-	return t.ResultsCacheTTL
+	return t.Regex
 }
-func (t *ObservabilityTenantLimitsFragment_Mimir) GetResultsCacheTTLForOutOfOrderTimeWindow() *v1.Duration {
+func (t *LokiLimitsFragment_BlockedQueries) GetHash() *uint64 {
 	if t == nil {
-		t = &ObservabilityTenantLimitsFragment_Mimir{}
+		t = &LokiLimitsFragment_BlockedQueries{}
 	}
-	return t.ResultsCacheTTLForOutOfOrderTimeWindow
+	return t.Hash
 }
-func (t *ObservabilityTenantLimitsFragment_Mimir) GetMaxQueryExpressionSizeBytes() *int64 {
+func (t *LokiLimitsFragment_BlockedQueries) GetTypes() []v1alpha1.BlockedQueryType {
 	if t == nil {
-		t = &ObservabilityTenantLimitsFragment_Mimir{}
+		t = &LokiLimitsFragment_BlockedQueries{}
 	}
-	return t.MaxQueryExpressionSizeBytes
+	return t.Types
 }
-func (t *ObservabilityTenantLimitsFragment_Mimir) GetCardinalityAnalysisEnabled() *bool {
+
+type RulerAlertManagerConfigFragment_Notifier_NotifierConfigFragment_BasicAuth struct {
+	Username *string "json:\"username,omitempty\" graphql:\"username\""
+	Password *string "json:\"password,omitempty\" graphql:\"password\""
+}
+
+func (t *RulerAlertManagerConfigFragment_Notifier_NotifierConfigFragment_BasicAuth) GetUsername() *string {
 	if t == nil {
-		t = &ObservabilityTenantLimitsFragment_Mimir{}
+		t = &RulerAlertManagerConfigFragment_Notifier_NotifierConfigFragment_BasicAuth{}
 	}
-	return t.CardinalityAnalysisEnabled
+	return t.Username
 }
-func (t *ObservabilityTenantLimitsFragment_Mimir) GetLabelNamesAndValuesResultsMaxSizeBytes() *int64 {
+func (t *RulerAlertManagerConfigFragment_Notifier_NotifierConfigFragment_BasicAuth) GetPassword() *string {
 	if t == nil {
-		t = &ObservabilityTenantLimitsFragment_Mimir{}
+		t = &RulerAlertManagerConfigFragment_Notifier_NotifierConfigFragment_BasicAuth{}
 	}
-	return t.LabelNamesAndValuesResultsMaxSizeBytes
+	return t.Password
+}
+
+type RulerAlertManagerConfigFragment_Notifier_NotifierConfigFragment_HeaderAuth struct {
+	Type            *string "json:\"type,omitempty\" graphql:\"type\""
+	Credentials     *string "json:\"credentials,omitempty\" graphql:\"credentials\""
+	CredentialsFile *string "json:\"credentialsFile,omitempty\" graphql:\"credentialsFile\""
 }
-func (t *ObservabilityTenantLimitsFragment_Mimir) GetLabelValuesMaxCardinalityLabelNamesPerRequest() *int64 {
+
+func (t *RulerAlertManagerConfigFragment_Notifier_NotifierConfigFragment_HeaderAuth) GetType() *string {
 	if t == nil {
-		t = &ObservabilityTenantLimitsFragment_Mimir{}
+		t = &RulerAlertManagerConfigFragment_Notifier_NotifierConfigFragment_HeaderAuth{}
 	}
-	return t.LabelValuesMaxCardinalityLabelNamesPerRequest
+	return t.Type
 }
-func (t *ObservabilityTenantLimitsFragment_Mimir) GetRulerEvaluationDelay() *v1.Duration {
+func (t *RulerAlertManagerConfigFragment_Notifier_NotifierConfigFragment_HeaderAuth) GetCredentials() *string {
 	if t == nil {
-		t = &ObservabilityTenantLimitsFragment_Mimir{}
+		t = &RulerAlertManagerConfigFragment_Notifier_NotifierConfigFragment_HeaderAuth{}
 	}
-	return t.RulerEvaluationDelay
+	return t.Credentials
 }
-func (t *ObservabilityTenantLimitsFragment_Mimir) GetRulerTenantShardSize() *int64 {
+func (t *RulerAlertManagerConfigFragment_Notifier_NotifierConfigFragment_HeaderAuth) GetCredentialsFile() *string {
 	if t == nil {
-		t = &ObservabilityTenantLimitsFragment_Mimir{}
+		t = &RulerAlertManagerConfigFragment_Notifier_NotifierConfigFragment_HeaderAuth{}
 	}
-	return t.RulerTenantShardSize
+	return t.CredentialsFile
 }
-func (t *ObservabilityTenantLimitsFragment_Mimir) GetRulerMaxRulesPerRuleGroup() *int64 {
+
+type RulerAlertManagerConfigFragment_Notifier_NotifierConfigFragment_TLS struct {
+	CertPath           *string "json:\"certPath,omitempty\" graphql:\"certPath\""
+	KeyPath            *string "json:\"keyPath,omitempty\" graphql:\"keyPath\""
+	CaPath             *string "json:\"caPath,omitempty\" graphql:\"caPath\""
+	ServerName         *string "json:\"serverName,omitempty\" graphql:\"serverName\""
+	InsecureSkipVerify *bool   "json:\"insecureSkipVerify,omitempty\" graphql:\"insecureSkipVerify\""
+	CipherSuites       *string "json:\"cipherSuites,omitempty\" graphql:\"cipherSuites\""
+	MinVersion         *string "json:\"minVersion,omitempty\" graphql:\"minVersion\""
+}
+
+func (t *RulerAlertManagerConfigFragment_Notifier_NotifierConfigFragment_TLS) GetCertPath() *string {
 	if t == nil {
-		t = &ObservabilityTenantLimitsFragment_Mimir{}
+		t = &RulerAlertManagerConfigFragment_Notifier_NotifierConfigFragment_TLS{}
 	}
-	return t.RulerMaxRulesPerRuleGroup
+	return t.CertPath
 }
-func (t *ObservabilityTenantLimitsFragment_Mimir) GetRulerMaxRuleGroupsPerTenant() *int64 {
+func (t *RulerAlertManagerConfigFragment_Notifier_NotifierConfigFragment_TLS) GetKeyPath() *string {
 	if t == nil {
-		t = &ObservabilityTenantLimitsFragment_Mimir{}
+		t = &RulerAlertManagerConfigFragment_Notifier_NotifierConfigFragment_TLS{}
 	}
-	return t.RulerMaxRuleGroupsPerTenant
+	return t.KeyPath
 }
-func (t *ObservabilityTenantLimitsFragment_Mimir) GetRulerRecordingRulesEvaluationEnabled() *bool {
+func (t *RulerAlertManagerConfigFragment_Notifier_NotifierConfigFragment_TLS) GetCaPath() *string {
 	if t == nil {
-		t = &ObservabilityTenantLimitsFragment_Mimir{}
+		t = &RulerAlertManagerConfigFragment_Notifier_NotifierConfigFragment_TLS{}
 	}
-	return t.RulerRecordingRulesEvaluationEnabled
+	return t.CaPath
 }
-func (t *ObservabilityTenantLimitsFragment_Mimir) GetRulerAlertingRulesEvaluationEnabled() *bool {
+func (t *RulerAlertManagerConfigFragment_Notifier_NotifierConfigFragment_TLS) GetServerName() *string {
 	if t == nil {
-		t = &ObservabilityTenantLimitsFragment_Mimir{}
+		t = &RulerAlertManagerConfigFragment_Notifier_NotifierConfigFragment_TLS{}
 	}
-	return t.RulerAlertingRulesEvaluationEnabled
+	return t.ServerName
 }
-func (t *ObservabilityTenantLimitsFragment_Mimir) GetStoreGatewayTenantShardSize() *int64 {
+func (t *RulerAlertManagerConfigFragment_Notifier_NotifierConfigFragment_TLS) GetInsecureSkipVerify() *bool {
 	if t == nil {
-		t = &ObservabilityTenantLimitsFragment_Mimir{}
+		t = &RulerAlertManagerConfigFragment_Notifier_NotifierConfigFragment_TLS{}
 	}
-	return t.StoreGatewayTenantShardSize
+	return t.InsecureSkipVerify
 }
-func (t *ObservabilityTenantLimitsFragment_Mimir) GetCompactorBlocksRetentionPeriod() *v1.Duration {
+func (t *RulerAlertManagerConfigFragment_Notifier_NotifierConfigFragment_TLS) GetCipherSuites() *string {
 	if t == nil {
-		t = &ObservabilityTenantLimitsFragment_Mimir{}
+		t = &RulerAlertManagerConfigFragment_Notifier_NotifierConfigFragment_TLS{}
 	}
-	return t.CompactorBlocksRetentionPeriod
+	return t.CipherSuites
 }
-func (t *ObservabilityTenantLimitsFragment_Mimir) GetCompactorSplitAndMergeShards() *int64 {
+func (t *RulerAlertManagerConfigFragment_Notifier_NotifierConfigFragment_TLS) GetMinVersion() *string {
 	if t == nil {
-		t = &ObservabilityTenantLimitsFragment_Mimir{}
+		t = &RulerAlertManagerConfigFragment_Notifier_NotifierConfigFragment_TLS{}
 	}
-	return t.CompactorSplitAndMergeShards
+	return t.MinVersion
 }
-func (t *ObservabilityTenantLimitsFragment_Mimir) GetCompactorSplitGroups() *int64 {
+
+type NotifierConfigFragment_BasicAuth struct {
+	Username *string "json:\"username,omitempty\" graphql:\"username\""
+	Password *string "json:\"password,omitempty\" graphql:\"password\""
+}
+
+func (t *NotifierConfigFragment_BasicAuth) GetUsername() *string {
 	if t == nil {
-		t = &ObservabilityTenantLimitsFragment_Mimir{}
+		t = &NotifierConfigFragment_BasicAuth{}
 	}
-	return t.CompactorSplitGroups
+	return t.Username
 }
-func (t *ObservabilityTenantLimitsFragment_Mimir) GetCompactorTenantShardSize() *int64 {
+func (t *NotifierConfigFragment_BasicAuth) GetPassword() *string {
 	if t == nil {
-		t = &ObservabilityTenantLimitsFragment_Mimir{}
+		t = &NotifierConfigFragment_BasicAuth{}
 	}
-	return t.CompactorTenantShardSize
+	return t.Password
+}
+
+type NotifierConfigFragment_HeaderAuth struct {
+	Type            *string "json:\"type,omitempty\" graphql:\"type\""
+	Credentials     *string "json:\"credentials,omitempty\" graphql:\"credentials\""
+	CredentialsFile *string "json:\"credentialsFile,omitempty\" graphql:\"credentialsFile\""
 }
-func (t *ObservabilityTenantLimitsFragment_Mimir) GetCompactorPartialBlockDeletionDelay() *v1.Duration {
+
+func (t *NotifierConfigFragment_HeaderAuth) GetType() *string {
 	if t == nil {
-		t = &ObservabilityTenantLimitsFragment_Mimir{}
+		t = &NotifierConfigFragment_HeaderAuth{}
 	}
-	return t.CompactorPartialBlockDeletionDelay
+	return t.Type
 }
-func (t *ObservabilityTenantLimitsFragment_Mimir) GetCompactorBlockUploadEnabled() *bool {
+func (t *NotifierConfigFragment_HeaderAuth) GetCredentials() *string {
 	if t == nil {
-		t = &ObservabilityTenantLimitsFragment_Mimir{}
+		t = &NotifierConfigFragment_HeaderAuth{}
 	}
-	return t.CompactorBlockUploadEnabled
+	return t.Credentials
 }
-func (t *ObservabilityTenantLimitsFragment_Mimir) GetCompactorBlockUploadValidationEnabled() *bool {
+func (t *NotifierConfigFragment_HeaderAuth) GetCredentialsFile() *string {
 	if t == nil {
-		t = &ObservabilityTenantLimitsFragment_Mimir{}
+		t = &NotifierConfigFragment_HeaderAuth{}
 	}
-	return t.CompactorBlockUploadValidationEnabled
+	return t.CredentialsFile
 }
-func (t *ObservabilityTenantLimitsFragment_Mimir) GetCompactorBlockUploadVerifyChunks() *bool {
+
+type NotifierConfigFragment_TLS struct {
+	CertPath           *string "json:\"certPath,omitempty\" graphql:\"certPath\""
+	KeyPath            *string "json:\"keyPath,omitempty\" graphql:\"keyPath\""
+	CaPath             *string "json:\"caPath,omitempty\" graphql:\"caPath\""
+	ServerName         *string "json:\"serverName,omitempty\" graphql:\"serverName\""
+	InsecureSkipVerify *bool   "json:\"insecureSkipVerify,omitempty\" graphql:\"insecureSkipVerify\""
+	CipherSuites       *string "json:\"cipherSuites,omitempty\" graphql:\"cipherSuites\""
+	MinVersion         *string "json:\"minVersion,omitempty\" graphql:\"minVersion\""
+}
+
+func (t *NotifierConfigFragment_TLS) GetCertPath() *string {
 	if t == nil {
-		t = &ObservabilityTenantLimitsFragment_Mimir{}
+		t = &NotifierConfigFragment_TLS{}
 	}
-	return t.CompactorBlockUploadVerifyChunks
+	return t.CertPath
 }
-func (t *ObservabilityTenantLimitsFragment_Mimir) GetS3SSEType() *string {
+func (t *NotifierConfigFragment_TLS) GetKeyPath() *string {
 	if t == nil {
-		t = &ObservabilityTenantLimitsFragment_Mimir{}
+		t = &NotifierConfigFragment_TLS{}
 	}
-	return t.S3SSEType
+	return t.KeyPath
 }
-func (t *ObservabilityTenantLimitsFragment_Mimir) GetS3SSEKMSKeyID() *string {
+func (t *NotifierConfigFragment_TLS) GetCaPath() *string {
 	if t == nil {
-		t = &ObservabilityTenantLimitsFragment_Mimir{}
+		t = &NotifierConfigFragment_TLS{}
 	}
-	return t.S3SSEKMSKeyID
+	return t.CaPath
 }
-func (t *ObservabilityTenantLimitsFragment_Mimir) GetS3SSEKMSEncryptionContext() *string {
+func (t *NotifierConfigFragment_TLS) GetServerName() *string {
 	if t == nil {
-		t = &ObservabilityTenantLimitsFragment_Mimir{}
+		t = &NotifierConfigFragment_TLS{}
 	}
-	return t.S3SSEKMSEncryptionContext
+	return t.ServerName
 }
-func (t *ObservabilityTenantLimitsFragment_Mimir) GetAlertmanagerReceiversBlockCIDRNetworks() *string {
+func (t *NotifierConfigFragment_TLS) GetInsecureSkipVerify() *bool {
 	if t == nil {
-		t = &ObservabilityTenantLimitsFragment_Mimir{}
+		t = &NotifierConfigFragment_TLS{}
 	}
-	return t.AlertmanagerReceiversBlockCIDRNetworks
+	return t.InsecureSkipVerify
 }
-func (t *ObservabilityTenantLimitsFragment_Mimir) GetAlertmanagerReceiversBlockPrivateAddresses() *bool {
+func (t *NotifierConfigFragment_TLS) GetCipherSuites() *string {
 	if t == nil {
-		t = &ObservabilityTenantLimitsFragment_Mimir{}
+		t = &NotifierConfigFragment_TLS{}
 	}
-	return t.AlertmanagerReceiversBlockPrivateAddresses
+	return t.CipherSuites
 }
-func (t *ObservabilityTenantLimitsFragment_Mimir) GetNotificationRateLimit() *float64 {
+func (t *NotifierConfigFragment_TLS) GetMinVersion() *string {
 	if t == nil {
-		t = &ObservabilityTenantLimitsFragment_Mimir{}
+		t = &NotifierConfigFragment_TLS{}
 	}
-	return t.NotificationRateLimit
+	return t.MinVersion
 }
-func (t *ObservabilityTenantLimitsFragment_Mimir) GetNotificationRateLimitPerIntegration() map[string]*float64 {
+
+type TempoLimitsFragment_MetricsGeneratorProcessorSpanMetricsFilterPolicies_FilterPolicyFragment_Include_PolicyMatchFragment_Attributes struct {
+	Key   string                 "json:\"key\" graphql:\"key\""
+	Value map[string]interface{} "json:\"value,omitempty\" graphql:\"value\""
+}
+
+func (t *TempoLimitsFragment_MetricsGeneratorProcessorSpanMetricsFilterPolicies_FilterPolicyFragment_Include_PolicyMatchFragment_Attributes) GetKey() string {
 	if t == nil {
-		t = &ObservabilityTenantLimitsFragment_Mimir{}
+		t = &TempoLimitsFragment_MetricsGeneratorProcessorSpanMetricsFilterPolicies_FilterPolicyFragment_Include_PolicyMatchFragment_Attributes{}
 	}
-	return t.NotificationRateLimitPerIntegration
+	return t.Key
 }
-func (t *ObservabilityTenantLimitsFragment_Mimir) GetAlertmanagerMaxConfigSizeBytes() *int64 {
+func (t *TempoLimitsFragment_MetricsGeneratorProcessorSpanMetricsFilterPolicies_FilterPolicyFragment_Include_PolicyMatchFragment_Attributes) GetValue() map[string]interface{} {
 	if t == nil {
-		t = &ObservabilityTenantLimitsFragment_Mimir{}
+		t = &TempoLimitsFragment_MetricsGeneratorProcessorSpanMetricsFilterPolicies_FilterPolicyFragment_Include_PolicyMatchFragment_Attributes{}
 	}
-	return t.AlertmanagerMaxConfigSizeBytes
+	return t.Value
+}
+
+type TempoLimitsFragment_MetricsGeneratorProcessorSpanMetricsFilterPolicies_FilterPolicyFragment_Exclude_PolicyMatchFragment_Attributes struct {
+	Key   string                 "json:\"key\" graphql:\"key\""
+	Value map[string]interface{} "json:\"value,omitempty\" graphql:\"value\""
 }
-func (t *ObservabilityTenantLimitsFragment_Mimir) GetAlertmanagerMaxTemplatesCount() *int64 {
+
+func (t *TempoLimitsFragment_MetricsGeneratorProcessorSpanMetricsFilterPolicies_FilterPolicyFragment_Exclude_PolicyMatchFragment_Attributes) GetKey() string {
 	if t == nil {
-		t = &ObservabilityTenantLimitsFragment_Mimir{}
+		t = &TempoLimitsFragment_MetricsGeneratorProcessorSpanMetricsFilterPolicies_FilterPolicyFragment_Exclude_PolicyMatchFragment_Attributes{}
 	}
-	return t.AlertmanagerMaxTemplatesCount
+	return t.Key
 }
-func (t *ObservabilityTenantLimitsFragment_Mimir) GetAlertmanagerMaxTemplateSizeBytes() *int64 {
+func (t *TempoLimitsFragment_MetricsGeneratorProcessorSpanMetricsFilterPolicies_FilterPolicyFragment_Exclude_PolicyMatchFragment_Attributes) GetValue() map[string]interface{} {
 	if t == nil {
-		t = &ObservabilityTenantLimitsFragment_Mimir{}
+		t = &TempoLimitsFragment_MetricsGeneratorProcessorSpanMetricsFilterPolicies_FilterPolicyFragment_Exclude_PolicyMatchFragment_Attributes{}
 	}
-	return t.AlertmanagerMaxTemplateSizeBytes
+	return t.Value
 }
-func (t *ObservabilityTenantLimitsFragment_Mimir) GetAlertmanagerMaxDispatcherAggregationGroups() *int64 {
+
+type FilterPolicyFragment_Include_PolicyMatchFragment_Attributes struct {
+	Key   string                 "json:\"key\" graphql:\"key\""
+	Value map[string]interface{} "json:\"value,omitempty\" graphql:\"value\""
+}
+
+func (t *FilterPolicyFragment_Include_PolicyMatchFragment_Attributes) GetKey() string {
 	if t == nil {
-		t = &ObservabilityTenantLimitsFragment_Mimir{}
+		t = &FilterPolicyFragment_Include_PolicyMatchFragment_Attributes{}
 	}
-	return t.AlertmanagerMaxDispatcherAggregationGroups
+	return t.Key
 }
-func (t *ObservabilityTenantLimitsFragment_Mimir) GetAlertmanagerMaxAlertsCount() *int64 {
+func (t *FilterPolicyFragment_Include_PolicyMatchFragment_Attributes) GetValue() map[string]interface{} {
 	if t == nil {
-		t = &ObservabilityTenantLimitsFragment_Mimir{}
+		t = &FilterPolicyFragment_Include_PolicyMatchFragment_Attributes{}
 	}
-	return t.AlertmanagerMaxAlertsCount
+	return t.Value
 }
-func (t *ObservabilityTenantLimitsFragment_Mimir) GetAlertmanagerMaxAlertsSizeBytes() *int64 {
+
+type FilterPolicyFragment_Exclude_PolicyMatchFragment_Attributes struct {
+	Key   string                 "json:\"key\" graphql:\"key\""
+	Value map[string]interface{} "json:\"value,omitempty\" graphql:\"value\""
+}
+
+func (t *FilterPolicyFragment_Exclude_PolicyMatchFragment_Attributes) GetKey() string {
 	if t == nil {
-		t = &ObservabilityTenantLimitsFragment_Mimir{}
+		t = &FilterPolicyFragment_Exclude_PolicyMatchFragment_Attributes{}
 	}
-	return t.AlertmanagerMaxAlertsSizeBytes
+	return t.Key
 }
-func (t *ObservabilityTenantLimitsFragment_Mimir) GetForwardingEndpoint() *string {
+func (t *FilterPolicyFragment_Exclude_PolicyMatchFragment_Attributes) GetValue() map[string]interface{} {
 	if t == nil {
-		t = &ObservabilityTenantLimitsFragment_Mimir{}
+		t = &FilterPolicyFragment_Exclude_PolicyMatchFragment_Attributes{}
 	}
-	return t.ForwardingEndpoint
+	return t.Value
+}
+
+type PolicyMatchFragment_Attributes struct {
+	Key   string                 "json:\"key\" graphql:\"key\""
+	Value map[string]interface{} "json:\"value,omitempty\" graphql:\"value\""
 }
-func (t *ObservabilityTenantLimitsFragment_Mimir) GetForwardingDropOlderThan() *v1.Duration {
+
+func (t *PolicyMatchFragment_Attributes) GetKey() string {
 	if t == nil {
-		t = &ObservabilityTenantLimitsFragment_Mimir{}
+		t = &PolicyMatchFragment_Attributes{}
 	}
-	return t.ForwardingDropOlderThan
+	return t.Key
 }
-func (t *ObservabilityTenantLimitsFragment_Mimir) GetForwardingRules() map[string]*v1alpha1.ForwardingRule {
+func (t *PolicyMatchFragment_Attributes) GetValue() map[string]interface{} {
 	if t == nil {
-		t = &ObservabilityTenantLimitsFragment_Mimir{}
+		t = &PolicyMatchFragment_Attributes{}
 	}
-	return t.ForwardingRules
+	return t.Value
 }
 
 type UserFragment_Name struct {
@@ -3337,6 +4927,50 @@ func (t *CreateOAuth2Client_CreateOAuth2Client_OAuth2ClientFragment_LoginBinding
 		t = &CreateOAuth2Client_CreateOAuth2Client_OAuth2ClientFragment_LoginBindings{}
 	}
 	return t.Groups
+}
+
+type AcceptOAuth2ConsentRequest_AcceptOAuth2ConsentRequest struct {
+	RedirectTo string "json:\"redirectTo\" graphql:\"redirectTo\""
+}
+
+func (t *AcceptOAuth2ConsentRequest_AcceptOAuth2ConsentRequest) GetRedirectTo() string {
+	if t == nil {
+		t = &AcceptOAuth2ConsentRequest_AcceptOAuth2ConsentRequest{}
+	}
+	return t.RedirectTo
+}
+
+type RejectOAuth2ConsentRequest_RejectOAuth2ConsentRequest struct {
+	RedirectTo string "json:\"redirectTo\" graphql:\"redirectTo\""
+}
+
+func (t *RejectOAuth2ConsentRequest_RejectOAuth2ConsentRequest) GetRedirectTo() string {
+	if t == nil {
+		t = &RejectOAuth2ConsentRequest_RejectOAuth2ConsentRequest{}
+	}
+	return t.RedirectTo
+}
+
+type AcceptOAuth2LoginRequest_AcceptOAuth2LoginRequest struct {
+	RedirectTo string "json:\"redirectTo\" graphql:\"redirectTo\""
+}
+
+func (t *AcceptOAuth2LoginRequest_AcceptOAuth2LoginRequest) GetRedirectTo() string {
+	if t == nil {
+		t = &AcceptOAuth2LoginRequest_AcceptOAuth2LoginRequest{}
+	}
+	return t.RedirectTo
+}
+
+type RejectOAuth2LoginRequest_RejectOAuth2LoginRequest struct {
+	RedirectTo string "json:\"redirectTo\" graphql:\"redirectTo\""
+}
+
+func (t *RejectOAuth2LoginRequest_RejectOAuth2LoginRequest) GetRedirectTo() string {
+	if t == nil {
+		t = &RejectOAuth2LoginRequest_RejectOAuth2LoginRequest{}
+	}
+	return t.RedirectTo
 }
 
 type ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Admins_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name struct {
@@ -4584,540 +6218,218 @@ func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFr
 	return t.Groups
 }
 
-type ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir struct {
-	RequestRate                                   *float64                            "json:\"requestRate,omitempty\" graphql:\"requestRate\""
-	RequestBurstSize                              *int64                              "json:\"requestBurstSize,omitempty\" graphql:\"requestBurstSize\""
-	IngestionRate                                 *float64                            "json:\"ingestionRate,omitempty\" graphql:\"ingestionRate\""
-	IngestionBurstSize                            *int64                              "json:\"ingestionBurstSize,omitempty\" graphql:\"ingestionBurstSize\""
-	AcceptHASamples                               *bool                               "json:\"acceptHASamples,omitempty\" graphql:\"acceptHASamples\""
-	HaClusterLabel                                *string                             "json:\"haClusterLabel,omitempty\" graphql:\"haClusterLabel\""
-	HaReplicaLabel                                *string                             "json:\"haReplicaLabel,omitempty\" graphql:\"haReplicaLabel\""
-	HaMaxClusters                                 *int64                              "json:\"haMaxClusters,omitempty\" graphql:\"haMaxClusters\""
-	DropLabels                                    []*string                           "json:\"dropLabels,omitempty\" graphql:\"dropLabels\""
-	MaxLabelNameLength                            *int64                              "json:\"maxLabelNameLength,omitempty\" graphql:\"maxLabelNameLength\""
-	MaxLabelValueLength                           *int64                              "json:\"maxLabelValueLength,omitempty\" graphql:\"maxLabelValueLength\""
-	MaxLabelNamesPerSeries                        *int64                              "json:\"maxLabelNamesPerSeries,omitempty\" graphql:\"maxLabelNamesPerSeries\""
-	MaxMetadataLength                             *int64                              "json:\"maxMetadataLength,omitempty\" graphql:\"maxMetadataLength\""
-	CreationGracePeriod                           *v1.Duration                        "json:\"creationGracePeriod,omitempty\" graphql:\"creationGracePeriod\""
-	EnforceMetadataMetricName                     *bool                               "json:\"enforceMetadataMetricName,omitempty\" graphql:\"enforceMetadataMetricName\""
-	IngestionTenantShardSize                      *int64                              "json:\"ingestionTenantShardSize,omitempty\" graphql:\"ingestionTenantShardSize\""
-	MaxGlobalSeriesPerUser                        *int64                              "json:\"maxGlobalSeriesPerUser,omitempty\" graphql:\"maxGlobalSeriesPerUser\""
-	MaxGlobalSeriesPerMetric                      *int64                              "json:\"maxGlobalSeriesPerMetric,omitempty\" graphql:\"maxGlobalSeriesPerMetric\""
-	MaxGlobalMetricsWithMetadataPerUser           *int64                              "json:\"maxGlobalMetricsWithMetadataPerUser,omitempty\" graphql:\"maxGlobalMetricsWithMetadataPerUser\""
-	MaxGlobalMetadataPerMetric                    *int64                              "json:\"maxGlobalMetadataPerMetric,omitempty\" graphql:\"maxGlobalMetadataPerMetric\""
-	MaxGlobalExemplarsPerUser                     *int64                              "json:\"maxGlobalExemplarsPerUser,omitempty\" graphql:\"maxGlobalExemplarsPerUser\""
-	NativeHistogramsIngestionEnabled              *bool                               "json:\"nativeHistogramsIngestionEnabled,omitempty\" graphql:\"nativeHistogramsIngestionEnabled\""
-	OutOfOrderTimeWindow                          *v1.Duration                        "json:\"outOfOrderTimeWindow,omitempty\" graphql:\"outOfOrderTimeWindow\""
-	OutOfOrderBlocksExternalLabelEnabled          *bool                               "json:\"outOfOrderBlocksExternalLabelEnabled,omitempty\" graphql:\"outOfOrderBlocksExternalLabelEnabled\""
-	SeparateMetricsGroupLabel                     *string                             "json:\"separateMetricsGroupLabel,omitempty\" graphql:\"separateMetricsGroupLabel\""
-	MaxChunksPerQuery                             *int64                              "json:\"maxChunksPerQuery,omitempty\" graphql:\"maxChunksPerQuery\""
-	MaxFetchedSeriesPerQuery                      *int64                              "json:\"maxFetchedSeriesPerQuery,omitempty\" graphql:\"maxFetchedSeriesPerQuery\""
-	MaxFetchedChunkBytesPerQuery                  *int64                              "json:\"maxFetchedChunkBytesPerQuery,omitempty\" graphql:\"maxFetchedChunkBytesPerQuery\""
-	MaxQueryLookback                              *v1.Duration                        "json:\"maxQueryLookback,omitempty\" graphql:\"maxQueryLookback\""
-	MaxPartialQueryLength                         *v1.Duration                        "json:\"maxPartialQueryLength,omitempty\" graphql:\"maxPartialQueryLength\""
-	MaxQueryParallelism                           *int64                              "json:\"maxQueryParallelism,omitempty\" graphql:\"maxQueryParallelism\""
-	MaxLabelsQueryLength                          *v1.Duration                        "json:\"maxLabelsQueryLength,omitempty\" graphql:\"maxLabelsQueryLength\""
-	MaxCacheFreshness                             *v1.Duration                        "json:\"maxCacheFreshness,omitempty\" graphql:\"maxCacheFreshness\""
-	MaxQueriersPerTenant                          *int64                              "json:\"maxQueriersPerTenant,omitempty\" graphql:\"maxQueriersPerTenant\""
-	QueryShardingTotalShards                      *int64                              "json:\"queryShardingTotalShards,omitempty\" graphql:\"queryShardingTotalShards\""
-	QueryShardingMaxShardedQueries                *int64                              "json:\"queryShardingMaxShardedQueries,omitempty\" graphql:\"queryShardingMaxShardedQueries\""
-	QueryShardingMaxRegexpSizeBytes               *int64                              "json:\"queryShardingMaxRegexpSizeBytes,omitempty\" graphql:\"queryShardingMaxRegexpSizeBytes\""
-	SplitInstantQueriesByInterval                 *v1.Duration                        "json:\"splitInstantQueriesByInterval,omitempty\" graphql:\"splitInstantQueriesByInterval\""
-	MaxTotalQueryLength                           *v1.Duration                        "json:\"maxTotalQueryLength,omitempty\" graphql:\"maxTotalQueryLength\""
-	ResultsCacheTTL                               *v1.Duration                        "json:\"resultsCacheTTL,omitempty\" graphql:\"resultsCacheTTL\""
-	ResultsCacheTTLForOutOfOrderTimeWindow        *v1.Duration                        "json:\"resultsCacheTTLForOutOfOrderTimeWindow,omitempty\" graphql:\"resultsCacheTTLForOutOfOrderTimeWindow\""
-	MaxQueryExpressionSizeBytes                   *int64                              "json:\"maxQueryExpressionSizeBytes,omitempty\" graphql:\"maxQueryExpressionSizeBytes\""
-	CardinalityAnalysisEnabled                    *bool                               "json:\"cardinalityAnalysisEnabled,omitempty\" graphql:\"cardinalityAnalysisEnabled\""
-	LabelNamesAndValuesResultsMaxSizeBytes        *int64                              "json:\"labelNamesAndValuesResultsMaxSizeBytes,omitempty\" graphql:\"labelNamesAndValuesResultsMaxSizeBytes\""
-	LabelValuesMaxCardinalityLabelNamesPerRequest *int64                              "json:\"labelValuesMaxCardinalityLabelNamesPerRequest,omitempty\" graphql:\"labelValuesMaxCardinalityLabelNamesPerRequest\""
-	RulerEvaluationDelay                          *v1.Duration                        "json:\"rulerEvaluationDelay,omitempty\" graphql:\"rulerEvaluationDelay\""
-	RulerTenantShardSize                          *int64                              "json:\"rulerTenantShardSize,omitempty\" graphql:\"rulerTenantShardSize\""
-	RulerMaxRulesPerRuleGroup                     *int64                              "json:\"rulerMaxRulesPerRuleGroup,omitempty\" graphql:\"rulerMaxRulesPerRuleGroup\""
-	RulerMaxRuleGroupsPerTenant                   *int64                              "json:\"rulerMaxRuleGroupsPerTenant,omitempty\" graphql:\"rulerMaxRuleGroupsPerTenant\""
-	RulerRecordingRulesEvaluationEnabled          *bool                               "json:\"rulerRecordingRulesEvaluationEnabled,omitempty\" graphql:\"rulerRecordingRulesEvaluationEnabled\""
-	RulerAlertingRulesEvaluationEnabled           *bool                               "json:\"rulerAlertingRulesEvaluationEnabled,omitempty\" graphql:\"rulerAlertingRulesEvaluationEnabled\""
-	StoreGatewayTenantShardSize                   *int64                              "json:\"storeGatewayTenantShardSize,omitempty\" graphql:\"storeGatewayTenantShardSize\""
-	CompactorBlocksRetentionPeriod                *v1.Duration                        "json:\"compactorBlocksRetentionPeriod,omitempty\" graphql:\"compactorBlocksRetentionPeriod\""
-	CompactorSplitAndMergeShards                  *int64                              "json:\"compactorSplitAndMergeShards,omitempty\" graphql:\"compactorSplitAndMergeShards\""
-	CompactorSplitGroups                          *int64                              "json:\"compactorSplitGroups,omitempty\" graphql:\"compactorSplitGroups\""
-	CompactorTenantShardSize                      *int64                              "json:\"compactorTenantShardSize,omitempty\" graphql:\"compactorTenantShardSize\""
-	CompactorPartialBlockDeletionDelay            *v1.Duration                        "json:\"compactorPartialBlockDeletionDelay,omitempty\" graphql:\"compactorPartialBlockDeletionDelay\""
-	CompactorBlockUploadEnabled                   *bool                               "json:\"compactorBlockUploadEnabled,omitempty\" graphql:\"compactorBlockUploadEnabled\""
-	CompactorBlockUploadValidationEnabled         *bool                               "json:\"compactorBlockUploadValidationEnabled,omitempty\" graphql:\"compactorBlockUploadValidationEnabled\""
-	CompactorBlockUploadVerifyChunks              *bool                               "json:\"compactorBlockUploadVerifyChunks,omitempty\" graphql:\"compactorBlockUploadVerifyChunks\""
-	S3SSEType                                     *string                             "json:\"s3SSEType,omitempty\" graphql:\"s3SSEType\""
-	S3SSEKMSKeyID                                 *string                             "json:\"s3SSEKMSKeyID,omitempty\" graphql:\"s3SSEKMSKeyID\""
-	S3SSEKMSEncryptionContext                     *string                             "json:\"s3SSEKMSEncryptionContext,omitempty\" graphql:\"s3SSEKMSEncryptionContext\""
-	AlertmanagerReceiversBlockCIDRNetworks        *string                             "json:\"alertmanagerReceiversBlockCIDRNetworks,omitempty\" graphql:\"alertmanagerReceiversBlockCIDRNetworks\""
-	AlertmanagerReceiversBlockPrivateAddresses    *bool                               "json:\"alertmanagerReceiversBlockPrivateAddresses,omitempty\" graphql:\"alertmanagerReceiversBlockPrivateAddresses\""
-	NotificationRateLimit                         *float64                            "json:\"notificationRateLimit,omitempty\" graphql:\"notificationRateLimit\""
-	NotificationRateLimitPerIntegration           map[string]*float64                 "json:\"notificationRateLimitPerIntegration,omitempty\" graphql:\"notificationRateLimitPerIntegration\""
-	AlertmanagerMaxConfigSizeBytes                *int64                              "json:\"alertmanagerMaxConfigSizeBytes,omitempty\" graphql:\"alertmanagerMaxConfigSizeBytes\""
-	AlertmanagerMaxTemplatesCount                 *int64                              "json:\"alertmanagerMaxTemplatesCount,omitempty\" graphql:\"alertmanagerMaxTemplatesCount\""
-	AlertmanagerMaxTemplateSizeBytes              *int64                              "json:\"alertmanagerMaxTemplateSizeBytes,omitempty\" graphql:\"alertmanagerMaxTemplateSizeBytes\""
-	AlertmanagerMaxDispatcherAggregationGroups    *int64                              "json:\"alertmanagerMaxDispatcherAggregationGroups,omitempty\" graphql:\"alertmanagerMaxDispatcherAggregationGroups\""
-	AlertmanagerMaxAlertsCount                    *int64                              "json:\"alertmanagerMaxAlertsCount,omitempty\" graphql:\"alertmanagerMaxAlertsCount\""
-	AlertmanagerMaxAlertsSizeBytes                *int64                              "json:\"alertmanagerMaxAlertsSizeBytes,omitempty\" graphql:\"alertmanagerMaxAlertsSizeBytes\""
-	ForwardingEndpoint                            *string                             "json:\"forwardingEndpoint,omitempty\" graphql:\"forwardingEndpoint\""
-	ForwardingDropOlderThan                       *v1.Duration                        "json:\"forwardingDropOlderThan,omitempty\" graphql:\"forwardingDropOlderThan\""
-	ForwardingRules                               map[string]*v1alpha1.ForwardingRule "json:\"forwardingRules,omitempty\" graphql:\"forwardingRules\""
+type ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_RulerAlertManagerConfig_RulerAlertManagerConfigFragment_Notifier_NotifierConfigFragment_BasicAuth struct {
+	Username *string "json:\"username,omitempty\" graphql:\"username\""
+	Password *string "json:\"password,omitempty\" graphql:\"password\""
 }
 
-func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetRequestRate() *float64 {
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_RulerAlertManagerConfig_RulerAlertManagerConfigFragment_Notifier_NotifierConfigFragment_BasicAuth) GetUsername() *string {
 	if t == nil {
-		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_RulerAlertManagerConfig_RulerAlertManagerConfigFragment_Notifier_NotifierConfigFragment_BasicAuth{}
 	}
-	return t.RequestRate
+	return t.Username
 }
-func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetRequestBurstSize() *int64 {
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_RulerAlertManagerConfig_RulerAlertManagerConfigFragment_Notifier_NotifierConfigFragment_BasicAuth) GetPassword() *string {
 	if t == nil {
-		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_RulerAlertManagerConfig_RulerAlertManagerConfigFragment_Notifier_NotifierConfigFragment_BasicAuth{}
 	}
-	return t.RequestBurstSize
+	return t.Password
 }
-func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetIngestionRate() *float64 {
-	if t == nil {
-		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.IngestionRate
-}
-func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetIngestionBurstSize() *int64 {
-	if t == nil {
-		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.IngestionBurstSize
-}
-func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetAcceptHASamples() *bool {
-	if t == nil {
-		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.AcceptHASamples
-}
-func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetHaClusterLabel() *string {
-	if t == nil {
-		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.HaClusterLabel
-}
-func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetHaReplicaLabel() *string {
-	if t == nil {
-		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.HaReplicaLabel
-}
-func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetHaMaxClusters() *int64 {
-	if t == nil {
-		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.HaMaxClusters
-}
-func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetDropLabels() []*string {
-	if t == nil {
-		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.DropLabels
-}
-func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetMaxLabelNameLength() *int64 {
-	if t == nil {
-		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.MaxLabelNameLength
-}
-func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetMaxLabelValueLength() *int64 {
-	if t == nil {
-		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.MaxLabelValueLength
-}
-func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetMaxLabelNamesPerSeries() *int64 {
-	if t == nil {
-		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.MaxLabelNamesPerSeries
-}
-func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetMaxMetadataLength() *int64 {
-	if t == nil {
-		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.MaxMetadataLength
-}
-func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetCreationGracePeriod() *v1.Duration {
-	if t == nil {
-		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.CreationGracePeriod
-}
-func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetEnforceMetadataMetricName() *bool {
-	if t == nil {
-		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.EnforceMetadataMetricName
-}
-func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetIngestionTenantShardSize() *int64 {
-	if t == nil {
-		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.IngestionTenantShardSize
-}
-func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetMaxGlobalSeriesPerUser() *int64 {
-	if t == nil {
-		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.MaxGlobalSeriesPerUser
-}
-func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetMaxGlobalSeriesPerMetric() *int64 {
-	if t == nil {
-		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.MaxGlobalSeriesPerMetric
-}
-func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetMaxGlobalMetricsWithMetadataPerUser() *int64 {
-	if t == nil {
-		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.MaxGlobalMetricsWithMetadataPerUser
-}
-func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetMaxGlobalMetadataPerMetric() *int64 {
-	if t == nil {
-		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.MaxGlobalMetadataPerMetric
-}
-func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetMaxGlobalExemplarsPerUser() *int64 {
-	if t == nil {
-		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.MaxGlobalExemplarsPerUser
-}
-func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetNativeHistogramsIngestionEnabled() *bool {
-	if t == nil {
-		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.NativeHistogramsIngestionEnabled
-}
-func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetOutOfOrderTimeWindow() *v1.Duration {
-	if t == nil {
-		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.OutOfOrderTimeWindow
-}
-func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetOutOfOrderBlocksExternalLabelEnabled() *bool {
-	if t == nil {
-		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.OutOfOrderBlocksExternalLabelEnabled
-}
-func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetSeparateMetricsGroupLabel() *string {
-	if t == nil {
-		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.SeparateMetricsGroupLabel
-}
-func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetMaxChunksPerQuery() *int64 {
-	if t == nil {
-		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.MaxChunksPerQuery
+
+type ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_RulerAlertManagerConfig_RulerAlertManagerConfigFragment_Notifier_NotifierConfigFragment_HeaderAuth struct {
+	Type            *string "json:\"type,omitempty\" graphql:\"type\""
+	Credentials     *string "json:\"credentials,omitempty\" graphql:\"credentials\""
+	CredentialsFile *string "json:\"credentialsFile,omitempty\" graphql:\"credentialsFile\""
 }
-func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetMaxFetchedSeriesPerQuery() *int64 {
+
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_RulerAlertManagerConfig_RulerAlertManagerConfigFragment_Notifier_NotifierConfigFragment_HeaderAuth) GetType() *string {
 	if t == nil {
-		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_RulerAlertManagerConfig_RulerAlertManagerConfigFragment_Notifier_NotifierConfigFragment_HeaderAuth{}
 	}
-	return t.MaxFetchedSeriesPerQuery
+	return t.Type
 }
-func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetMaxFetchedChunkBytesPerQuery() *int64 {
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_RulerAlertManagerConfig_RulerAlertManagerConfigFragment_Notifier_NotifierConfigFragment_HeaderAuth) GetCredentials() *string {
 	if t == nil {
-		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_RulerAlertManagerConfig_RulerAlertManagerConfigFragment_Notifier_NotifierConfigFragment_HeaderAuth{}
 	}
-	return t.MaxFetchedChunkBytesPerQuery
+	return t.Credentials
 }
-func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetMaxQueryLookback() *v1.Duration {
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_RulerAlertManagerConfig_RulerAlertManagerConfigFragment_Notifier_NotifierConfigFragment_HeaderAuth) GetCredentialsFile() *string {
 	if t == nil {
-		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_RulerAlertManagerConfig_RulerAlertManagerConfigFragment_Notifier_NotifierConfigFragment_HeaderAuth{}
 	}
-	return t.MaxQueryLookback
+	return t.CredentialsFile
 }
-func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetMaxPartialQueryLength() *v1.Duration {
-	if t == nil {
-		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.MaxPartialQueryLength
-}
-func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetMaxQueryParallelism() *int64 {
-	if t == nil {
-		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.MaxQueryParallelism
-}
-func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetMaxLabelsQueryLength() *v1.Duration {
-	if t == nil {
-		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.MaxLabelsQueryLength
-}
-func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetMaxCacheFreshness() *v1.Duration {
-	if t == nil {
-		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.MaxCacheFreshness
-}
-func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetMaxQueriersPerTenant() *int64 {
-	if t == nil {
-		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.MaxQueriersPerTenant
-}
-func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetQueryShardingTotalShards() *int64 {
-	if t == nil {
-		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.QueryShardingTotalShards
-}
-func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetQueryShardingMaxShardedQueries() *int64 {
-	if t == nil {
-		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.QueryShardingMaxShardedQueries
-}
-func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetQueryShardingMaxRegexpSizeBytes() *int64 {
-	if t == nil {
-		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.QueryShardingMaxRegexpSizeBytes
-}
-func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetSplitInstantQueriesByInterval() *v1.Duration {
-	if t == nil {
-		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.SplitInstantQueriesByInterval
-}
-func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetMaxTotalQueryLength() *v1.Duration {
-	if t == nil {
-		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.MaxTotalQueryLength
-}
-func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetResultsCacheTTL() *v1.Duration {
-	if t == nil {
-		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.ResultsCacheTTL
-}
-func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetResultsCacheTTLForOutOfOrderTimeWindow() *v1.Duration {
-	if t == nil {
-		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.ResultsCacheTTLForOutOfOrderTimeWindow
-}
-func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetMaxQueryExpressionSizeBytes() *int64 {
-	if t == nil {
-		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.MaxQueryExpressionSizeBytes
-}
-func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetCardinalityAnalysisEnabled() *bool {
-	if t == nil {
-		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.CardinalityAnalysisEnabled
-}
-func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetLabelNamesAndValuesResultsMaxSizeBytes() *int64 {
-	if t == nil {
-		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.LabelNamesAndValuesResultsMaxSizeBytes
-}
-func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetLabelValuesMaxCardinalityLabelNamesPerRequest() *int64 {
-	if t == nil {
-		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.LabelValuesMaxCardinalityLabelNamesPerRequest
-}
-func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetRulerEvaluationDelay() *v1.Duration {
-	if t == nil {
-		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.RulerEvaluationDelay
-}
-func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetRulerTenantShardSize() *int64 {
-	if t == nil {
-		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.RulerTenantShardSize
-}
-func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetRulerMaxRulesPerRuleGroup() *int64 {
-	if t == nil {
-		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.RulerMaxRulesPerRuleGroup
-}
-func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetRulerMaxRuleGroupsPerTenant() *int64 {
-	if t == nil {
-		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.RulerMaxRuleGroupsPerTenant
-}
-func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetRulerRecordingRulesEvaluationEnabled() *bool {
-	if t == nil {
-		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.RulerRecordingRulesEvaluationEnabled
+
+type ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_RulerAlertManagerConfig_RulerAlertManagerConfigFragment_Notifier_NotifierConfigFragment_TLS struct {
+	CertPath           *string "json:\"certPath,omitempty\" graphql:\"certPath\""
+	KeyPath            *string "json:\"keyPath,omitempty\" graphql:\"keyPath\""
+	CaPath             *string "json:\"caPath,omitempty\" graphql:\"caPath\""
+	ServerName         *string "json:\"serverName,omitempty\" graphql:\"serverName\""
+	InsecureSkipVerify *bool   "json:\"insecureSkipVerify,omitempty\" graphql:\"insecureSkipVerify\""
+	CipherSuites       *string "json:\"cipherSuites,omitempty\" graphql:\"cipherSuites\""
+	MinVersion         *string "json:\"minVersion,omitempty\" graphql:\"minVersion\""
 }
-func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetRulerAlertingRulesEvaluationEnabled() *bool {
+
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_RulerAlertManagerConfig_RulerAlertManagerConfigFragment_Notifier_NotifierConfigFragment_TLS) GetCertPath() *string {
 	if t == nil {
-		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_RulerAlertManagerConfig_RulerAlertManagerConfigFragment_Notifier_NotifierConfigFragment_TLS{}
 	}
-	return t.RulerAlertingRulesEvaluationEnabled
+	return t.CertPath
 }
-func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetStoreGatewayTenantShardSize() *int64 {
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_RulerAlertManagerConfig_RulerAlertManagerConfigFragment_Notifier_NotifierConfigFragment_TLS) GetKeyPath() *string {
 	if t == nil {
-		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_RulerAlertManagerConfig_RulerAlertManagerConfigFragment_Notifier_NotifierConfigFragment_TLS{}
 	}
-	return t.StoreGatewayTenantShardSize
+	return t.KeyPath
 }
-func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetCompactorBlocksRetentionPeriod() *v1.Duration {
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_RulerAlertManagerConfig_RulerAlertManagerConfigFragment_Notifier_NotifierConfigFragment_TLS) GetCaPath() *string {
 	if t == nil {
-		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_RulerAlertManagerConfig_RulerAlertManagerConfigFragment_Notifier_NotifierConfigFragment_TLS{}
 	}
-	return t.CompactorBlocksRetentionPeriod
+	return t.CaPath
 }
-func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetCompactorSplitAndMergeShards() *int64 {
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_RulerAlertManagerConfig_RulerAlertManagerConfigFragment_Notifier_NotifierConfigFragment_TLS) GetServerName() *string {
 	if t == nil {
-		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_RulerAlertManagerConfig_RulerAlertManagerConfigFragment_Notifier_NotifierConfigFragment_TLS{}
 	}
-	return t.CompactorSplitAndMergeShards
+	return t.ServerName
 }
-func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetCompactorSplitGroups() *int64 {
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_RulerAlertManagerConfig_RulerAlertManagerConfigFragment_Notifier_NotifierConfigFragment_TLS) GetInsecureSkipVerify() *bool {
 	if t == nil {
-		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_RulerAlertManagerConfig_RulerAlertManagerConfigFragment_Notifier_NotifierConfigFragment_TLS{}
 	}
-	return t.CompactorSplitGroups
+	return t.InsecureSkipVerify
 }
-func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetCompactorTenantShardSize() *int64 {
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_RulerAlertManagerConfig_RulerAlertManagerConfigFragment_Notifier_NotifierConfigFragment_TLS) GetCipherSuites() *string {
 	if t == nil {
-		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_RulerAlertManagerConfig_RulerAlertManagerConfigFragment_Notifier_NotifierConfigFragment_TLS{}
 	}
-	return t.CompactorTenantShardSize
+	return t.CipherSuites
 }
-func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetCompactorPartialBlockDeletionDelay() *v1.Duration {
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_RulerAlertManagerConfig_RulerAlertManagerConfigFragment_Notifier_NotifierConfigFragment_TLS) GetMinVersion() *string {
 	if t == nil {
-		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_RulerAlertManagerConfig_RulerAlertManagerConfigFragment_Notifier_NotifierConfigFragment_TLS{}
 	}
-	return t.CompactorPartialBlockDeletionDelay
+	return t.MinVersion
 }
-func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetCompactorBlockUploadEnabled() *bool {
-	if t == nil {
-		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.CompactorBlockUploadEnabled
+
+type ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_StreamRetention struct {
+	Period   *v1.Duration "json:\"period,omitempty\" graphql:\"period\""
+	Priority *int64       "json:\"priority,omitempty\" graphql:\"priority\""
+	Selector *string      "json:\"selector,omitempty\" graphql:\"selector\""
 }
-func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetCompactorBlockUploadValidationEnabled() *bool {
+
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_StreamRetention) GetPeriod() *v1.Duration {
 	if t == nil {
-		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_StreamRetention{}
 	}
-	return t.CompactorBlockUploadValidationEnabled
+	return t.Period
 }
-func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetCompactorBlockUploadVerifyChunks() *bool {
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_StreamRetention) GetPriority() *int64 {
 	if t == nil {
-		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_StreamRetention{}
 	}
-	return t.CompactorBlockUploadVerifyChunks
+	return t.Priority
 }
-func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetS3SSEType() *string {
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_StreamRetention) GetSelector() *string {
 	if t == nil {
-		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_StreamRetention{}
 	}
-	return t.S3SSEType
+	return t.Selector
 }
-func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetS3SSEKMSKeyID() *string {
-	if t == nil {
-		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.S3SSEKMSKeyID
+
+type ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_ShardStreams struct {
+	Enabled        *bool   "json:\"enabled,omitempty\" graphql:\"enabled\""
+	LoggingEnabled *bool   "json:\"loggingEnabled,omitempty\" graphql:\"loggingEnabled\""
+	DesiredRate    *uint64 "json:\"desiredRate,omitempty\" graphql:\"desiredRate\""
 }
-func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetS3SSEKMSEncryptionContext() *string {
+
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_ShardStreams) GetEnabled() *bool {
 	if t == nil {
-		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_ShardStreams{}
 	}
-	return t.S3SSEKMSEncryptionContext
+	return t.Enabled
 }
-func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetAlertmanagerReceiversBlockCIDRNetworks() *string {
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_ShardStreams) GetLoggingEnabled() *bool {
 	if t == nil {
-		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_ShardStreams{}
 	}
-	return t.AlertmanagerReceiversBlockCIDRNetworks
+	return t.LoggingEnabled
 }
-func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetAlertmanagerReceiversBlockPrivateAddresses() *bool {
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_ShardStreams) GetDesiredRate() *uint64 {
 	if t == nil {
-		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_ShardStreams{}
 	}
-	return t.AlertmanagerReceiversBlockPrivateAddresses
+	return t.DesiredRate
 }
-func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetNotificationRateLimit() *float64 {
-	if t == nil {
-		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.NotificationRateLimit
+
+type ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_BlockedQueries struct {
+	Pattern *string                     "json:\"pattern,omitempty\" graphql:\"pattern\""
+	Regex   *bool                       "json:\"regex,omitempty\" graphql:\"regex\""
+	Hash    *uint64                     "json:\"hash,omitempty\" graphql:\"hash\""
+	Types   []v1alpha1.BlockedQueryType "json:\"types,omitempty\" graphql:\"types\""
 }
-func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetNotificationRateLimitPerIntegration() map[string]*float64 {
+
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_BlockedQueries) GetPattern() *string {
 	if t == nil {
-		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_BlockedQueries{}
 	}
-	return t.NotificationRateLimitPerIntegration
+	return t.Pattern
 }
-func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetAlertmanagerMaxConfigSizeBytes() *int64 {
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_BlockedQueries) GetRegex() *bool {
 	if t == nil {
-		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_BlockedQueries{}
 	}
-	return t.AlertmanagerMaxConfigSizeBytes
+	return t.Regex
 }
-func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetAlertmanagerMaxTemplatesCount() *int64 {
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_BlockedQueries) GetHash() *uint64 {
 	if t == nil {
-		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_BlockedQueries{}
 	}
-	return t.AlertmanagerMaxTemplatesCount
+	return t.Hash
 }
-func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetAlertmanagerMaxTemplateSizeBytes() *int64 {
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_BlockedQueries) GetTypes() []v1alpha1.BlockedQueryType {
 	if t == nil {
-		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_BlockedQueries{}
 	}
-	return t.AlertmanagerMaxTemplateSizeBytes
+	return t.Types
 }
-func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetAlertmanagerMaxDispatcherAggregationGroups() *int64 {
-	if t == nil {
-		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.AlertmanagerMaxDispatcherAggregationGroups
+
+type ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Tempo_TempoLimitsFragment_MetricsGeneratorProcessorSpanMetricsFilterPolicies_FilterPolicyFragment_Include_PolicyMatchFragment_Attributes struct {
+	Key   string                 "json:\"key\" graphql:\"key\""
+	Value map[string]interface{} "json:\"value,omitempty\" graphql:\"value\""
 }
-func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetAlertmanagerMaxAlertsCount() *int64 {
+
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Tempo_TempoLimitsFragment_MetricsGeneratorProcessorSpanMetricsFilterPolicies_FilterPolicyFragment_Include_PolicyMatchFragment_Attributes) GetKey() string {
 	if t == nil {
-		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Tempo_TempoLimitsFragment_MetricsGeneratorProcessorSpanMetricsFilterPolicies_FilterPolicyFragment_Include_PolicyMatchFragment_Attributes{}
 	}
-	return t.AlertmanagerMaxAlertsCount
+	return t.Key
 }
-func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetAlertmanagerMaxAlertsSizeBytes() *int64 {
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Tempo_TempoLimitsFragment_MetricsGeneratorProcessorSpanMetricsFilterPolicies_FilterPolicyFragment_Include_PolicyMatchFragment_Attributes) GetValue() map[string]interface{} {
 	if t == nil {
-		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Tempo_TempoLimitsFragment_MetricsGeneratorProcessorSpanMetricsFilterPolicies_FilterPolicyFragment_Include_PolicyMatchFragment_Attributes{}
 	}
-	return t.AlertmanagerMaxAlertsSizeBytes
+	return t.Value
 }
-func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetForwardingEndpoint() *string {
-	if t == nil {
-		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.ForwardingEndpoint
+
+type ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Tempo_TempoLimitsFragment_MetricsGeneratorProcessorSpanMetricsFilterPolicies_FilterPolicyFragment_Exclude_PolicyMatchFragment_Attributes struct {
+	Key   string                 "json:\"key\" graphql:\"key\""
+	Value map[string]interface{} "json:\"value,omitempty\" graphql:\"value\""
 }
-func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetForwardingDropOlderThan() *v1.Duration {
+
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Tempo_TempoLimitsFragment_MetricsGeneratorProcessorSpanMetricsFilterPolicies_FilterPolicyFragment_Exclude_PolicyMatchFragment_Attributes) GetKey() string {
 	if t == nil {
-		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Tempo_TempoLimitsFragment_MetricsGeneratorProcessorSpanMetricsFilterPolicies_FilterPolicyFragment_Exclude_PolicyMatchFragment_Attributes{}
 	}
-	return t.ForwardingDropOlderThan
+	return t.Key
 }
-func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetForwardingRules() map[string]*v1alpha1.ForwardingRule {
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Tempo_TempoLimitsFragment_MetricsGeneratorProcessorSpanMetricsFilterPolicies_FilterPolicyFragment_Exclude_PolicyMatchFragment_Attributes) GetValue() map[string]interface{} {
 	if t == nil {
-		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Tempo_TempoLimitsFragment_MetricsGeneratorProcessorSpanMetricsFilterPolicies_FilterPolicyFragment_Exclude_PolicyMatchFragment_Attributes{}
 	}
-	return t.ForwardingRules
+	return t.Value
 }
 
 type GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Admins_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name struct {
@@ -6365,540 +7677,218 @@ func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragme
 	return t.Groups
 }
 
-type GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir struct {
-	RequestRate                                   *float64                            "json:\"requestRate,omitempty\" graphql:\"requestRate\""
-	RequestBurstSize                              *int64                              "json:\"requestBurstSize,omitempty\" graphql:\"requestBurstSize\""
-	IngestionRate                                 *float64                            "json:\"ingestionRate,omitempty\" graphql:\"ingestionRate\""
-	IngestionBurstSize                            *int64                              "json:\"ingestionBurstSize,omitempty\" graphql:\"ingestionBurstSize\""
-	AcceptHASamples                               *bool                               "json:\"acceptHASamples,omitempty\" graphql:\"acceptHASamples\""
-	HaClusterLabel                                *string                             "json:\"haClusterLabel,omitempty\" graphql:\"haClusterLabel\""
-	HaReplicaLabel                                *string                             "json:\"haReplicaLabel,omitempty\" graphql:\"haReplicaLabel\""
-	HaMaxClusters                                 *int64                              "json:\"haMaxClusters,omitempty\" graphql:\"haMaxClusters\""
-	DropLabels                                    []*string                           "json:\"dropLabels,omitempty\" graphql:\"dropLabels\""
-	MaxLabelNameLength                            *int64                              "json:\"maxLabelNameLength,omitempty\" graphql:\"maxLabelNameLength\""
-	MaxLabelValueLength                           *int64                              "json:\"maxLabelValueLength,omitempty\" graphql:\"maxLabelValueLength\""
-	MaxLabelNamesPerSeries                        *int64                              "json:\"maxLabelNamesPerSeries,omitempty\" graphql:\"maxLabelNamesPerSeries\""
-	MaxMetadataLength                             *int64                              "json:\"maxMetadataLength,omitempty\" graphql:\"maxMetadataLength\""
-	CreationGracePeriod                           *v1.Duration                        "json:\"creationGracePeriod,omitempty\" graphql:\"creationGracePeriod\""
-	EnforceMetadataMetricName                     *bool                               "json:\"enforceMetadataMetricName,omitempty\" graphql:\"enforceMetadataMetricName\""
-	IngestionTenantShardSize                      *int64                              "json:\"ingestionTenantShardSize,omitempty\" graphql:\"ingestionTenantShardSize\""
-	MaxGlobalSeriesPerUser                        *int64                              "json:\"maxGlobalSeriesPerUser,omitempty\" graphql:\"maxGlobalSeriesPerUser\""
-	MaxGlobalSeriesPerMetric                      *int64                              "json:\"maxGlobalSeriesPerMetric,omitempty\" graphql:\"maxGlobalSeriesPerMetric\""
-	MaxGlobalMetricsWithMetadataPerUser           *int64                              "json:\"maxGlobalMetricsWithMetadataPerUser,omitempty\" graphql:\"maxGlobalMetricsWithMetadataPerUser\""
-	MaxGlobalMetadataPerMetric                    *int64                              "json:\"maxGlobalMetadataPerMetric,omitempty\" graphql:\"maxGlobalMetadataPerMetric\""
-	MaxGlobalExemplarsPerUser                     *int64                              "json:\"maxGlobalExemplarsPerUser,omitempty\" graphql:\"maxGlobalExemplarsPerUser\""
-	NativeHistogramsIngestionEnabled              *bool                               "json:\"nativeHistogramsIngestionEnabled,omitempty\" graphql:\"nativeHistogramsIngestionEnabled\""
-	OutOfOrderTimeWindow                          *v1.Duration                        "json:\"outOfOrderTimeWindow,omitempty\" graphql:\"outOfOrderTimeWindow\""
-	OutOfOrderBlocksExternalLabelEnabled          *bool                               "json:\"outOfOrderBlocksExternalLabelEnabled,omitempty\" graphql:\"outOfOrderBlocksExternalLabelEnabled\""
-	SeparateMetricsGroupLabel                     *string                             "json:\"separateMetricsGroupLabel,omitempty\" graphql:\"separateMetricsGroupLabel\""
-	MaxChunksPerQuery                             *int64                              "json:\"maxChunksPerQuery,omitempty\" graphql:\"maxChunksPerQuery\""
-	MaxFetchedSeriesPerQuery                      *int64                              "json:\"maxFetchedSeriesPerQuery,omitempty\" graphql:\"maxFetchedSeriesPerQuery\""
-	MaxFetchedChunkBytesPerQuery                  *int64                              "json:\"maxFetchedChunkBytesPerQuery,omitempty\" graphql:\"maxFetchedChunkBytesPerQuery\""
-	MaxQueryLookback                              *v1.Duration                        "json:\"maxQueryLookback,omitempty\" graphql:\"maxQueryLookback\""
-	MaxPartialQueryLength                         *v1.Duration                        "json:\"maxPartialQueryLength,omitempty\" graphql:\"maxPartialQueryLength\""
-	MaxQueryParallelism                           *int64                              "json:\"maxQueryParallelism,omitempty\" graphql:\"maxQueryParallelism\""
-	MaxLabelsQueryLength                          *v1.Duration                        "json:\"maxLabelsQueryLength,omitempty\" graphql:\"maxLabelsQueryLength\""
-	MaxCacheFreshness                             *v1.Duration                        "json:\"maxCacheFreshness,omitempty\" graphql:\"maxCacheFreshness\""
-	MaxQueriersPerTenant                          *int64                              "json:\"maxQueriersPerTenant,omitempty\" graphql:\"maxQueriersPerTenant\""
-	QueryShardingTotalShards                      *int64                              "json:\"queryShardingTotalShards,omitempty\" graphql:\"queryShardingTotalShards\""
-	QueryShardingMaxShardedQueries                *int64                              "json:\"queryShardingMaxShardedQueries,omitempty\" graphql:\"queryShardingMaxShardedQueries\""
-	QueryShardingMaxRegexpSizeBytes               *int64                              "json:\"queryShardingMaxRegexpSizeBytes,omitempty\" graphql:\"queryShardingMaxRegexpSizeBytes\""
-	SplitInstantQueriesByInterval                 *v1.Duration                        "json:\"splitInstantQueriesByInterval,omitempty\" graphql:\"splitInstantQueriesByInterval\""
-	MaxTotalQueryLength                           *v1.Duration                        "json:\"maxTotalQueryLength,omitempty\" graphql:\"maxTotalQueryLength\""
-	ResultsCacheTTL                               *v1.Duration                        "json:\"resultsCacheTTL,omitempty\" graphql:\"resultsCacheTTL\""
-	ResultsCacheTTLForOutOfOrderTimeWindow        *v1.Duration                        "json:\"resultsCacheTTLForOutOfOrderTimeWindow,omitempty\" graphql:\"resultsCacheTTLForOutOfOrderTimeWindow\""
-	MaxQueryExpressionSizeBytes                   *int64                              "json:\"maxQueryExpressionSizeBytes,omitempty\" graphql:\"maxQueryExpressionSizeBytes\""
-	CardinalityAnalysisEnabled                    *bool                               "json:\"cardinalityAnalysisEnabled,omitempty\" graphql:\"cardinalityAnalysisEnabled\""
-	LabelNamesAndValuesResultsMaxSizeBytes        *int64                              "json:\"labelNamesAndValuesResultsMaxSizeBytes,omitempty\" graphql:\"labelNamesAndValuesResultsMaxSizeBytes\""
-	LabelValuesMaxCardinalityLabelNamesPerRequest *int64                              "json:\"labelValuesMaxCardinalityLabelNamesPerRequest,omitempty\" graphql:\"labelValuesMaxCardinalityLabelNamesPerRequest\""
-	RulerEvaluationDelay                          *v1.Duration                        "json:\"rulerEvaluationDelay,omitempty\" graphql:\"rulerEvaluationDelay\""
-	RulerTenantShardSize                          *int64                              "json:\"rulerTenantShardSize,omitempty\" graphql:\"rulerTenantShardSize\""
-	RulerMaxRulesPerRuleGroup                     *int64                              "json:\"rulerMaxRulesPerRuleGroup,omitempty\" graphql:\"rulerMaxRulesPerRuleGroup\""
-	RulerMaxRuleGroupsPerTenant                   *int64                              "json:\"rulerMaxRuleGroupsPerTenant,omitempty\" graphql:\"rulerMaxRuleGroupsPerTenant\""
-	RulerRecordingRulesEvaluationEnabled          *bool                               "json:\"rulerRecordingRulesEvaluationEnabled,omitempty\" graphql:\"rulerRecordingRulesEvaluationEnabled\""
-	RulerAlertingRulesEvaluationEnabled           *bool                               "json:\"rulerAlertingRulesEvaluationEnabled,omitempty\" graphql:\"rulerAlertingRulesEvaluationEnabled\""
-	StoreGatewayTenantShardSize                   *int64                              "json:\"storeGatewayTenantShardSize,omitempty\" graphql:\"storeGatewayTenantShardSize\""
-	CompactorBlocksRetentionPeriod                *v1.Duration                        "json:\"compactorBlocksRetentionPeriod,omitempty\" graphql:\"compactorBlocksRetentionPeriod\""
-	CompactorSplitAndMergeShards                  *int64                              "json:\"compactorSplitAndMergeShards,omitempty\" graphql:\"compactorSplitAndMergeShards\""
-	CompactorSplitGroups                          *int64                              "json:\"compactorSplitGroups,omitempty\" graphql:\"compactorSplitGroups\""
-	CompactorTenantShardSize                      *int64                              "json:\"compactorTenantShardSize,omitempty\" graphql:\"compactorTenantShardSize\""
-	CompactorPartialBlockDeletionDelay            *v1.Duration                        "json:\"compactorPartialBlockDeletionDelay,omitempty\" graphql:\"compactorPartialBlockDeletionDelay\""
-	CompactorBlockUploadEnabled                   *bool                               "json:\"compactorBlockUploadEnabled,omitempty\" graphql:\"compactorBlockUploadEnabled\""
-	CompactorBlockUploadValidationEnabled         *bool                               "json:\"compactorBlockUploadValidationEnabled,omitempty\" graphql:\"compactorBlockUploadValidationEnabled\""
-	CompactorBlockUploadVerifyChunks              *bool                               "json:\"compactorBlockUploadVerifyChunks,omitempty\" graphql:\"compactorBlockUploadVerifyChunks\""
-	S3SSEType                                     *string                             "json:\"s3SSEType,omitempty\" graphql:\"s3SSEType\""
-	S3SSEKMSKeyID                                 *string                             "json:\"s3SSEKMSKeyID,omitempty\" graphql:\"s3SSEKMSKeyID\""
-	S3SSEKMSEncryptionContext                     *string                             "json:\"s3SSEKMSEncryptionContext,omitempty\" graphql:\"s3SSEKMSEncryptionContext\""
-	AlertmanagerReceiversBlockCIDRNetworks        *string                             "json:\"alertmanagerReceiversBlockCIDRNetworks,omitempty\" graphql:\"alertmanagerReceiversBlockCIDRNetworks\""
-	AlertmanagerReceiversBlockPrivateAddresses    *bool                               "json:\"alertmanagerReceiversBlockPrivateAddresses,omitempty\" graphql:\"alertmanagerReceiversBlockPrivateAddresses\""
-	NotificationRateLimit                         *float64                            "json:\"notificationRateLimit,omitempty\" graphql:\"notificationRateLimit\""
-	NotificationRateLimitPerIntegration           map[string]*float64                 "json:\"notificationRateLimitPerIntegration,omitempty\" graphql:\"notificationRateLimitPerIntegration\""
-	AlertmanagerMaxConfigSizeBytes                *int64                              "json:\"alertmanagerMaxConfigSizeBytes,omitempty\" graphql:\"alertmanagerMaxConfigSizeBytes\""
-	AlertmanagerMaxTemplatesCount                 *int64                              "json:\"alertmanagerMaxTemplatesCount,omitempty\" graphql:\"alertmanagerMaxTemplatesCount\""
-	AlertmanagerMaxTemplateSizeBytes              *int64                              "json:\"alertmanagerMaxTemplateSizeBytes,omitempty\" graphql:\"alertmanagerMaxTemplateSizeBytes\""
-	AlertmanagerMaxDispatcherAggregationGroups    *int64                              "json:\"alertmanagerMaxDispatcherAggregationGroups,omitempty\" graphql:\"alertmanagerMaxDispatcherAggregationGroups\""
-	AlertmanagerMaxAlertsCount                    *int64                              "json:\"alertmanagerMaxAlertsCount,omitempty\" graphql:\"alertmanagerMaxAlertsCount\""
-	AlertmanagerMaxAlertsSizeBytes                *int64                              "json:\"alertmanagerMaxAlertsSizeBytes,omitempty\" graphql:\"alertmanagerMaxAlertsSizeBytes\""
-	ForwardingEndpoint                            *string                             "json:\"forwardingEndpoint,omitempty\" graphql:\"forwardingEndpoint\""
-	ForwardingDropOlderThan                       *v1.Duration                        "json:\"forwardingDropOlderThan,omitempty\" graphql:\"forwardingDropOlderThan\""
-	ForwardingRules                               map[string]*v1alpha1.ForwardingRule "json:\"forwardingRules,omitempty\" graphql:\"forwardingRules\""
+type GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_RulerAlertManagerConfig_RulerAlertManagerConfigFragment_Notifier_NotifierConfigFragment_BasicAuth struct {
+	Username *string "json:\"username,omitempty\" graphql:\"username\""
+	Password *string "json:\"password,omitempty\" graphql:\"password\""
 }
 
-func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetRequestRate() *float64 {
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_RulerAlertManagerConfig_RulerAlertManagerConfigFragment_Notifier_NotifierConfigFragment_BasicAuth) GetUsername() *string {
 	if t == nil {
-		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_RulerAlertManagerConfig_RulerAlertManagerConfigFragment_Notifier_NotifierConfigFragment_BasicAuth{}
 	}
-	return t.RequestRate
+	return t.Username
 }
-func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetRequestBurstSize() *int64 {
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_RulerAlertManagerConfig_RulerAlertManagerConfigFragment_Notifier_NotifierConfigFragment_BasicAuth) GetPassword() *string {
 	if t == nil {
-		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_RulerAlertManagerConfig_RulerAlertManagerConfigFragment_Notifier_NotifierConfigFragment_BasicAuth{}
 	}
-	return t.RequestBurstSize
+	return t.Password
 }
-func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetIngestionRate() *float64 {
-	if t == nil {
-		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.IngestionRate
-}
-func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetIngestionBurstSize() *int64 {
-	if t == nil {
-		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.IngestionBurstSize
-}
-func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetAcceptHASamples() *bool {
-	if t == nil {
-		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.AcceptHASamples
-}
-func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetHaClusterLabel() *string {
-	if t == nil {
-		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.HaClusterLabel
-}
-func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetHaReplicaLabel() *string {
-	if t == nil {
-		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.HaReplicaLabel
-}
-func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetHaMaxClusters() *int64 {
-	if t == nil {
-		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.HaMaxClusters
-}
-func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetDropLabels() []*string {
-	if t == nil {
-		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.DropLabels
-}
-func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetMaxLabelNameLength() *int64 {
-	if t == nil {
-		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.MaxLabelNameLength
-}
-func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetMaxLabelValueLength() *int64 {
-	if t == nil {
-		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.MaxLabelValueLength
-}
-func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetMaxLabelNamesPerSeries() *int64 {
-	if t == nil {
-		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.MaxLabelNamesPerSeries
-}
-func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetMaxMetadataLength() *int64 {
-	if t == nil {
-		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.MaxMetadataLength
-}
-func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetCreationGracePeriod() *v1.Duration {
-	if t == nil {
-		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.CreationGracePeriod
-}
-func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetEnforceMetadataMetricName() *bool {
-	if t == nil {
-		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.EnforceMetadataMetricName
-}
-func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetIngestionTenantShardSize() *int64 {
-	if t == nil {
-		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.IngestionTenantShardSize
-}
-func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetMaxGlobalSeriesPerUser() *int64 {
-	if t == nil {
-		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.MaxGlobalSeriesPerUser
-}
-func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetMaxGlobalSeriesPerMetric() *int64 {
-	if t == nil {
-		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.MaxGlobalSeriesPerMetric
-}
-func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetMaxGlobalMetricsWithMetadataPerUser() *int64 {
-	if t == nil {
-		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.MaxGlobalMetricsWithMetadataPerUser
-}
-func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetMaxGlobalMetadataPerMetric() *int64 {
-	if t == nil {
-		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.MaxGlobalMetadataPerMetric
-}
-func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetMaxGlobalExemplarsPerUser() *int64 {
-	if t == nil {
-		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.MaxGlobalExemplarsPerUser
-}
-func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetNativeHistogramsIngestionEnabled() *bool {
-	if t == nil {
-		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.NativeHistogramsIngestionEnabled
-}
-func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetOutOfOrderTimeWindow() *v1.Duration {
-	if t == nil {
-		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.OutOfOrderTimeWindow
-}
-func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetOutOfOrderBlocksExternalLabelEnabled() *bool {
-	if t == nil {
-		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.OutOfOrderBlocksExternalLabelEnabled
-}
-func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetSeparateMetricsGroupLabel() *string {
-	if t == nil {
-		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.SeparateMetricsGroupLabel
-}
-func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetMaxChunksPerQuery() *int64 {
-	if t == nil {
-		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.MaxChunksPerQuery
+
+type GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_RulerAlertManagerConfig_RulerAlertManagerConfigFragment_Notifier_NotifierConfigFragment_HeaderAuth struct {
+	Type            *string "json:\"type,omitempty\" graphql:\"type\""
+	Credentials     *string "json:\"credentials,omitempty\" graphql:\"credentials\""
+	CredentialsFile *string "json:\"credentialsFile,omitempty\" graphql:\"credentialsFile\""
 }
-func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetMaxFetchedSeriesPerQuery() *int64 {
+
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_RulerAlertManagerConfig_RulerAlertManagerConfigFragment_Notifier_NotifierConfigFragment_HeaderAuth) GetType() *string {
 	if t == nil {
-		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_RulerAlertManagerConfig_RulerAlertManagerConfigFragment_Notifier_NotifierConfigFragment_HeaderAuth{}
 	}
-	return t.MaxFetchedSeriesPerQuery
+	return t.Type
 }
-func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetMaxFetchedChunkBytesPerQuery() *int64 {
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_RulerAlertManagerConfig_RulerAlertManagerConfigFragment_Notifier_NotifierConfigFragment_HeaderAuth) GetCredentials() *string {
 	if t == nil {
-		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_RulerAlertManagerConfig_RulerAlertManagerConfigFragment_Notifier_NotifierConfigFragment_HeaderAuth{}
 	}
-	return t.MaxFetchedChunkBytesPerQuery
+	return t.Credentials
 }
-func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetMaxQueryLookback() *v1.Duration {
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_RulerAlertManagerConfig_RulerAlertManagerConfigFragment_Notifier_NotifierConfigFragment_HeaderAuth) GetCredentialsFile() *string {
 	if t == nil {
-		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_RulerAlertManagerConfig_RulerAlertManagerConfigFragment_Notifier_NotifierConfigFragment_HeaderAuth{}
 	}
-	return t.MaxQueryLookback
+	return t.CredentialsFile
 }
-func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetMaxPartialQueryLength() *v1.Duration {
-	if t == nil {
-		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.MaxPartialQueryLength
-}
-func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetMaxQueryParallelism() *int64 {
-	if t == nil {
-		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.MaxQueryParallelism
-}
-func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetMaxLabelsQueryLength() *v1.Duration {
-	if t == nil {
-		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.MaxLabelsQueryLength
-}
-func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetMaxCacheFreshness() *v1.Duration {
-	if t == nil {
-		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.MaxCacheFreshness
-}
-func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetMaxQueriersPerTenant() *int64 {
-	if t == nil {
-		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.MaxQueriersPerTenant
-}
-func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetQueryShardingTotalShards() *int64 {
-	if t == nil {
-		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.QueryShardingTotalShards
-}
-func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetQueryShardingMaxShardedQueries() *int64 {
-	if t == nil {
-		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.QueryShardingMaxShardedQueries
-}
-func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetQueryShardingMaxRegexpSizeBytes() *int64 {
-	if t == nil {
-		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.QueryShardingMaxRegexpSizeBytes
-}
-func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetSplitInstantQueriesByInterval() *v1.Duration {
-	if t == nil {
-		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.SplitInstantQueriesByInterval
-}
-func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetMaxTotalQueryLength() *v1.Duration {
-	if t == nil {
-		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.MaxTotalQueryLength
-}
-func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetResultsCacheTTL() *v1.Duration {
-	if t == nil {
-		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.ResultsCacheTTL
-}
-func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetResultsCacheTTLForOutOfOrderTimeWindow() *v1.Duration {
-	if t == nil {
-		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.ResultsCacheTTLForOutOfOrderTimeWindow
-}
-func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetMaxQueryExpressionSizeBytes() *int64 {
-	if t == nil {
-		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.MaxQueryExpressionSizeBytes
-}
-func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetCardinalityAnalysisEnabled() *bool {
-	if t == nil {
-		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.CardinalityAnalysisEnabled
-}
-func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetLabelNamesAndValuesResultsMaxSizeBytes() *int64 {
-	if t == nil {
-		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.LabelNamesAndValuesResultsMaxSizeBytes
-}
-func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetLabelValuesMaxCardinalityLabelNamesPerRequest() *int64 {
-	if t == nil {
-		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.LabelValuesMaxCardinalityLabelNamesPerRequest
-}
-func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetRulerEvaluationDelay() *v1.Duration {
-	if t == nil {
-		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.RulerEvaluationDelay
-}
-func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetRulerTenantShardSize() *int64 {
-	if t == nil {
-		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.RulerTenantShardSize
-}
-func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetRulerMaxRulesPerRuleGroup() *int64 {
-	if t == nil {
-		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.RulerMaxRulesPerRuleGroup
-}
-func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetRulerMaxRuleGroupsPerTenant() *int64 {
-	if t == nil {
-		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.RulerMaxRuleGroupsPerTenant
-}
-func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetRulerRecordingRulesEvaluationEnabled() *bool {
-	if t == nil {
-		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.RulerRecordingRulesEvaluationEnabled
+
+type GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_RulerAlertManagerConfig_RulerAlertManagerConfigFragment_Notifier_NotifierConfigFragment_TLS struct {
+	CertPath           *string "json:\"certPath,omitempty\" graphql:\"certPath\""
+	KeyPath            *string "json:\"keyPath,omitempty\" graphql:\"keyPath\""
+	CaPath             *string "json:\"caPath,omitempty\" graphql:\"caPath\""
+	ServerName         *string "json:\"serverName,omitempty\" graphql:\"serverName\""
+	InsecureSkipVerify *bool   "json:\"insecureSkipVerify,omitempty\" graphql:\"insecureSkipVerify\""
+	CipherSuites       *string "json:\"cipherSuites,omitempty\" graphql:\"cipherSuites\""
+	MinVersion         *string "json:\"minVersion,omitempty\" graphql:\"minVersion\""
 }
-func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetRulerAlertingRulesEvaluationEnabled() *bool {
+
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_RulerAlertManagerConfig_RulerAlertManagerConfigFragment_Notifier_NotifierConfigFragment_TLS) GetCertPath() *string {
 	if t == nil {
-		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_RulerAlertManagerConfig_RulerAlertManagerConfigFragment_Notifier_NotifierConfigFragment_TLS{}
 	}
-	return t.RulerAlertingRulesEvaluationEnabled
+	return t.CertPath
 }
-func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetStoreGatewayTenantShardSize() *int64 {
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_RulerAlertManagerConfig_RulerAlertManagerConfigFragment_Notifier_NotifierConfigFragment_TLS) GetKeyPath() *string {
 	if t == nil {
-		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_RulerAlertManagerConfig_RulerAlertManagerConfigFragment_Notifier_NotifierConfigFragment_TLS{}
 	}
-	return t.StoreGatewayTenantShardSize
+	return t.KeyPath
 }
-func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetCompactorBlocksRetentionPeriod() *v1.Duration {
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_RulerAlertManagerConfig_RulerAlertManagerConfigFragment_Notifier_NotifierConfigFragment_TLS) GetCaPath() *string {
 	if t == nil {
-		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_RulerAlertManagerConfig_RulerAlertManagerConfigFragment_Notifier_NotifierConfigFragment_TLS{}
 	}
-	return t.CompactorBlocksRetentionPeriod
+	return t.CaPath
 }
-func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetCompactorSplitAndMergeShards() *int64 {
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_RulerAlertManagerConfig_RulerAlertManagerConfigFragment_Notifier_NotifierConfigFragment_TLS) GetServerName() *string {
 	if t == nil {
-		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_RulerAlertManagerConfig_RulerAlertManagerConfigFragment_Notifier_NotifierConfigFragment_TLS{}
 	}
-	return t.CompactorSplitAndMergeShards
+	return t.ServerName
 }
-func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetCompactorSplitGroups() *int64 {
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_RulerAlertManagerConfig_RulerAlertManagerConfigFragment_Notifier_NotifierConfigFragment_TLS) GetInsecureSkipVerify() *bool {
 	if t == nil {
-		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_RulerAlertManagerConfig_RulerAlertManagerConfigFragment_Notifier_NotifierConfigFragment_TLS{}
 	}
-	return t.CompactorSplitGroups
+	return t.InsecureSkipVerify
 }
-func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetCompactorTenantShardSize() *int64 {
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_RulerAlertManagerConfig_RulerAlertManagerConfigFragment_Notifier_NotifierConfigFragment_TLS) GetCipherSuites() *string {
 	if t == nil {
-		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_RulerAlertManagerConfig_RulerAlertManagerConfigFragment_Notifier_NotifierConfigFragment_TLS{}
 	}
-	return t.CompactorTenantShardSize
+	return t.CipherSuites
 }
-func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetCompactorPartialBlockDeletionDelay() *v1.Duration {
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_RulerAlertManagerConfig_RulerAlertManagerConfigFragment_Notifier_NotifierConfigFragment_TLS) GetMinVersion() *string {
 	if t == nil {
-		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_RulerAlertManagerConfig_RulerAlertManagerConfigFragment_Notifier_NotifierConfigFragment_TLS{}
 	}
-	return t.CompactorPartialBlockDeletionDelay
+	return t.MinVersion
 }
-func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetCompactorBlockUploadEnabled() *bool {
-	if t == nil {
-		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.CompactorBlockUploadEnabled
+
+type GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_StreamRetention struct {
+	Period   *v1.Duration "json:\"period,omitempty\" graphql:\"period\""
+	Priority *int64       "json:\"priority,omitempty\" graphql:\"priority\""
+	Selector *string      "json:\"selector,omitempty\" graphql:\"selector\""
 }
-func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetCompactorBlockUploadValidationEnabled() *bool {
+
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_StreamRetention) GetPeriod() *v1.Duration {
 	if t == nil {
-		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_StreamRetention{}
 	}
-	return t.CompactorBlockUploadValidationEnabled
+	return t.Period
 }
-func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetCompactorBlockUploadVerifyChunks() *bool {
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_StreamRetention) GetPriority() *int64 {
 	if t == nil {
-		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_StreamRetention{}
 	}
-	return t.CompactorBlockUploadVerifyChunks
+	return t.Priority
 }
-func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetS3SSEType() *string {
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_StreamRetention) GetSelector() *string {
 	if t == nil {
-		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_StreamRetention{}
 	}
-	return t.S3SSEType
+	return t.Selector
 }
-func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetS3SSEKMSKeyID() *string {
-	if t == nil {
-		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.S3SSEKMSKeyID
+
+type GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_ShardStreams struct {
+	Enabled        *bool   "json:\"enabled,omitempty\" graphql:\"enabled\""
+	LoggingEnabled *bool   "json:\"loggingEnabled,omitempty\" graphql:\"loggingEnabled\""
+	DesiredRate    *uint64 "json:\"desiredRate,omitempty\" graphql:\"desiredRate\""
 }
-func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetS3SSEKMSEncryptionContext() *string {
+
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_ShardStreams) GetEnabled() *bool {
 	if t == nil {
-		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_ShardStreams{}
 	}
-	return t.S3SSEKMSEncryptionContext
+	return t.Enabled
 }
-func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetAlertmanagerReceiversBlockCIDRNetworks() *string {
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_ShardStreams) GetLoggingEnabled() *bool {
 	if t == nil {
-		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_ShardStreams{}
 	}
-	return t.AlertmanagerReceiversBlockCIDRNetworks
+	return t.LoggingEnabled
 }
-func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetAlertmanagerReceiversBlockPrivateAddresses() *bool {
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_ShardStreams) GetDesiredRate() *uint64 {
 	if t == nil {
-		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_ShardStreams{}
 	}
-	return t.AlertmanagerReceiversBlockPrivateAddresses
+	return t.DesiredRate
 }
-func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetNotificationRateLimit() *float64 {
-	if t == nil {
-		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.NotificationRateLimit
+
+type GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_BlockedQueries struct {
+	Pattern *string                     "json:\"pattern,omitempty\" graphql:\"pattern\""
+	Regex   *bool                       "json:\"regex,omitempty\" graphql:\"regex\""
+	Hash    *uint64                     "json:\"hash,omitempty\" graphql:\"hash\""
+	Types   []v1alpha1.BlockedQueryType "json:\"types,omitempty\" graphql:\"types\""
 }
-func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetNotificationRateLimitPerIntegration() map[string]*float64 {
+
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_BlockedQueries) GetPattern() *string {
 	if t == nil {
-		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_BlockedQueries{}
 	}
-	return t.NotificationRateLimitPerIntegration
+	return t.Pattern
 }
-func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetAlertmanagerMaxConfigSizeBytes() *int64 {
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_BlockedQueries) GetRegex() *bool {
 	if t == nil {
-		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_BlockedQueries{}
 	}
-	return t.AlertmanagerMaxConfigSizeBytes
+	return t.Regex
 }
-func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetAlertmanagerMaxTemplatesCount() *int64 {
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_BlockedQueries) GetHash() *uint64 {
 	if t == nil {
-		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_BlockedQueries{}
 	}
-	return t.AlertmanagerMaxTemplatesCount
+	return t.Hash
 }
-func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetAlertmanagerMaxTemplateSizeBytes() *int64 {
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_BlockedQueries) GetTypes() []v1alpha1.BlockedQueryType {
 	if t == nil {
-		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_BlockedQueries{}
 	}
-	return t.AlertmanagerMaxTemplateSizeBytes
+	return t.Types
 }
-func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetAlertmanagerMaxDispatcherAggregationGroups() *int64 {
-	if t == nil {
-		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.AlertmanagerMaxDispatcherAggregationGroups
+
+type GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Tempo_TempoLimitsFragment_MetricsGeneratorProcessorSpanMetricsFilterPolicies_FilterPolicyFragment_Include_PolicyMatchFragment_Attributes struct {
+	Key   string                 "json:\"key\" graphql:\"key\""
+	Value map[string]interface{} "json:\"value,omitempty\" graphql:\"value\""
 }
-func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetAlertmanagerMaxAlertsCount() *int64 {
+
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Tempo_TempoLimitsFragment_MetricsGeneratorProcessorSpanMetricsFilterPolicies_FilterPolicyFragment_Include_PolicyMatchFragment_Attributes) GetKey() string {
 	if t == nil {
-		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Tempo_TempoLimitsFragment_MetricsGeneratorProcessorSpanMetricsFilterPolicies_FilterPolicyFragment_Include_PolicyMatchFragment_Attributes{}
 	}
-	return t.AlertmanagerMaxAlertsCount
+	return t.Key
 }
-func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetAlertmanagerMaxAlertsSizeBytes() *int64 {
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Tempo_TempoLimitsFragment_MetricsGeneratorProcessorSpanMetricsFilterPolicies_FilterPolicyFragment_Include_PolicyMatchFragment_Attributes) GetValue() map[string]interface{} {
 	if t == nil {
-		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Tempo_TempoLimitsFragment_MetricsGeneratorProcessorSpanMetricsFilterPolicies_FilterPolicyFragment_Include_PolicyMatchFragment_Attributes{}
 	}
-	return t.AlertmanagerMaxAlertsSizeBytes
+	return t.Value
 }
-func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetForwardingEndpoint() *string {
-	if t == nil {
-		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.ForwardingEndpoint
+
+type GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Tempo_TempoLimitsFragment_MetricsGeneratorProcessorSpanMetricsFilterPolicies_FilterPolicyFragment_Exclude_PolicyMatchFragment_Attributes struct {
+	Key   string                 "json:\"key\" graphql:\"key\""
+	Value map[string]interface{} "json:\"value,omitempty\" graphql:\"value\""
 }
-func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetForwardingDropOlderThan() *v1.Duration {
+
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Tempo_TempoLimitsFragment_MetricsGeneratorProcessorSpanMetricsFilterPolicies_FilterPolicyFragment_Exclude_PolicyMatchFragment_Attributes) GetKey() string {
 	if t == nil {
-		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Tempo_TempoLimitsFragment_MetricsGeneratorProcessorSpanMetricsFilterPolicies_FilterPolicyFragment_Exclude_PolicyMatchFragment_Attributes{}
 	}
-	return t.ForwardingDropOlderThan
+	return t.Key
 }
-func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetForwardingRules() map[string]*v1alpha1.ForwardingRule {
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Tempo_TempoLimitsFragment_MetricsGeneratorProcessorSpanMetricsFilterPolicies_FilterPolicyFragment_Exclude_PolicyMatchFragment_Attributes) GetValue() map[string]interface{} {
 	if t == nil {
-		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Tempo_TempoLimitsFragment_MetricsGeneratorProcessorSpanMetricsFilterPolicies_FilterPolicyFragment_Exclude_PolicyMatchFragment_Attributes{}
 	}
-	return t.ForwardingRules
+	return t.Value
 }
 
 type CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Admins_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name struct {
@@ -8146,540 +9136,218 @@ func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenant
 	return t.Groups
 }
 
-type CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir struct {
-	RequestRate                                   *float64                            "json:\"requestRate,omitempty\" graphql:\"requestRate\""
-	RequestBurstSize                              *int64                              "json:\"requestBurstSize,omitempty\" graphql:\"requestBurstSize\""
-	IngestionRate                                 *float64                            "json:\"ingestionRate,omitempty\" graphql:\"ingestionRate\""
-	IngestionBurstSize                            *int64                              "json:\"ingestionBurstSize,omitempty\" graphql:\"ingestionBurstSize\""
-	AcceptHASamples                               *bool                               "json:\"acceptHASamples,omitempty\" graphql:\"acceptHASamples\""
-	HaClusterLabel                                *string                             "json:\"haClusterLabel,omitempty\" graphql:\"haClusterLabel\""
-	HaReplicaLabel                                *string                             "json:\"haReplicaLabel,omitempty\" graphql:\"haReplicaLabel\""
-	HaMaxClusters                                 *int64                              "json:\"haMaxClusters,omitempty\" graphql:\"haMaxClusters\""
-	DropLabels                                    []*string                           "json:\"dropLabels,omitempty\" graphql:\"dropLabels\""
-	MaxLabelNameLength                            *int64                              "json:\"maxLabelNameLength,omitempty\" graphql:\"maxLabelNameLength\""
-	MaxLabelValueLength                           *int64                              "json:\"maxLabelValueLength,omitempty\" graphql:\"maxLabelValueLength\""
-	MaxLabelNamesPerSeries                        *int64                              "json:\"maxLabelNamesPerSeries,omitempty\" graphql:\"maxLabelNamesPerSeries\""
-	MaxMetadataLength                             *int64                              "json:\"maxMetadataLength,omitempty\" graphql:\"maxMetadataLength\""
-	CreationGracePeriod                           *v1.Duration                        "json:\"creationGracePeriod,omitempty\" graphql:\"creationGracePeriod\""
-	EnforceMetadataMetricName                     *bool                               "json:\"enforceMetadataMetricName,omitempty\" graphql:\"enforceMetadataMetricName\""
-	IngestionTenantShardSize                      *int64                              "json:\"ingestionTenantShardSize,omitempty\" graphql:\"ingestionTenantShardSize\""
-	MaxGlobalSeriesPerUser                        *int64                              "json:\"maxGlobalSeriesPerUser,omitempty\" graphql:\"maxGlobalSeriesPerUser\""
-	MaxGlobalSeriesPerMetric                      *int64                              "json:\"maxGlobalSeriesPerMetric,omitempty\" graphql:\"maxGlobalSeriesPerMetric\""
-	MaxGlobalMetricsWithMetadataPerUser           *int64                              "json:\"maxGlobalMetricsWithMetadataPerUser,omitempty\" graphql:\"maxGlobalMetricsWithMetadataPerUser\""
-	MaxGlobalMetadataPerMetric                    *int64                              "json:\"maxGlobalMetadataPerMetric,omitempty\" graphql:\"maxGlobalMetadataPerMetric\""
-	MaxGlobalExemplarsPerUser                     *int64                              "json:\"maxGlobalExemplarsPerUser,omitempty\" graphql:\"maxGlobalExemplarsPerUser\""
-	NativeHistogramsIngestionEnabled              *bool                               "json:\"nativeHistogramsIngestionEnabled,omitempty\" graphql:\"nativeHistogramsIngestionEnabled\""
-	OutOfOrderTimeWindow                          *v1.Duration                        "json:\"outOfOrderTimeWindow,omitempty\" graphql:\"outOfOrderTimeWindow\""
-	OutOfOrderBlocksExternalLabelEnabled          *bool                               "json:\"outOfOrderBlocksExternalLabelEnabled,omitempty\" graphql:\"outOfOrderBlocksExternalLabelEnabled\""
-	SeparateMetricsGroupLabel                     *string                             "json:\"separateMetricsGroupLabel,omitempty\" graphql:\"separateMetricsGroupLabel\""
-	MaxChunksPerQuery                             *int64                              "json:\"maxChunksPerQuery,omitempty\" graphql:\"maxChunksPerQuery\""
-	MaxFetchedSeriesPerQuery                      *int64                              "json:\"maxFetchedSeriesPerQuery,omitempty\" graphql:\"maxFetchedSeriesPerQuery\""
-	MaxFetchedChunkBytesPerQuery                  *int64                              "json:\"maxFetchedChunkBytesPerQuery,omitempty\" graphql:\"maxFetchedChunkBytesPerQuery\""
-	MaxQueryLookback                              *v1.Duration                        "json:\"maxQueryLookback,omitempty\" graphql:\"maxQueryLookback\""
-	MaxPartialQueryLength                         *v1.Duration                        "json:\"maxPartialQueryLength,omitempty\" graphql:\"maxPartialQueryLength\""
-	MaxQueryParallelism                           *int64                              "json:\"maxQueryParallelism,omitempty\" graphql:\"maxQueryParallelism\""
-	MaxLabelsQueryLength                          *v1.Duration                        "json:\"maxLabelsQueryLength,omitempty\" graphql:\"maxLabelsQueryLength\""
-	MaxCacheFreshness                             *v1.Duration                        "json:\"maxCacheFreshness,omitempty\" graphql:\"maxCacheFreshness\""
-	MaxQueriersPerTenant                          *int64                              "json:\"maxQueriersPerTenant,omitempty\" graphql:\"maxQueriersPerTenant\""
-	QueryShardingTotalShards                      *int64                              "json:\"queryShardingTotalShards,omitempty\" graphql:\"queryShardingTotalShards\""
-	QueryShardingMaxShardedQueries                *int64                              "json:\"queryShardingMaxShardedQueries,omitempty\" graphql:\"queryShardingMaxShardedQueries\""
-	QueryShardingMaxRegexpSizeBytes               *int64                              "json:\"queryShardingMaxRegexpSizeBytes,omitempty\" graphql:\"queryShardingMaxRegexpSizeBytes\""
-	SplitInstantQueriesByInterval                 *v1.Duration                        "json:\"splitInstantQueriesByInterval,omitempty\" graphql:\"splitInstantQueriesByInterval\""
-	MaxTotalQueryLength                           *v1.Duration                        "json:\"maxTotalQueryLength,omitempty\" graphql:\"maxTotalQueryLength\""
-	ResultsCacheTTL                               *v1.Duration                        "json:\"resultsCacheTTL,omitempty\" graphql:\"resultsCacheTTL\""
-	ResultsCacheTTLForOutOfOrderTimeWindow        *v1.Duration                        "json:\"resultsCacheTTLForOutOfOrderTimeWindow,omitempty\" graphql:\"resultsCacheTTLForOutOfOrderTimeWindow\""
-	MaxQueryExpressionSizeBytes                   *int64                              "json:\"maxQueryExpressionSizeBytes,omitempty\" graphql:\"maxQueryExpressionSizeBytes\""
-	CardinalityAnalysisEnabled                    *bool                               "json:\"cardinalityAnalysisEnabled,omitempty\" graphql:\"cardinalityAnalysisEnabled\""
-	LabelNamesAndValuesResultsMaxSizeBytes        *int64                              "json:\"labelNamesAndValuesResultsMaxSizeBytes,omitempty\" graphql:\"labelNamesAndValuesResultsMaxSizeBytes\""
-	LabelValuesMaxCardinalityLabelNamesPerRequest *int64                              "json:\"labelValuesMaxCardinalityLabelNamesPerRequest,omitempty\" graphql:\"labelValuesMaxCardinalityLabelNamesPerRequest\""
-	RulerEvaluationDelay                          *v1.Duration                        "json:\"rulerEvaluationDelay,omitempty\" graphql:\"rulerEvaluationDelay\""
-	RulerTenantShardSize                          *int64                              "json:\"rulerTenantShardSize,omitempty\" graphql:\"rulerTenantShardSize\""
-	RulerMaxRulesPerRuleGroup                     *int64                              "json:\"rulerMaxRulesPerRuleGroup,omitempty\" graphql:\"rulerMaxRulesPerRuleGroup\""
-	RulerMaxRuleGroupsPerTenant                   *int64                              "json:\"rulerMaxRuleGroupsPerTenant,omitempty\" graphql:\"rulerMaxRuleGroupsPerTenant\""
-	RulerRecordingRulesEvaluationEnabled          *bool                               "json:\"rulerRecordingRulesEvaluationEnabled,omitempty\" graphql:\"rulerRecordingRulesEvaluationEnabled\""
-	RulerAlertingRulesEvaluationEnabled           *bool                               "json:\"rulerAlertingRulesEvaluationEnabled,omitempty\" graphql:\"rulerAlertingRulesEvaluationEnabled\""
-	StoreGatewayTenantShardSize                   *int64                              "json:\"storeGatewayTenantShardSize,omitempty\" graphql:\"storeGatewayTenantShardSize\""
-	CompactorBlocksRetentionPeriod                *v1.Duration                        "json:\"compactorBlocksRetentionPeriod,omitempty\" graphql:\"compactorBlocksRetentionPeriod\""
-	CompactorSplitAndMergeShards                  *int64                              "json:\"compactorSplitAndMergeShards,omitempty\" graphql:\"compactorSplitAndMergeShards\""
-	CompactorSplitGroups                          *int64                              "json:\"compactorSplitGroups,omitempty\" graphql:\"compactorSplitGroups\""
-	CompactorTenantShardSize                      *int64                              "json:\"compactorTenantShardSize,omitempty\" graphql:\"compactorTenantShardSize\""
-	CompactorPartialBlockDeletionDelay            *v1.Duration                        "json:\"compactorPartialBlockDeletionDelay,omitempty\" graphql:\"compactorPartialBlockDeletionDelay\""
-	CompactorBlockUploadEnabled                   *bool                               "json:\"compactorBlockUploadEnabled,omitempty\" graphql:\"compactorBlockUploadEnabled\""
-	CompactorBlockUploadValidationEnabled         *bool                               "json:\"compactorBlockUploadValidationEnabled,omitempty\" graphql:\"compactorBlockUploadValidationEnabled\""
-	CompactorBlockUploadVerifyChunks              *bool                               "json:\"compactorBlockUploadVerifyChunks,omitempty\" graphql:\"compactorBlockUploadVerifyChunks\""
-	S3SSEType                                     *string                             "json:\"s3SSEType,omitempty\" graphql:\"s3SSEType\""
-	S3SSEKMSKeyID                                 *string                             "json:\"s3SSEKMSKeyID,omitempty\" graphql:\"s3SSEKMSKeyID\""
-	S3SSEKMSEncryptionContext                     *string                             "json:\"s3SSEKMSEncryptionContext,omitempty\" graphql:\"s3SSEKMSEncryptionContext\""
-	AlertmanagerReceiversBlockCIDRNetworks        *string                             "json:\"alertmanagerReceiversBlockCIDRNetworks,omitempty\" graphql:\"alertmanagerReceiversBlockCIDRNetworks\""
-	AlertmanagerReceiversBlockPrivateAddresses    *bool                               "json:\"alertmanagerReceiversBlockPrivateAddresses,omitempty\" graphql:\"alertmanagerReceiversBlockPrivateAddresses\""
-	NotificationRateLimit                         *float64                            "json:\"notificationRateLimit,omitempty\" graphql:\"notificationRateLimit\""
-	NotificationRateLimitPerIntegration           map[string]*float64                 "json:\"notificationRateLimitPerIntegration,omitempty\" graphql:\"notificationRateLimitPerIntegration\""
-	AlertmanagerMaxConfigSizeBytes                *int64                              "json:\"alertmanagerMaxConfigSizeBytes,omitempty\" graphql:\"alertmanagerMaxConfigSizeBytes\""
-	AlertmanagerMaxTemplatesCount                 *int64                              "json:\"alertmanagerMaxTemplatesCount,omitempty\" graphql:\"alertmanagerMaxTemplatesCount\""
-	AlertmanagerMaxTemplateSizeBytes              *int64                              "json:\"alertmanagerMaxTemplateSizeBytes,omitempty\" graphql:\"alertmanagerMaxTemplateSizeBytes\""
-	AlertmanagerMaxDispatcherAggregationGroups    *int64                              "json:\"alertmanagerMaxDispatcherAggregationGroups,omitempty\" graphql:\"alertmanagerMaxDispatcherAggregationGroups\""
-	AlertmanagerMaxAlertsCount                    *int64                              "json:\"alertmanagerMaxAlertsCount,omitempty\" graphql:\"alertmanagerMaxAlertsCount\""
-	AlertmanagerMaxAlertsSizeBytes                *int64                              "json:\"alertmanagerMaxAlertsSizeBytes,omitempty\" graphql:\"alertmanagerMaxAlertsSizeBytes\""
-	ForwardingEndpoint                            *string                             "json:\"forwardingEndpoint,omitempty\" graphql:\"forwardingEndpoint\""
-	ForwardingDropOlderThan                       *v1.Duration                        "json:\"forwardingDropOlderThan,omitempty\" graphql:\"forwardingDropOlderThan\""
-	ForwardingRules                               map[string]*v1alpha1.ForwardingRule "json:\"forwardingRules,omitempty\" graphql:\"forwardingRules\""
+type CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_RulerAlertManagerConfig_RulerAlertManagerConfigFragment_Notifier_NotifierConfigFragment_BasicAuth struct {
+	Username *string "json:\"username,omitempty\" graphql:\"username\""
+	Password *string "json:\"password,omitempty\" graphql:\"password\""
 }
 
-func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetRequestRate() *float64 {
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_RulerAlertManagerConfig_RulerAlertManagerConfigFragment_Notifier_NotifierConfigFragment_BasicAuth) GetUsername() *string {
 	if t == nil {
-		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_RulerAlertManagerConfig_RulerAlertManagerConfigFragment_Notifier_NotifierConfigFragment_BasicAuth{}
 	}
-	return t.RequestRate
+	return t.Username
 }
-func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetRequestBurstSize() *int64 {
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_RulerAlertManagerConfig_RulerAlertManagerConfigFragment_Notifier_NotifierConfigFragment_BasicAuth) GetPassword() *string {
 	if t == nil {
-		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_RulerAlertManagerConfig_RulerAlertManagerConfigFragment_Notifier_NotifierConfigFragment_BasicAuth{}
 	}
-	return t.RequestBurstSize
+	return t.Password
 }
-func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetIngestionRate() *float64 {
-	if t == nil {
-		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.IngestionRate
-}
-func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetIngestionBurstSize() *int64 {
-	if t == nil {
-		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.IngestionBurstSize
-}
-func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetAcceptHASamples() *bool {
-	if t == nil {
-		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.AcceptHASamples
-}
-func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetHaClusterLabel() *string {
-	if t == nil {
-		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.HaClusterLabel
-}
-func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetHaReplicaLabel() *string {
-	if t == nil {
-		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.HaReplicaLabel
-}
-func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetHaMaxClusters() *int64 {
-	if t == nil {
-		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.HaMaxClusters
-}
-func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetDropLabels() []*string {
-	if t == nil {
-		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.DropLabels
-}
-func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetMaxLabelNameLength() *int64 {
-	if t == nil {
-		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.MaxLabelNameLength
-}
-func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetMaxLabelValueLength() *int64 {
-	if t == nil {
-		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.MaxLabelValueLength
-}
-func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetMaxLabelNamesPerSeries() *int64 {
-	if t == nil {
-		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.MaxLabelNamesPerSeries
-}
-func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetMaxMetadataLength() *int64 {
-	if t == nil {
-		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.MaxMetadataLength
-}
-func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetCreationGracePeriod() *v1.Duration {
-	if t == nil {
-		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.CreationGracePeriod
-}
-func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetEnforceMetadataMetricName() *bool {
-	if t == nil {
-		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.EnforceMetadataMetricName
-}
-func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetIngestionTenantShardSize() *int64 {
-	if t == nil {
-		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.IngestionTenantShardSize
-}
-func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetMaxGlobalSeriesPerUser() *int64 {
-	if t == nil {
-		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.MaxGlobalSeriesPerUser
-}
-func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetMaxGlobalSeriesPerMetric() *int64 {
-	if t == nil {
-		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.MaxGlobalSeriesPerMetric
-}
-func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetMaxGlobalMetricsWithMetadataPerUser() *int64 {
-	if t == nil {
-		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.MaxGlobalMetricsWithMetadataPerUser
-}
-func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetMaxGlobalMetadataPerMetric() *int64 {
-	if t == nil {
-		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.MaxGlobalMetadataPerMetric
-}
-func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetMaxGlobalExemplarsPerUser() *int64 {
-	if t == nil {
-		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.MaxGlobalExemplarsPerUser
-}
-func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetNativeHistogramsIngestionEnabled() *bool {
-	if t == nil {
-		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.NativeHistogramsIngestionEnabled
-}
-func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetOutOfOrderTimeWindow() *v1.Duration {
-	if t == nil {
-		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.OutOfOrderTimeWindow
-}
-func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetOutOfOrderBlocksExternalLabelEnabled() *bool {
-	if t == nil {
-		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.OutOfOrderBlocksExternalLabelEnabled
-}
-func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetSeparateMetricsGroupLabel() *string {
-	if t == nil {
-		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.SeparateMetricsGroupLabel
-}
-func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetMaxChunksPerQuery() *int64 {
-	if t == nil {
-		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.MaxChunksPerQuery
+
+type CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_RulerAlertManagerConfig_RulerAlertManagerConfigFragment_Notifier_NotifierConfigFragment_HeaderAuth struct {
+	Type            *string "json:\"type,omitempty\" graphql:\"type\""
+	Credentials     *string "json:\"credentials,omitempty\" graphql:\"credentials\""
+	CredentialsFile *string "json:\"credentialsFile,omitempty\" graphql:\"credentialsFile\""
 }
-func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetMaxFetchedSeriesPerQuery() *int64 {
+
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_RulerAlertManagerConfig_RulerAlertManagerConfigFragment_Notifier_NotifierConfigFragment_HeaderAuth) GetType() *string {
 	if t == nil {
-		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_RulerAlertManagerConfig_RulerAlertManagerConfigFragment_Notifier_NotifierConfigFragment_HeaderAuth{}
 	}
-	return t.MaxFetchedSeriesPerQuery
+	return t.Type
 }
-func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetMaxFetchedChunkBytesPerQuery() *int64 {
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_RulerAlertManagerConfig_RulerAlertManagerConfigFragment_Notifier_NotifierConfigFragment_HeaderAuth) GetCredentials() *string {
 	if t == nil {
-		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_RulerAlertManagerConfig_RulerAlertManagerConfigFragment_Notifier_NotifierConfigFragment_HeaderAuth{}
 	}
-	return t.MaxFetchedChunkBytesPerQuery
+	return t.Credentials
 }
-func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetMaxQueryLookback() *v1.Duration {
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_RulerAlertManagerConfig_RulerAlertManagerConfigFragment_Notifier_NotifierConfigFragment_HeaderAuth) GetCredentialsFile() *string {
 	if t == nil {
-		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_RulerAlertManagerConfig_RulerAlertManagerConfigFragment_Notifier_NotifierConfigFragment_HeaderAuth{}
 	}
-	return t.MaxQueryLookback
+	return t.CredentialsFile
 }
-func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetMaxPartialQueryLength() *v1.Duration {
-	if t == nil {
-		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.MaxPartialQueryLength
-}
-func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetMaxQueryParallelism() *int64 {
-	if t == nil {
-		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.MaxQueryParallelism
-}
-func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetMaxLabelsQueryLength() *v1.Duration {
-	if t == nil {
-		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.MaxLabelsQueryLength
-}
-func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetMaxCacheFreshness() *v1.Duration {
-	if t == nil {
-		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.MaxCacheFreshness
-}
-func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetMaxQueriersPerTenant() *int64 {
-	if t == nil {
-		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.MaxQueriersPerTenant
-}
-func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetQueryShardingTotalShards() *int64 {
-	if t == nil {
-		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.QueryShardingTotalShards
-}
-func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetQueryShardingMaxShardedQueries() *int64 {
-	if t == nil {
-		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.QueryShardingMaxShardedQueries
-}
-func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetQueryShardingMaxRegexpSizeBytes() *int64 {
-	if t == nil {
-		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.QueryShardingMaxRegexpSizeBytes
-}
-func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetSplitInstantQueriesByInterval() *v1.Duration {
-	if t == nil {
-		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.SplitInstantQueriesByInterval
-}
-func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetMaxTotalQueryLength() *v1.Duration {
-	if t == nil {
-		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.MaxTotalQueryLength
-}
-func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetResultsCacheTTL() *v1.Duration {
-	if t == nil {
-		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.ResultsCacheTTL
-}
-func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetResultsCacheTTLForOutOfOrderTimeWindow() *v1.Duration {
-	if t == nil {
-		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.ResultsCacheTTLForOutOfOrderTimeWindow
-}
-func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetMaxQueryExpressionSizeBytes() *int64 {
-	if t == nil {
-		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.MaxQueryExpressionSizeBytes
-}
-func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetCardinalityAnalysisEnabled() *bool {
-	if t == nil {
-		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.CardinalityAnalysisEnabled
-}
-func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetLabelNamesAndValuesResultsMaxSizeBytes() *int64 {
-	if t == nil {
-		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.LabelNamesAndValuesResultsMaxSizeBytes
-}
-func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetLabelValuesMaxCardinalityLabelNamesPerRequest() *int64 {
-	if t == nil {
-		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.LabelValuesMaxCardinalityLabelNamesPerRequest
-}
-func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetRulerEvaluationDelay() *v1.Duration {
-	if t == nil {
-		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.RulerEvaluationDelay
-}
-func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetRulerTenantShardSize() *int64 {
-	if t == nil {
-		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.RulerTenantShardSize
-}
-func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetRulerMaxRulesPerRuleGroup() *int64 {
-	if t == nil {
-		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.RulerMaxRulesPerRuleGroup
-}
-func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetRulerMaxRuleGroupsPerTenant() *int64 {
-	if t == nil {
-		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.RulerMaxRuleGroupsPerTenant
-}
-func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetRulerRecordingRulesEvaluationEnabled() *bool {
-	if t == nil {
-		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.RulerRecordingRulesEvaluationEnabled
+
+type CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_RulerAlertManagerConfig_RulerAlertManagerConfigFragment_Notifier_NotifierConfigFragment_TLS struct {
+	CertPath           *string "json:\"certPath,omitempty\" graphql:\"certPath\""
+	KeyPath            *string "json:\"keyPath,omitempty\" graphql:\"keyPath\""
+	CaPath             *string "json:\"caPath,omitempty\" graphql:\"caPath\""
+	ServerName         *string "json:\"serverName,omitempty\" graphql:\"serverName\""
+	InsecureSkipVerify *bool   "json:\"insecureSkipVerify,omitempty\" graphql:\"insecureSkipVerify\""
+	CipherSuites       *string "json:\"cipherSuites,omitempty\" graphql:\"cipherSuites\""
+	MinVersion         *string "json:\"minVersion,omitempty\" graphql:\"minVersion\""
 }
-func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetRulerAlertingRulesEvaluationEnabled() *bool {
+
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_RulerAlertManagerConfig_RulerAlertManagerConfigFragment_Notifier_NotifierConfigFragment_TLS) GetCertPath() *string {
 	if t == nil {
-		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_RulerAlertManagerConfig_RulerAlertManagerConfigFragment_Notifier_NotifierConfigFragment_TLS{}
 	}
-	return t.RulerAlertingRulesEvaluationEnabled
+	return t.CertPath
 }
-func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetStoreGatewayTenantShardSize() *int64 {
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_RulerAlertManagerConfig_RulerAlertManagerConfigFragment_Notifier_NotifierConfigFragment_TLS) GetKeyPath() *string {
 	if t == nil {
-		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_RulerAlertManagerConfig_RulerAlertManagerConfigFragment_Notifier_NotifierConfigFragment_TLS{}
 	}
-	return t.StoreGatewayTenantShardSize
+	return t.KeyPath
 }
-func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetCompactorBlocksRetentionPeriod() *v1.Duration {
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_RulerAlertManagerConfig_RulerAlertManagerConfigFragment_Notifier_NotifierConfigFragment_TLS) GetCaPath() *string {
 	if t == nil {
-		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_RulerAlertManagerConfig_RulerAlertManagerConfigFragment_Notifier_NotifierConfigFragment_TLS{}
 	}
-	return t.CompactorBlocksRetentionPeriod
+	return t.CaPath
 }
-func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetCompactorSplitAndMergeShards() *int64 {
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_RulerAlertManagerConfig_RulerAlertManagerConfigFragment_Notifier_NotifierConfigFragment_TLS) GetServerName() *string {
 	if t == nil {
-		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_RulerAlertManagerConfig_RulerAlertManagerConfigFragment_Notifier_NotifierConfigFragment_TLS{}
 	}
-	return t.CompactorSplitAndMergeShards
+	return t.ServerName
 }
-func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetCompactorSplitGroups() *int64 {
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_RulerAlertManagerConfig_RulerAlertManagerConfigFragment_Notifier_NotifierConfigFragment_TLS) GetInsecureSkipVerify() *bool {
 	if t == nil {
-		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_RulerAlertManagerConfig_RulerAlertManagerConfigFragment_Notifier_NotifierConfigFragment_TLS{}
 	}
-	return t.CompactorSplitGroups
+	return t.InsecureSkipVerify
 }
-func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetCompactorTenantShardSize() *int64 {
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_RulerAlertManagerConfig_RulerAlertManagerConfigFragment_Notifier_NotifierConfigFragment_TLS) GetCipherSuites() *string {
 	if t == nil {
-		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_RulerAlertManagerConfig_RulerAlertManagerConfigFragment_Notifier_NotifierConfigFragment_TLS{}
 	}
-	return t.CompactorTenantShardSize
+	return t.CipherSuites
 }
-func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetCompactorPartialBlockDeletionDelay() *v1.Duration {
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_RulerAlertManagerConfig_RulerAlertManagerConfigFragment_Notifier_NotifierConfigFragment_TLS) GetMinVersion() *string {
 	if t == nil {
-		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_RulerAlertManagerConfig_RulerAlertManagerConfigFragment_Notifier_NotifierConfigFragment_TLS{}
 	}
-	return t.CompactorPartialBlockDeletionDelay
+	return t.MinVersion
 }
-func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetCompactorBlockUploadEnabled() *bool {
-	if t == nil {
-		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.CompactorBlockUploadEnabled
+
+type CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_StreamRetention struct {
+	Period   *v1.Duration "json:\"period,omitempty\" graphql:\"period\""
+	Priority *int64       "json:\"priority,omitempty\" graphql:\"priority\""
+	Selector *string      "json:\"selector,omitempty\" graphql:\"selector\""
 }
-func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetCompactorBlockUploadValidationEnabled() *bool {
+
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_StreamRetention) GetPeriod() *v1.Duration {
 	if t == nil {
-		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_StreamRetention{}
 	}
-	return t.CompactorBlockUploadValidationEnabled
+	return t.Period
 }
-func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetCompactorBlockUploadVerifyChunks() *bool {
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_StreamRetention) GetPriority() *int64 {
 	if t == nil {
-		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_StreamRetention{}
 	}
-	return t.CompactorBlockUploadVerifyChunks
+	return t.Priority
 }
-func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetS3SSEType() *string {
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_StreamRetention) GetSelector() *string {
 	if t == nil {
-		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_StreamRetention{}
 	}
-	return t.S3SSEType
+	return t.Selector
 }
-func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetS3SSEKMSKeyID() *string {
-	if t == nil {
-		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.S3SSEKMSKeyID
+
+type CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_ShardStreams struct {
+	Enabled        *bool   "json:\"enabled,omitempty\" graphql:\"enabled\""
+	LoggingEnabled *bool   "json:\"loggingEnabled,omitempty\" graphql:\"loggingEnabled\""
+	DesiredRate    *uint64 "json:\"desiredRate,omitempty\" graphql:\"desiredRate\""
 }
-func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetS3SSEKMSEncryptionContext() *string {
+
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_ShardStreams) GetEnabled() *bool {
 	if t == nil {
-		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_ShardStreams{}
 	}
-	return t.S3SSEKMSEncryptionContext
+	return t.Enabled
 }
-func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetAlertmanagerReceiversBlockCIDRNetworks() *string {
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_ShardStreams) GetLoggingEnabled() *bool {
 	if t == nil {
-		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_ShardStreams{}
 	}
-	return t.AlertmanagerReceiversBlockCIDRNetworks
+	return t.LoggingEnabled
 }
-func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetAlertmanagerReceiversBlockPrivateAddresses() *bool {
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_ShardStreams) GetDesiredRate() *uint64 {
 	if t == nil {
-		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_ShardStreams{}
 	}
-	return t.AlertmanagerReceiversBlockPrivateAddresses
+	return t.DesiredRate
 }
-func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetNotificationRateLimit() *float64 {
-	if t == nil {
-		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.NotificationRateLimit
+
+type CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_BlockedQueries struct {
+	Pattern *string                     "json:\"pattern,omitempty\" graphql:\"pattern\""
+	Regex   *bool                       "json:\"regex,omitempty\" graphql:\"regex\""
+	Hash    *uint64                     "json:\"hash,omitempty\" graphql:\"hash\""
+	Types   []v1alpha1.BlockedQueryType "json:\"types,omitempty\" graphql:\"types\""
 }
-func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetNotificationRateLimitPerIntegration() map[string]*float64 {
+
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_BlockedQueries) GetPattern() *string {
 	if t == nil {
-		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_BlockedQueries{}
 	}
-	return t.NotificationRateLimitPerIntegration
+	return t.Pattern
 }
-func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetAlertmanagerMaxConfigSizeBytes() *int64 {
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_BlockedQueries) GetRegex() *bool {
 	if t == nil {
-		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_BlockedQueries{}
 	}
-	return t.AlertmanagerMaxConfigSizeBytes
+	return t.Regex
 }
-func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetAlertmanagerMaxTemplatesCount() *int64 {
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_BlockedQueries) GetHash() *uint64 {
 	if t == nil {
-		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_BlockedQueries{}
 	}
-	return t.AlertmanagerMaxTemplatesCount
+	return t.Hash
 }
-func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetAlertmanagerMaxTemplateSizeBytes() *int64 {
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_BlockedQueries) GetTypes() []v1alpha1.BlockedQueryType {
 	if t == nil {
-		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_BlockedQueries{}
 	}
-	return t.AlertmanagerMaxTemplateSizeBytes
+	return t.Types
 }
-func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetAlertmanagerMaxDispatcherAggregationGroups() *int64 {
-	if t == nil {
-		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.AlertmanagerMaxDispatcherAggregationGroups
+
+type CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Tempo_TempoLimitsFragment_MetricsGeneratorProcessorSpanMetricsFilterPolicies_FilterPolicyFragment_Include_PolicyMatchFragment_Attributes struct {
+	Key   string                 "json:\"key\" graphql:\"key\""
+	Value map[string]interface{} "json:\"value,omitempty\" graphql:\"value\""
 }
-func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetAlertmanagerMaxAlertsCount() *int64 {
+
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Tempo_TempoLimitsFragment_MetricsGeneratorProcessorSpanMetricsFilterPolicies_FilterPolicyFragment_Include_PolicyMatchFragment_Attributes) GetKey() string {
 	if t == nil {
-		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Tempo_TempoLimitsFragment_MetricsGeneratorProcessorSpanMetricsFilterPolicies_FilterPolicyFragment_Include_PolicyMatchFragment_Attributes{}
 	}
-	return t.AlertmanagerMaxAlertsCount
+	return t.Key
 }
-func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetAlertmanagerMaxAlertsSizeBytes() *int64 {
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Tempo_TempoLimitsFragment_MetricsGeneratorProcessorSpanMetricsFilterPolicies_FilterPolicyFragment_Include_PolicyMatchFragment_Attributes) GetValue() map[string]interface{} {
 	if t == nil {
-		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Tempo_TempoLimitsFragment_MetricsGeneratorProcessorSpanMetricsFilterPolicies_FilterPolicyFragment_Include_PolicyMatchFragment_Attributes{}
 	}
-	return t.AlertmanagerMaxAlertsSizeBytes
+	return t.Value
 }
-func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetForwardingEndpoint() *string {
-	if t == nil {
-		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.ForwardingEndpoint
+
+type CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Tempo_TempoLimitsFragment_MetricsGeneratorProcessorSpanMetricsFilterPolicies_FilterPolicyFragment_Exclude_PolicyMatchFragment_Attributes struct {
+	Key   string                 "json:\"key\" graphql:\"key\""
+	Value map[string]interface{} "json:\"value,omitempty\" graphql:\"value\""
 }
-func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetForwardingDropOlderThan() *v1.Duration {
+
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Tempo_TempoLimitsFragment_MetricsGeneratorProcessorSpanMetricsFilterPolicies_FilterPolicyFragment_Exclude_PolicyMatchFragment_Attributes) GetKey() string {
 	if t == nil {
-		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Tempo_TempoLimitsFragment_MetricsGeneratorProcessorSpanMetricsFilterPolicies_FilterPolicyFragment_Exclude_PolicyMatchFragment_Attributes{}
 	}
-	return t.ForwardingDropOlderThan
+	return t.Key
 }
-func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetForwardingRules() map[string]*v1alpha1.ForwardingRule {
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Tempo_TempoLimitsFragment_MetricsGeneratorProcessorSpanMetricsFilterPolicies_FilterPolicyFragment_Exclude_PolicyMatchFragment_Attributes) GetValue() map[string]interface{} {
 	if t == nil {
-		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Tempo_TempoLimitsFragment_MetricsGeneratorProcessorSpanMetricsFilterPolicies_FilterPolicyFragment_Exclude_PolicyMatchFragment_Attributes{}
 	}
-	return t.ForwardingRules
+	return t.Value
 }
 
 type UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Admins_ObservabilityTenantPermissionBindingsFragment_Users_UserFragmentNoGroups_Name struct {
@@ -9927,540 +10595,218 @@ func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenant
 	return t.Groups
 }
 
-type UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir struct {
-	RequestRate                                   *float64                            "json:\"requestRate,omitempty\" graphql:\"requestRate\""
-	RequestBurstSize                              *int64                              "json:\"requestBurstSize,omitempty\" graphql:\"requestBurstSize\""
-	IngestionRate                                 *float64                            "json:\"ingestionRate,omitempty\" graphql:\"ingestionRate\""
-	IngestionBurstSize                            *int64                              "json:\"ingestionBurstSize,omitempty\" graphql:\"ingestionBurstSize\""
-	AcceptHASamples                               *bool                               "json:\"acceptHASamples,omitempty\" graphql:\"acceptHASamples\""
-	HaClusterLabel                                *string                             "json:\"haClusterLabel,omitempty\" graphql:\"haClusterLabel\""
-	HaReplicaLabel                                *string                             "json:\"haReplicaLabel,omitempty\" graphql:\"haReplicaLabel\""
-	HaMaxClusters                                 *int64                              "json:\"haMaxClusters,omitempty\" graphql:\"haMaxClusters\""
-	DropLabels                                    []*string                           "json:\"dropLabels,omitempty\" graphql:\"dropLabels\""
-	MaxLabelNameLength                            *int64                              "json:\"maxLabelNameLength,omitempty\" graphql:\"maxLabelNameLength\""
-	MaxLabelValueLength                           *int64                              "json:\"maxLabelValueLength,omitempty\" graphql:\"maxLabelValueLength\""
-	MaxLabelNamesPerSeries                        *int64                              "json:\"maxLabelNamesPerSeries,omitempty\" graphql:\"maxLabelNamesPerSeries\""
-	MaxMetadataLength                             *int64                              "json:\"maxMetadataLength,omitempty\" graphql:\"maxMetadataLength\""
-	CreationGracePeriod                           *v1.Duration                        "json:\"creationGracePeriod,omitempty\" graphql:\"creationGracePeriod\""
-	EnforceMetadataMetricName                     *bool                               "json:\"enforceMetadataMetricName,omitempty\" graphql:\"enforceMetadataMetricName\""
-	IngestionTenantShardSize                      *int64                              "json:\"ingestionTenantShardSize,omitempty\" graphql:\"ingestionTenantShardSize\""
-	MaxGlobalSeriesPerUser                        *int64                              "json:\"maxGlobalSeriesPerUser,omitempty\" graphql:\"maxGlobalSeriesPerUser\""
-	MaxGlobalSeriesPerMetric                      *int64                              "json:\"maxGlobalSeriesPerMetric,omitempty\" graphql:\"maxGlobalSeriesPerMetric\""
-	MaxGlobalMetricsWithMetadataPerUser           *int64                              "json:\"maxGlobalMetricsWithMetadataPerUser,omitempty\" graphql:\"maxGlobalMetricsWithMetadataPerUser\""
-	MaxGlobalMetadataPerMetric                    *int64                              "json:\"maxGlobalMetadataPerMetric,omitempty\" graphql:\"maxGlobalMetadataPerMetric\""
-	MaxGlobalExemplarsPerUser                     *int64                              "json:\"maxGlobalExemplarsPerUser,omitempty\" graphql:\"maxGlobalExemplarsPerUser\""
-	NativeHistogramsIngestionEnabled              *bool                               "json:\"nativeHistogramsIngestionEnabled,omitempty\" graphql:\"nativeHistogramsIngestionEnabled\""
-	OutOfOrderTimeWindow                          *v1.Duration                        "json:\"outOfOrderTimeWindow,omitempty\" graphql:\"outOfOrderTimeWindow\""
-	OutOfOrderBlocksExternalLabelEnabled          *bool                               "json:\"outOfOrderBlocksExternalLabelEnabled,omitempty\" graphql:\"outOfOrderBlocksExternalLabelEnabled\""
-	SeparateMetricsGroupLabel                     *string                             "json:\"separateMetricsGroupLabel,omitempty\" graphql:\"separateMetricsGroupLabel\""
-	MaxChunksPerQuery                             *int64                              "json:\"maxChunksPerQuery,omitempty\" graphql:\"maxChunksPerQuery\""
-	MaxFetchedSeriesPerQuery                      *int64                              "json:\"maxFetchedSeriesPerQuery,omitempty\" graphql:\"maxFetchedSeriesPerQuery\""
-	MaxFetchedChunkBytesPerQuery                  *int64                              "json:\"maxFetchedChunkBytesPerQuery,omitempty\" graphql:\"maxFetchedChunkBytesPerQuery\""
-	MaxQueryLookback                              *v1.Duration                        "json:\"maxQueryLookback,omitempty\" graphql:\"maxQueryLookback\""
-	MaxPartialQueryLength                         *v1.Duration                        "json:\"maxPartialQueryLength,omitempty\" graphql:\"maxPartialQueryLength\""
-	MaxQueryParallelism                           *int64                              "json:\"maxQueryParallelism,omitempty\" graphql:\"maxQueryParallelism\""
-	MaxLabelsQueryLength                          *v1.Duration                        "json:\"maxLabelsQueryLength,omitempty\" graphql:\"maxLabelsQueryLength\""
-	MaxCacheFreshness                             *v1.Duration                        "json:\"maxCacheFreshness,omitempty\" graphql:\"maxCacheFreshness\""
-	MaxQueriersPerTenant                          *int64                              "json:\"maxQueriersPerTenant,omitempty\" graphql:\"maxQueriersPerTenant\""
-	QueryShardingTotalShards                      *int64                              "json:\"queryShardingTotalShards,omitempty\" graphql:\"queryShardingTotalShards\""
-	QueryShardingMaxShardedQueries                *int64                              "json:\"queryShardingMaxShardedQueries,omitempty\" graphql:\"queryShardingMaxShardedQueries\""
-	QueryShardingMaxRegexpSizeBytes               *int64                              "json:\"queryShardingMaxRegexpSizeBytes,omitempty\" graphql:\"queryShardingMaxRegexpSizeBytes\""
-	SplitInstantQueriesByInterval                 *v1.Duration                        "json:\"splitInstantQueriesByInterval,omitempty\" graphql:\"splitInstantQueriesByInterval\""
-	MaxTotalQueryLength                           *v1.Duration                        "json:\"maxTotalQueryLength,omitempty\" graphql:\"maxTotalQueryLength\""
-	ResultsCacheTTL                               *v1.Duration                        "json:\"resultsCacheTTL,omitempty\" graphql:\"resultsCacheTTL\""
-	ResultsCacheTTLForOutOfOrderTimeWindow        *v1.Duration                        "json:\"resultsCacheTTLForOutOfOrderTimeWindow,omitempty\" graphql:\"resultsCacheTTLForOutOfOrderTimeWindow\""
-	MaxQueryExpressionSizeBytes                   *int64                              "json:\"maxQueryExpressionSizeBytes,omitempty\" graphql:\"maxQueryExpressionSizeBytes\""
-	CardinalityAnalysisEnabled                    *bool                               "json:\"cardinalityAnalysisEnabled,omitempty\" graphql:\"cardinalityAnalysisEnabled\""
-	LabelNamesAndValuesResultsMaxSizeBytes        *int64                              "json:\"labelNamesAndValuesResultsMaxSizeBytes,omitempty\" graphql:\"labelNamesAndValuesResultsMaxSizeBytes\""
-	LabelValuesMaxCardinalityLabelNamesPerRequest *int64                              "json:\"labelValuesMaxCardinalityLabelNamesPerRequest,omitempty\" graphql:\"labelValuesMaxCardinalityLabelNamesPerRequest\""
-	RulerEvaluationDelay                          *v1.Duration                        "json:\"rulerEvaluationDelay,omitempty\" graphql:\"rulerEvaluationDelay\""
-	RulerTenantShardSize                          *int64                              "json:\"rulerTenantShardSize,omitempty\" graphql:\"rulerTenantShardSize\""
-	RulerMaxRulesPerRuleGroup                     *int64                              "json:\"rulerMaxRulesPerRuleGroup,omitempty\" graphql:\"rulerMaxRulesPerRuleGroup\""
-	RulerMaxRuleGroupsPerTenant                   *int64                              "json:\"rulerMaxRuleGroupsPerTenant,omitempty\" graphql:\"rulerMaxRuleGroupsPerTenant\""
-	RulerRecordingRulesEvaluationEnabled          *bool                               "json:\"rulerRecordingRulesEvaluationEnabled,omitempty\" graphql:\"rulerRecordingRulesEvaluationEnabled\""
-	RulerAlertingRulesEvaluationEnabled           *bool                               "json:\"rulerAlertingRulesEvaluationEnabled,omitempty\" graphql:\"rulerAlertingRulesEvaluationEnabled\""
-	StoreGatewayTenantShardSize                   *int64                              "json:\"storeGatewayTenantShardSize,omitempty\" graphql:\"storeGatewayTenantShardSize\""
-	CompactorBlocksRetentionPeriod                *v1.Duration                        "json:\"compactorBlocksRetentionPeriod,omitempty\" graphql:\"compactorBlocksRetentionPeriod\""
-	CompactorSplitAndMergeShards                  *int64                              "json:\"compactorSplitAndMergeShards,omitempty\" graphql:\"compactorSplitAndMergeShards\""
-	CompactorSplitGroups                          *int64                              "json:\"compactorSplitGroups,omitempty\" graphql:\"compactorSplitGroups\""
-	CompactorTenantShardSize                      *int64                              "json:\"compactorTenantShardSize,omitempty\" graphql:\"compactorTenantShardSize\""
-	CompactorPartialBlockDeletionDelay            *v1.Duration                        "json:\"compactorPartialBlockDeletionDelay,omitempty\" graphql:\"compactorPartialBlockDeletionDelay\""
-	CompactorBlockUploadEnabled                   *bool                               "json:\"compactorBlockUploadEnabled,omitempty\" graphql:\"compactorBlockUploadEnabled\""
-	CompactorBlockUploadValidationEnabled         *bool                               "json:\"compactorBlockUploadValidationEnabled,omitempty\" graphql:\"compactorBlockUploadValidationEnabled\""
-	CompactorBlockUploadVerifyChunks              *bool                               "json:\"compactorBlockUploadVerifyChunks,omitempty\" graphql:\"compactorBlockUploadVerifyChunks\""
-	S3SSEType                                     *string                             "json:\"s3SSEType,omitempty\" graphql:\"s3SSEType\""
-	S3SSEKMSKeyID                                 *string                             "json:\"s3SSEKMSKeyID,omitempty\" graphql:\"s3SSEKMSKeyID\""
-	S3SSEKMSEncryptionContext                     *string                             "json:\"s3SSEKMSEncryptionContext,omitempty\" graphql:\"s3SSEKMSEncryptionContext\""
-	AlertmanagerReceiversBlockCIDRNetworks        *string                             "json:\"alertmanagerReceiversBlockCIDRNetworks,omitempty\" graphql:\"alertmanagerReceiversBlockCIDRNetworks\""
-	AlertmanagerReceiversBlockPrivateAddresses    *bool                               "json:\"alertmanagerReceiversBlockPrivateAddresses,omitempty\" graphql:\"alertmanagerReceiversBlockPrivateAddresses\""
-	NotificationRateLimit                         *float64                            "json:\"notificationRateLimit,omitempty\" graphql:\"notificationRateLimit\""
-	NotificationRateLimitPerIntegration           map[string]*float64                 "json:\"notificationRateLimitPerIntegration,omitempty\" graphql:\"notificationRateLimitPerIntegration\""
-	AlertmanagerMaxConfigSizeBytes                *int64                              "json:\"alertmanagerMaxConfigSizeBytes,omitempty\" graphql:\"alertmanagerMaxConfigSizeBytes\""
-	AlertmanagerMaxTemplatesCount                 *int64                              "json:\"alertmanagerMaxTemplatesCount,omitempty\" graphql:\"alertmanagerMaxTemplatesCount\""
-	AlertmanagerMaxTemplateSizeBytes              *int64                              "json:\"alertmanagerMaxTemplateSizeBytes,omitempty\" graphql:\"alertmanagerMaxTemplateSizeBytes\""
-	AlertmanagerMaxDispatcherAggregationGroups    *int64                              "json:\"alertmanagerMaxDispatcherAggregationGroups,omitempty\" graphql:\"alertmanagerMaxDispatcherAggregationGroups\""
-	AlertmanagerMaxAlertsCount                    *int64                              "json:\"alertmanagerMaxAlertsCount,omitempty\" graphql:\"alertmanagerMaxAlertsCount\""
-	AlertmanagerMaxAlertsSizeBytes                *int64                              "json:\"alertmanagerMaxAlertsSizeBytes,omitempty\" graphql:\"alertmanagerMaxAlertsSizeBytes\""
-	ForwardingEndpoint                            *string                             "json:\"forwardingEndpoint,omitempty\" graphql:\"forwardingEndpoint\""
-	ForwardingDropOlderThan                       *v1.Duration                        "json:\"forwardingDropOlderThan,omitempty\" graphql:\"forwardingDropOlderThan\""
-	ForwardingRules                               map[string]*v1alpha1.ForwardingRule "json:\"forwardingRules,omitempty\" graphql:\"forwardingRules\""
+type UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_RulerAlertManagerConfig_RulerAlertManagerConfigFragment_Notifier_NotifierConfigFragment_BasicAuth struct {
+	Username *string "json:\"username,omitempty\" graphql:\"username\""
+	Password *string "json:\"password,omitempty\" graphql:\"password\""
 }
 
-func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetRequestRate() *float64 {
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_RulerAlertManagerConfig_RulerAlertManagerConfigFragment_Notifier_NotifierConfigFragment_BasicAuth) GetUsername() *string {
 	if t == nil {
-		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_RulerAlertManagerConfig_RulerAlertManagerConfigFragment_Notifier_NotifierConfigFragment_BasicAuth{}
 	}
-	return t.RequestRate
+	return t.Username
 }
-func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetRequestBurstSize() *int64 {
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_RulerAlertManagerConfig_RulerAlertManagerConfigFragment_Notifier_NotifierConfigFragment_BasicAuth) GetPassword() *string {
 	if t == nil {
-		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_RulerAlertManagerConfig_RulerAlertManagerConfigFragment_Notifier_NotifierConfigFragment_BasicAuth{}
 	}
-	return t.RequestBurstSize
+	return t.Password
 }
-func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetIngestionRate() *float64 {
-	if t == nil {
-		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.IngestionRate
-}
-func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetIngestionBurstSize() *int64 {
-	if t == nil {
-		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.IngestionBurstSize
-}
-func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetAcceptHASamples() *bool {
-	if t == nil {
-		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.AcceptHASamples
-}
-func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetHaClusterLabel() *string {
-	if t == nil {
-		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.HaClusterLabel
-}
-func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetHaReplicaLabel() *string {
-	if t == nil {
-		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.HaReplicaLabel
-}
-func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetHaMaxClusters() *int64 {
-	if t == nil {
-		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.HaMaxClusters
-}
-func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetDropLabels() []*string {
-	if t == nil {
-		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.DropLabels
-}
-func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetMaxLabelNameLength() *int64 {
-	if t == nil {
-		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.MaxLabelNameLength
-}
-func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetMaxLabelValueLength() *int64 {
-	if t == nil {
-		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.MaxLabelValueLength
-}
-func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetMaxLabelNamesPerSeries() *int64 {
-	if t == nil {
-		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.MaxLabelNamesPerSeries
-}
-func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetMaxMetadataLength() *int64 {
-	if t == nil {
-		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.MaxMetadataLength
-}
-func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetCreationGracePeriod() *v1.Duration {
-	if t == nil {
-		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.CreationGracePeriod
-}
-func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetEnforceMetadataMetricName() *bool {
-	if t == nil {
-		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.EnforceMetadataMetricName
-}
-func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetIngestionTenantShardSize() *int64 {
-	if t == nil {
-		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.IngestionTenantShardSize
-}
-func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetMaxGlobalSeriesPerUser() *int64 {
-	if t == nil {
-		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.MaxGlobalSeriesPerUser
-}
-func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetMaxGlobalSeriesPerMetric() *int64 {
-	if t == nil {
-		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.MaxGlobalSeriesPerMetric
-}
-func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetMaxGlobalMetricsWithMetadataPerUser() *int64 {
-	if t == nil {
-		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.MaxGlobalMetricsWithMetadataPerUser
-}
-func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetMaxGlobalMetadataPerMetric() *int64 {
-	if t == nil {
-		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.MaxGlobalMetadataPerMetric
-}
-func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetMaxGlobalExemplarsPerUser() *int64 {
-	if t == nil {
-		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.MaxGlobalExemplarsPerUser
-}
-func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetNativeHistogramsIngestionEnabled() *bool {
-	if t == nil {
-		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.NativeHistogramsIngestionEnabled
-}
-func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetOutOfOrderTimeWindow() *v1.Duration {
-	if t == nil {
-		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.OutOfOrderTimeWindow
-}
-func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetOutOfOrderBlocksExternalLabelEnabled() *bool {
-	if t == nil {
-		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.OutOfOrderBlocksExternalLabelEnabled
-}
-func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetSeparateMetricsGroupLabel() *string {
-	if t == nil {
-		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.SeparateMetricsGroupLabel
-}
-func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetMaxChunksPerQuery() *int64 {
-	if t == nil {
-		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.MaxChunksPerQuery
+
+type UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_RulerAlertManagerConfig_RulerAlertManagerConfigFragment_Notifier_NotifierConfigFragment_HeaderAuth struct {
+	Type            *string "json:\"type,omitempty\" graphql:\"type\""
+	Credentials     *string "json:\"credentials,omitempty\" graphql:\"credentials\""
+	CredentialsFile *string "json:\"credentialsFile,omitempty\" graphql:\"credentialsFile\""
 }
-func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetMaxFetchedSeriesPerQuery() *int64 {
+
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_RulerAlertManagerConfig_RulerAlertManagerConfigFragment_Notifier_NotifierConfigFragment_HeaderAuth) GetType() *string {
 	if t == nil {
-		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_RulerAlertManagerConfig_RulerAlertManagerConfigFragment_Notifier_NotifierConfigFragment_HeaderAuth{}
 	}
-	return t.MaxFetchedSeriesPerQuery
+	return t.Type
 }
-func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetMaxFetchedChunkBytesPerQuery() *int64 {
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_RulerAlertManagerConfig_RulerAlertManagerConfigFragment_Notifier_NotifierConfigFragment_HeaderAuth) GetCredentials() *string {
 	if t == nil {
-		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_RulerAlertManagerConfig_RulerAlertManagerConfigFragment_Notifier_NotifierConfigFragment_HeaderAuth{}
 	}
-	return t.MaxFetchedChunkBytesPerQuery
+	return t.Credentials
 }
-func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetMaxQueryLookback() *v1.Duration {
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_RulerAlertManagerConfig_RulerAlertManagerConfigFragment_Notifier_NotifierConfigFragment_HeaderAuth) GetCredentialsFile() *string {
 	if t == nil {
-		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_RulerAlertManagerConfig_RulerAlertManagerConfigFragment_Notifier_NotifierConfigFragment_HeaderAuth{}
 	}
-	return t.MaxQueryLookback
+	return t.CredentialsFile
 }
-func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetMaxPartialQueryLength() *v1.Duration {
-	if t == nil {
-		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.MaxPartialQueryLength
-}
-func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetMaxQueryParallelism() *int64 {
-	if t == nil {
-		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.MaxQueryParallelism
-}
-func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetMaxLabelsQueryLength() *v1.Duration {
-	if t == nil {
-		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.MaxLabelsQueryLength
-}
-func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetMaxCacheFreshness() *v1.Duration {
-	if t == nil {
-		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.MaxCacheFreshness
-}
-func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetMaxQueriersPerTenant() *int64 {
-	if t == nil {
-		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.MaxQueriersPerTenant
-}
-func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetQueryShardingTotalShards() *int64 {
-	if t == nil {
-		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.QueryShardingTotalShards
-}
-func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetQueryShardingMaxShardedQueries() *int64 {
-	if t == nil {
-		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.QueryShardingMaxShardedQueries
-}
-func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetQueryShardingMaxRegexpSizeBytes() *int64 {
-	if t == nil {
-		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.QueryShardingMaxRegexpSizeBytes
-}
-func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetSplitInstantQueriesByInterval() *v1.Duration {
-	if t == nil {
-		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.SplitInstantQueriesByInterval
-}
-func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetMaxTotalQueryLength() *v1.Duration {
-	if t == nil {
-		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.MaxTotalQueryLength
-}
-func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetResultsCacheTTL() *v1.Duration {
-	if t == nil {
-		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.ResultsCacheTTL
-}
-func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetResultsCacheTTLForOutOfOrderTimeWindow() *v1.Duration {
-	if t == nil {
-		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.ResultsCacheTTLForOutOfOrderTimeWindow
-}
-func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetMaxQueryExpressionSizeBytes() *int64 {
-	if t == nil {
-		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.MaxQueryExpressionSizeBytes
-}
-func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetCardinalityAnalysisEnabled() *bool {
-	if t == nil {
-		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.CardinalityAnalysisEnabled
-}
-func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetLabelNamesAndValuesResultsMaxSizeBytes() *int64 {
-	if t == nil {
-		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.LabelNamesAndValuesResultsMaxSizeBytes
-}
-func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetLabelValuesMaxCardinalityLabelNamesPerRequest() *int64 {
-	if t == nil {
-		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.LabelValuesMaxCardinalityLabelNamesPerRequest
-}
-func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetRulerEvaluationDelay() *v1.Duration {
-	if t == nil {
-		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.RulerEvaluationDelay
-}
-func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetRulerTenantShardSize() *int64 {
-	if t == nil {
-		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.RulerTenantShardSize
-}
-func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetRulerMaxRulesPerRuleGroup() *int64 {
-	if t == nil {
-		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.RulerMaxRulesPerRuleGroup
-}
-func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetRulerMaxRuleGroupsPerTenant() *int64 {
-	if t == nil {
-		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.RulerMaxRuleGroupsPerTenant
-}
-func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetRulerRecordingRulesEvaluationEnabled() *bool {
-	if t == nil {
-		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.RulerRecordingRulesEvaluationEnabled
+
+type UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_RulerAlertManagerConfig_RulerAlertManagerConfigFragment_Notifier_NotifierConfigFragment_TLS struct {
+	CertPath           *string "json:\"certPath,omitempty\" graphql:\"certPath\""
+	KeyPath            *string "json:\"keyPath,omitempty\" graphql:\"keyPath\""
+	CaPath             *string "json:\"caPath,omitempty\" graphql:\"caPath\""
+	ServerName         *string "json:\"serverName,omitempty\" graphql:\"serverName\""
+	InsecureSkipVerify *bool   "json:\"insecureSkipVerify,omitempty\" graphql:\"insecureSkipVerify\""
+	CipherSuites       *string "json:\"cipherSuites,omitempty\" graphql:\"cipherSuites\""
+	MinVersion         *string "json:\"minVersion,omitempty\" graphql:\"minVersion\""
 }
-func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetRulerAlertingRulesEvaluationEnabled() *bool {
+
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_RulerAlertManagerConfig_RulerAlertManagerConfigFragment_Notifier_NotifierConfigFragment_TLS) GetCertPath() *string {
 	if t == nil {
-		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_RulerAlertManagerConfig_RulerAlertManagerConfigFragment_Notifier_NotifierConfigFragment_TLS{}
 	}
-	return t.RulerAlertingRulesEvaluationEnabled
+	return t.CertPath
 }
-func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetStoreGatewayTenantShardSize() *int64 {
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_RulerAlertManagerConfig_RulerAlertManagerConfigFragment_Notifier_NotifierConfigFragment_TLS) GetKeyPath() *string {
 	if t == nil {
-		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_RulerAlertManagerConfig_RulerAlertManagerConfigFragment_Notifier_NotifierConfigFragment_TLS{}
 	}
-	return t.StoreGatewayTenantShardSize
+	return t.KeyPath
 }
-func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetCompactorBlocksRetentionPeriod() *v1.Duration {
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_RulerAlertManagerConfig_RulerAlertManagerConfigFragment_Notifier_NotifierConfigFragment_TLS) GetCaPath() *string {
 	if t == nil {
-		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_RulerAlertManagerConfig_RulerAlertManagerConfigFragment_Notifier_NotifierConfigFragment_TLS{}
 	}
-	return t.CompactorBlocksRetentionPeriod
+	return t.CaPath
 }
-func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetCompactorSplitAndMergeShards() *int64 {
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_RulerAlertManagerConfig_RulerAlertManagerConfigFragment_Notifier_NotifierConfigFragment_TLS) GetServerName() *string {
 	if t == nil {
-		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_RulerAlertManagerConfig_RulerAlertManagerConfigFragment_Notifier_NotifierConfigFragment_TLS{}
 	}
-	return t.CompactorSplitAndMergeShards
+	return t.ServerName
 }
-func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetCompactorSplitGroups() *int64 {
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_RulerAlertManagerConfig_RulerAlertManagerConfigFragment_Notifier_NotifierConfigFragment_TLS) GetInsecureSkipVerify() *bool {
 	if t == nil {
-		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_RulerAlertManagerConfig_RulerAlertManagerConfigFragment_Notifier_NotifierConfigFragment_TLS{}
 	}
-	return t.CompactorSplitGroups
+	return t.InsecureSkipVerify
 }
-func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetCompactorTenantShardSize() *int64 {
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_RulerAlertManagerConfig_RulerAlertManagerConfigFragment_Notifier_NotifierConfigFragment_TLS) GetCipherSuites() *string {
 	if t == nil {
-		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_RulerAlertManagerConfig_RulerAlertManagerConfigFragment_Notifier_NotifierConfigFragment_TLS{}
 	}
-	return t.CompactorTenantShardSize
+	return t.CipherSuites
 }
-func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetCompactorPartialBlockDeletionDelay() *v1.Duration {
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_RulerAlertManagerConfig_RulerAlertManagerConfigFragment_Notifier_NotifierConfigFragment_TLS) GetMinVersion() *string {
 	if t == nil {
-		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_RulerAlertManagerConfig_RulerAlertManagerConfigFragment_Notifier_NotifierConfigFragment_TLS{}
 	}
-	return t.CompactorPartialBlockDeletionDelay
+	return t.MinVersion
 }
-func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetCompactorBlockUploadEnabled() *bool {
-	if t == nil {
-		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.CompactorBlockUploadEnabled
+
+type UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_StreamRetention struct {
+	Period   *v1.Duration "json:\"period,omitempty\" graphql:\"period\""
+	Priority *int64       "json:\"priority,omitempty\" graphql:\"priority\""
+	Selector *string      "json:\"selector,omitempty\" graphql:\"selector\""
 }
-func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetCompactorBlockUploadValidationEnabled() *bool {
+
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_StreamRetention) GetPeriod() *v1.Duration {
 	if t == nil {
-		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_StreamRetention{}
 	}
-	return t.CompactorBlockUploadValidationEnabled
+	return t.Period
 }
-func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetCompactorBlockUploadVerifyChunks() *bool {
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_StreamRetention) GetPriority() *int64 {
 	if t == nil {
-		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_StreamRetention{}
 	}
-	return t.CompactorBlockUploadVerifyChunks
+	return t.Priority
 }
-func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetS3SSEType() *string {
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_StreamRetention) GetSelector() *string {
 	if t == nil {
-		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_StreamRetention{}
 	}
-	return t.S3SSEType
+	return t.Selector
 }
-func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetS3SSEKMSKeyID() *string {
-	if t == nil {
-		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.S3SSEKMSKeyID
+
+type UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_ShardStreams struct {
+	Enabled        *bool   "json:\"enabled,omitempty\" graphql:\"enabled\""
+	LoggingEnabled *bool   "json:\"loggingEnabled,omitempty\" graphql:\"loggingEnabled\""
+	DesiredRate    *uint64 "json:\"desiredRate,omitempty\" graphql:\"desiredRate\""
 }
-func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetS3SSEKMSEncryptionContext() *string {
+
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_ShardStreams) GetEnabled() *bool {
 	if t == nil {
-		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_ShardStreams{}
 	}
-	return t.S3SSEKMSEncryptionContext
+	return t.Enabled
 }
-func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetAlertmanagerReceiversBlockCIDRNetworks() *string {
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_ShardStreams) GetLoggingEnabled() *bool {
 	if t == nil {
-		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_ShardStreams{}
 	}
-	return t.AlertmanagerReceiversBlockCIDRNetworks
+	return t.LoggingEnabled
 }
-func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetAlertmanagerReceiversBlockPrivateAddresses() *bool {
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_ShardStreams) GetDesiredRate() *uint64 {
 	if t == nil {
-		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_ShardStreams{}
 	}
-	return t.AlertmanagerReceiversBlockPrivateAddresses
+	return t.DesiredRate
 }
-func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetNotificationRateLimit() *float64 {
-	if t == nil {
-		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.NotificationRateLimit
+
+type UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_BlockedQueries struct {
+	Pattern *string                     "json:\"pattern,omitempty\" graphql:\"pattern\""
+	Regex   *bool                       "json:\"regex,omitempty\" graphql:\"regex\""
+	Hash    *uint64                     "json:\"hash,omitempty\" graphql:\"hash\""
+	Types   []v1alpha1.BlockedQueryType "json:\"types,omitempty\" graphql:\"types\""
 }
-func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetNotificationRateLimitPerIntegration() map[string]*float64 {
+
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_BlockedQueries) GetPattern() *string {
 	if t == nil {
-		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_BlockedQueries{}
 	}
-	return t.NotificationRateLimitPerIntegration
+	return t.Pattern
 }
-func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetAlertmanagerMaxConfigSizeBytes() *int64 {
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_BlockedQueries) GetRegex() *bool {
 	if t == nil {
-		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_BlockedQueries{}
 	}
-	return t.AlertmanagerMaxConfigSizeBytes
+	return t.Regex
 }
-func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetAlertmanagerMaxTemplatesCount() *int64 {
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_BlockedQueries) GetHash() *uint64 {
 	if t == nil {
-		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_BlockedQueries{}
 	}
-	return t.AlertmanagerMaxTemplatesCount
+	return t.Hash
 }
-func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetAlertmanagerMaxTemplateSizeBytes() *int64 {
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_BlockedQueries) GetTypes() []v1alpha1.BlockedQueryType {
 	if t == nil {
-		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_BlockedQueries{}
 	}
-	return t.AlertmanagerMaxTemplateSizeBytes
+	return t.Types
 }
-func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetAlertmanagerMaxDispatcherAggregationGroups() *int64 {
-	if t == nil {
-		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.AlertmanagerMaxDispatcherAggregationGroups
+
+type UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Tempo_TempoLimitsFragment_MetricsGeneratorProcessorSpanMetricsFilterPolicies_FilterPolicyFragment_Include_PolicyMatchFragment_Attributes struct {
+	Key   string                 "json:\"key\" graphql:\"key\""
+	Value map[string]interface{} "json:\"value,omitempty\" graphql:\"value\""
 }
-func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetAlertmanagerMaxAlertsCount() *int64 {
+
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Tempo_TempoLimitsFragment_MetricsGeneratorProcessorSpanMetricsFilterPolicies_FilterPolicyFragment_Include_PolicyMatchFragment_Attributes) GetKey() string {
 	if t == nil {
-		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Tempo_TempoLimitsFragment_MetricsGeneratorProcessorSpanMetricsFilterPolicies_FilterPolicyFragment_Include_PolicyMatchFragment_Attributes{}
 	}
-	return t.AlertmanagerMaxAlertsCount
+	return t.Key
 }
-func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetAlertmanagerMaxAlertsSizeBytes() *int64 {
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Tempo_TempoLimitsFragment_MetricsGeneratorProcessorSpanMetricsFilterPolicies_FilterPolicyFragment_Include_PolicyMatchFragment_Attributes) GetValue() map[string]interface{} {
 	if t == nil {
-		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Tempo_TempoLimitsFragment_MetricsGeneratorProcessorSpanMetricsFilterPolicies_FilterPolicyFragment_Include_PolicyMatchFragment_Attributes{}
 	}
-	return t.AlertmanagerMaxAlertsSizeBytes
+	return t.Value
 }
-func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetForwardingEndpoint() *string {
-	if t == nil {
-		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
-	}
-	return t.ForwardingEndpoint
+
+type UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Tempo_TempoLimitsFragment_MetricsGeneratorProcessorSpanMetricsFilterPolicies_FilterPolicyFragment_Exclude_PolicyMatchFragment_Attributes struct {
+	Key   string                 "json:\"key\" graphql:\"key\""
+	Value map[string]interface{} "json:\"value,omitempty\" graphql:\"value\""
 }
-func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetForwardingDropOlderThan() *v1.Duration {
+
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Tempo_TempoLimitsFragment_MetricsGeneratorProcessorSpanMetricsFilterPolicies_FilterPolicyFragment_Exclude_PolicyMatchFragment_Attributes) GetKey() string {
 	if t == nil {
-		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Tempo_TempoLimitsFragment_MetricsGeneratorProcessorSpanMetricsFilterPolicies_FilterPolicyFragment_Exclude_PolicyMatchFragment_Attributes{}
 	}
-	return t.ForwardingDropOlderThan
+	return t.Key
 }
-func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir) GetForwardingRules() map[string]*v1alpha1.ForwardingRule {
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Tempo_TempoLimitsFragment_MetricsGeneratorProcessorSpanMetricsFilterPolicies_FilterPolicyFragment_Exclude_PolicyMatchFragment_Attributes) GetValue() map[string]interface{} {
 	if t == nil {
-		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Mimir{}
+		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Tempo_TempoLimitsFragment_MetricsGeneratorProcessorSpanMetricsFilterPolicies_FilterPolicyFragment_Exclude_PolicyMatchFragment_Attributes{}
 	}
-	return t.ForwardingRules
+	return t.Value
 }
 
 type DeleteObservabilityTenant_DeleteObservabilityTenant struct {
@@ -10660,6 +11006,72 @@ func (t *CreateOAuth2Client) GetCreateOAuth2Client() *OAuth2ClientFragment {
 	return t.CreateOAuth2Client
 }
 
+type GetOAuth2ConsentRequest struct {
+	Oauth2ConsentRequest *OAuth2ConsentRequestFragment "json:\"oauth2ConsentRequest,omitempty\" graphql:\"oauth2ConsentRequest\""
+}
+
+func (t *GetOAuth2ConsentRequest) GetOauth2ConsentRequest() *OAuth2ConsentRequestFragment {
+	if t == nil {
+		t = &GetOAuth2ConsentRequest{}
+	}
+	return t.Oauth2ConsentRequest
+}
+
+type AcceptOAuth2ConsentRequest struct {
+	AcceptOAuth2ConsentRequest AcceptOAuth2ConsentRequest_AcceptOAuth2ConsentRequest "json:\"acceptOAuth2ConsentRequest\" graphql:\"acceptOAuth2ConsentRequest\""
+}
+
+func (t *AcceptOAuth2ConsentRequest) GetAcceptOAuth2ConsentRequest() *AcceptOAuth2ConsentRequest_AcceptOAuth2ConsentRequest {
+	if t == nil {
+		t = &AcceptOAuth2ConsentRequest{}
+	}
+	return &t.AcceptOAuth2ConsentRequest
+}
+
+type RejectOAuth2ConsentRequest struct {
+	RejectOAuth2ConsentRequest RejectOAuth2ConsentRequest_RejectOAuth2ConsentRequest "json:\"rejectOAuth2ConsentRequest\" graphql:\"rejectOAuth2ConsentRequest\""
+}
+
+func (t *RejectOAuth2ConsentRequest) GetRejectOAuth2ConsentRequest() *RejectOAuth2ConsentRequest_RejectOAuth2ConsentRequest {
+	if t == nil {
+		t = &RejectOAuth2ConsentRequest{}
+	}
+	return &t.RejectOAuth2ConsentRequest
+}
+
+type GetOAuth2LoginRequest struct {
+	Oauth2LoginRequest *OAuth2LoginRequestFragment "json:\"oauth2LoginRequest,omitempty\" graphql:\"oauth2LoginRequest\""
+}
+
+func (t *GetOAuth2LoginRequest) GetOauth2LoginRequest() *OAuth2LoginRequestFragment {
+	if t == nil {
+		t = &GetOAuth2LoginRequest{}
+	}
+	return t.Oauth2LoginRequest
+}
+
+type AcceptOAuth2LoginRequest struct {
+	AcceptOAuth2LoginRequest AcceptOAuth2LoginRequest_AcceptOAuth2LoginRequest "json:\"acceptOAuth2LoginRequest\" graphql:\"acceptOAuth2LoginRequest\""
+}
+
+func (t *AcceptOAuth2LoginRequest) GetAcceptOAuth2LoginRequest() *AcceptOAuth2LoginRequest_AcceptOAuth2LoginRequest {
+	if t == nil {
+		t = &AcceptOAuth2LoginRequest{}
+	}
+	return &t.AcceptOAuth2LoginRequest
+}
+
+type RejectOAuth2LoginRequest struct {
+	RejectOAuth2LoginRequest RejectOAuth2LoginRequest_RejectOAuth2LoginRequest "json:\"rejectOAuth2LoginRequest\" graphql:\"rejectOAuth2LoginRequest\""
+}
+
+func (t *RejectOAuth2LoginRequest) GetRejectOAuth2LoginRequest() *RejectOAuth2LoginRequest_RejectOAuth2LoginRequest {
+	if t == nil {
+		t = &RejectOAuth2LoginRequest{}
+	}
+	return &t.RejectOAuth2LoginRequest
+}
+
 type ListObservabilityTenants struct {
 	ListObservabilityTenants []*ObservabilityTenantFragment "json:\"listObservabilityTenants\" graphql:\"listObservabilityTenants\""
 }
@@ -10792,7 +11204,7 @@ func (c *Client) ListGroups(ctx context.Context, interceptors ...clientv2.Reques
 	return &res, nil
 }
 
-const UpdateGroupDocument = `mutation UpdateGroup ($name: String!, $members: [String!]) {
+const UpdateGroupDocument = `mutation UpdateGroup ($name: String!, $members: [UserInput!]) {
 	# TODO: for consistency we should probably split create and update mutations
 	group(name: $name, members: $members) {
 		... GroupFragment
@@ -10814,7 +11226,7 @@ fragment UserFragmentNoGroups on User {
 }
 `
 
-func (c *Client) UpdateGroup(ctx context.Context, name string, members []string, interceptors ...clientv2.RequestInterceptor) (*UpdateGroup, error) {
+func (c *Client) UpdateGroup(ctx context.Context, name string, members []*model.UserInput, interceptors ...clientv2.RequestInterceptor) (*UpdateGroup, error) {
 	vars := map[string]interface{}{
 		"name":    name,
 		"members": members,
@@ -11057,7 +11469,7 @@ fragment OAuth2ClientFragment on OAuth2Client {
 }
 `
 
-func (c *Client) UpdateOAuth2Client(ctx context.Context, allowedCorsOrigins []string, audience []string, authorizationCodeGrantAccessTokenLifespan *string, authorizationCodeGrantIDTokenLifespan *string, authorizationCodeGrantRefreshTokenLifespan *string, backChannelLogoutSessionRequired *bool, backChannelLogoutURI *string, clientCredentialsGrantAccessTokenLifespan *string, clientID string, clientName *string, clientSecret *string, clientSecretExpiresAt *int64, clientURI *string, contacts []string, frontchannelLogoutSessionRequired *bool, frontchannelLogoutURI *string, grantTypes []string, implicitGrantAccessTokenLifespan *string, implicitGrantIDTokenLifespan *string, jwks map[string]interface{}, jwksURI *string, jwtBearerGrantAccessTokenLifespan *string, logoURI *string, metadata map[string]interface{}, policyURI *string, postLogoutRedirectUris []string, redirectUris []string, responseTypes []string, scope *string, sectorIdentifierURI *string, subjectType *string, tokenEndpointAuthMethod *string, tokenEndpointAuthSigningAlgorithm *string, tosURI *string, userinfoSignedResponseAlgorithm *string, loginBindings *LoginBindingsInput, interceptors ...clientv2.RequestInterceptor) (*UpdateOAuth2Client, error) {
+func (c *Client) UpdateOAuth2Client(ctx context.Context, allowedCorsOrigins []string, audience []string, authorizationCodeGrantAccessTokenLifespan *string, authorizationCodeGrantIDTokenLifespan *string, authorizationCodeGrantRefreshTokenLifespan *string, backChannelLogoutSessionRequired *bool, backChannelLogoutURI *string, clientCredentialsGrantAccessTokenLifespan *string, clientID string, clientName *string, clientSecret *string, clientSecretExpiresAt *int64, clientURI *string, contacts []string, frontchannelLogoutSessionRequired *bool, frontchannelLogoutURI *string, grantTypes []string, implicitGrantAccessTokenLifespan *string, implicitGrantIDTokenLifespan *string, jwks map[string]interface{}, jwksURI *string, jwtBearerGrantAccessTokenLifespan *string, logoURI *string, metadata map[string]interface{}, policyURI *string, postLogoutRedirectUris []string, redirectUris []string, responseTypes []string, scope *string, sectorIdentifierURI *string, subjectType *string, tokenEndpointAuthMethod *string, tokenEndpointAuthSigningAlgorithm *string, tosURI *string, userinfoSignedResponseAlgorithm *string, loginBindings *model.LoginBindingsInput, interceptors ...clientv2.RequestInterceptor) (*UpdateOAuth2Client, error) {
 	vars := map[string]interface{}{
 		"allowedCorsOrigins": allowedCorsOrigins,
 		"audience":           audience,
@@ -11160,7 +11572,7 @@ fragment OAuth2ClientFragment on OAuth2Client {
 }
 `
 
-func (c *Client) CreateOAuth2Client(ctx context.Context, allowedCorsOrigins []string, audience []string, authorizationCodeGrantAccessTokenLifespan *string, authorizationCodeGrantIDTokenLifespan *string, authorizationCodeGrantRefreshTokenLifespan *string, backChannelLogoutSessionRequired *bool, backChannelLogoutURI *string, clientCredentialsGrantAccessTokenLifespan *string, clientName *string, clientSecret *string, clientSecretExpiresAt *int64, clientURI *string, contacts []string, frontchannelLogoutSessionRequired *bool, frontchannelLogoutURI *string, grantTypes []string, implicitGrantAccessTokenLifespan *string, implicitGrantIDTokenLifespan *string, jwks map[string]interface{}, jwksURI *string, jwtBearerGrantAccessTokenLifespan *string, logoURI *string, metadata map[string]interface{}, policyURI *string, postLogoutRedirectUris []string, redirectUris []string, responseTypes []string, scope *string, sectorIdentifierURI *string, subjectType *string, tokenEndpointAuthMethod *string, tokenEndpointAuthSigningAlgorithm *string, tosURI *string, userinfoSignedResponseAlgorithm *string, loginBindings *LoginBindingsInput, interceptors ...clientv2.RequestInterceptor) (*CreateOAuth2Client, error) {
+func (c *Client) CreateOAuth2Client(ctx context.Context, allowedCorsOrigins []string, audience []string, authorizationCodeGrantAccessTokenLifespan *string, authorizationCodeGrantIDTokenLifespan *string, authorizationCodeGrantRefreshTokenLifespan *string, backChannelLogoutSessionRequired *bool, backChannelLogoutURI *string, clientCredentialsGrantAccessTokenLifespan *string, clientName *string, clientSecret *string, clientSecretExpiresAt *int64, clientURI *string, contacts []string, frontchannelLogoutSessionRequired *bool, frontchannelLogoutURI *string, grantTypes []string, implicitGrantAccessTokenLifespan *string, implicitGrantIDTokenLifespan *string, jwks map[string]interface{}, jwksURI *string, jwtBearerGrantAccessTokenLifespan *string, logoURI *string, metadata map[string]interface{}, policyURI *string, postLogoutRedirectUris []string, redirectUris []string, responseTypes []string, scope *string, sectorIdentifierURI *string, subjectType *string, tokenEndpointAuthMethod *string, tokenEndpointAuthSigningAlgorithm *string, tosURI *string, userinfoSignedResponseAlgorithm *string, loginBindings *model.LoginBindingsInput, interceptors ...clientv2.RequestInterceptor) (*CreateOAuth2Client, error) {
 	vars := map[string]interface{}{
 		"allowedCorsOrigins": allowedCorsOrigins,
 		"audience":           audience,
@@ -11207,6 +11619,199 @@ func (c *Client) CreateOAuth2Client(ctx context.Context, allowedCorsOrigins []st
 	return &res, nil
 }
 
+const GetOAuth2ConsentRequestDocument = `query GetOAuth2ConsentRequest ($challenge: String!) {
+	oauth2ConsentRequest(challenge: $challenge) {
+		... OAuth2ConsentRequestFragment
+	}
+}
+fragment OAuth2ConsentRequestFragment on OAuth2ConsentRequest {
+	challenge
+	client {
+		... OAuth2ConsentClient
+	}
+	context
+	loginChallenge
+	loginSessionId
+	oidcContext {
+		... OAuthConsentOIDCContext
+	}
+	requestUrl
+	requestedAccessTokenAudience
+	requestedScope
+	skip
+	subject
+	redirectTo
+}
+fragment OAuth2ConsentClient on OAuth2Client {
+	clientId
+	clientName
+	logoUri
+	policyUri
+	scope
+	tosUri
+}
+fragment OAuthConsentOIDCContext on OidcContext {
+	acrValues
+	display
+	idTokenHintClaims
+	loginHint
+	uiLocales
+}
+`
+
+func (c *Client) GetOAuth2ConsentRequest(ctx context.Context, challenge string, interceptors ...clientv2.RequestInterceptor) (*GetOAuth2ConsentRequest, error) {
+	vars := map[string]interface{}{
+		"challenge": challenge,
+	}
+
+	var res GetOAuth2ConsentRequest
+	if err := c.Client.Post(ctx, "GetOAuth2ConsentRequest", GetOAuth2ConsentRequestDocument, &res, vars, interceptors...); err != nil {
+		return nil, err
+	}
+
+	return &res, nil
+}
+
+const AcceptOAuth2ConsentRequestDocument = `mutation AcceptOAuth2ConsentRequest ($challenge: String!, $grantScope: [String!], $remember: Boolean, $rememberFor: Int) {
+	acceptOAuth2ConsentRequest(challenge: $challenge, grantScope: $grantScope, remember: $remember, rememberFor: $rememberFor) {
+		redirectTo
+	}
+}
+`
+
+func (c *Client) AcceptOAuth2ConsentRequest(ctx context.Context, challenge string, grantScope []string, remember *bool, rememberFor *int64, interceptors ...clientv2.RequestInterceptor) (*AcceptOAuth2ConsentRequest, error) {
+	vars := map[string]interface{}{
+		"challenge":   challenge,
+		"grantScope":  grantScope,
+		"remember":    remember,
+		"rememberFor": rememberFor,
+	}
+
+	var res AcceptOAuth2ConsentRequest
+	if err := c.Client.Post(ctx, "AcceptOAuth2ConsentRequest", AcceptOAuth2ConsentRequestDocument, &res, vars, interceptors...); err != nil {
+		return nil, err
+	}
+
+	return &res, nil
+}
+
+const RejectOAuth2ConsentRequestDocument = `mutation RejectOAuth2ConsentRequest ($challenge: String!) {
+	rejectOAuth2ConsentRequest(challenge: $challenge) {
+		redirectTo
+	}
+}
+`
+
+func (c *Client) RejectOAuth2ConsentRequest(ctx context.Context, challenge string, interceptors ...clientv2.RequestInterceptor) (*RejectOAuth2ConsentRequest, error) {
+	vars := map[string]interface{}{
+		"challenge": challenge,
+	}
+
+	var res RejectOAuth2ConsentRequest
+	if err := c.Client.Post(ctx, "RejectOAuth2ConsentRequest", RejectOAuth2ConsentRequestDocument, &res, vars, interceptors...); err != nil {
+		return nil, err
+	}
+
+	return &res, nil
+}
+
+const GetOAuth2LoginRequestDocument = `query GetOAuth2LoginRequest ($challenge: String!) {
+	oauth2LoginRequest(challenge: $challenge) {
+		... OAuth2LoginRequestFragment
+	}
+}
+fragment OAuth2LoginRequestFragment on OAuth2LoginRequest {
+	challenge
+	client {
+		... OAuth2LoginClient
+	}
+	oidcContext {
+		... OAuthLoginOIDCContext
+	}
+	requestUrl
+	requestedAccessTokenAudience
+	requestedScope
+	sessionId
+	skip
+	subject
+	redirectTo
+}
+fragment OAuth2LoginClient on OAuth2Client {
+	clientId
+	clientName
+	logoUri
+	policyUri
+	scope
+	tosUri
+}
+fragment OAuthLoginOIDCContext on OidcContext {
+	acrValues
+	display
+	idTokenHintClaims
+	loginHint
+	uiLocales
+}
+`
+
+func (c *Client) GetOAuth2LoginRequest(ctx context.Context, challenge string, interceptors ...clientv2.RequestInterceptor) (*GetOAuth2LoginRequest, error) {
+	vars := map[string]interface{}{
+		"challenge": challenge,
+	}
+
+	var res GetOAuth2LoginRequest
+	if err := c.Client.Post(ctx, "GetOAuth2LoginRequest", GetOAuth2LoginRequestDocument, &res, vars, interceptors...); err != nil {
+		return nil, err
+	}
+
+	return &res, nil
+}
+
+const AcceptOAuth2LoginRequestDocument = `mutation AcceptOAuth2LoginRequest ($challenge: String!, $acr: String, $amr: [String!], $context: Map, $remember: Boolean, $rememberFor: Int, $subject: String!) {
+	acceptOAuth2LoginRequest(challenge: $challenge, acr: $acr, amr: $amr, context: $context, remember: $remember, rememberFor: $rememberFor, subject: $subject) {
+		redirectTo
+	}
+}
+`
+
+func (c *Client) AcceptOAuth2LoginRequest(ctx context.Context, challenge string, acr *string, amr []string, context map[string]interface{}, remember *bool, rememberFor *int64, subject string, interceptors ...clientv2.RequestInterceptor) (*AcceptOAuth2LoginRequest, error) {
+	vars := map[string]interface{}{
+		"challenge":   challenge,
+		"acr":         acr,
+		"amr":         amr,
+		"context":     context,
+		"remember":    remember,
+		"rememberFor": rememberFor,
+		"subject":     subject,
+	}
+
+	var res AcceptOAuth2LoginRequest
+	if err := c.Client.Post(ctx, "AcceptOAuth2LoginRequest", AcceptOAuth2LoginRequestDocument, &res, vars, interceptors...); err != nil {
+		return nil, err
+	}
+
+	return &res, nil
+}
+
+const RejectOAuth2LoginRequestDocument = `mutation RejectOAuth2LoginRequest ($challenge: String!) {
+	rejectOAuth2LoginRequest(challenge: $challenge) {
+		redirectTo
+	}
+}
+`
+
+func (c *Client) RejectOAuth2LoginRequest(ctx context.Context, challenge string, interceptors ...clientv2.RequestInterceptor) (*RejectOAuth2LoginRequest, error) {
+	vars := map[string]interface{}{
+		"challenge": challenge,
+	}
+
+	var res RejectOAuth2LoginRequest
+	if err := c.Client.Post(ctx, "RejectOAuth2LoginRequest", RejectOAuth2LoginRequestDocument, &res, vars, interceptors...); err != nil {
+		return nil, err
+	}
+
+	return &res, nil
+}
+
 const ListObservabilityTenantsDocument = `query ListObservabilityTenants {
 	listObservabilityTenants {
 		... ObservabilityTenantFragment
@@ -11214,7 +11819,7 @@ const ListObservabilityTenantsDocument = `query ListObservabilityTenants {
 }
 fragment ObservabilityTenantFragment on ObservabilityTenant {
 	id
-	name
+	displayName
 	admins {
 		... ObservabilityTenantPermissionBindingsFragment
 	}
@@ -11339,83 +11944,277 @@ fragment OAuth2ClientFragment on OAuth2Client {
 }
 fragment ObservabilityTenantLimitsFragment on ObservabilityTenantLimits {
 	mimir {
-		requestRate
-		requestBurstSize
-		ingestionRate
-		ingestionBurstSize
-		acceptHASamples
-		haClusterLabel
-		haReplicaLabel
-		haMaxClusters
-		dropLabels
-		maxLabelNameLength
-		maxLabelValueLength
-		maxLabelNamesPerSeries
-		maxMetadataLength
-		creationGracePeriod
-		enforceMetadataMetricName
-		ingestionTenantShardSize
-		maxGlobalSeriesPerUser
-		maxGlobalSeriesPerMetric
-		maxGlobalMetricsWithMetadataPerUser
-		maxGlobalMetadataPerMetric
-		maxGlobalExemplarsPerUser
-		nativeHistogramsIngestionEnabled
-		outOfOrderTimeWindow
-		outOfOrderBlocksExternalLabelEnabled
-		separateMetricsGroupLabel
-		maxChunksPerQuery
-		maxFetchedSeriesPerQuery
-		maxFetchedChunkBytesPerQuery
-		maxQueryLookback
-		maxPartialQueryLength
-		maxQueryParallelism
-		maxLabelsQueryLength
-		maxCacheFreshness
-		maxQueriersPerTenant
-		queryShardingTotalShards
-		queryShardingMaxShardedQueries
-		queryShardingMaxRegexpSizeBytes
-		splitInstantQueriesByInterval
-		maxTotalQueryLength
-		resultsCacheTTL
-		resultsCacheTTLForOutOfOrderTimeWindow
-		maxQueryExpressionSizeBytes
-		cardinalityAnalysisEnabled
-		labelNamesAndValuesResultsMaxSizeBytes
-		labelValuesMaxCardinalityLabelNamesPerRequest
-		rulerEvaluationDelay
-		rulerTenantShardSize
-		rulerMaxRulesPerRuleGroup
-		rulerMaxRuleGroupsPerTenant
-		rulerRecordingRulesEvaluationEnabled
-		rulerAlertingRulesEvaluationEnabled
-		storeGatewayTenantShardSize
-		compactorBlocksRetentionPeriod
-		compactorSplitAndMergeShards
-		compactorSplitGroups
-		compactorTenantShardSize
-		compactorPartialBlockDeletionDelay
-		compactorBlockUploadEnabled
-		compactorBlockUploadValidationEnabled
-		compactorBlockUploadVerifyChunks
-		s3SSEType
-		s3SSEKMSKeyID
-		s3SSEKMSEncryptionContext
-		alertmanagerReceiversBlockCIDRNetworks
-		alertmanagerReceiversBlockPrivateAddresses
-		notificationRateLimit
-		notificationRateLimitPerIntegration
-		alertmanagerMaxConfigSizeBytes
-		alertmanagerMaxTemplatesCount
-		alertmanagerMaxTemplateSizeBytes
-		alertmanagerMaxDispatcherAggregationGroups
-		alertmanagerMaxAlertsCount
-		alertmanagerMaxAlertsSizeBytes
-		forwardingEndpoint
-		forwardingDropOlderThan
-		forwardingRules
+		... MimirLimitsFragment
 	}
+	loki {
+		... LokiLimitsFragment
+	}
+	tempo {
+		... TempoLimitsFragment
+	}
+}
+fragment MimirLimitsFragment on MimirLimits {
+	requestRate
+	requestBurstSize
+	ingestionRate
+	ingestionBurstSize
+	acceptHASamples
+	haClusterLabel
+	haReplicaLabel
+	haMaxClusters
+	dropLabels
+	maxLabelNameLength
+	maxLabelValueLength
+	maxLabelNamesPerSeries
+	maxMetadataLength
+	maxNativeHistogramBuckets
+	creationGracePeriod
+	enforceMetadataMetricName
+	ingestionTenantShardSize
+	metricRelabelConfigs {
+		... RelabelConfigFragment
+	}
+	maxGlobalSeriesPerUser
+	maxGlobalSeriesPerMetric
+	maxGlobalMetricsWithMetadataPerUser
+	maxGlobalMetadataPerMetric
+	maxGlobalExemplarsPerUser
+	nativeHistogramsIngestionEnabled
+	activeSeriesCustomTrackersConfig
+	outOfOrderTimeWindow
+	outOfOrderBlocksExternalLabelEnabled
+	separateMetricsGroupLabel
+	maxChunksPerQuery
+	maxFetchedSeriesPerQuery
+	maxFetchedChunkBytesPerQuery
+	maxQueryLookback
+	maxPartialQueryLength
+	maxQueryParallelism
+	maxLabelsQueryLength
+	maxCacheFreshness
+	maxQueriersPerTenant
+	queryShardingTotalShards
+	queryShardingMaxShardedQueries
+	queryShardingMaxRegexpSizeBytes
+	splitInstantQueriesByInterval
+	QueryIngestersWithin
+	maxTotalQueryLength
+	resultsCacheTTL
+	resultsCacheTTLForOutOfOrderTimeWindow
+	resultsCacheTTLForCardinalityQuery
+	resultsCacheTTLForLabelsQuery
+	resultsCacheForUnalignedQueryEnabled
+	maxQueryExpressionSizeBytes
+	cardinalityAnalysisEnabled
+	labelNamesAndValuesResultsMaxSizeBytes
+	labelValuesMaxCardinalityLabelNamesPerRequest
+	rulerEvaluationDelay
+	rulerTenantShardSize
+	rulerMaxRulesPerRuleGroup
+	rulerMaxRuleGroupsPerTenant
+	rulerRecordingRulesEvaluationEnabled
+	rulerAlertingRulesEvaluationEnabled
+	rulerSyncRulesOnChangesEnabled
+	storeGatewayTenantShardSize
+	compactorBlocksRetentionPeriod
+	compactorSplitAndMergeShards
+	compactorSplitGroups
+	compactorTenantShardSize
+	compactorPartialBlockDeletionDelay
+	compactorBlockUploadEnabled
+	compactorBlockUploadValidationEnabled
+	compactorBlockUploadVerifyChunks
+	compactorBlockUploadMaxBlockSizeBytes
+	s3SSEType
+	s3SSEKMSKeyID
+	s3SSEKMSEncryptionContext
+	alertmanagerReceiversBlockCIDRNetworks
+	alertmanagerReceiversBlockPrivateAddresses
+	notificationRateLimit
+	notificationRateLimitPerIntegration
+	alertmanagerMaxConfigSizeBytes
+	alertmanagerMaxTemplatesCount
+	alertmanagerMaxTemplateSizeBytes
+	alertmanagerMaxDispatcherAggregationGroups
+	alertmanagerMaxAlertsCount
+	alertmanagerMaxAlertsSizeBytes
+}
+fragment RelabelConfigFragment on RelabelConfig {
+	sourceLabels
+	separator
+	regex
+	modulus
+	targetLabel
+	replacement
+	action
+}
+fragment LokiLimitsFragment on LokiLimits {
+	ingestionRateStrategy
+	ingestionRateMB
+	ingestionBurstSizeMB
+	maxLabelNameLength
+	maxLabelValueLength
+	maxLabelNamesPerSeries
+	rejectOldSamples
+	rejectOldSamplesMaxAge
+	creationGracePeriod
+	enforceMetricName
+	maxLineSize
+	maxLineSizeTruncate
+	incrementDuplicateTimestamp
+	maxLocalStreamsPerUser
+	maxGlobalStreamsPerUser
+	unorderedWrites
+	perStreamRateLimit
+	perStreamRateLimitBurst
+	maxChunksPerQuery
+	maxQuerySeries
+	maxQueryLookback
+	maxQueryLength
+	maxQueryRange
+	maxQueryParallelism
+	tsdbMaxQueryParallelism
+	tsdbMaxBytesPerShard
+	cardinalityLimit
+	maxStreamsMatchersPerQuery
+	maxConcurrentTailRequests
+	maxEntriesLimitPerQuery
+	maxCacheFreshness
+	maxStatsCacheFreshness
+	maxQueriersPerTenant
+	queryReadyIndexNumDays
+	queryTimeout
+	querySplitDuration
+	minShardingLookback
+	maxQueryBytesRead
+	maxQuerierBytesRead
+	volumeEnabled
+	volumeMaxSeries
+	rulerEvaluationDelay
+	rulerMaxRulesPerRuleGroup
+	rulerMaxRuleGroupsPerTenant
+	rulerAlertManagerConfig {
+		... RulerAlertManagerConfigFragment
+	}
+	rulerTenantShardSize
+	rulerRemoteWriteDisabled
+	rulerRemoteEvaluationTimeout
+	rulerRemoteEvaluationMaxResponseSize
+	deletionMode
+	retentionPeriod
+	streamRetention {
+		period
+		priority
+		selector
+	}
+	shardStreams {
+		enabled
+		loggingEnabled
+		desiredRate
+	}
+	blockedQueries {
+		pattern
+		regex
+		hash
+		types
+	}
+	requiredLabels
+	requiredNumberLabels
+	indexGatewayShardSize
+}
+fragment RulerAlertManagerConfigFragment on RulerAlertManagerConfig {
+	alertmanagerURL
+	alertmanagerDiscovery
+	alertmanagerRefreshInterval
+	alertmanangerEnableV2API
+	alertRelabelConfigs {
+		... RelabelConfigFragment
+	}
+	notificationQueueCapacity
+	notificationTimeout
+	notifier {
+		... NotifierConfigFragment
+	}
+}
+fragment NotifierConfigFragment on NotifierConfig {
+	basicAuth {
+		username
+		password
+	}
+	headerAuth {
+		type
+		credentials
+		credentialsFile
+	}
+	tls {
+		certPath
+		keyPath
+		caPath
+		serverName
+		insecureSkipVerify
+		cipherSuites
+		minVersion
+	}
+}
+fragment TempoLimitsFragment on TempoLimits {
+	ingestionRateStrategy
+	ingestionRateLimitBytes
+	ingestionBurstSizeBytes
+	maxLocalTracesPerUser
+	maxGlobalTracesPerUser
+	forwarders
+	metricsGeneratorRingSize
+	metricsGeneratorProcessors
+	metricsGeneratorMaxActiveSeries
+	metricsGeneratorCollectionInterval
+	metricsGeneratorDisableCollection
+	metricsGeneratorForwarderQueueSize
+	metricsGeneratorForwarderWorkers
+	metricsGeneratorProcessorServiceGraphsHistogramBuckets
+	metricsGeneratorProcessorServiceGraphsDimensions
+	metricsGeneratorProcessorServiceGraphsPeerAttributes
+	metricsGeneratorProcessorServiceGraphsEnableClientServerPrefix
+	metricsGeneratorProcessorSpanMetricsHistogramBuckets
+	metricsGeneratorProcessorSpanMetricsDimensions
+	metricsGeneratorProcessorSpanMetricsIntrinsicDimensions
+	metricsGeneratorProcessorSpanMetricsFilterPolicies {
+		... FilterPolicyFragment
+	}
+	metricsGeneratorProcessorSpanMetricsDimensionMappings {
+		... DimensionMappingsFragment
+	}
+	metricsGeneratorProcessorSpanMetricsEnableTargetInfo
+	metricsGeneratorProcessorLocalBlocksMaxLiveTraces
+	metricsGeneratorProcessorLocalBlocksMaxBlockDuration
+	metricsGeneratorProcessorLocalBlocksMaxBlockBytes
+	metricsGeneratorProcessorLocalBlocksFlushCheckPeriod
+	metricsGeneratorProcessorLocalBlocksTraceIdlePeriod
+	metricsGeneratorProcessorLocalBlocksCompleteBlockTimeout
+	blockRetention
+	maxBytesPerTagValuesQuery
+	maxBlocksPerTagValuesQuery
+	maxSearchDuration
+	maxBytesPerTrace
+}
+fragment FilterPolicyFragment on FilterPolicy {
+	include {
+		... PolicyMatchFragment
+	}
+	exclude {
+		... PolicyMatchFragment
+	}
+}
+fragment PolicyMatchFragment on PolicyMatch {
+	matchType
+	attributes {
+		key
+		value
+	}
+}
+fragment DimensionMappingsFragment on DimensionMappings {
+	name
+	sourceLabel
+	join
 }
 `
 
@@ -11430,14 +12229,14 @@ func (c *Client) ListObservabilityTenants(ctx context.Context, interceptors ...c
 	return &res, nil
 }
 
-const GetObservabilityTenantDocument = `query GetObservabilityTenant ($id: String!) {
+const GetObservabilityTenantDocument = `query GetObservabilityTenant ($id: ID!) {
 	getObservabilityTenant(id: $id) {
 		... ObservabilityTenantFragment
 	}
 }
 fragment ObservabilityTenantFragment on ObservabilityTenant {
 	id
-	name
+	displayName
 	admins {
 		... ObservabilityTenantPermissionBindingsFragment
 	}
@@ -11562,83 +12361,277 @@ fragment OAuth2ClientFragment on OAuth2Client {
 }
 fragment ObservabilityTenantLimitsFragment on ObservabilityTenantLimits {
 	mimir {
-		requestRate
-		requestBurstSize
-		ingestionRate
-		ingestionBurstSize
-		acceptHASamples
-		haClusterLabel
-		haReplicaLabel
-		haMaxClusters
-		dropLabels
-		maxLabelNameLength
-		maxLabelValueLength
-		maxLabelNamesPerSeries
-		maxMetadataLength
-		creationGracePeriod
-		enforceMetadataMetricName
-		ingestionTenantShardSize
-		maxGlobalSeriesPerUser
-		maxGlobalSeriesPerMetric
-		maxGlobalMetricsWithMetadataPerUser
-		maxGlobalMetadataPerMetric
-		maxGlobalExemplarsPerUser
-		nativeHistogramsIngestionEnabled
-		outOfOrderTimeWindow
-		outOfOrderBlocksExternalLabelEnabled
-		separateMetricsGroupLabel
-		maxChunksPerQuery
-		maxFetchedSeriesPerQuery
-		maxFetchedChunkBytesPerQuery
-		maxQueryLookback
-		maxPartialQueryLength
-		maxQueryParallelism
-		maxLabelsQueryLength
-		maxCacheFreshness
-		maxQueriersPerTenant
-		queryShardingTotalShards
-		queryShardingMaxShardedQueries
-		queryShardingMaxRegexpSizeBytes
-		splitInstantQueriesByInterval
-		maxTotalQueryLength
-		resultsCacheTTL
-		resultsCacheTTLForOutOfOrderTimeWindow
-		maxQueryExpressionSizeBytes
-		cardinalityAnalysisEnabled
-		labelNamesAndValuesResultsMaxSizeBytes
-		labelValuesMaxCardinalityLabelNamesPerRequest
-		rulerEvaluationDelay
-		rulerTenantShardSize
-		rulerMaxRulesPerRuleGroup
-		rulerMaxRuleGroupsPerTenant
-		rulerRecordingRulesEvaluationEnabled
-		rulerAlertingRulesEvaluationEnabled
-		storeGatewayTenantShardSize
-		compactorBlocksRetentionPeriod
-		compactorSplitAndMergeShards
-		compactorSplitGroups
-		compactorTenantShardSize
-		compactorPartialBlockDeletionDelay
-		compactorBlockUploadEnabled
-		compactorBlockUploadValidationEnabled
-		compactorBlockUploadVerifyChunks
-		s3SSEType
-		s3SSEKMSKeyID
-		s3SSEKMSEncryptionContext
-		alertmanagerReceiversBlockCIDRNetworks
-		alertmanagerReceiversBlockPrivateAddresses
-		notificationRateLimit
-		notificationRateLimitPerIntegration
-		alertmanagerMaxConfigSizeBytes
-		alertmanagerMaxTemplatesCount
-		alertmanagerMaxTemplateSizeBytes
-		alertmanagerMaxDispatcherAggregationGroups
-		alertmanagerMaxAlertsCount
-		alertmanagerMaxAlertsSizeBytes
-		forwardingEndpoint
-		forwardingDropOlderThan
-		forwardingRules
+		... MimirLimitsFragment
 	}
+	loki {
+		... LokiLimitsFragment
+	}
+	tempo {
+		... TempoLimitsFragment
+	}
+}
+fragment MimirLimitsFragment on MimirLimits {
+	requestRate
+	requestBurstSize
+	ingestionRate
+	ingestionBurstSize
+	acceptHASamples
+	haClusterLabel
+	haReplicaLabel
+	haMaxClusters
+	dropLabels
+	maxLabelNameLength
+	maxLabelValueLength
+	maxLabelNamesPerSeries
+	maxMetadataLength
+	maxNativeHistogramBuckets
+	creationGracePeriod
+	enforceMetadataMetricName
+	ingestionTenantShardSize
+	metricRelabelConfigs {
+		... RelabelConfigFragment
+	}
+	maxGlobalSeriesPerUser
+	maxGlobalSeriesPerMetric
+	maxGlobalMetricsWithMetadataPerUser
+	maxGlobalMetadataPerMetric
+	maxGlobalExemplarsPerUser
+	nativeHistogramsIngestionEnabled
+	activeSeriesCustomTrackersConfig
+	outOfOrderTimeWindow
+	outOfOrderBlocksExternalLabelEnabled
+	separateMetricsGroupLabel
+	maxChunksPerQuery
+	maxFetchedSeriesPerQuery
+	maxFetchedChunkBytesPerQuery
+	maxQueryLookback
+	maxPartialQueryLength
+	maxQueryParallelism
+	maxLabelsQueryLength
+	maxCacheFreshness
+	maxQueriersPerTenant
+	queryShardingTotalShards
+	queryShardingMaxShardedQueries
+	queryShardingMaxRegexpSizeBytes
+	splitInstantQueriesByInterval
+	QueryIngestersWithin
+	maxTotalQueryLength
+	resultsCacheTTL
+	resultsCacheTTLForOutOfOrderTimeWindow
+	resultsCacheTTLForCardinalityQuery
+	resultsCacheTTLForLabelsQuery
+	resultsCacheForUnalignedQueryEnabled
+	maxQueryExpressionSizeBytes
+	cardinalityAnalysisEnabled
+	labelNamesAndValuesResultsMaxSizeBytes
+	labelValuesMaxCardinalityLabelNamesPerRequest
+	rulerEvaluationDelay
+	rulerTenantShardSize
+	rulerMaxRulesPerRuleGroup
+	rulerMaxRuleGroupsPerTenant
+	rulerRecordingRulesEvaluationEnabled
+	rulerAlertingRulesEvaluationEnabled
+	rulerSyncRulesOnChangesEnabled
+	storeGatewayTenantShardSize
+	compactorBlocksRetentionPeriod
+	compactorSplitAndMergeShards
+	compactorSplitGroups
+	compactorTenantShardSize
+	compactorPartialBlockDeletionDelay
+	compactorBlockUploadEnabled
+	compactorBlockUploadValidationEnabled
+	compactorBlockUploadVerifyChunks
+	compactorBlockUploadMaxBlockSizeBytes
+	s3SSEType
+	s3SSEKMSKeyID
+	s3SSEKMSEncryptionContext
+	alertmanagerReceiversBlockCIDRNetworks
+	alertmanagerReceiversBlockPrivateAddresses
+	notificationRateLimit
+	notificationRateLimitPerIntegration
+	alertmanagerMaxConfigSizeBytes
+	alertmanagerMaxTemplatesCount
+	alertmanagerMaxTemplateSizeBytes
+	alertmanagerMaxDispatcherAggregationGroups
+	alertmanagerMaxAlertsCount
+	alertmanagerMaxAlertsSizeBytes
+}
+fragment RelabelConfigFragment on RelabelConfig {
+	sourceLabels
+	separator
+	regex
+	modulus
+	targetLabel
+	replacement
+	action
+}
+fragment LokiLimitsFragment on LokiLimits {
+	ingestionRateStrategy
+	ingestionRateMB
+	ingestionBurstSizeMB
+	maxLabelNameLength
+	maxLabelValueLength
+	maxLabelNamesPerSeries
+	rejectOldSamples
+	rejectOldSamplesMaxAge
+	creationGracePeriod
+	enforceMetricName
+	maxLineSize
+	maxLineSizeTruncate
+	incrementDuplicateTimestamp
+	maxLocalStreamsPerUser
+	maxGlobalStreamsPerUser
+	unorderedWrites
+	perStreamRateLimit
+	perStreamRateLimitBurst
+	maxChunksPerQuery
+	maxQuerySeries
+	maxQueryLookback
+	maxQueryLength
+	maxQueryRange
+	maxQueryParallelism
+	tsdbMaxQueryParallelism
+	tsdbMaxBytesPerShard
+	cardinalityLimit
+	maxStreamsMatchersPerQuery
+	maxConcurrentTailRequests
+	maxEntriesLimitPerQuery
+	maxCacheFreshness
+	maxStatsCacheFreshness
+	maxQueriersPerTenant
+	queryReadyIndexNumDays
+	queryTimeout
+	querySplitDuration
+	minShardingLookback
+	maxQueryBytesRead
+	maxQuerierBytesRead
+	volumeEnabled
+	volumeMaxSeries
+	rulerEvaluationDelay
+	rulerMaxRulesPerRuleGroup
+	rulerMaxRuleGroupsPerTenant
+	rulerAlertManagerConfig {
+		... RulerAlertManagerConfigFragment
+	}
+	rulerTenantShardSize
+	rulerRemoteWriteDisabled
+	rulerRemoteEvaluationTimeout
+	rulerRemoteEvaluationMaxResponseSize
+	deletionMode
+	retentionPeriod
+	streamRetention {
+		period
+		priority
+		selector
+	}
+	shardStreams {
+		enabled
+		loggingEnabled
+		desiredRate
+	}
+	blockedQueries {
+		pattern
+		regex
+		hash
+		types
+	}
+	requiredLabels
+	requiredNumberLabels
+	indexGatewayShardSize
+}
+fragment RulerAlertManagerConfigFragment on RulerAlertManagerConfig {
+	alertmanagerURL
+	alertmanagerDiscovery
+	alertmanagerRefreshInterval
+	alertmanangerEnableV2API
+	alertRelabelConfigs {
+		... RelabelConfigFragment
+	}
+	notificationQueueCapacity
+	notificationTimeout
+	notifier {
+		... NotifierConfigFragment
+	}
+}
+fragment NotifierConfigFragment on NotifierConfig {
+	basicAuth {
+		username
+		password
+	}
+	headerAuth {
+		type
+		credentials
+		credentialsFile
+	}
+	tls {
+		certPath
+		keyPath
+		caPath
+		serverName
+		insecureSkipVerify
+		cipherSuites
+		minVersion
+	}
+}
+fragment TempoLimitsFragment on TempoLimits {
+	ingestionRateStrategy
+	ingestionRateLimitBytes
+	ingestionBurstSizeBytes
+	maxLocalTracesPerUser
+	maxGlobalTracesPerUser
+	forwarders
+	metricsGeneratorRingSize
+	metricsGeneratorProcessors
+	metricsGeneratorMaxActiveSeries
+	metricsGeneratorCollectionInterval
+	metricsGeneratorDisableCollection
+	metricsGeneratorForwarderQueueSize
+	metricsGeneratorForwarderWorkers
+	metricsGeneratorProcessorServiceGraphsHistogramBuckets
+	metricsGeneratorProcessorServiceGraphsDimensions
+	metricsGeneratorProcessorServiceGraphsPeerAttributes
+	metricsGeneratorProcessorServiceGraphsEnableClientServerPrefix
+	metricsGeneratorProcessorSpanMetricsHistogramBuckets
+	metricsGeneratorProcessorSpanMetricsDimensions
+	metricsGeneratorProcessorSpanMetricsIntrinsicDimensions
+	metricsGeneratorProcessorSpanMetricsFilterPolicies {
+		... FilterPolicyFragment
+	}
+	metricsGeneratorProcessorSpanMetricsDimensionMappings {
+		... DimensionMappingsFragment
+	}
+	metricsGeneratorProcessorSpanMetricsEnableTargetInfo
+	metricsGeneratorProcessorLocalBlocksMaxLiveTraces
+	metricsGeneratorProcessorLocalBlocksMaxBlockDuration
+	metricsGeneratorProcessorLocalBlocksMaxBlockBytes
+	metricsGeneratorProcessorLocalBlocksFlushCheckPeriod
+	metricsGeneratorProcessorLocalBlocksTraceIdlePeriod
+	metricsGeneratorProcessorLocalBlocksCompleteBlockTimeout
+	blockRetention
+	maxBytesPerTagValuesQuery
+	maxBlocksPerTagValuesQuery
+	maxSearchDuration
+	maxBytesPerTrace
+}
+fragment FilterPolicyFragment on FilterPolicy {
+	include {
+		... PolicyMatchFragment
+	}
+	exclude {
+		... PolicyMatchFragment
+	}
+}
+fragment PolicyMatchFragment on PolicyMatch {
+	matchType
+	attributes {
+		key
+		value
+	}
+}
+fragment DimensionMappingsFragment on DimensionMappings {
+	name
+	sourceLabel
+	join
 }
 `
 
@@ -11655,14 +12648,14 @@ func (c *Client) GetObservabilityTenant(ctx context.Context, id string, intercep
 	return &res, nil
 }
 
-const CreateObservabilityTenantDocument = `mutation CreateObservabilityTenant ($id: String!, $name: String, $admins: ObservabilityTenantPermissionBindingsInput, $metricsReaders: ObservabilityTenantPermissionBindingsInput, $metricsWriters: ObservabilityTenantPermissionBindingsInput, $metricsRulesReaders: ObservabilityTenantPermissionBindingsInput, $metricsRulesWriters: ObservabilityTenantPermissionBindingsInput, $metricsRulesDeleters: ObservabilityTenantPermissionBindingsInput, $metricsAlertsReaders: ObservabilityTenantPermissionBindingsInput, $metricsAlertsWriters: ObservabilityTenantPermissionBindingsInput, $logsReaders: ObservabilityTenantPermissionBindingsInput, $logsWriters: ObservabilityTenantPermissionBindingsInput, $logsRulesReaders: ObservabilityTenantPermissionBindingsInput, $logsRulesWriters: ObservabilityTenantPermissionBindingsInput, $logsRulesDeleters: ObservabilityTenantPermissionBindingsInput, $tracesReaders: ObservabilityTenantPermissionBindingsInput, $tracesWriters: ObservabilityTenantPermissionBindingsInput, $limits: ObservabilityTenantLimitsInput) {
+const CreateObservabilityTenantDocument = `mutation CreateObservabilityTenant ($id: ID!, $name: String, $admins: ObservabilityTenantPermissionBindingsInput, $metricsReaders: ObservabilityTenantPermissionBindingsInput, $metricsWriters: ObservabilityTenantPermissionBindingsInput, $metricsRulesReaders: ObservabilityTenantPermissionBindingsInput, $metricsRulesWriters: ObservabilityTenantPermissionBindingsInput, $metricsRulesDeleters: ObservabilityTenantPermissionBindingsInput, $metricsAlertsReaders: ObservabilityTenantPermissionBindingsInput, $metricsAlertsWriters: ObservabilityTenantPermissionBindingsInput, $logsReaders: ObservabilityTenantPermissionBindingsInput, $logsWriters: ObservabilityTenantPermissionBindingsInput, $logsRulesReaders: ObservabilityTenantPermissionBindingsInput, $logsRulesWriters: ObservabilityTenantPermissionBindingsInput, $logsRulesDeleters: ObservabilityTenantPermissionBindingsInput, $tracesReaders: ObservabilityTenantPermissionBindingsInput, $tracesWriters: ObservabilityTenantPermissionBindingsInput, $limits: ObservabilityTenantLimitsInput) {
 	createObservabilityTenant(id: $id, name: $name, admins: $admins, metricsReaders: $metricsReaders, metricsWriters: $metricsWriters, metricsRulesReaders: $metricsRulesReaders, metricsRulesWriters: $metricsRulesWriters, metricsRulesDeleters: $metricsRulesDeleters, metricsAlertsReaders: $metricsAlertsReaders, metricsAlertsWriters: $metricsAlertsWriters, logsReaders: $logsReaders, logsWriters: $logsWriters, logsRulesReaders: $logsRulesReaders, logsRulesWriters: $logsRulesWriters, logsRulesDeleters: $logsRulesDeleters, tracesReaders: $tracesReaders, tracesWriters: $tracesWriters, limits: $limits) {
 		... ObservabilityTenantFragment
 	}
 }
 fragment ObservabilityTenantFragment on ObservabilityTenant {
 	id
-	name
+	displayName
 	admins {
 		... ObservabilityTenantPermissionBindingsFragment
 	}
@@ -11787,87 +12780,281 @@ fragment OAuth2ClientFragment on OAuth2Client {
 }
 fragment ObservabilityTenantLimitsFragment on ObservabilityTenantLimits {
 	mimir {
-		requestRate
-		requestBurstSize
-		ingestionRate
-		ingestionBurstSize
-		acceptHASamples
-		haClusterLabel
-		haReplicaLabel
-		haMaxClusters
-		dropLabels
-		maxLabelNameLength
-		maxLabelValueLength
-		maxLabelNamesPerSeries
-		maxMetadataLength
-		creationGracePeriod
-		enforceMetadataMetricName
-		ingestionTenantShardSize
-		maxGlobalSeriesPerUser
-		maxGlobalSeriesPerMetric
-		maxGlobalMetricsWithMetadataPerUser
-		maxGlobalMetadataPerMetric
-		maxGlobalExemplarsPerUser
-		nativeHistogramsIngestionEnabled
-		outOfOrderTimeWindow
-		outOfOrderBlocksExternalLabelEnabled
-		separateMetricsGroupLabel
-		maxChunksPerQuery
-		maxFetchedSeriesPerQuery
-		maxFetchedChunkBytesPerQuery
-		maxQueryLookback
-		maxPartialQueryLength
-		maxQueryParallelism
-		maxLabelsQueryLength
-		maxCacheFreshness
-		maxQueriersPerTenant
-		queryShardingTotalShards
-		queryShardingMaxShardedQueries
-		queryShardingMaxRegexpSizeBytes
-		splitInstantQueriesByInterval
-		maxTotalQueryLength
-		resultsCacheTTL
-		resultsCacheTTLForOutOfOrderTimeWindow
-		maxQueryExpressionSizeBytes
-		cardinalityAnalysisEnabled
-		labelNamesAndValuesResultsMaxSizeBytes
-		labelValuesMaxCardinalityLabelNamesPerRequest
-		rulerEvaluationDelay
-		rulerTenantShardSize
-		rulerMaxRulesPerRuleGroup
-		rulerMaxRuleGroupsPerTenant
-		rulerRecordingRulesEvaluationEnabled
-		rulerAlertingRulesEvaluationEnabled
-		storeGatewayTenantShardSize
-		compactorBlocksRetentionPeriod
-		compactorSplitAndMergeShards
-		compactorSplitGroups
-		compactorTenantShardSize
-		compactorPartialBlockDeletionDelay
-		compactorBlockUploadEnabled
-		compactorBlockUploadValidationEnabled
-		compactorBlockUploadVerifyChunks
-		s3SSEType
-		s3SSEKMSKeyID
-		s3SSEKMSEncryptionContext
-		alertmanagerReceiversBlockCIDRNetworks
-		alertmanagerReceiversBlockPrivateAddresses
-		notificationRateLimit
-		notificationRateLimitPerIntegration
-		alertmanagerMaxConfigSizeBytes
-		alertmanagerMaxTemplatesCount
-		alertmanagerMaxTemplateSizeBytes
-		alertmanagerMaxDispatcherAggregationGroups
-		alertmanagerMaxAlertsCount
-		alertmanagerMaxAlertsSizeBytes
-		forwardingEndpoint
-		forwardingDropOlderThan
-		forwardingRules
+		... MimirLimitsFragment
 	}
+	loki {
+		... LokiLimitsFragment
+	}
+	tempo {
+		... TempoLimitsFragment
+	}
+}
+fragment MimirLimitsFragment on MimirLimits {
+	requestRate
+	requestBurstSize
+	ingestionRate
+	ingestionBurstSize
+	acceptHASamples
+	haClusterLabel
+	haReplicaLabel
+	haMaxClusters
+	dropLabels
+	maxLabelNameLength
+	maxLabelValueLength
+	maxLabelNamesPerSeries
+	maxMetadataLength
+	maxNativeHistogramBuckets
+	creationGracePeriod
+	enforceMetadataMetricName
+	ingestionTenantShardSize
+	metricRelabelConfigs {
+		... RelabelConfigFragment
+	}
+	maxGlobalSeriesPerUser
+	maxGlobalSeriesPerMetric
+	maxGlobalMetricsWithMetadataPerUser
+	maxGlobalMetadataPerMetric
+	maxGlobalExemplarsPerUser
+	nativeHistogramsIngestionEnabled
+	activeSeriesCustomTrackersConfig
+	outOfOrderTimeWindow
+	outOfOrderBlocksExternalLabelEnabled
+	separateMetricsGroupLabel
+	maxChunksPerQuery
+	maxFetchedSeriesPerQuery
+	maxFetchedChunkBytesPerQuery
+	maxQueryLookback
+	maxPartialQueryLength
+	maxQueryParallelism
+	maxLabelsQueryLength
+	maxCacheFreshness
+	maxQueriersPerTenant
+	queryShardingTotalShards
+	queryShardingMaxShardedQueries
+	queryShardingMaxRegexpSizeBytes
+	splitInstantQueriesByInterval
+	QueryIngestersWithin
+	maxTotalQueryLength
+	resultsCacheTTL
+	resultsCacheTTLForOutOfOrderTimeWindow
+	resultsCacheTTLForCardinalityQuery
+	resultsCacheTTLForLabelsQuery
+	resultsCacheForUnalignedQueryEnabled
+	maxQueryExpressionSizeBytes
+	cardinalityAnalysisEnabled
+	labelNamesAndValuesResultsMaxSizeBytes
+	labelValuesMaxCardinalityLabelNamesPerRequest
+	rulerEvaluationDelay
+	rulerTenantShardSize
+	rulerMaxRulesPerRuleGroup
+	rulerMaxRuleGroupsPerTenant
+	rulerRecordingRulesEvaluationEnabled
+	rulerAlertingRulesEvaluationEnabled
+	rulerSyncRulesOnChangesEnabled
+	storeGatewayTenantShardSize
+	compactorBlocksRetentionPeriod
+	compactorSplitAndMergeShards
+	compactorSplitGroups
+	compactorTenantShardSize
+	compactorPartialBlockDeletionDelay
+	compactorBlockUploadEnabled
+	compactorBlockUploadValidationEnabled
+	compactorBlockUploadVerifyChunks
+	compactorBlockUploadMaxBlockSizeBytes
+	s3SSEType
+	s3SSEKMSKeyID
+	s3SSEKMSEncryptionContext
+	alertmanagerReceiversBlockCIDRNetworks
+	alertmanagerReceiversBlockPrivateAddresses
+	notificationRateLimit
+	notificationRateLimitPerIntegration
+	alertmanagerMaxConfigSizeBytes
+	alertmanagerMaxTemplatesCount
+	alertmanagerMaxTemplateSizeBytes
+	alertmanagerMaxDispatcherAggregationGroups
+	alertmanagerMaxAlertsCount
+	alertmanagerMaxAlertsSizeBytes
+}
+fragment RelabelConfigFragment on RelabelConfig {
+	sourceLabels
+	separator
+	regex
+	modulus
+	targetLabel
+	replacement
+	action
+}
+fragment LokiLimitsFragment on LokiLimits {
+	ingestionRateStrategy
+	ingestionRateMB
+	ingestionBurstSizeMB
+	maxLabelNameLength
+	maxLabelValueLength
+	maxLabelNamesPerSeries
+	rejectOldSamples
+	rejectOldSamplesMaxAge
+	creationGracePeriod
+	enforceMetricName
+	maxLineSize
+	maxLineSizeTruncate
+	incrementDuplicateTimestamp
+	maxLocalStreamsPerUser
+	maxGlobalStreamsPerUser
+	unorderedWrites
+	perStreamRateLimit
+	perStreamRateLimitBurst
+	maxChunksPerQuery
+	maxQuerySeries
+	maxQueryLookback
+	maxQueryLength
+	maxQueryRange
+	maxQueryParallelism
+	tsdbMaxQueryParallelism
+	tsdbMaxBytesPerShard
+	cardinalityLimit
+	maxStreamsMatchersPerQuery
+	maxConcurrentTailRequests
+	maxEntriesLimitPerQuery
+	maxCacheFreshness
+	maxStatsCacheFreshness
+	maxQueriersPerTenant
+	queryReadyIndexNumDays
+	queryTimeout
+	querySplitDuration
+	minShardingLookback
+	maxQueryBytesRead
+	maxQuerierBytesRead
+	volumeEnabled
+	volumeMaxSeries
+	rulerEvaluationDelay
+	rulerMaxRulesPerRuleGroup
+	rulerMaxRuleGroupsPerTenant
+	rulerAlertManagerConfig {
+		... RulerAlertManagerConfigFragment
+	}
+	rulerTenantShardSize
+	rulerRemoteWriteDisabled
+	rulerRemoteEvaluationTimeout
+	rulerRemoteEvaluationMaxResponseSize
+	deletionMode
+	retentionPeriod
+	streamRetention {
+		period
+		priority
+		selector
+	}
+	shardStreams {
+		enabled
+		loggingEnabled
+		desiredRate
+	}
+	blockedQueries {
+		pattern
+		regex
+		hash
+		types
+	}
+	requiredLabels
+	requiredNumberLabels
+	indexGatewayShardSize
+}
+fragment RulerAlertManagerConfigFragment on RulerAlertManagerConfig {
+	alertmanagerURL
+	alertmanagerDiscovery
+	alertmanagerRefreshInterval
+	alertmanangerEnableV2API
+	alertRelabelConfigs {
+		... RelabelConfigFragment
+	}
+	notificationQueueCapacity
+	notificationTimeout
+	notifier {
+		... NotifierConfigFragment
+	}
+}
+fragment NotifierConfigFragment on NotifierConfig {
+	basicAuth {
+		username
+		password
+	}
+	headerAuth {
+		type
+		credentials
+		credentialsFile
+	}
+	tls {
+		certPath
+		keyPath
+		caPath
+		serverName
+		insecureSkipVerify
+		cipherSuites
+		minVersion
+	}
+}
+fragment TempoLimitsFragment on TempoLimits {
+	ingestionRateStrategy
+	ingestionRateLimitBytes
+	ingestionBurstSizeBytes
+	maxLocalTracesPerUser
+	maxGlobalTracesPerUser
+	forwarders
+	metricsGeneratorRingSize
+	metricsGeneratorProcessors
+	metricsGeneratorMaxActiveSeries
+	metricsGeneratorCollectionInterval
+	metricsGeneratorDisableCollection
+	metricsGeneratorForwarderQueueSize
+	metricsGeneratorForwarderWorkers
+	metricsGeneratorProcessorServiceGraphsHistogramBuckets
+	metricsGeneratorProcessorServiceGraphsDimensions
+	metricsGeneratorProcessorServiceGraphsPeerAttributes
+	metricsGeneratorProcessorServiceGraphsEnableClientServerPrefix
+	metricsGeneratorProcessorSpanMetricsHistogramBuckets
+	metricsGeneratorProcessorSpanMetricsDimensions
+	metricsGeneratorProcessorSpanMetricsIntrinsicDimensions
+	metricsGeneratorProcessorSpanMetricsFilterPolicies {
+		... FilterPolicyFragment
+	}
+	metricsGeneratorProcessorSpanMetricsDimensionMappings {
+		... DimensionMappingsFragment
+	}
+	metricsGeneratorProcessorSpanMetricsEnableTargetInfo
+	metricsGeneratorProcessorLocalBlocksMaxLiveTraces
+	metricsGeneratorProcessorLocalBlocksMaxBlockDuration
+	metricsGeneratorProcessorLocalBlocksMaxBlockBytes
+	metricsGeneratorProcessorLocalBlocksFlushCheckPeriod
+	metricsGeneratorProcessorLocalBlocksTraceIdlePeriod
+	metricsGeneratorProcessorLocalBlocksCompleteBlockTimeout
+	blockRetention
+	maxBytesPerTagValuesQuery
+	maxBlocksPerTagValuesQuery
+	maxSearchDuration
+	maxBytesPerTrace
+}
+fragment FilterPolicyFragment on FilterPolicy {
+	include {
+		... PolicyMatchFragment
+	}
+	exclude {
+		... PolicyMatchFragment
+	}
+}
+fragment PolicyMatchFragment on PolicyMatch {
+	matchType
+	attributes {
+		key
+		value
+	}
+}
+fragment DimensionMappingsFragment on DimensionMappings {
+	name
+	sourceLabel
+	join
 }
 `
 
-func (c *Client) CreateObservabilityTenant(ctx context.Context, id string, name *string, admins *ObservabilityTenantPermissionBindingsInput, metricsReaders *ObservabilityTenantPermissionBindingsInput, metricsWriters *ObservabilityTenantPermissionBindingsInput, metricsRulesReaders *ObservabilityTenantPermissionBindingsInput, metricsRulesWriters *ObservabilityTenantPermissionBindingsInput, metricsRulesDeleters *ObservabilityTenantPermissionBindingsInput, metricsAlertsReaders *ObservabilityTenantPermissionBindingsInput, metricsAlertsWriters *ObservabilityTenantPermissionBindingsInput, logsReaders *ObservabilityTenantPermissionBindingsInput, logsWriters *ObservabilityTenantPermissionBindingsInput, logsRulesReaders *ObservabilityTenantPermissionBindingsInput, logsRulesWriters *ObservabilityTenantPermissionBindingsInput, logsRulesDeleters *ObservabilityTenantPermissionBindingsInput, tracesReaders *ObservabilityTenantPermissionBindingsInput, tracesWriters *ObservabilityTenantPermissionBindingsInput, limits *ObservabilityTenantLimitsInput, interceptors ...clientv2.RequestInterceptor) (*CreateObservabilityTenant, error) {
+func (c *Client) CreateObservabilityTenant(ctx context.Context, id string, name *string, admins *model.ObservabilityTenantPermissionBindingsInput, metricsReaders *model.ObservabilityTenantPermissionBindingsInput, metricsWriters *model.ObservabilityTenantPermissionBindingsInput, metricsRulesReaders *model.ObservabilityTenantPermissionBindingsInput, metricsRulesWriters *model.ObservabilityTenantPermissionBindingsInput, metricsRulesDeleters *model.ObservabilityTenantPermissionBindingsInput, metricsAlertsReaders *model.ObservabilityTenantPermissionBindingsInput, metricsAlertsWriters *model.ObservabilityTenantPermissionBindingsInput, logsReaders *model.ObservabilityTenantPermissionBindingsInput, logsWriters *model.ObservabilityTenantPermissionBindingsInput, logsRulesReaders *model.ObservabilityTenantPermissionBindingsInput, logsRulesWriters *model.ObservabilityTenantPermissionBindingsInput, logsRulesDeleters *model.ObservabilityTenantPermissionBindingsInput, tracesReaders *model.ObservabilityTenantPermissionBindingsInput, tracesWriters *model.ObservabilityTenantPermissionBindingsInput, limits *model.ObservabilityTenantLimitsInput, interceptors ...clientv2.RequestInterceptor) (*CreateObservabilityTenant, error) {
 	vars := map[string]interface{}{
 		"id":                   id,
 		"name":                 name,
@@ -11897,14 +13084,14 @@ func (c *Client) CreateObservabilityTenant(ctx context.Context, id string, name 
 	return &res, nil
 }
 
-const UpdateObservabilityTenantDocument = `mutation UpdateObservabilityTenant ($id: String!, $name: String, $admins: ObservabilityTenantPermissionBindingsInput, $metricsReaders: ObservabilityTenantPermissionBindingsInput, $metricsWriters: ObservabilityTenantPermissionBindingsInput, $metricsRulesReaders: ObservabilityTenantPermissionBindingsInput, $metricsRulesWriters: ObservabilityTenantPermissionBindingsInput, $metricsRulesDeleters: ObservabilityTenantPermissionBindingsInput, $metricsAlertsReaders: ObservabilityTenantPermissionBindingsInput, $metricsAlertsWriters: ObservabilityTenantPermissionBindingsInput, $logsReaders: ObservabilityTenantPermissionBindingsInput, $logsWriters: ObservabilityTenantPermissionBindingsInput, $logsRulesReaders: ObservabilityTenantPermissionBindingsInput, $logsRulesWriters: ObservabilityTenantPermissionBindingsInput, $logsRulesDeleters: ObservabilityTenantPermissionBindingsInput, $tracesReaders: ObservabilityTenantPermissionBindingsInput, $tracesWriters: ObservabilityTenantPermissionBindingsInput, $limits: ObservabilityTenantLimitsInput) {
+const UpdateObservabilityTenantDocument = `mutation UpdateObservabilityTenant ($id: ID!, $name: String, $admins: ObservabilityTenantPermissionBindingsInput, $metricsReaders: ObservabilityTenantPermissionBindingsInput, $metricsWriters: ObservabilityTenantPermissionBindingsInput, $metricsRulesReaders: ObservabilityTenantPermissionBindingsInput, $metricsRulesWriters: ObservabilityTenantPermissionBindingsInput, $metricsRulesDeleters: ObservabilityTenantPermissionBindingsInput, $metricsAlertsReaders: ObservabilityTenantPermissionBindingsInput, $metricsAlertsWriters: ObservabilityTenantPermissionBindingsInput, $logsReaders: ObservabilityTenantPermissionBindingsInput, $logsWriters: ObservabilityTenantPermissionBindingsInput, $logsRulesReaders: ObservabilityTenantPermissionBindingsInput, $logsRulesWriters: ObservabilityTenantPermissionBindingsInput, $logsRulesDeleters: ObservabilityTenantPermissionBindingsInput, $tracesReaders: ObservabilityTenantPermissionBindingsInput, $tracesWriters: ObservabilityTenantPermissionBindingsInput, $limits: ObservabilityTenantLimitsInput) {
 	updateObservabilityTenant(id: $id, name: $name, admins: $admins, metricsReaders: $metricsReaders, metricsWriters: $metricsWriters, metricsRulesReaders: $metricsRulesReaders, metricsRulesWriters: $metricsRulesWriters, metricsRulesDeleters: $metricsRulesDeleters, metricsAlertsReaders: $metricsAlertsReaders, metricsAlertsWriters: $metricsAlertsWriters, logsReaders: $logsReaders, logsWriters: $logsWriters, logsRulesReaders: $logsRulesReaders, logsRulesWriters: $logsRulesWriters, logsRulesDeleters: $logsRulesDeleters, tracesReaders: $tracesReaders, tracesWriters: $tracesWriters, limits: $limits) {
 		... ObservabilityTenantFragment
 	}
 }
 fragment ObservabilityTenantFragment on ObservabilityTenant {
 	id
-	name
+	displayName
 	admins {
 		... ObservabilityTenantPermissionBindingsFragment
 	}
@@ -12029,87 +13216,281 @@ fragment OAuth2ClientFragment on OAuth2Client {
 }
 fragment ObservabilityTenantLimitsFragment on ObservabilityTenantLimits {
 	mimir {
-		requestRate
-		requestBurstSize
-		ingestionRate
-		ingestionBurstSize
-		acceptHASamples
-		haClusterLabel
-		haReplicaLabel
-		haMaxClusters
-		dropLabels
-		maxLabelNameLength
-		maxLabelValueLength
-		maxLabelNamesPerSeries
-		maxMetadataLength
-		creationGracePeriod
-		enforceMetadataMetricName
-		ingestionTenantShardSize
-		maxGlobalSeriesPerUser
-		maxGlobalSeriesPerMetric
-		maxGlobalMetricsWithMetadataPerUser
-		maxGlobalMetadataPerMetric
-		maxGlobalExemplarsPerUser
-		nativeHistogramsIngestionEnabled
-		outOfOrderTimeWindow
-		outOfOrderBlocksExternalLabelEnabled
-		separateMetricsGroupLabel
-		maxChunksPerQuery
-		maxFetchedSeriesPerQuery
-		maxFetchedChunkBytesPerQuery
-		maxQueryLookback
-		maxPartialQueryLength
-		maxQueryParallelism
-		maxLabelsQueryLength
-		maxCacheFreshness
-		maxQueriersPerTenant
-		queryShardingTotalShards
-		queryShardingMaxShardedQueries
-		queryShardingMaxRegexpSizeBytes
-		splitInstantQueriesByInterval
-		maxTotalQueryLength
-		resultsCacheTTL
-		resultsCacheTTLForOutOfOrderTimeWindow
-		maxQueryExpressionSizeBytes
-		cardinalityAnalysisEnabled
-		labelNamesAndValuesResultsMaxSizeBytes
-		labelValuesMaxCardinalityLabelNamesPerRequest
-		rulerEvaluationDelay
-		rulerTenantShardSize
-		rulerMaxRulesPerRuleGroup
-		rulerMaxRuleGroupsPerTenant
-		rulerRecordingRulesEvaluationEnabled
-		rulerAlertingRulesEvaluationEnabled
-		storeGatewayTenantShardSize
-		compactorBlocksRetentionPeriod
-		compactorSplitAndMergeShards
-		compactorSplitGroups
-		compactorTenantShardSize
-		compactorPartialBlockDeletionDelay
-		compactorBlockUploadEnabled
-		compactorBlockUploadValidationEnabled
-		compactorBlockUploadVerifyChunks
-		s3SSEType
-		s3SSEKMSKeyID
-		s3SSEKMSEncryptionContext
-		alertmanagerReceiversBlockCIDRNetworks
-		alertmanagerReceiversBlockPrivateAddresses
-		notificationRateLimit
-		notificationRateLimitPerIntegration
-		alertmanagerMaxConfigSizeBytes
-		alertmanagerMaxTemplatesCount
-		alertmanagerMaxTemplateSizeBytes
-		alertmanagerMaxDispatcherAggregationGroups
-		alertmanagerMaxAlertsCount
-		alertmanagerMaxAlertsSizeBytes
-		forwardingEndpoint
-		forwardingDropOlderThan
-		forwardingRules
+		... MimirLimitsFragment
 	}
+	loki {
+		... LokiLimitsFragment
+	}
+	tempo {
+		... TempoLimitsFragment
+	}
+}
+fragment MimirLimitsFragment on MimirLimits {
+	requestRate
+	requestBurstSize
+	ingestionRate
+	ingestionBurstSize
+	acceptHASamples
+	haClusterLabel
+	haReplicaLabel
+	haMaxClusters
+	dropLabels
+	maxLabelNameLength
+	maxLabelValueLength
+	maxLabelNamesPerSeries
+	maxMetadataLength
+	maxNativeHistogramBuckets
+	creationGracePeriod
+	enforceMetadataMetricName
+	ingestionTenantShardSize
+	metricRelabelConfigs {
+		... RelabelConfigFragment
+	}
+	maxGlobalSeriesPerUser
+	maxGlobalSeriesPerMetric
+	maxGlobalMetricsWithMetadataPerUser
+	maxGlobalMetadataPerMetric
+	maxGlobalExemplarsPerUser
+	nativeHistogramsIngestionEnabled
+	activeSeriesCustomTrackersConfig
+	outOfOrderTimeWindow
+	outOfOrderBlocksExternalLabelEnabled
+	separateMetricsGroupLabel
+	maxChunksPerQuery
+	maxFetchedSeriesPerQuery
+	maxFetchedChunkBytesPerQuery
+	maxQueryLookback
+	maxPartialQueryLength
+	maxQueryParallelism
+	maxLabelsQueryLength
+	maxCacheFreshness
+	maxQueriersPerTenant
+	queryShardingTotalShards
+	queryShardingMaxShardedQueries
+	queryShardingMaxRegexpSizeBytes
+	splitInstantQueriesByInterval
+	QueryIngestersWithin
+	maxTotalQueryLength
+	resultsCacheTTL
+	resultsCacheTTLForOutOfOrderTimeWindow
+	resultsCacheTTLForCardinalityQuery
+	resultsCacheTTLForLabelsQuery
+	resultsCacheForUnalignedQueryEnabled
+	maxQueryExpressionSizeBytes
+	cardinalityAnalysisEnabled
+	labelNamesAndValuesResultsMaxSizeBytes
+	labelValuesMaxCardinalityLabelNamesPerRequest
+	rulerEvaluationDelay
+	rulerTenantShardSize
+	rulerMaxRulesPerRuleGroup
+	rulerMaxRuleGroupsPerTenant
+	rulerRecordingRulesEvaluationEnabled
+	rulerAlertingRulesEvaluationEnabled
+	rulerSyncRulesOnChangesEnabled
+	storeGatewayTenantShardSize
+	compactorBlocksRetentionPeriod
+	compactorSplitAndMergeShards
+	compactorSplitGroups
+	compactorTenantShardSize
+	compactorPartialBlockDeletionDelay
+	compactorBlockUploadEnabled
+	compactorBlockUploadValidationEnabled
+	compactorBlockUploadVerifyChunks
+	compactorBlockUploadMaxBlockSizeBytes
+	s3SSEType
+	s3SSEKMSKeyID
+	s3SSEKMSEncryptionContext
+	alertmanagerReceiversBlockCIDRNetworks
+	alertmanagerReceiversBlockPrivateAddresses
+	notificationRateLimit
+	notificationRateLimitPerIntegration
+	alertmanagerMaxConfigSizeBytes
+	alertmanagerMaxTemplatesCount
+	alertmanagerMaxTemplateSizeBytes
+	alertmanagerMaxDispatcherAggregationGroups
+	alertmanagerMaxAlertsCount
+	alertmanagerMaxAlertsSizeBytes
+}
+fragment RelabelConfigFragment on RelabelConfig {
+	sourceLabels
+	separator
+	regex
+	modulus
+	targetLabel
+	replacement
+	action
+}
+fragment LokiLimitsFragment on LokiLimits {
+	ingestionRateStrategy
+	ingestionRateMB
+	ingestionBurstSizeMB
+	maxLabelNameLength
+	maxLabelValueLength
+	maxLabelNamesPerSeries
+	rejectOldSamples
+	rejectOldSamplesMaxAge
+	creationGracePeriod
+	enforceMetricName
+	maxLineSize
+	maxLineSizeTruncate
+	incrementDuplicateTimestamp
+	maxLocalStreamsPerUser
+	maxGlobalStreamsPerUser
+	unorderedWrites
+	perStreamRateLimit
+	perStreamRateLimitBurst
+	maxChunksPerQuery
+	maxQuerySeries
+	maxQueryLookback
+	maxQueryLength
+	maxQueryRange
+	maxQueryParallelism
+	tsdbMaxQueryParallelism
+	tsdbMaxBytesPerShard
+	cardinalityLimit
+	maxStreamsMatchersPerQuery
+	maxConcurrentTailRequests
+	maxEntriesLimitPerQuery
+	maxCacheFreshness
+	maxStatsCacheFreshness
+	maxQueriersPerTenant
+	queryReadyIndexNumDays
+	queryTimeout
+	querySplitDuration
+	minShardingLookback
+	maxQueryBytesRead
+	maxQuerierBytesRead
+	volumeEnabled
+	volumeMaxSeries
+	rulerEvaluationDelay
+	rulerMaxRulesPerRuleGroup
+	rulerMaxRuleGroupsPerTenant
+	rulerAlertManagerConfig {
+		... RulerAlertManagerConfigFragment
+	}
+	rulerTenantShardSize
+	rulerRemoteWriteDisabled
+	rulerRemoteEvaluationTimeout
+	rulerRemoteEvaluationMaxResponseSize
+	deletionMode
+	retentionPeriod
+	streamRetention {
+		period
+		priority
+		selector
+	}
+	shardStreams {
+		enabled
+		loggingEnabled
+		desiredRate
+	}
+	blockedQueries {
+		pattern
+		regex
+		hash
+		types
+	}
+	requiredLabels
+	requiredNumberLabels
+	indexGatewayShardSize
+}
+fragment RulerAlertManagerConfigFragment on RulerAlertManagerConfig {
+	alertmanagerURL
+	alertmanagerDiscovery
+	alertmanagerRefreshInterval
+	alertmanangerEnableV2API
+	alertRelabelConfigs {
+		... RelabelConfigFragment
+	}
+	notificationQueueCapacity
+	notificationTimeout
+	notifier {
+		... NotifierConfigFragment
+	}
+}
+fragment NotifierConfigFragment on NotifierConfig {
+	basicAuth {
+		username
+		password
+	}
+	headerAuth {
+		type
+		credentials
+		credentialsFile
+	}
+	tls {
+		certPath
+		keyPath
+		caPath
+		serverName
+		insecureSkipVerify
+		cipherSuites
+		minVersion
+	}
+}
+fragment TempoLimitsFragment on TempoLimits {
+	ingestionRateStrategy
+	ingestionRateLimitBytes
+	ingestionBurstSizeBytes
+	maxLocalTracesPerUser
+	maxGlobalTracesPerUser
+	forwarders
+	metricsGeneratorRingSize
+	metricsGeneratorProcessors
+	metricsGeneratorMaxActiveSeries
+	metricsGeneratorCollectionInterval
+	metricsGeneratorDisableCollection
+	metricsGeneratorForwarderQueueSize
+	metricsGeneratorForwarderWorkers
+	metricsGeneratorProcessorServiceGraphsHistogramBuckets
+	metricsGeneratorProcessorServiceGraphsDimensions
+	metricsGeneratorProcessorServiceGraphsPeerAttributes
+	metricsGeneratorProcessorServiceGraphsEnableClientServerPrefix
+	metricsGeneratorProcessorSpanMetricsHistogramBuckets
+	metricsGeneratorProcessorSpanMetricsDimensions
+	metricsGeneratorProcessorSpanMetricsIntrinsicDimensions
+	metricsGeneratorProcessorSpanMetricsFilterPolicies {
+		... FilterPolicyFragment
+	}
+	metricsGeneratorProcessorSpanMetricsDimensionMappings {
+		... DimensionMappingsFragment
+	}
+	metricsGeneratorProcessorSpanMetricsEnableTargetInfo
+	metricsGeneratorProcessorLocalBlocksMaxLiveTraces
+	metricsGeneratorProcessorLocalBlocksMaxBlockDuration
+	metricsGeneratorProcessorLocalBlocksMaxBlockBytes
+	metricsGeneratorProcessorLocalBlocksFlushCheckPeriod
+	metricsGeneratorProcessorLocalBlocksTraceIdlePeriod
+	metricsGeneratorProcessorLocalBlocksCompleteBlockTimeout
+	blockRetention
+	maxBytesPerTagValuesQuery
+	maxBlocksPerTagValuesQuery
+	maxSearchDuration
+	maxBytesPerTrace
+}
+fragment FilterPolicyFragment on FilterPolicy {
+	include {
+		... PolicyMatchFragment
+	}
+	exclude {
+		... PolicyMatchFragment
+	}
+}
+fragment PolicyMatchFragment on PolicyMatch {
+	matchType
+	attributes {
+		key
+		value
+	}
+}
+fragment DimensionMappingsFragment on DimensionMappings {
+	name
+	sourceLabel
+	join
 }
 `
 
-func (c *Client) UpdateObservabilityTenant(ctx context.Context, id string, name *string, admins *ObservabilityTenantPermissionBindingsInput, metricsReaders *ObservabilityTenantPermissionBindingsInput, metricsWriters *ObservabilityTenantPermissionBindingsInput, metricsRulesReaders *ObservabilityTenantPermissionBindingsInput, metricsRulesWriters *ObservabilityTenantPermissionBindingsInput, metricsRulesDeleters *ObservabilityTenantPermissionBindingsInput, metricsAlertsReaders *ObservabilityTenantPermissionBindingsInput, metricsAlertsWriters *ObservabilityTenantPermissionBindingsInput, logsReaders *ObservabilityTenantPermissionBindingsInput, logsWriters *ObservabilityTenantPermissionBindingsInput, logsRulesReaders *ObservabilityTenantPermissionBindingsInput, logsRulesWriters *ObservabilityTenantPermissionBindingsInput, logsRulesDeleters *ObservabilityTenantPermissionBindingsInput, tracesReaders *ObservabilityTenantPermissionBindingsInput, tracesWriters *ObservabilityTenantPermissionBindingsInput, limits *ObservabilityTenantLimitsInput, interceptors ...clientv2.RequestInterceptor) (*UpdateObservabilityTenant, error) {
+func (c *Client) UpdateObservabilityTenant(ctx context.Context, id string, name *string, admins *model.ObservabilityTenantPermissionBindingsInput, metricsReaders *model.ObservabilityTenantPermissionBindingsInput, metricsWriters *model.ObservabilityTenantPermissionBindingsInput, metricsRulesReaders *model.ObservabilityTenantPermissionBindingsInput, metricsRulesWriters *model.ObservabilityTenantPermissionBindingsInput, metricsRulesDeleters *model.ObservabilityTenantPermissionBindingsInput, metricsAlertsReaders *model.ObservabilityTenantPermissionBindingsInput, metricsAlertsWriters *model.ObservabilityTenantPermissionBindingsInput, logsReaders *model.ObservabilityTenantPermissionBindingsInput, logsWriters *model.ObservabilityTenantPermissionBindingsInput, logsRulesReaders *model.ObservabilityTenantPermissionBindingsInput, logsRulesWriters *model.ObservabilityTenantPermissionBindingsInput, logsRulesDeleters *model.ObservabilityTenantPermissionBindingsInput, tracesReaders *model.ObservabilityTenantPermissionBindingsInput, tracesWriters *model.ObservabilityTenantPermissionBindingsInput, limits *model.ObservabilityTenantLimitsInput, interceptors ...clientv2.RequestInterceptor) (*UpdateObservabilityTenant, error) {
 	vars := map[string]interface{}{
 		"id":                   id,
 		"name":                 name,
@@ -12139,7 +13520,7 @@ func (c *Client) UpdateObservabilityTenant(ctx context.Context, id string, name 
 	return &res, nil
 }
 
-const DeleteObservabilityTenantDocument = `mutation DeleteObservabilityTenant ($id: String!) {
+const DeleteObservabilityTenantDocument = `mutation DeleteObservabilityTenant ($id: ID!) {
 	deleteObservabilityTenant(id: $id) {
 		id
 	}
@@ -12237,7 +13618,7 @@ fragment UserFragment on User {
 }
 `
 
-func (c *Client) CreateUser(ctx context.Context, email string, name *NameInput, interceptors ...clientv2.RequestInterceptor) (*CreateUser, error) {
+func (c *Client) CreateUser(ctx context.Context, email string, name *model.NameInput, interceptors ...clientv2.RequestInterceptor) (*CreateUser, error) {
 	vars := map[string]interface{}{
 		"email": email,
 		"name":  name,

@@ -15,7 +15,7 @@ import (
 
 func (c *ClientWrapper) MutateGroup(ctx context.Context, name string, members []string) (*model.Group, error) {
 
-	// TODO: figure out which members to add or remove
+	// TODO: use same updating logic as observability tenant and oauth2 client
 	log := c.Log.WithName("Group").WithValues("Name", name)
 
 	ctx, span := c.Tracer.Start(ctx, "MutateGroup")
@@ -259,7 +259,7 @@ func (c *ClientWrapper) GetGroupMembersInKeto(ctx context.Context, groupName str
 		Subject:   nil,
 	}
 
-	respTuples, err := c.KetoClient.QueryAllTuples(context.Background(), &query, 100)
+	respTuples, err := c.KetoClient.QueryAllTuples(ctx, &query, 100)
 	if err != nil {
 		log.Error(err, "Failed to query tuples")
 		span.RecordError(err)
@@ -271,7 +271,9 @@ func (c *ClientWrapper) GetGroupMembersInKeto(ctx context.Context, groupName str
 
 	for _, tuple := range respTuples {
 		subjectSet := tuple.Subject.GetSet()
-		if subjectSet.Namespace == "User" && subjectSet.Object != "" {
+		if subjectSet.Namespace == consts.UserNamespace.String() && subjectSet.Object != "" {
+			// TODO: use field collection to only get users from their ID if we need to
+			// TODO: use a go routine to parallelize this
 			user, err := c.GetUserFromId(ctx, subjectSet.Object) // TODO: it might be better to split this off into a separate function
 			if err != nil {
 				continue
@@ -354,7 +356,7 @@ func (c *ClientWrapper) GroupExistsInKeto(ctx context.Context, groupName string)
 		),
 	}
 
-	respTuples, err := c.KetoClient.QueryAllTuples(context.Background(), &query, 100)
+	respTuples, err := c.KetoClient.QueryAllTuples(ctx, &query, 100)
 	if err != nil {
 		log.Error(err, "Failed to query tuples")
 		span.RecordError(err)
@@ -387,7 +389,7 @@ func (c *ClientWrapper) ListGroupsInKeto(ctx context.Context) ([]*model.Group, e
 		),
 	}
 
-	respTuples, err := c.KetoClient.QueryAllTuples(context.Background(), &query, 100)
+	respTuples, err := c.KetoClient.QueryAllTuples(ctx, &query, 100)
 	if err != nil {
 		log.Error(err, "Failed to query tuples")
 		span.RecordError(err)

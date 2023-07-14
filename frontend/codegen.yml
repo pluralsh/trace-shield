@@ -1,6 +1,7 @@
 overwrite: true
 schema: "../graph/*.graphqls"
-documents: './graph/**/*.graphql'
+documents: '../query/*.graphqls'
+dedupeOperationSuffix: true
 generates:
   src/generated/graphql.tsx:
     plugins:
@@ -8,17 +9,25 @@ generates:
       - "typescript-operations"
       - "typescript-react-apollo"
       - "named-operations-object"
+    config: {
+        dedupeOperationSuffix: true
+      }
       # - add:
       #     content: "import { TimestampTypeDefinition, GraphQLTimestamp } from 'graphql-scalars';"
           # content: '/* eslint-disable */'
 config:
+  namingConvention:
+    enumValues: keep
   scalars:
     Map: Map<string, unknown>
     # UploadOrUrl: string
     FloatMap: Map<string, number>
     Time: string
     Duration: string
-    ForwardingRuleMap: Map<string, ForwardingRule>
+    BoolMap: Map<string, boolean>
+    LabelName: string
+    StringMap: Map<string, string>
+    UInt: number
     # Yaml: unknown
 # hooks:
 #   afterAllFileWrite:

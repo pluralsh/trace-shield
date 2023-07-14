@@ -1,17 +1,17 @@
-query ListObservabilityTenants() {
+query ListObservabilityTenants {
     listObservabilityTenants {
         ...ObservabilityTenantFragment
     }
 }
 
-query GetObservabilityTenant($id: String!) {
+query GetObservabilityTenant($id: ID!) {
     getObservabilityTenant(id: $id) {
         ...ObservabilityTenantFragment
     }
 }
 
 mutation CreateObservabilityTenant(
-    $id: String!
+    $id: ID!
     $name: String
     $admins: ObservabilityTenantPermissionBindingsInput
     $metricsReaders: ObservabilityTenantPermissionBindingsInput
@@ -55,7 +55,7 @@ mutation CreateObservabilityTenant(
 }
 
 mutation UpdateObservabilityTenant(
-    $id: String!
+    $id: ID!
     $name: String
     $admins: ObservabilityTenantPermissionBindingsInput
     $metricsReaders: ObservabilityTenantPermissionBindingsInput
@@ -98,7 +98,7 @@ mutation UpdateObservabilityTenant(
     }
 }
 
-mutation DeleteObservabilityTenant($id: String!) {
+mutation DeleteObservabilityTenant($id: ID!) {
     deleteObservabilityTenant(id: $id) {
       id
     }
@@ -106,7 +106,7 @@ mutation DeleteObservabilityTenant($id: String!) {
 
 fragment ObservabilityTenantFragment on ObservabilityTenant {
   id
-  name
+  displayName
   admins {
     ...ObservabilityTenantPermissionBindingsFragment
   }
@@ -171,81 +171,284 @@ fragment ObservabilityTenantPermissionBindingsFragment on ObservabilityTenantPer
 
 fragment ObservabilityTenantLimitsFragment on ObservabilityTenantLimits {
   mimir {
-    requestRate
-    requestBurstSize
-    ingestionRate
-    ingestionBurstSize
-    acceptHASamples
-    haClusterLabel
-    haReplicaLabel
-    haMaxClusters
-    dropLabels
-    maxLabelNameLength
-    maxLabelValueLength
-    maxLabelNamesPerSeries
-    maxMetadataLength
-    creationGracePeriod
-    enforceMetadataMetricName
-    ingestionTenantShardSize
-    maxGlobalSeriesPerUser
-    maxGlobalSeriesPerMetric
-    maxGlobalMetricsWithMetadataPerUser
-    maxGlobalMetadataPerMetric
-    maxGlobalExemplarsPerUser
-    nativeHistogramsIngestionEnabled
-    outOfOrderTimeWindow
-    outOfOrderBlocksExternalLabelEnabled
-    separateMetricsGroupLabel
-    maxChunksPerQuery
-    maxFetchedSeriesPerQuery
-    maxFetchedChunkBytesPerQuery
-    maxQueryLookback
-    maxPartialQueryLength
-    maxQueryParallelism
-    maxLabelsQueryLength
-    maxCacheFreshness
-    maxQueriersPerTenant
-    queryShardingTotalShards
-    queryShardingMaxShardedQueries
-    queryShardingMaxRegexpSizeBytes
-    splitInstantQueriesByInterval
-    maxTotalQueryLength
-    resultsCacheTTL
-    resultsCacheTTLForOutOfOrderTimeWindow
-    maxQueryExpressionSizeBytes
-    cardinalityAnalysisEnabled
-    labelNamesAndValuesResultsMaxSizeBytes
-    labelValuesMaxCardinalityLabelNamesPerRequest
-    rulerEvaluationDelay
-    rulerTenantShardSize
-    rulerMaxRulesPerRuleGroup
-    rulerMaxRuleGroupsPerTenant
-    rulerRecordingRulesEvaluationEnabled
-    rulerAlertingRulesEvaluationEnabled
-    storeGatewayTenantShardSize
-    compactorBlocksRetentionPeriod
-    compactorSplitAndMergeShards
-    compactorSplitGroups
-    compactorTenantShardSize
-    compactorPartialBlockDeletionDelay
-    compactorBlockUploadEnabled
-    compactorBlockUploadValidationEnabled
-    compactorBlockUploadVerifyChunks
-    s3SSEType
-    s3SSEKMSKeyID
-    s3SSEKMSEncryptionContext
-    alertmanagerReceiversBlockCIDRNetworks
-    alertmanagerReceiversBlockPrivateAddresses
-    notificationRateLimit
-    notificationRateLimitPerIntegration
-    alertmanagerMaxConfigSizeBytes
-    alertmanagerMaxTemplatesCount
-    alertmanagerMaxTemplateSizeBytes
-    alertmanagerMaxDispatcherAggregationGroups
-    alertmanagerMaxAlertsCount
-    alertmanagerMaxAlertsSizeBytes
-    forwardingEndpoint
-    forwardingDropOlderThan
-    forwardingRules
+    ...MimirLimitsFragment
   }
+  loki {
+    ...LokiLimitsFragment
+  }
+  tempo {
+    ...TempoLimitsFragment
+  }
+}
+
+fragment MimirLimitsFragment on MimirLimits {
+  requestRate
+  requestBurstSize
+  ingestionRate
+  ingestionBurstSize
+  acceptHASamples
+  haClusterLabel
+  haReplicaLabel
+  haMaxClusters
+  dropLabels
+  maxLabelNameLength
+  maxLabelValueLength
+  maxLabelNamesPerSeries
+  maxMetadataLength
+  maxNativeHistogramBuckets
+  creationGracePeriod
+  enforceMetadataMetricName
+  ingestionTenantShardSize
+  metricRelabelConfigs {
+    ...RelabelConfigFragment
+  }
+  maxGlobalSeriesPerUser
+  maxGlobalSeriesPerMetric
+  maxGlobalMetricsWithMetadataPerUser
+  maxGlobalMetadataPerMetric
+  maxGlobalExemplarsPerUser
+  nativeHistogramsIngestionEnabled
+  activeSeriesCustomTrackersConfig
+  outOfOrderTimeWindow
+  outOfOrderBlocksExternalLabelEnabled
+  separateMetricsGroupLabel
+  maxChunksPerQuery
+  maxFetchedSeriesPerQuery
+  maxFetchedChunkBytesPerQuery
+  maxQueryLookback
+  maxPartialQueryLength
+  maxQueryParallelism
+  maxLabelsQueryLength
+  maxCacheFreshness
+  maxQueriersPerTenant
+  queryShardingTotalShards
+  queryShardingMaxShardedQueries
+  queryShardingMaxRegexpSizeBytes
+  splitInstantQueriesByInterval
+  QueryIngestersWithin
+  maxTotalQueryLength
+  resultsCacheTTL
+  resultsCacheTTLForOutOfOrderTimeWindow
+  resultsCacheTTLForCardinalityQuery
+  resultsCacheTTLForLabelsQuery
+  resultsCacheForUnalignedQueryEnabled
+  maxQueryExpressionSizeBytes
+  cardinalityAnalysisEnabled
+  labelNamesAndValuesResultsMaxSizeBytes
+  labelValuesMaxCardinalityLabelNamesPerRequest
+  rulerEvaluationDelay
+  rulerTenantShardSize
+  rulerMaxRulesPerRuleGroup
+  rulerMaxRuleGroupsPerTenant
+  rulerRecordingRulesEvaluationEnabled
+  rulerAlertingRulesEvaluationEnabled
+  rulerSyncRulesOnChangesEnabled
+  storeGatewayTenantShardSize
+  compactorBlocksRetentionPeriod
+  compactorSplitAndMergeShards
+  compactorSplitGroups
+  compactorTenantShardSize
+  compactorPartialBlockDeletionDelay
+  compactorBlockUploadEnabled
+  compactorBlockUploadValidationEnabled
+  compactorBlockUploadVerifyChunks
+  compactorBlockUploadMaxBlockSizeBytes
+  s3SSEType
+  s3SSEKMSKeyID
+  s3SSEKMSEncryptionContext
+  alertmanagerReceiversBlockCIDRNetworks
+  alertmanagerReceiversBlockPrivateAddresses
+  notificationRateLimit
+  notificationRateLimitPerIntegration
+  alertmanagerMaxConfigSizeBytes
+  alertmanagerMaxTemplatesCount
+  alertmanagerMaxTemplateSizeBytes
+  alertmanagerMaxDispatcherAggregationGroups
+  alertmanagerMaxAlertsCount
+  alertmanagerMaxAlertsSizeBytes
+}
+
+fragment RelabelConfigFragment on RelabelConfig {
+  sourceLabels
+  separator
+  regex
+  modulus
+  targetLabel
+  replacement
+  action
+}
+
+fragment LokiLimitsFragment on LokiLimits{
+  ingestionRateStrategy
+  ingestionRateMB
+  ingestionBurstSizeMB
+  maxLabelNameLength
+  maxLabelValueLength
+  maxLabelNamesPerSeries
+  rejectOldSamples
+  rejectOldSamplesMaxAge
+  creationGracePeriod
+  enforceMetricName
+  maxLineSize
+  maxLineSizeTruncate
+  incrementDuplicateTimestamp
+  maxLocalStreamsPerUser
+  maxGlobalStreamsPerUser
+  unorderedWrites
+  perStreamRateLimit
+  perStreamRateLimitBurst
+  maxChunksPerQuery
+  maxQuerySeries
+  maxQueryLookback
+  maxQueryLength
+  maxQueryRange
+  maxQueryParallelism
+  tsdbMaxQueryParallelism
+  tsdbMaxBytesPerShard
+  cardinalityLimit
+  maxStreamsMatchersPerQuery
+  maxConcurrentTailRequests
+  maxEntriesLimitPerQuery
+  maxCacheFreshness
+  maxStatsCacheFreshness
+  maxQueriersPerTenant
+  queryReadyIndexNumDays
+  queryTimeout
+  querySplitDuration
+  minShardingLookback
+  maxQueryBytesRead
+  maxQuerierBytesRead
+  volumeEnabled
+  volumeMaxSeries
+  rulerEvaluationDelay
+  rulerMaxRulesPerRuleGroup
+  rulerMaxRuleGroupsPerTenant
+  rulerAlertManagerConfig {
+    ...RulerAlertManagerConfigFragment
+  }
+  rulerTenantShardSize
+  rulerRemoteWriteDisabled
+  rulerRemoteEvaluationTimeout
+  rulerRemoteEvaluationMaxResponseSize
+  deletionMode
+  retentionPeriod
+  streamRetention {
+    period
+    priority
+    selector
+  }
+  shardStreams {
+    enabled
+    loggingEnabled
+    desiredRate
+  }
+  blockedQueries {
+    pattern
+    regex
+    hash
+    types
+  }
+  requiredLabels
+  requiredNumberLabels
+  indexGatewayShardSize
+}
+
+fragment RulerAlertManagerConfigFragment on RulerAlertManagerConfig{
+  alertmanagerURL
+  alertmanagerDiscovery
+  alertmanagerRefreshInterval
+  alertmanangerEnableV2API
+  alertRelabelConfigs {
+    ...RelabelConfigFragment
+  }
+  notificationQueueCapacity
+  notificationTimeout
+  notifier {
+    ...NotifierConfigFragment
+  }
+}
+
+fragment NotifierConfigFragment on NotifierConfig {
+  basicAuth {
+    username
+    password
+  }
+  headerAuth {
+    type
+    credentials
+    credentialsFile
+  }
+  tls {
+    certPath
+    keyPath
+    caPath
+    serverName
+    insecureSkipVerify
+    cipherSuites
+    minVersion
+  }
+}
+
+fragment TempoLimitsFragment on TempoLimits {
+  ingestionRateStrategy
+  ingestionRateLimitBytes
+  ingestionBurstSizeBytes
+  maxLocalTracesPerUser
+  maxGlobalTracesPerUser
+  forwarders
+  metricsGeneratorRingSize
+  metricsGeneratorProcessors
+  metricsGeneratorMaxActiveSeries
+  metricsGeneratorCollectionInterval
+  metricsGeneratorDisableCollection
+  metricsGeneratorForwarderQueueSize
+  metricsGeneratorForwarderWorkers
+  metricsGeneratorProcessorServiceGraphsHistogramBuckets
+  metricsGeneratorProcessorServiceGraphsDimensions
+  metricsGeneratorProcessorServiceGraphsPeerAttributes
+  metricsGeneratorProcessorServiceGraphsEnableClientServerPrefix
+  metricsGeneratorProcessorSpanMetricsHistogramBuckets
+  metricsGeneratorProcessorSpanMetricsDimensions
+  metricsGeneratorProcessorSpanMetricsIntrinsicDimensions
+  metricsGeneratorProcessorSpanMetricsFilterPolicies {
+    ...FilterPolicyFragment
+  }
+  metricsGeneratorProcessorSpanMetricsDimensionMappings {
+    ...DimensionMappingsFragment
+  }
+  metricsGeneratorProcessorSpanMetricsEnableTargetInfo
+  metricsGeneratorProcessorLocalBlocksMaxLiveTraces
+  metricsGeneratorProcessorLocalBlocksMaxBlockDuration
+  metricsGeneratorProcessorLocalBlocksMaxBlockBytes
+  metricsGeneratorProcessorLocalBlocksFlushCheckPeriod
+  metricsGeneratorProcessorLocalBlocksTraceIdlePeriod
+  metricsGeneratorProcessorLocalBlocksCompleteBlockTimeout
+  blockRetention
+  maxBytesPerTagValuesQuery
+  maxBlocksPerTagValuesQuery
+  maxSearchDuration
+  maxBytesPerTrace
+}
+
+fragment FilterPolicyFragment on FilterPolicy {
+  include {
+    ...PolicyMatchFragment
+  }
+  exclude {
+    ...PolicyMatchFragment
+  }
+}
+
+fragment PolicyMatchFragment on PolicyMatch {
+  matchType
+  attributes {
+    key
+    value
+  }
+}
+
+fragment DimensionMappingsFragment on DimensionMappings {
+  name
+  sourceLabel
+  join
 }

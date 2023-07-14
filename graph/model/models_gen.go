@@ -15,18 +15,18 @@ type AcceptOAuth2ConsentRequestSession struct {
 	IDToken map[string]interface{} `json:"idToken,omitempty"`
 }
 
-// Input for adding a user to an organization as an administrator.
-type Admin struct {
-	// The ID of the user to add as an admin.
-	ID string `json:"id"`
-}
-
 // Representation a group of users.
 type Group struct {
 	// The unique name of the group.
 	Name string `json:"name"`
 	// The users that are admins of the organization.
 	Members []*User `json:"members,omitempty"`
+}
+
+// Input for a group using its name.
+type GroupInput struct {
+	// The name of the group.
+	Name string `json:"name"`
 }
 
 // Representation of users and groups that are allowed to login with through OAuth2 Client.
@@ -38,15 +38,10 @@ type LoginBindings struct {
 }
 
 type LoginBindingsInput struct {
-	// The users that are allowed to login with this OAuth2 Client.
-	Users []string `json:"users,omitempty"`
+	// The IDs or email addresses of the users that are allowed to login with this OAuth2 Client.
+	Users []*UserInput `json:"users,omitempty"`
 	// The groups that are allowed to login with this OAuth2 Client.
-	Groups []string `json:"groups,omitempty"`
-}
-
-// Representation of the limits for Loki for a tenant.
-type LokiLimits struct {
-	RequestRate *float64 `json:"requestRate,omitempty"`
+	Groups []*GroupInput `json:"groups,omitempty"`
 }
 
 // The first and last name of a user.
@@ -145,6 +140,12 @@ type OAuth2Client struct {
 	LoginBindings *LoginBindings `json:"loginBindings,omitempty"`
 }
 
+// Input an OAuth2Client using its clientId.
+type OAuth2ClientInput struct {
+	// The ID of the OAuth2 Client.
+	ClientID string `json:"clientId"`
+}
+
 // OAuth2ConsentRequest represents an OAuth 2.0 consent request.
 type OAuth2ConsentRequest struct {
 	// ACR represents the Authentication AuthorizationContext Class Reference value for this authentication session. You can use it to express that, for example, a user authenticated using two factor authentication.
@@ -211,7 +212,7 @@ type ObservabilityTenant struct {
 	// The unique id of the tenant.
 	ID string `json:"id"`
 	// The display name of the tenant.
-	Name *string `json:"name,omitempty"`
+	DisplayName *string `json:"displayName,omitempty"`
 	// The users, groups or clients that are admins of the observability tenant and can change its permissions.
 	Admins *ObservabilityTenantPermissionBindings `json:"admins,omitempty"`
 	// The users, groups or clients that can read metrics from the tenant.
@@ -254,12 +255,20 @@ type ObservabilityTenant struct {
 type ObservabilityTenantLimits struct {
 	// The limits for Mimir for the tenant.
 	Mimir *v1alpha1.MimirLimits `json:"mimir,omitempty"`
+	// The limits for Loki for the tenant.
+	Loki *v1alpha1.LokiLimits `json:"loki,omitempty"`
+	// The limits for Tempo for the tenant.
+	Tempo *v1alpha1.TempoLimits `json:"tempo,omitempty"`
 }
 
 // Inputs for the limits of a tenant.
 type ObservabilityTenantLimitsInput struct {
 	// The limits for Mimir for the tenant.
 	Mimir *v1alpha1.MimirLimitsInput `json:"mimir,omitempty"`
+	// The limits for Loki for the tenant.
+	Loki *v1alpha1.LokiLimitsInput `json:"loki,omitempty"`
+	// The limits for Tempo for the tenant.
+	Tempo *v1alpha1.TempoLimitsInput `json:"tempo,omitempty"`
 }
 
 // Representation of the users, groups and oauth2 clients that have a set of permissions on a tenant.
@@ -273,12 +282,12 @@ type ObservabilityTenantPermissionBindings struct {
 }
 
 type ObservabilityTenantPermissionBindingsInput struct {
-	// The IDs of users that can view a tenant.
-	Users []string `json:"users,omitempty"`
+	// The IDs or email addresses of users that can view a tenant.
+	Users []*UserInput `json:"users,omitempty"`
 	// The names of groups that can view a tenant.
-	Groups []string `json:"groups,omitempty"`
+	Groups []*GroupInput `json:"groups,omitempty"`
 	// The clientIDs oauth2 clients that can send data a tenant.
-	Oauth2Clients []string `json:"oauth2Clients,omitempty"`
+	Oauth2Clients []*OAuth2ClientInput `json:"oauth2Clients,omitempty"`
 }
 
 // OIDC Context for a consent request.
@@ -297,15 +306,8 @@ type OidcContext struct {
 
 // Representation an Organization in the auth stack.
 type Organization struct {
-	// The unique name of the organization.
-	Name string `json:"name"`
 	// The users that are admins of the organization.
 	Admins []*User `json:"admins,omitempty"`
-}
-
-// Representation of the limits for Tempo for a tenant.
-type TempoLimits struct {
-	RequestRate *float64 `json:"requestRate,omitempty"`
 }
 
 // Representation of the information about a user sourced from Kratos.
@@ -320,4 +322,12 @@ type User struct {
 	Groups []*Group `json:"groups,omitempty"`
 	// The link a user can use to recover their account.
 	RecoveryLink *string `json:"recoveryLink,omitempty"`
+}
+
+// Input for a user using either ID or email.
+type UserInput struct {
+	// The user IDs.
+	ID *string `json:"id,omitempty"`
+	// The user's email address.
+	Email *string `json:"email,omitempty"`
 }

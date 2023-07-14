@@ -1,36 +1,27 @@
 "Representation an Organization in the auth stack."
 type Organization {
-  "The unique name of the organization."
-  name: String!
+  # "The unique name of the organization."
+  # name: String!
 
   "The users that are admins of the organization."
   admins: [User!]
 }
 
-"Input for adding a user to an organization as an administrator."
-input Admin {
-  "The ID of the user to add as an admin."
-  id: ID!
-}
-
 extend type Query {
-  "Get a list of all users."
-  listOrganizations: [Organization!]! @checkPermissions @isAuthenticated
+  # "Get a list of all users."
+  # listOrganizations: [Organization!]! @checkPermissions @isAuthenticated
 
   "Get a single organization by name."
-  organization(
-    "The name of the organization."
-    name: String!
-  ): Organization! @checkPermissions @isAuthenticated
+  organization: Organization! @checkPermissions @isAuthenticated
 }
 
 extend type Mutation {
   "Create a new organization."
   organization(
-    "The name of the organization."
-    name: String!,
+    # "The name of the organization."
+    # name: String!,
 
-    "The IDs of the users that are organization admins."
-    admins: [String!]!
+    "The IDs or email addresses of the users that are organization admins."
+    admins: [UserInput!]
     ): Organization! @checkPermissions @isAuthenticated
 }
