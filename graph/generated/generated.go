@@ -43,18 +43,14 @@ type ResolverRoot interface {
 	BlockedQuery() BlockedQueryResolver
 	Group() GroupResolver
 	LoginBindings() LoginBindingsResolver
-	MatchPolicyAttribute() MatchPolicyAttributeResolver
 	Mutation() MutationResolver
 	OAuth2Client() OAuth2ClientResolver
 	ObservabilityTenant() ObservabilityTenantResolver
 	ObservabilityTenantPermissionBindings() ObservabilityTenantPermissionBindingsResolver
 	Organization() OrganizationResolver
 	Query() QueryResolver
-	RelabelConfig() RelabelConfigResolver
 	User() UserResolver
-	LokiLimitsInput() LokiLimitsInputResolver
-	MimirLimitsInput() MimirLimitsInputResolver
-	TempoLimitsInput() TempoLimitsInputResolver
+	BlockedQueryInput() BlockedQueryInputResolver
 }
 
 type DirectiveRoot struct {
@@ -512,7 +508,7 @@ type ComplexityRoot struct {
 }
 
 type BlockedQueryResolver interface {
-	Types(ctx context.Context, obj *v1alpha1.BlockedQuery) ([]model.BlockedQueryType, error)
+	Types(ctx context.Context, obj *v1alpha1.BlockedQuery) ([]v1alpha1.BlockedQueryType, error)
 }
 type GroupResolver interface {
 	Members(ctx context.Context, obj *model.Group) ([]*model.User, error)
@@ -520,9 +516,6 @@ type GroupResolver interface {
 type LoginBindingsResolver interface {
 	Users(ctx context.Context, obj *model.LoginBindings) ([]*model.User, error)
 	Groups(ctx context.Context, obj *model.LoginBindings) ([]*model.Group, error)
-}
-type MatchPolicyAttributeResolver interface {
-	Value(ctx context.Context, obj *v1alpha1.MatchPolicyAttribute) (map[string]interface{}, error)
 }
 type MutationResolver interface {
 	CreateUser(ctx context.Context, email string, name *model.NameInput) (*model.User, error)
@@ -585,28 +578,12 @@ type QueryResolver interface {
 	GetObservabilityTenant(ctx context.Context, id string) (*model.ObservabilityTenant, error)
 	Organization(ctx context.Context) (*model.Organization, error)
 }
-type RelabelConfigResolver interface {
-	SourceLabels(ctx context.Context, obj *v1alpha1.RelabelConfig) ([]*string, error)
-
-	Action(ctx context.Context, obj *v1alpha1.RelabelConfig) (*model.RelabelAction, error)
-}
 type UserResolver interface {
 	Groups(ctx context.Context, obj *model.User) ([]*model.Group, error)
 }
 
-type LokiLimitsInputResolver interface {
-	RulerAlertManagerConfig(ctx context.Context, obj *v1alpha1.LokiLimitsInput, data *model.RulerAlertManagerConfigInput) error
-
-	StreamRetention(ctx context.Context, obj *v1alpha1.LokiLimitsInput, data []*model.StreamRetentionInput) error
-	ShardStreams(ctx context.Context, obj *v1alpha1.LokiLimitsInput, data *model.ShardstreamsConfigInput) error
-	BlockedQueries(ctx context.Context, obj *v1alpha1.LokiLimitsInput, data []*model.BlockedQueryInput) error
-}
-type MimirLimitsInputResolver interface {
-	MetricRelabelConfigs(ctx context.Context, obj *v1alpha1.MimirLimitsInput, data []*model.RelabelConfigInput) error
-}
-type TempoLimitsInputResolver interface {
-	MetricsGeneratorProcessorSpanMetricsFilterPolicies(ctx context.Context, obj *v1alpha1.TempoLimitsInput, data []*model.FilterPolicyInput) error
-	MetricsGeneratorProcessorSpanMetricsDimensionMappings(ctx context.Context, obj *v1alpha1.TempoLimitsInput, data []*model.DimensionMappingsInput) error
+type BlockedQueryInputResolver interface {
+	Types(ctx context.Context, obj *v1alpha1.BlockedQuery, data []v1alpha1.BlockedQueryType) error
 }
 
 type executableSchema struct {
@@ -4618,8 +4595,10 @@ extend type Mutation {
 }
 `, BuiltIn: false},
 	{Name: "../prometheus_types.graphqls", Input: `scalar UInt
+scalar LabelName
+
 type RelabelConfig {
-  sourceLabels: [String]
+  sourceLabels: [LabelName!]
   separator: String
   regex: String
   modulus: UInt
@@ -4627,6 +4606,7 @@ type RelabelConfig {
   replacement: String
   action: RelabelAction
 }
+
 enum RelabelAction {
   replace
   Replace
@@ -4651,8 +4631,9 @@ enum RelabelAction {
   dropequal
   DropEqual
 }
+
 input RelabelConfigInput {
-  sourceLabels: [String]
+  sourceLabels: [LabelName!]
   separator: String
   regex: String
   modulus: UInt
@@ -4717,7 +4698,7 @@ enum MatchType {
 }
 
 type MatchPolicyAttribute {
-  key: String
+  key: String!
   value: Map
 }
 
@@ -4776,7 +4757,7 @@ input PolicyMatchInput {
 }
 
 input MatchPolicyAttributeInput {
-  key: String
+  key: String!
   value: Map
 }
 
@@ -6533,9 +6514,9 @@ func (ec *executionContext) _BlockedQuery_types(ctx context.Context, field graph
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.([]model.BlockedQueryType)
+	res := resTmp.([]v1alpha1.BlockedQueryType)
 	fc.Result = res
-	return ec.marshalOBlockedQueryType2ᚕgithubᚗcomᚋpluralshᚋtraceᚑshieldᚋgraphᚋmodelᚐBlockedQueryTypeᚄ(ctx, field.Selections, res)
+	return ec.marshalOBlockedQueryType2ᚕgithubᚗcomᚋpluralshᚋtraceᚑshieldᚑcontrollerᚋapiᚋobservabilityᚋv1alpha1ᚐBlockedQueryTypeᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_BlockedQuery_types(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -9006,9 +8987,9 @@ func (ec *executionContext) _LokiLimits_blockedQueries(ctx context.Context, fiel
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.([]*v1alpha1.BlockedQuery)
+	res := resTmp.([]v1alpha1.BlockedQuery)
 	fc.Result = res
-	return ec.marshalOBlockedQuery2ᚕᚖgithubᚗcomᚋpluralshᚋtraceᚑshieldᚑcontrollerᚋapiᚋobservabilityᚋv1alpha1ᚐBlockedQueryᚄ(ctx, field.Selections, res)
+	return ec.marshalOBlockedQuery2ᚕgithubᚗcomᚋpluralshᚋtraceᚑshieldᚑcontrollerᚋapiᚋobservabilityᚋv1alpha1ᚐBlockedQueryᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_LokiLimits_blockedQueries(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -9166,11 +9147,14 @@ func (ec *executionContext) _MatchPolicyAttribute_key(ctx context.Context, field
 	})
 
 	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
 		return graphql.Null
 	}
-	res := resTmp.(*string)
+	res := resTmp.(string)
 	fc.Result = res
-	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_MatchPolicyAttribute_key(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -9200,23 +9184,23 @@ func (ec *executionContext) _MatchPolicyAttribute_value(ctx context.Context, fie
 	}()
 	resTmp := ec._fieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.MatchPolicyAttribute().Value(rctx, obj)
+		return obj.Value, nil
 	})
 
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.(map[string]interface{})
+	res := resTmp.(v1alpha1.WrappedMap)
 	fc.Result = res
-	return ec.marshalOMap2map(ctx, field.Selections, res)
+	return ec.marshalOMap2githubᚗcomᚋpluralshᚋtraceᚑshieldᚑcontrollerᚋapiᚋobservabilityᚋv1alpha1ᚐWrappedMap(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_MatchPolicyAttribute_value(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "MatchPolicyAttribute",
 		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
+		IsMethod:   false,
+		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type Map does not have child fields")
 		},
@@ -9548,9 +9532,9 @@ func (ec *executionContext) _MimirLimits_dropLabels(ctx context.Context, field g
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.([]*string)
+	res := resTmp.([]string)
 	fc.Result = res
-	return ec.marshalOString2ᚕᚖstringᚄ(ctx, field.Selections, res)
+	return ec.marshalOString2ᚕstringᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_MimirLimits_dropLabels(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -13940,9 +13924,9 @@ func (ec *executionContext) _NotifierBasicAuth_username(ctx context.Context, fie
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.(string)
+	res := resTmp.(*string)
 	fc.Result = res
-	return ec.marshalOString2string(ctx, field.Selections, res)
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_NotifierBasicAuth_username(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -13978,9 +13962,9 @@ func (ec *executionContext) _NotifierBasicAuth_password(ctx context.Context, fie
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.(string)
+	res := resTmp.(*string)
 	fc.Result = res
-	return ec.marshalOString2string(ctx, field.Selections, res)
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_NotifierBasicAuth_password(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -14160,9 +14144,9 @@ func (ec *executionContext) _NotifierHeaderAuth_type(ctx context.Context, field 
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.(string)
+	res := resTmp.(*string)
 	fc.Result = res
-	return ec.marshalOString2string(ctx, field.Selections, res)
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_NotifierHeaderAuth_type(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -14198,9 +14182,9 @@ func (ec *executionContext) _NotifierHeaderAuth_credentials(ctx context.Context,
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.(string)
+	res := resTmp.(*string)
 	fc.Result = res
-	return ec.marshalOString2string(ctx, field.Selections, res)
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_NotifierHeaderAuth_credentials(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -14236,9 +14220,9 @@ func (ec *executionContext) _NotifierHeaderAuth_credentialsFile(ctx context.Cont
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.(string)
+	res := resTmp.(*string)
 	fc.Result = res
-	return ec.marshalOString2string(ctx, field.Selections, res)
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_NotifierHeaderAuth_credentialsFile(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -19008,9 +18992,9 @@ func (ec *executionContext) _PolicyMatch_matchType(ctx context.Context, field gr
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.(v1alpha1.MatchType)
+	res := resTmp.(*v1alpha1.MatchType)
 	fc.Result = res
-	return ec.marshalOMatchType2githubᚗcomᚋpluralshᚋtraceᚑshieldᚑcontrollerᚋapiᚋobservabilityᚋv1alpha1ᚐMatchType(ctx, field.Selections, res)
+	return ec.marshalOMatchType2ᚖgithubᚗcomᚋpluralshᚋtraceᚑshieldᚑcontrollerᚋapiᚋobservabilityᚋv1alpha1ᚐMatchType(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_PolicyMatch_matchType(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -20198,25 +20182,25 @@ func (ec *executionContext) _RelabelConfig_sourceLabels(ctx context.Context, fie
 	}()
 	resTmp := ec._fieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.RelabelConfig().SourceLabels(rctx, obj)
+		return obj.SourceLabels, nil
 	})
 
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.([]*string)
+	res := resTmp.([]v1alpha1.LabelName)
 	fc.Result = res
-	return ec.marshalOString2ᚕᚖstring(ctx, field.Selections, res)
+	return ec.marshalOLabelName2ᚕgithubᚗcomᚋpluralshᚋtraceᚑshieldᚑcontrollerᚋapiᚋobservabilityᚋv1alpha1ᚐLabelNameᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_RelabelConfig_sourceLabels(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "RelabelConfig",
 		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
+		IsMethod:   false,
+		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
+			return nil, errors.New("field of type LabelName does not have child fields")
 		},
 	}
 	return fc, nil
@@ -20426,23 +20410,23 @@ func (ec *executionContext) _RelabelConfig_action(ctx context.Context, field gra
 	}()
 	resTmp := ec._fieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.RelabelConfig().Action(rctx, obj)
+		return obj.Action, nil
 	})
 
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.(*model.RelabelAction)
+	res := resTmp.(*v1alpha1.RelabelAction)
 	fc.Result = res
-	return ec.marshalORelabelAction2ᚖgithubᚗcomᚋpluralshᚋtraceᚑshieldᚋgraphᚋmodelᚐRelabelAction(ctx, field.Selections, res)
+	return ec.marshalORelabelAction2ᚖgithubᚗcomᚋpluralshᚋtraceᚑshieldᚑcontrollerᚋapiᚋobservabilityᚋv1alpha1ᚐRelabelAction(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_RelabelConfig_action(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "RelabelConfig",
 		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
+		IsMethod:   false,
+		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type RelabelAction does not have child fields")
 		},
@@ -20587,9 +20571,9 @@ func (ec *executionContext) _RulerAlertManagerConfig_alertmanangerEnableV2API(ct
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.(bool)
+	res := resTmp.(*bool)
 	fc.Result = res
-	return ec.marshalOBoolean2bool(ctx, field.Selections, res)
+	return ec.marshalOBoolean2ᚖbool(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_RulerAlertManagerConfig_alertmanangerEnableV2API(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -20625,9 +20609,9 @@ func (ec *executionContext) _RulerAlertManagerConfig_alertRelabelConfigs(ctx con
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.([]*v1alpha1.RelabelConfig)
+	res := resTmp.([]v1alpha1.RelabelConfig)
 	fc.Result = res
-	return ec.marshalORelabelConfig2ᚕᚖgithubᚗcomᚋpluralshᚋtraceᚑshieldᚑcontrollerᚋapiᚋobservabilityᚋv1alpha1ᚐRelabelConfigᚄ(ctx, field.Selections, res)
+	return ec.marshalORelabelConfig2ᚕgithubᚗcomᚋpluralshᚋtraceᚑshieldᚑcontrollerᚋapiᚋobservabilityᚋv1alpha1ᚐRelabelConfigᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_RulerAlertManagerConfig_alertRelabelConfigs(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -20679,9 +20663,9 @@ func (ec *executionContext) _RulerAlertManagerConfig_notificationQueueCapacity(c
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.(int)
+	res := resTmp.(*int)
 	fc.Result = res
-	return ec.marshalOInt2int(ctx, field.Selections, res)
+	return ec.marshalOInt2ᚖint(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_RulerAlertManagerConfig_notificationQueueCapacity(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -20755,9 +20739,9 @@ func (ec *executionContext) _RulerAlertManagerConfig_notifier(ctx context.Contex
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.(v1alpha1.NotifierConfig)
+	res := resTmp.(*v1alpha1.NotifierConfig)
 	fc.Result = res
-	return ec.marshalONotifierConfig2githubᚗcomᚋpluralshᚋtraceᚑshieldᚑcontrollerᚋapiᚋobservabilityᚋv1alpha1ᚐNotifierConfig(ctx, field.Selections, res)
+	return ec.marshalONotifierConfig2ᚖgithubᚗcomᚋpluralshᚋtraceᚑshieldᚑcontrollerᚋapiᚋobservabilityᚋv1alpha1ᚐNotifierConfig(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_RulerAlertManagerConfig_notifier(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -20915,9 +20899,9 @@ func (ec *executionContext) _StreamRetention_period(ctx context.Context, field g
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.(v1.Duration)
+	res := resTmp.(*v1.Duration)
 	fc.Result = res
-	return ec.marshalODuration2k8sᚗioᚋapimachineryᚋpkgᚋapisᚋmetaᚋv1ᚐDuration(ctx, field.Selections, res)
+	return ec.marshalODuration2ᚖk8sᚗioᚋapimachineryᚋpkgᚋapisᚋmetaᚋv1ᚐDuration(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_StreamRetention_period(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -21295,9 +21279,9 @@ func (ec *executionContext) _TempoLimits_metricsGeneratorProcessors(ctx context.
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.([]*string)
+	res := resTmp.([]string)
 	fc.Result = res
-	return ec.marshalOString2ᚕᚖstringᚄ(ctx, field.Selections, res)
+	return ec.marshalOString2ᚕstringᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_TempoLimits_metricsGeneratorProcessors(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -24229,8 +24213,8 @@ func (ec *executionContext) unmarshalInputAcceptOAuth2ConsentRequestSession(ctx 
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputBlockedQueryInput(ctx context.Context, obj interface{}) (model.BlockedQueryInput, error) {
-	var it model.BlockedQueryInput
+func (ec *executionContext) unmarshalInputBlockedQueryInput(ctx context.Context, obj interface{}) (v1alpha1.BlockedQuery, error) {
+	var it v1alpha1.BlockedQuery
 	asMap := map[string]interface{}{}
 	for k, v := range obj.(map[string]interface{}) {
 		asMap[k] = v
@@ -24265,7 +24249,7 @@ func (ec *executionContext) unmarshalInputBlockedQueryInput(ctx context.Context,
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("hash"))
-			data, err := ec.unmarshalOUInt2ᚖuint64(ctx, v)
+			data, err := ec.unmarshalOUInt2ᚖuint32(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -24274,19 +24258,21 @@ func (ec *executionContext) unmarshalInputBlockedQueryInput(ctx context.Context,
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("types"))
-			data, err := ec.unmarshalOBlockedQueryType2ᚕgithubᚗcomᚋpluralshᚋtraceᚑshieldᚋgraphᚋmodelᚐBlockedQueryTypeᚄ(ctx, v)
+			data, err := ec.unmarshalOBlockedQueryType2ᚕgithubᚗcomᚋpluralshᚋtraceᚑshieldᚑcontrollerᚋapiᚋobservabilityᚋv1alpha1ᚐBlockedQueryTypeᚄ(ctx, v)
 			if err != nil {
 				return it, err
 			}
-			it.Types = data
+			if err = ec.resolvers.BlockedQueryInput().Types(ctx, &it, data); err != nil {
+				return it, err
+			}
 		}
 	}
 
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputDimensionMappingsInput(ctx context.Context, obj interface{}) (model.DimensionMappingsInput, error) {
-	var it model.DimensionMappingsInput
+func (ec *executionContext) unmarshalInputDimensionMappingsInput(ctx context.Context, obj interface{}) (v1alpha1.DimensionMappings, error) {
+	var it v1alpha1.DimensionMappings
 	asMap := map[string]interface{}{}
 	for k, v := range obj.(map[string]interface{}) {
 		asMap[k] = v
@@ -24332,8 +24318,8 @@ func (ec *executionContext) unmarshalInputDimensionMappingsInput(ctx context.Con
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputFilterPolicyInput(ctx context.Context, obj interface{}) (model.FilterPolicyInput, error) {
-	var it model.FilterPolicyInput
+func (ec *executionContext) unmarshalInputFilterPolicyInput(ctx context.Context, obj interface{}) (v1alpha1.FilterPolicy, error) {
+	var it v1alpha1.FilterPolicy
 	asMap := map[string]interface{}{}
 	for k, v := range obj.(map[string]interface{}) {
 		asMap[k] = v
@@ -24350,7 +24336,7 @@ func (ec *executionContext) unmarshalInputFilterPolicyInput(ctx context.Context,
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("include"))
-			data, err := ec.unmarshalOPolicyMatchInput2ᚖgithubᚗcomᚋpluralshᚋtraceᚑshieldᚋgraphᚋmodelᚐPolicyMatchInput(ctx, v)
+			data, err := ec.unmarshalOPolicyMatchInput2ᚖgithubᚗcomᚋpluralshᚋtraceᚑshieldᚑcontrollerᚋapiᚋobservabilityᚋv1alpha1ᚐPolicyMatch(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -24359,7 +24345,7 @@ func (ec *executionContext) unmarshalInputFilterPolicyInput(ctx context.Context,
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("exclude"))
-			data, err := ec.unmarshalOPolicyMatchInput2ᚖgithubᚗcomᚋpluralshᚋtraceᚑshieldᚋgraphᚋmodelᚐPolicyMatchInput(ctx, v)
+			data, err := ec.unmarshalOPolicyMatchInput2ᚖgithubᚗcomᚋpluralshᚋtraceᚑshieldᚑcontrollerᚋapiᚋobservabilityᚋv1alpha1ᚐPolicyMatch(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -24851,13 +24837,11 @@ func (ec *executionContext) unmarshalInputLokiLimitsInput(ctx context.Context, o
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("rulerAlertManagerConfig"))
-			data, err := ec.unmarshalORulerAlertManagerConfigInput2ᚖgithubᚗcomᚋpluralshᚋtraceᚑshieldᚋgraphᚋmodelᚐRulerAlertManagerConfigInput(ctx, v)
+			data, err := ec.unmarshalORulerAlertManagerConfigInput2ᚖgithubᚗcomᚋpluralshᚋtraceᚑshieldᚑcontrollerᚋapiᚋobservabilityᚋv1alpha1ᚐRulerAlertManagerConfig(ctx, v)
 			if err != nil {
 				return it, err
 			}
-			if err = ec.resolvers.LokiLimitsInput().RulerAlertManagerConfig(ctx, &it, data); err != nil {
-				return it, err
-			}
+			it.RulerAlertManagerConfig = data
 		case "rulerTenantShardSize":
 			var err error
 
@@ -24916,35 +24900,29 @@ func (ec *executionContext) unmarshalInputLokiLimitsInput(ctx context.Context, o
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("streamRetention"))
-			data, err := ec.unmarshalOStreamRetentionInput2ᚕᚖgithubᚗcomᚋpluralshᚋtraceᚑshieldᚋgraphᚋmodelᚐStreamRetentionInputᚄ(ctx, v)
+			data, err := ec.unmarshalOStreamRetentionInput2ᚕgithubᚗcomᚋpluralshᚋtraceᚑshieldᚑcontrollerᚋapiᚋobservabilityᚋv1alpha1ᚐStreamRetentionᚄ(ctx, v)
 			if err != nil {
 				return it, err
 			}
-			if err = ec.resolvers.LokiLimitsInput().StreamRetention(ctx, &it, data); err != nil {
-				return it, err
-			}
+			it.StreamRetention = data
 		case "shardStreams":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("shardStreams"))
-			data, err := ec.unmarshalOShardstreamsConfigInput2ᚖgithubᚗcomᚋpluralshᚋtraceᚑshieldᚋgraphᚋmodelᚐShardstreamsConfigInput(ctx, v)
+			data, err := ec.unmarshalOShardstreamsConfigInput2ᚖgithubᚗcomᚋpluralshᚋtraceᚑshieldᚑcontrollerᚋapiᚋobservabilityᚋv1alpha1ᚐShardstreamsConfig(ctx, v)
 			if err != nil {
 				return it, err
 			}
-			if err = ec.resolvers.LokiLimitsInput().ShardStreams(ctx, &it, data); err != nil {
-				return it, err
-			}
+			it.ShardStreams = data
 		case "blockedQueries":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("blockedQueries"))
-			data, err := ec.unmarshalOBlockedQueryInput2ᚕᚖgithubᚗcomᚋpluralshᚋtraceᚑshieldᚋgraphᚋmodelᚐBlockedQueryInputᚄ(ctx, v)
+			data, err := ec.unmarshalOBlockedQueryInput2ᚕgithubᚗcomᚋpluralshᚋtraceᚑshieldᚑcontrollerᚋapiᚋobservabilityᚋv1alpha1ᚐBlockedQueryᚄ(ctx, v)
 			if err != nil {
 				return it, err
 			}
-			if err = ec.resolvers.LokiLimitsInput().BlockedQueries(ctx, &it, data); err != nil {
-				return it, err
-			}
+			it.BlockedQueries = data
 		case "requiredLabels":
 			var err error
 
@@ -24978,8 +24956,8 @@ func (ec *executionContext) unmarshalInputLokiLimitsInput(ctx context.Context, o
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputMatchPolicyAttributeInput(ctx context.Context, obj interface{}) (model.MatchPolicyAttributeInput, error) {
-	var it model.MatchPolicyAttributeInput
+func (ec *executionContext) unmarshalInputMatchPolicyAttributeInput(ctx context.Context, obj interface{}) (v1alpha1.MatchPolicyAttribute, error) {
+	var it v1alpha1.MatchPolicyAttribute
 	asMap := map[string]interface{}{}
 	for k, v := range obj.(map[string]interface{}) {
 		asMap[k] = v
@@ -24996,7 +24974,7 @@ func (ec *executionContext) unmarshalInputMatchPolicyAttributeInput(ctx context.
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("key"))
-			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			data, err := ec.unmarshalNString2string(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -25005,7 +24983,7 @@ func (ec *executionContext) unmarshalInputMatchPolicyAttributeInput(ctx context.
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("value"))
-			data, err := ec.unmarshalOMap2map(ctx, v)
+			data, err := ec.unmarshalOMap2githubᚗcomᚋpluralshᚋtraceᚑshieldᚑcontrollerᚋapiᚋobservabilityᚋv1alpha1ᚐWrappedMap(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -25106,7 +25084,7 @@ func (ec *executionContext) unmarshalInputMimirLimitsInput(ctx context.Context, 
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("dropLabels"))
-			data, err := ec.unmarshalOString2ᚕᚖstringᚄ(ctx, v)
+			data, err := ec.unmarshalOString2ᚕstringᚄ(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -25187,13 +25165,11 @@ func (ec *executionContext) unmarshalInputMimirLimitsInput(ctx context.Context, 
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("metricRelabelConfigs"))
-			data, err := ec.unmarshalORelabelConfigInput2ᚕᚖgithubᚗcomᚋpluralshᚋtraceᚑshieldᚋgraphᚋmodelᚐRelabelConfigInputᚄ(ctx, v)
+			data, err := ec.unmarshalORelabelConfigInput2ᚕgithubᚗcomᚋpluralshᚋtraceᚑshieldᚑcontrollerᚋapiᚋobservabilityᚋv1alpha1ᚐRelabelConfigᚄ(ctx, v)
 			if err != nil {
 				return it, err
 			}
-			if err = ec.resolvers.MimirLimitsInput().MetricRelabelConfigs(ctx, &it, data); err != nil {
-				return it, err
-			}
+			it.MetricRelabelConfigs = data
 		case "maxGlobalSeriesPerUser":
 			var err error
 
@@ -25814,8 +25790,8 @@ func (ec *executionContext) unmarshalInputNameInput(ctx context.Context, obj int
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputNotifierBasicAuthInput(ctx context.Context, obj interface{}) (model.NotifierBasicAuthInput, error) {
-	var it model.NotifierBasicAuthInput
+func (ec *executionContext) unmarshalInputNotifierBasicAuthInput(ctx context.Context, obj interface{}) (v1alpha1.NotifierBasicAuth, error) {
+	var it v1alpha1.NotifierBasicAuth
 	asMap := map[string]interface{}{}
 	for k, v := range obj.(map[string]interface{}) {
 		asMap[k] = v
@@ -25852,8 +25828,8 @@ func (ec *executionContext) unmarshalInputNotifierBasicAuthInput(ctx context.Con
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputNotifierConfigInput(ctx context.Context, obj interface{}) (model.NotifierConfigInput, error) {
-	var it model.NotifierConfigInput
+func (ec *executionContext) unmarshalInputNotifierConfigInput(ctx context.Context, obj interface{}) (v1alpha1.NotifierConfig, error) {
+	var it v1alpha1.NotifierConfig
 	asMap := map[string]interface{}{}
 	for k, v := range obj.(map[string]interface{}) {
 		asMap[k] = v
@@ -25870,7 +25846,7 @@ func (ec *executionContext) unmarshalInputNotifierConfigInput(ctx context.Contex
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("basicAuth"))
-			data, err := ec.unmarshalONotifierBasicAuthInput2ᚖgithubᚗcomᚋpluralshᚋtraceᚑshieldᚋgraphᚋmodelᚐNotifierBasicAuthInput(ctx, v)
+			data, err := ec.unmarshalONotifierBasicAuthInput2ᚖgithubᚗcomᚋpluralshᚋtraceᚑshieldᚑcontrollerᚋapiᚋobservabilityᚋv1alpha1ᚐNotifierBasicAuth(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -25879,7 +25855,7 @@ func (ec *executionContext) unmarshalInputNotifierConfigInput(ctx context.Contex
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("headerAuth"))
-			data, err := ec.unmarshalONotifierHeaderAuthInput2ᚖgithubᚗcomᚋpluralshᚋtraceᚑshieldᚋgraphᚋmodelᚐNotifierHeaderAuthInput(ctx, v)
+			data, err := ec.unmarshalONotifierHeaderAuthInput2ᚖgithubᚗcomᚋpluralshᚋtraceᚑshieldᚑcontrollerᚋapiᚋobservabilityᚋv1alpha1ᚐNotifierHeaderAuth(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -25888,7 +25864,7 @@ func (ec *executionContext) unmarshalInputNotifierConfigInput(ctx context.Contex
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("tls"))
-			data, err := ec.unmarshalONotifierTLSClientConfigInput2ᚖgithubᚗcomᚋpluralshᚋtraceᚑshieldᚋgraphᚋmodelᚐNotifierTLSClientConfigInput(ctx, v)
+			data, err := ec.unmarshalONotifierTLSClientConfigInput2ᚖgithubᚗcomᚋpluralshᚋtraceᚑshieldᚑcontrollerᚋapiᚋobservabilityᚋv1alpha1ᚐNotifierTLSClientConfig(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -25899,8 +25875,8 @@ func (ec *executionContext) unmarshalInputNotifierConfigInput(ctx context.Contex
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputNotifierHeaderAuthInput(ctx context.Context, obj interface{}) (model.NotifierHeaderAuthInput, error) {
-	var it model.NotifierHeaderAuthInput
+func (ec *executionContext) unmarshalInputNotifierHeaderAuthInput(ctx context.Context, obj interface{}) (v1alpha1.NotifierHeaderAuth, error) {
+	var it v1alpha1.NotifierHeaderAuth
 	asMap := map[string]interface{}{}
 	for k, v := range obj.(map[string]interface{}) {
 		asMap[k] = v
@@ -25946,8 +25922,8 @@ func (ec *executionContext) unmarshalInputNotifierHeaderAuthInput(ctx context.Co
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputNotifierTLSClientConfigInput(ctx context.Context, obj interface{}) (model.NotifierTLSClientConfigInput, error) {
-	var it model.NotifierTLSClientConfigInput
+func (ec *executionContext) unmarshalInputNotifierTLSClientConfigInput(ctx context.Context, obj interface{}) (v1alpha1.NotifierTLSClientConfig, error) {
+	var it v1alpha1.NotifierTLSClientConfig
 	asMap := map[string]interface{}{}
 	for k, v := range obj.(map[string]interface{}) {
 		asMap[k] = v
@@ -25986,7 +25962,7 @@ func (ec *executionContext) unmarshalInputNotifierTLSClientConfigInput(ctx conte
 			if err != nil {
 				return it, err
 			}
-			it.CaPath = data
+			it.CAPath = data
 		case "serverName":
 			var err error
 
@@ -26152,8 +26128,8 @@ func (ec *executionContext) unmarshalInputObservabilityTenantPermissionBindingsI
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputPolicyMatchInput(ctx context.Context, obj interface{}) (model.PolicyMatchInput, error) {
-	var it model.PolicyMatchInput
+func (ec *executionContext) unmarshalInputPolicyMatchInput(ctx context.Context, obj interface{}) (v1alpha1.PolicyMatch, error) {
+	var it v1alpha1.PolicyMatch
 	asMap := map[string]interface{}{}
 	for k, v := range obj.(map[string]interface{}) {
 		asMap[k] = v
@@ -26179,7 +26155,7 @@ func (ec *executionContext) unmarshalInputPolicyMatchInput(ctx context.Context, 
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("attributes"))
-			data, err := ec.unmarshalOMatchPolicyAttributeInput2ᚕᚖgithubᚗcomᚋpluralshᚋtraceᚑshieldᚋgraphᚋmodelᚐMatchPolicyAttributeInputᚄ(ctx, v)
+			data, err := ec.unmarshalOMatchPolicyAttributeInput2ᚕgithubᚗcomᚋpluralshᚋtraceᚑshieldᚑcontrollerᚋapiᚋobservabilityᚋv1alpha1ᚐMatchPolicyAttributeᚄ(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -26190,8 +26166,8 @@ func (ec *executionContext) unmarshalInputPolicyMatchInput(ctx context.Context, 
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputRelabelConfigInput(ctx context.Context, obj interface{}) (model.RelabelConfigInput, error) {
-	var it model.RelabelConfigInput
+func (ec *executionContext) unmarshalInputRelabelConfigInput(ctx context.Context, obj interface{}) (v1alpha1.RelabelConfig, error) {
+	var it v1alpha1.RelabelConfig
 	asMap := map[string]interface{}{}
 	for k, v := range obj.(map[string]interface{}) {
 		asMap[k] = v
@@ -26208,7 +26184,7 @@ func (ec *executionContext) unmarshalInputRelabelConfigInput(ctx context.Context
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("sourceLabels"))
-			data, err := ec.unmarshalOString2ᚕᚖstring(ctx, v)
+			data, err := ec.unmarshalOLabelName2ᚕgithubᚗcomᚋpluralshᚋtraceᚑshieldᚑcontrollerᚋapiᚋobservabilityᚋv1alpha1ᚐLabelNameᚄ(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -26262,7 +26238,7 @@ func (ec *executionContext) unmarshalInputRelabelConfigInput(ctx context.Context
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("action"))
-			data, err := ec.unmarshalORelabelAction2ᚖgithubᚗcomᚋpluralshᚋtraceᚑshieldᚋgraphᚋmodelᚐRelabelAction(ctx, v)
+			data, err := ec.unmarshalORelabelAction2ᚖgithubᚗcomᚋpluralshᚋtraceᚑshieldᚑcontrollerᚋapiᚋobservabilityᚋv1alpha1ᚐRelabelAction(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -26273,8 +26249,8 @@ func (ec *executionContext) unmarshalInputRelabelConfigInput(ctx context.Context
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputRulerAlertManagerConfigInput(ctx context.Context, obj interface{}) (model.RulerAlertManagerConfigInput, error) {
-	var it model.RulerAlertManagerConfigInput
+func (ec *executionContext) unmarshalInputRulerAlertManagerConfigInput(ctx context.Context, obj interface{}) (v1alpha1.RulerAlertManagerConfig, error) {
+	var it v1alpha1.RulerAlertManagerConfig
 	asMap := map[string]interface{}{}
 	for k, v := range obj.(map[string]interface{}) {
 		asMap[k] = v
@@ -26322,12 +26298,12 @@ func (ec *executionContext) unmarshalInputRulerAlertManagerConfigInput(ctx conte
 			if err != nil {
 				return it, err
 			}
-			it.AlertmanangerEnableV2api = data
+			it.AlertmanangerEnableV2API = data
 		case "alertRelabelConfigs":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("alertRelabelConfigs"))
-			data, err := ec.unmarshalORelabelConfigInput2ᚕᚖgithubᚗcomᚋpluralshᚋtraceᚑshieldᚋgraphᚋmodelᚐRelabelConfigInputᚄ(ctx, v)
+			data, err := ec.unmarshalORelabelConfigInput2ᚕgithubᚗcomᚋpluralshᚋtraceᚑshieldᚑcontrollerᚋapiᚋobservabilityᚋv1alpha1ᚐRelabelConfigᚄ(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -26336,7 +26312,7 @@ func (ec *executionContext) unmarshalInputRulerAlertManagerConfigInput(ctx conte
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("notificationQueueCapacity"))
-			data, err := ec.unmarshalOInt2ᚖint64(ctx, v)
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -26354,7 +26330,7 @@ func (ec *executionContext) unmarshalInputRulerAlertManagerConfigInput(ctx conte
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("notifier"))
-			data, err := ec.unmarshalONotifierConfigInput2ᚖgithubᚗcomᚋpluralshᚋtraceᚑshieldᚋgraphᚋmodelᚐNotifierConfigInput(ctx, v)
+			data, err := ec.unmarshalONotifierConfigInput2ᚖgithubᚗcomᚋpluralshᚋtraceᚑshieldᚑcontrollerᚋapiᚋobservabilityᚋv1alpha1ᚐNotifierConfig(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -26365,8 +26341,8 @@ func (ec *executionContext) unmarshalInputRulerAlertManagerConfigInput(ctx conte
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputShardstreamsConfigInput(ctx context.Context, obj interface{}) (model.ShardstreamsConfigInput, error) {
-	var it model.ShardstreamsConfigInput
+func (ec *executionContext) unmarshalInputShardstreamsConfigInput(ctx context.Context, obj interface{}) (v1alpha1.ShardstreamsConfig, error) {
+	var it v1alpha1.ShardstreamsConfig
 	asMap := map[string]interface{}{}
 	for k, v := range obj.(map[string]interface{}) {
 		asMap[k] = v
@@ -26412,8 +26388,8 @@ func (ec *executionContext) unmarshalInputShardstreamsConfigInput(ctx context.Co
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputStreamRetentionInput(ctx context.Context, obj interface{}) (model.StreamRetentionInput, error) {
-	var it model.StreamRetentionInput
+func (ec *executionContext) unmarshalInputStreamRetentionInput(ctx context.Context, obj interface{}) (v1alpha1.StreamRetention, error) {
+	var it v1alpha1.StreamRetention
 	asMap := map[string]interface{}{}
 	for k, v := range obj.(map[string]interface{}) {
 		asMap[k] = v
@@ -26439,7 +26415,7 @@ func (ec *executionContext) unmarshalInputStreamRetentionInput(ctx context.Conte
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("priority"))
-			data, err := ec.unmarshalOInt2ᚖint64(ctx, v)
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -26540,7 +26516,7 @@ func (ec *executionContext) unmarshalInputTempoLimitsInput(ctx context.Context, 
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("metricsGeneratorProcessors"))
-			data, err := ec.unmarshalOString2ᚕᚖstringᚄ(ctx, v)
+			data, err := ec.unmarshalOString2ᚕstringᚄ(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -26657,24 +26633,20 @@ func (ec *executionContext) unmarshalInputTempoLimitsInput(ctx context.Context, 
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("metricsGeneratorProcessorSpanMetricsFilterPolicies"))
-			data, err := ec.unmarshalOFilterPolicyInput2ᚕᚖgithubᚗcomᚋpluralshᚋtraceᚑshieldᚋgraphᚋmodelᚐFilterPolicyInputᚄ(ctx, v)
+			data, err := ec.unmarshalOFilterPolicyInput2ᚕgithubᚗcomᚋpluralshᚋtraceᚑshieldᚑcontrollerᚋapiᚋobservabilityᚋv1alpha1ᚐFilterPolicyᚄ(ctx, v)
 			if err != nil {
 				return it, err
 			}
-			if err = ec.resolvers.TempoLimitsInput().MetricsGeneratorProcessorSpanMetricsFilterPolicies(ctx, &it, data); err != nil {
-				return it, err
-			}
+			it.MetricsGeneratorProcessorSpanMetricsFilterPolicies = data
 		case "metricsGeneratorProcessorSpanMetricsDimensionMappings":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("metricsGeneratorProcessorSpanMetricsDimensionMappings"))
-			data, err := ec.unmarshalODimensionMappingsInput2ᚕᚖgithubᚗcomᚋpluralshᚋtraceᚑshieldᚋgraphᚋmodelᚐDimensionMappingsInputᚄ(ctx, v)
+			data, err := ec.unmarshalODimensionMappingsInput2ᚕgithubᚗcomᚋpluralshᚋtraceᚑshieldᚑcontrollerᚋapiᚋobservabilityᚋv1alpha1ᚐDimensionMappingsᚄ(ctx, v)
 			if err != nil {
 				return it, err
 			}
-			if err = ec.resolvers.TempoLimitsInput().MetricsGeneratorProcessorSpanMetricsDimensionMappings(ctx, &it, data); err != nil {
-				return it, err
-			}
+			it.MetricsGeneratorProcessorSpanMetricsDimensionMappings = data
 		case "metricsGeneratorProcessorSpanMetricsEnableTargetInfo":
 			var err error
 
@@ -27319,39 +27291,11 @@ func (ec *executionContext) _MatchPolicyAttribute(ctx context.Context, sel ast.S
 			out.Values[i] = graphql.MarshalString("MatchPolicyAttribute")
 		case "key":
 			out.Values[i] = ec._MatchPolicyAttribute_key(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		case "value":
-			field := field
-
-			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._MatchPolicyAttribute_value(ctx, field, obj)
-				return res
-			}
-
-			if field.Deferrable != nil {
-				dfs, ok := deferred[field.Deferrable.Label]
-				di := 0
-				if ok {
-					dfs.AddField(field)
-					di = len(dfs.Values) - 1
-				} else {
-					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
-					deferred[field.Deferrable.Label] = dfs
-				}
-				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
-					return innerFunc(ctx, dfs)
-				})
-
-				// don't run the out.Concurrently() call below
-				out.Values[i] = graphql.Null
-				continue
-			}
-
-			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+			out.Values[i] = ec._MatchPolicyAttribute_value(ctx, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -29467,38 +29411,7 @@ func (ec *executionContext) _RelabelConfig(ctx context.Context, sel ast.Selectio
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("RelabelConfig")
 		case "sourceLabels":
-			field := field
-
-			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._RelabelConfig_sourceLabels(ctx, field, obj)
-				return res
-			}
-
-			if field.Deferrable != nil {
-				dfs, ok := deferred[field.Deferrable.Label]
-				di := 0
-				if ok {
-					dfs.AddField(field)
-					di = len(dfs.Values) - 1
-				} else {
-					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
-					deferred[field.Deferrable.Label] = dfs
-				}
-				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
-					return innerFunc(ctx, dfs)
-				})
-
-				// don't run the out.Concurrently() call below
-				out.Values[i] = graphql.Null
-				continue
-			}
-
-			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+			out.Values[i] = ec._RelabelConfig_sourceLabels(ctx, field, obj)
 		case "separator":
 			out.Values[i] = ec._RelabelConfig_separator(ctx, field, obj)
 		case "regex":
@@ -29510,38 +29423,7 @@ func (ec *executionContext) _RelabelConfig(ctx context.Context, sel ast.Selectio
 		case "replacement":
 			out.Values[i] = ec._RelabelConfig_replacement(ctx, field, obj)
 		case "action":
-			field := field
-
-			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._RelabelConfig_action(ctx, field, obj)
-				return res
-			}
-
-			if field.Deferrable != nil {
-				dfs, ok := deferred[field.Deferrable.Label]
-				di := 0
-				if ok {
-					dfs.AddField(field)
-					di = len(dfs.Values) - 1
-				} else {
-					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
-					deferred[field.Deferrable.Label] = dfs
-				}
-				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
-					return innerFunc(ctx, dfs)
-				})
-
-				// don't run the out.Concurrently() call below
-				out.Values[i] = graphql.Null
-				continue
-			}
-
-			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+			out.Values[i] = ec._RelabelConfig_action(ctx, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -30207,28 +30089,22 @@ func (ec *executionContext) ___Type(ctx context.Context, sel ast.SelectionSet, o
 
 // region    ***************************** type.gotpl *****************************
 
-func (ec *executionContext) marshalNBlockedQuery2ᚖgithubᚗcomᚋpluralshᚋtraceᚑshieldᚑcontrollerᚋapiᚋobservabilityᚋv1alpha1ᚐBlockedQuery(ctx context.Context, sel ast.SelectionSet, v *v1alpha1.BlockedQuery) graphql.Marshaler {
-	if v == nil {
-		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
-		}
-		return graphql.Null
-	}
-	return ec._BlockedQuery(ctx, sel, v)
+func (ec *executionContext) marshalNBlockedQuery2githubᚗcomᚋpluralshᚋtraceᚑshieldᚑcontrollerᚋapiᚋobservabilityᚋv1alpha1ᚐBlockedQuery(ctx context.Context, sel ast.SelectionSet, v v1alpha1.BlockedQuery) graphql.Marshaler {
+	return ec._BlockedQuery(ctx, sel, &v)
 }
 
-func (ec *executionContext) unmarshalNBlockedQueryInput2ᚖgithubᚗcomᚋpluralshᚋtraceᚑshieldᚋgraphᚋmodelᚐBlockedQueryInput(ctx context.Context, v interface{}) (*model.BlockedQueryInput, error) {
+func (ec *executionContext) unmarshalNBlockedQueryInput2githubᚗcomᚋpluralshᚋtraceᚑshieldᚑcontrollerᚋapiᚋobservabilityᚋv1alpha1ᚐBlockedQuery(ctx context.Context, v interface{}) (v1alpha1.BlockedQuery, error) {
 	res, err := ec.unmarshalInputBlockedQueryInput(ctx, v)
-	return &res, graphql.ErrorOnPath(ctx, err)
+	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) unmarshalNBlockedQueryType2githubᚗcomᚋpluralshᚋtraceᚑshieldᚋgraphᚋmodelᚐBlockedQueryType(ctx context.Context, v interface{}) (model.BlockedQueryType, error) {
-	var res model.BlockedQueryType
+func (ec *executionContext) unmarshalNBlockedQueryType2githubᚗcomᚋpluralshᚋtraceᚑshieldᚑcontrollerᚋapiᚋobservabilityᚋv1alpha1ᚐBlockedQueryType(ctx context.Context, v interface{}) (v1alpha1.BlockedQueryType, error) {
+	var res v1alpha1.BlockedQueryType
 	err := res.UnmarshalGQL(v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalNBlockedQueryType2githubᚗcomᚋpluralshᚋtraceᚑshieldᚋgraphᚋmodelᚐBlockedQueryType(ctx context.Context, sel ast.SelectionSet, v model.BlockedQueryType) graphql.Marshaler {
+func (ec *executionContext) marshalNBlockedQueryType2githubᚗcomᚋpluralshᚋtraceᚑshieldᚑcontrollerᚋapiᚋobservabilityᚋv1alpha1ᚐBlockedQueryType(ctx context.Context, sel ast.SelectionSet, v v1alpha1.BlockedQueryType) graphql.Marshaler {
 	return v
 }
 
@@ -30251,18 +30127,18 @@ func (ec *executionContext) marshalNDimensionMappings2githubᚗcomᚋpluralshᚋ
 	return ec._DimensionMappings(ctx, sel, &v)
 }
 
-func (ec *executionContext) unmarshalNDimensionMappingsInput2ᚖgithubᚗcomᚋpluralshᚋtraceᚑshieldᚋgraphᚋmodelᚐDimensionMappingsInput(ctx context.Context, v interface{}) (*model.DimensionMappingsInput, error) {
+func (ec *executionContext) unmarshalNDimensionMappingsInput2githubᚗcomᚋpluralshᚋtraceᚑshieldᚑcontrollerᚋapiᚋobservabilityᚋv1alpha1ᚐDimensionMappings(ctx context.Context, v interface{}) (v1alpha1.DimensionMappings, error) {
 	res, err := ec.unmarshalInputDimensionMappingsInput(ctx, v)
-	return &res, graphql.ErrorOnPath(ctx, err)
+	return res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) marshalNFilterPolicy2githubᚗcomᚋpluralshᚋtraceᚑshieldᚑcontrollerᚋapiᚋobservabilityᚋv1alpha1ᚐFilterPolicy(ctx context.Context, sel ast.SelectionSet, v v1alpha1.FilterPolicy) graphql.Marshaler {
 	return ec._FilterPolicy(ctx, sel, &v)
 }
 
-func (ec *executionContext) unmarshalNFilterPolicyInput2ᚖgithubᚗcomᚋpluralshᚋtraceᚑshieldᚋgraphᚋmodelᚐFilterPolicyInput(ctx context.Context, v interface{}) (*model.FilterPolicyInput, error) {
+func (ec *executionContext) unmarshalNFilterPolicyInput2githubᚗcomᚋpluralshᚋtraceᚑshieldᚑcontrollerᚋapiᚋobservabilityᚋv1alpha1ᚐFilterPolicy(ctx context.Context, v interface{}) (v1alpha1.FilterPolicy, error) {
 	res, err := ec.unmarshalInputFilterPolicyInput(ctx, v)
-	return &res, graphql.ErrorOnPath(ctx, err)
+	return res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) marshalNGroup2githubᚗcomᚋpluralshᚋtraceᚑshieldᚋgraphᚋmodelᚐGroup(ctx context.Context, sel ast.SelectionSet, v model.Group) graphql.Marshaler {
@@ -30299,13 +30175,23 @@ func (ec *executionContext) marshalNID2string(ctx context.Context, sel ast.Selec
 	return res
 }
 
+func (ec *executionContext) unmarshalNLabelName2githubᚗcomᚋpluralshᚋtraceᚑshieldᚑcontrollerᚋapiᚋobservabilityᚋv1alpha1ᚐLabelName(ctx context.Context, v interface{}) (v1alpha1.LabelName, error) {
+	var res v1alpha1.LabelName
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNLabelName2githubᚗcomᚋpluralshᚋtraceᚑshieldᚑcontrollerᚋapiᚋobservabilityᚋv1alpha1ᚐLabelName(ctx context.Context, sel ast.SelectionSet, v v1alpha1.LabelName) graphql.Marshaler {
+	return v
+}
+
 func (ec *executionContext) marshalNMatchPolicyAttribute2githubᚗcomᚋpluralshᚋtraceᚑshieldᚑcontrollerᚋapiᚋobservabilityᚋv1alpha1ᚐMatchPolicyAttribute(ctx context.Context, sel ast.SelectionSet, v v1alpha1.MatchPolicyAttribute) graphql.Marshaler {
 	return ec._MatchPolicyAttribute(ctx, sel, &v)
 }
 
-func (ec *executionContext) unmarshalNMatchPolicyAttributeInput2ᚖgithubᚗcomᚋpluralshᚋtraceᚑshieldᚋgraphᚋmodelᚐMatchPolicyAttributeInput(ctx context.Context, v interface{}) (*model.MatchPolicyAttributeInput, error) {
+func (ec *executionContext) unmarshalNMatchPolicyAttributeInput2githubᚗcomᚋpluralshᚋtraceᚑshieldᚑcontrollerᚋapiᚋobservabilityᚋv1alpha1ᚐMatchPolicyAttribute(ctx context.Context, v interface{}) (v1alpha1.MatchPolicyAttribute, error) {
 	res, err := ec.unmarshalInputMatchPolicyAttributeInput(ctx, v)
-	return &res, graphql.ErrorOnPath(ctx, err)
+	return res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) marshalNOAuth2Client2githubᚗcomᚋpluralshᚋtraceᚑshieldᚋgraphᚋmodelᚐOAuth2Client(ctx context.Context, sel ast.SelectionSet, v model.OAuth2Client) graphql.Marshaler {
@@ -30461,28 +30347,18 @@ func (ec *executionContext) marshalNRelabelConfig2githubᚗcomᚋpluralshᚋtrac
 	return ec._RelabelConfig(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNRelabelConfig2ᚖgithubᚗcomᚋpluralshᚋtraceᚑshieldᚑcontrollerᚋapiᚋobservabilityᚋv1alpha1ᚐRelabelConfig(ctx context.Context, sel ast.SelectionSet, v *v1alpha1.RelabelConfig) graphql.Marshaler {
-	if v == nil {
-		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
-		}
-		return graphql.Null
-	}
-	return ec._RelabelConfig(ctx, sel, v)
-}
-
-func (ec *executionContext) unmarshalNRelabelConfigInput2ᚖgithubᚗcomᚋpluralshᚋtraceᚑshieldᚋgraphᚋmodelᚐRelabelConfigInput(ctx context.Context, v interface{}) (*model.RelabelConfigInput, error) {
+func (ec *executionContext) unmarshalNRelabelConfigInput2githubᚗcomᚋpluralshᚋtraceᚑshieldᚑcontrollerᚋapiᚋobservabilityᚋv1alpha1ᚐRelabelConfig(ctx context.Context, v interface{}) (v1alpha1.RelabelConfig, error) {
 	res, err := ec.unmarshalInputRelabelConfigInput(ctx, v)
-	return &res, graphql.ErrorOnPath(ctx, err)
+	return res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) marshalNStreamRetention2githubᚗcomᚋpluralshᚋtraceᚑshieldᚑcontrollerᚋapiᚋobservabilityᚋv1alpha1ᚐStreamRetention(ctx context.Context, sel ast.SelectionSet, v v1alpha1.StreamRetention) graphql.Marshaler {
 	return ec._StreamRetention(ctx, sel, &v)
 }
 
-func (ec *executionContext) unmarshalNStreamRetentionInput2ᚖgithubᚗcomᚋpluralshᚋtraceᚑshieldᚋgraphᚋmodelᚐStreamRetentionInput(ctx context.Context, v interface{}) (*model.StreamRetentionInput, error) {
+func (ec *executionContext) unmarshalNStreamRetentionInput2githubᚗcomᚋpluralshᚋtraceᚑshieldᚑcontrollerᚋapiᚋobservabilityᚋv1alpha1ᚐStreamRetention(ctx context.Context, v interface{}) (v1alpha1.StreamRetention, error) {
 	res, err := ec.unmarshalInputStreamRetentionInput(ctx, v)
-	return &res, graphql.ErrorOnPath(ctx, err)
+	return res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) unmarshalNString2string(ctx context.Context, v interface{}) (string, error) {
@@ -30492,27 +30368,6 @@ func (ec *executionContext) unmarshalNString2string(ctx context.Context, v inter
 
 func (ec *executionContext) marshalNString2string(ctx context.Context, sel ast.SelectionSet, v string) graphql.Marshaler {
 	res := graphql.MarshalString(v)
-	if res == graphql.Null {
-		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
-		}
-	}
-	return res
-}
-
-func (ec *executionContext) unmarshalNString2ᚖstring(ctx context.Context, v interface{}) (*string, error) {
-	res, err := graphql.UnmarshalString(v)
-	return &res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) marshalNString2ᚖstring(ctx context.Context, sel ast.SelectionSet, v *string) graphql.Marshaler {
-	if v == nil {
-		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
-		}
-		return graphql.Null
-	}
-	res := graphql.MarshalString(*v)
 	if res == graphql.Null {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
@@ -30837,7 +30692,7 @@ func (ec *executionContext) marshalN__TypeKind2string(ctx context.Context, sel a
 	return res
 }
 
-func (ec *executionContext) marshalOBlockedQuery2ᚕᚖgithubᚗcomᚋpluralshᚋtraceᚑshieldᚑcontrollerᚋapiᚋobservabilityᚋv1alpha1ᚐBlockedQueryᚄ(ctx context.Context, sel ast.SelectionSet, v []*v1alpha1.BlockedQuery) graphql.Marshaler {
+func (ec *executionContext) marshalOBlockedQuery2ᚕgithubᚗcomᚋpluralshᚋtraceᚑshieldᚑcontrollerᚋapiᚋobservabilityᚋv1alpha1ᚐBlockedQueryᚄ(ctx context.Context, sel ast.SelectionSet, v []v1alpha1.BlockedQuery) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
@@ -30864,7 +30719,7 @@ func (ec *executionContext) marshalOBlockedQuery2ᚕᚖgithubᚗcomᚋpluralsh�
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalNBlockedQuery2ᚖgithubᚗcomᚋpluralshᚋtraceᚑshieldᚑcontrollerᚋapiᚋobservabilityᚋv1alpha1ᚐBlockedQuery(ctx, sel, v[i])
+			ret[i] = ec.marshalNBlockedQuery2githubᚗcomᚋpluralshᚋtraceᚑshieldᚑcontrollerᚋapiᚋobservabilityᚋv1alpha1ᚐBlockedQuery(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -30884,7 +30739,7 @@ func (ec *executionContext) marshalOBlockedQuery2ᚕᚖgithubᚗcomᚋpluralsh�
 	return ret
 }
 
-func (ec *executionContext) unmarshalOBlockedQueryInput2ᚕᚖgithubᚗcomᚋpluralshᚋtraceᚑshieldᚋgraphᚋmodelᚐBlockedQueryInputᚄ(ctx context.Context, v interface{}) ([]*model.BlockedQueryInput, error) {
+func (ec *executionContext) unmarshalOBlockedQueryInput2ᚕgithubᚗcomᚋpluralshᚋtraceᚑshieldᚑcontrollerᚋapiᚋobservabilityᚋv1alpha1ᚐBlockedQueryᚄ(ctx context.Context, v interface{}) ([]v1alpha1.BlockedQuery, error) {
 	if v == nil {
 		return nil, nil
 	}
@@ -30893,10 +30748,10 @@ func (ec *executionContext) unmarshalOBlockedQueryInput2ᚕᚖgithubᚗcomᚋplu
 		vSlice = graphql.CoerceList(v)
 	}
 	var err error
-	res := make([]*model.BlockedQueryInput, len(vSlice))
+	res := make([]v1alpha1.BlockedQuery, len(vSlice))
 	for i := range vSlice {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
-		res[i], err = ec.unmarshalNBlockedQueryInput2ᚖgithubᚗcomᚋpluralshᚋtraceᚑshieldᚋgraphᚋmodelᚐBlockedQueryInput(ctx, vSlice[i])
+		res[i], err = ec.unmarshalNBlockedQueryInput2githubᚗcomᚋpluralshᚋtraceᚑshieldᚑcontrollerᚋapiᚋobservabilityᚋv1alpha1ᚐBlockedQuery(ctx, vSlice[i])
 		if err != nil {
 			return nil, err
 		}
@@ -30904,7 +30759,7 @@ func (ec *executionContext) unmarshalOBlockedQueryInput2ᚕᚖgithubᚗcomᚋplu
 	return res, nil
 }
 
-func (ec *executionContext) unmarshalOBlockedQueryType2ᚕgithubᚗcomᚋpluralshᚋtraceᚑshieldᚋgraphᚋmodelᚐBlockedQueryTypeᚄ(ctx context.Context, v interface{}) ([]model.BlockedQueryType, error) {
+func (ec *executionContext) unmarshalOBlockedQueryType2ᚕgithubᚗcomᚋpluralshᚋtraceᚑshieldᚑcontrollerᚋapiᚋobservabilityᚋv1alpha1ᚐBlockedQueryTypeᚄ(ctx context.Context, v interface{}) ([]v1alpha1.BlockedQueryType, error) {
 	if v == nil {
 		return nil, nil
 	}
@@ -30913,10 +30768,10 @@ func (ec *executionContext) unmarshalOBlockedQueryType2ᚕgithubᚗcomᚋplurals
 		vSlice = graphql.CoerceList(v)
 	}
 	var err error
-	res := make([]model.BlockedQueryType, len(vSlice))
+	res := make([]v1alpha1.BlockedQueryType, len(vSlice))
 	for i := range vSlice {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
-		res[i], err = ec.unmarshalNBlockedQueryType2githubᚗcomᚋpluralshᚋtraceᚑshieldᚋgraphᚋmodelᚐBlockedQueryType(ctx, vSlice[i])
+		res[i], err = ec.unmarshalNBlockedQueryType2githubᚗcomᚋpluralshᚋtraceᚑshieldᚑcontrollerᚋapiᚋobservabilityᚋv1alpha1ᚐBlockedQueryType(ctx, vSlice[i])
 		if err != nil {
 			return nil, err
 		}
@@ -30924,7 +30779,7 @@ func (ec *executionContext) unmarshalOBlockedQueryType2ᚕgithubᚗcomᚋplurals
 	return res, nil
 }
 
-func (ec *executionContext) marshalOBlockedQueryType2ᚕgithubᚗcomᚋpluralshᚋtraceᚑshieldᚋgraphᚋmodelᚐBlockedQueryTypeᚄ(ctx context.Context, sel ast.SelectionSet, v []model.BlockedQueryType) graphql.Marshaler {
+func (ec *executionContext) marshalOBlockedQueryType2ᚕgithubᚗcomᚋpluralshᚋtraceᚑshieldᚑcontrollerᚋapiᚋobservabilityᚋv1alpha1ᚐBlockedQueryTypeᚄ(ctx context.Context, sel ast.SelectionSet, v []v1alpha1.BlockedQueryType) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
@@ -30951,7 +30806,7 @@ func (ec *executionContext) marshalOBlockedQueryType2ᚕgithubᚗcomᚋpluralsh�
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalNBlockedQueryType2githubᚗcomᚋpluralshᚋtraceᚑshieldᚋgraphᚋmodelᚐBlockedQueryType(ctx, sel, v[i])
+			ret[i] = ec.marshalNBlockedQueryType2githubᚗcomᚋpluralshᚋtraceᚑshieldᚑcontrollerᚋapiᚋobservabilityᚋv1alpha1ᚐBlockedQueryType(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -31060,7 +30915,7 @@ func (ec *executionContext) marshalODimensionMappings2ᚕgithubᚗcomᚋpluralsh
 	return ret
 }
 
-func (ec *executionContext) unmarshalODimensionMappingsInput2ᚕᚖgithubᚗcomᚋpluralshᚋtraceᚑshieldᚋgraphᚋmodelᚐDimensionMappingsInputᚄ(ctx context.Context, v interface{}) ([]*model.DimensionMappingsInput, error) {
+func (ec *executionContext) unmarshalODimensionMappingsInput2ᚕgithubᚗcomᚋpluralshᚋtraceᚑshieldᚑcontrollerᚋapiᚋobservabilityᚋv1alpha1ᚐDimensionMappingsᚄ(ctx context.Context, v interface{}) ([]v1alpha1.DimensionMappings, error) {
 	if v == nil {
 		return nil, nil
 	}
@@ -31069,25 +30924,15 @@ func (ec *executionContext) unmarshalODimensionMappingsInput2ᚕᚖgithubᚗcom�
 		vSlice = graphql.CoerceList(v)
 	}
 	var err error
-	res := make([]*model.DimensionMappingsInput, len(vSlice))
+	res := make([]v1alpha1.DimensionMappings, len(vSlice))
 	for i := range vSlice {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
-		res[i], err = ec.unmarshalNDimensionMappingsInput2ᚖgithubᚗcomᚋpluralshᚋtraceᚑshieldᚋgraphᚋmodelᚐDimensionMappingsInput(ctx, vSlice[i])
+		res[i], err = ec.unmarshalNDimensionMappingsInput2githubᚗcomᚋpluralshᚋtraceᚑshieldᚑcontrollerᚋapiᚋobservabilityᚋv1alpha1ᚐDimensionMappings(ctx, vSlice[i])
 		if err != nil {
 			return nil, err
 		}
 	}
 	return res, nil
-}
-
-func (ec *executionContext) unmarshalODuration2k8sᚗioᚋapimachineryᚋpkgᚋapisᚋmetaᚋv1ᚐDuration(ctx context.Context, v interface{}) (v1.Duration, error) {
-	res, err := custom.UnmarshalDuration(v)
-	return res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) marshalODuration2k8sᚗioᚋapimachineryᚋpkgᚋapisᚋmetaᚋv1ᚐDuration(ctx context.Context, sel ast.SelectionSet, v v1.Duration) graphql.Marshaler {
-	res := custom.MarshalDuration(v)
-	return res
 }
 
 func (ec *executionContext) unmarshalODuration2ᚖk8sᚗioᚋapimachineryᚋpkgᚋapisᚋmetaᚋv1ᚐDuration(ctx context.Context, v interface{}) (*v1.Duration, error) {
@@ -31153,7 +30998,7 @@ func (ec *executionContext) marshalOFilterPolicy2ᚕgithubᚗcomᚋpluralshᚋtr
 	return ret
 }
 
-func (ec *executionContext) unmarshalOFilterPolicyInput2ᚕᚖgithubᚗcomᚋpluralshᚋtraceᚑshieldᚋgraphᚋmodelᚐFilterPolicyInputᚄ(ctx context.Context, v interface{}) ([]*model.FilterPolicyInput, error) {
+func (ec *executionContext) unmarshalOFilterPolicyInput2ᚕgithubᚗcomᚋpluralshᚋtraceᚑshieldᚑcontrollerᚋapiᚋobservabilityᚋv1alpha1ᚐFilterPolicyᚄ(ctx context.Context, v interface{}) ([]v1alpha1.FilterPolicy, error) {
 	if v == nil {
 		return nil, nil
 	}
@@ -31162,10 +31007,10 @@ func (ec *executionContext) unmarshalOFilterPolicyInput2ᚕᚖgithubᚗcomᚋplu
 		vSlice = graphql.CoerceList(v)
 	}
 	var err error
-	res := make([]*model.FilterPolicyInput, len(vSlice))
+	res := make([]v1alpha1.FilterPolicy, len(vSlice))
 	for i := range vSlice {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
-		res[i], err = ec.unmarshalNFilterPolicyInput2ᚖgithubᚗcomᚋpluralshᚋtraceᚑshieldᚋgraphᚋmodelᚐFilterPolicyInput(ctx, vSlice[i])
+		res[i], err = ec.unmarshalNFilterPolicyInput2githubᚗcomᚋpluralshᚋtraceᚑshieldᚑcontrollerᚋapiᚋobservabilityᚋv1alpha1ᚐFilterPolicy(ctx, vSlice[i])
 		if err != nil {
 			return nil, err
 		}
@@ -31330,16 +31175,6 @@ func (ec *executionContext) marshalOID2ᚖstring(ctx context.Context, sel ast.Se
 	return res
 }
 
-func (ec *executionContext) unmarshalOInt2int(ctx context.Context, v interface{}) (int, error) {
-	res, err := graphql.UnmarshalInt(v)
-	return res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) marshalOInt2int(ctx context.Context, sel ast.SelectionSet, v int) graphql.Marshaler {
-	res := graphql.MarshalInt(v)
-	return res
-}
-
 func (ec *executionContext) unmarshalOInt2ᚖint(ctx context.Context, v interface{}) (*int, error) {
 	if v == nil {
 		return nil, nil
@@ -31372,6 +31207,44 @@ func (ec *executionContext) marshalOInt2ᚖint64(ctx context.Context, sel ast.Se
 	return res
 }
 
+func (ec *executionContext) unmarshalOLabelName2ᚕgithubᚗcomᚋpluralshᚋtraceᚑshieldᚑcontrollerᚋapiᚋobservabilityᚋv1alpha1ᚐLabelNameᚄ(ctx context.Context, v interface{}) ([]v1alpha1.LabelName, error) {
+	if v == nil {
+		return nil, nil
+	}
+	var vSlice []interface{}
+	if v != nil {
+		vSlice = graphql.CoerceList(v)
+	}
+	var err error
+	res := make([]v1alpha1.LabelName, len(vSlice))
+	for i := range vSlice {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
+		res[i], err = ec.unmarshalNLabelName2githubᚗcomᚋpluralshᚋtraceᚑshieldᚑcontrollerᚋapiᚋobservabilityᚋv1alpha1ᚐLabelName(ctx, vSlice[i])
+		if err != nil {
+			return nil, err
+		}
+	}
+	return res, nil
+}
+
+func (ec *executionContext) marshalOLabelName2ᚕgithubᚗcomᚋpluralshᚋtraceᚑshieldᚑcontrollerᚋapiᚋobservabilityᚋv1alpha1ᚐLabelNameᚄ(ctx context.Context, sel ast.SelectionSet, v []v1alpha1.LabelName) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	ret := make(graphql.Array, len(v))
+	for i := range v {
+		ret[i] = ec.marshalNLabelName2githubᚗcomᚋpluralshᚋtraceᚑshieldᚑcontrollerᚋapiᚋobservabilityᚋv1alpha1ᚐLabelName(ctx, sel, v[i])
+	}
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
 func (ec *executionContext) marshalOLoginBindings2ᚖgithubᚗcomᚋpluralshᚋtraceᚑshieldᚋgraphᚋmodelᚐLoginBindings(ctx context.Context, sel ast.SelectionSet, v *model.LoginBindings) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
@@ -31400,6 +31273,16 @@ func (ec *executionContext) unmarshalOLokiLimitsInput2ᚖgithubᚗcomᚋpluralsh
 	}
 	res, err := ec.unmarshalInputLokiLimitsInput(ctx, v)
 	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalOMap2githubᚗcomᚋpluralshᚋtraceᚑshieldᚑcontrollerᚋapiᚋobservabilityᚋv1alpha1ᚐWrappedMap(ctx context.Context, v interface{}) (v1alpha1.WrappedMap, error) {
+	var res v1alpha1.WrappedMap
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalOMap2githubᚗcomᚋpluralshᚋtraceᚑshieldᚑcontrollerᚋapiᚋobservabilityᚋv1alpha1ᚐWrappedMap(ctx context.Context, sel ast.SelectionSet, v v1alpha1.WrappedMap) graphql.Marshaler {
+	return v
 }
 
 func (ec *executionContext) unmarshalOMap2map(ctx context.Context, v interface{}) (map[string]interface{}, error) {
@@ -31465,7 +31348,7 @@ func (ec *executionContext) marshalOMatchPolicyAttribute2ᚕgithubᚗcomᚋplura
 	return ret
 }
 
-func (ec *executionContext) unmarshalOMatchPolicyAttributeInput2ᚕᚖgithubᚗcomᚋpluralshᚋtraceᚑshieldᚋgraphᚋmodelᚐMatchPolicyAttributeInputᚄ(ctx context.Context, v interface{}) ([]*model.MatchPolicyAttributeInput, error) {
+func (ec *executionContext) unmarshalOMatchPolicyAttributeInput2ᚕgithubᚗcomᚋpluralshᚋtraceᚑshieldᚑcontrollerᚋapiᚋobservabilityᚋv1alpha1ᚐMatchPolicyAttributeᚄ(ctx context.Context, v interface{}) ([]v1alpha1.MatchPolicyAttribute, error) {
 	if v == nil {
 		return nil, nil
 	}
@@ -31474,10 +31357,10 @@ func (ec *executionContext) unmarshalOMatchPolicyAttributeInput2ᚕᚖgithubᚗc
 		vSlice = graphql.CoerceList(v)
 	}
 	var err error
-	res := make([]*model.MatchPolicyAttributeInput, len(vSlice))
+	res := make([]v1alpha1.MatchPolicyAttribute, len(vSlice))
 	for i := range vSlice {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
-		res[i], err = ec.unmarshalNMatchPolicyAttributeInput2ᚖgithubᚗcomᚋpluralshᚋtraceᚑshieldᚋgraphᚋmodelᚐMatchPolicyAttributeInput(ctx, vSlice[i])
+		res[i], err = ec.unmarshalNMatchPolicyAttributeInput2githubᚗcomᚋpluralshᚋtraceᚑshieldᚑcontrollerᚋapiᚋobservabilityᚋv1alpha1ᚐMatchPolicyAttribute(ctx, vSlice[i])
 		if err != nil {
 			return nil, err
 		}
@@ -31485,32 +31368,20 @@ func (ec *executionContext) unmarshalOMatchPolicyAttributeInput2ᚕᚖgithubᚗc
 	return res, nil
 }
 
-func (ec *executionContext) unmarshalOMatchType2githubᚗcomᚋpluralshᚋtraceᚑshieldᚑcontrollerᚋapiᚋobservabilityᚋv1alpha1ᚐMatchType(ctx context.Context, v interface{}) (v1alpha1.MatchType, error) {
-	tmp, err := graphql.UnmarshalString(v)
-	res := v1alpha1.MatchType(tmp)
-	return res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) marshalOMatchType2githubᚗcomᚋpluralshᚋtraceᚑshieldᚑcontrollerᚋapiᚋobservabilityᚋv1alpha1ᚐMatchType(ctx context.Context, sel ast.SelectionSet, v v1alpha1.MatchType) graphql.Marshaler {
-	res := graphql.MarshalString(string(v))
-	return res
-}
-
 func (ec *executionContext) unmarshalOMatchType2ᚖgithubᚗcomᚋpluralshᚋtraceᚑshieldᚑcontrollerᚋapiᚋobservabilityᚋv1alpha1ᚐMatchType(ctx context.Context, v interface{}) (*v1alpha1.MatchType, error) {
 	if v == nil {
 		return nil, nil
 	}
-	tmp, err := graphql.UnmarshalString(v)
-	res := v1alpha1.MatchType(tmp)
-	return &res, graphql.ErrorOnPath(ctx, err)
+	var res = new(v1alpha1.MatchType)
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) marshalOMatchType2ᚖgithubᚗcomᚋpluralshᚋtraceᚑshieldᚑcontrollerᚋapiᚋobservabilityᚋv1alpha1ᚐMatchType(ctx context.Context, sel ast.SelectionSet, v *v1alpha1.MatchType) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
-	res := graphql.MarshalString(string(*v))
-	return res
+	return v
 }
 
 func (ec *executionContext) marshalOMimirLimits2ᚖgithubᚗcomᚋpluralshᚋtraceᚑshieldᚑcontrollerᚋapiᚋobservabilityᚋv1alpha1ᚐMimirLimits(ctx context.Context, sel ast.SelectionSet, v *v1alpha1.MimirLimits) graphql.Marshaler {
@@ -31550,7 +31421,7 @@ func (ec *executionContext) marshalONotifierBasicAuth2ᚖgithubᚗcomᚋpluralsh
 	return ec._NotifierBasicAuth(ctx, sel, v)
 }
 
-func (ec *executionContext) unmarshalONotifierBasicAuthInput2ᚖgithubᚗcomᚋpluralshᚋtraceᚑshieldᚋgraphᚋmodelᚐNotifierBasicAuthInput(ctx context.Context, v interface{}) (*model.NotifierBasicAuthInput, error) {
+func (ec *executionContext) unmarshalONotifierBasicAuthInput2ᚖgithubᚗcomᚋpluralshᚋtraceᚑshieldᚑcontrollerᚋapiᚋobservabilityᚋv1alpha1ᚐNotifierBasicAuth(ctx context.Context, v interface{}) (*v1alpha1.NotifierBasicAuth, error) {
 	if v == nil {
 		return nil, nil
 	}
@@ -31558,11 +31429,14 @@ func (ec *executionContext) unmarshalONotifierBasicAuthInput2ᚖgithubᚗcomᚋp
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalONotifierConfig2githubᚗcomᚋpluralshᚋtraceᚑshieldᚑcontrollerᚋapiᚋobservabilityᚋv1alpha1ᚐNotifierConfig(ctx context.Context, sel ast.SelectionSet, v v1alpha1.NotifierConfig) graphql.Marshaler {
-	return ec._NotifierConfig(ctx, sel, &v)
+func (ec *executionContext) marshalONotifierConfig2ᚖgithubᚗcomᚋpluralshᚋtraceᚑshieldᚑcontrollerᚋapiᚋobservabilityᚋv1alpha1ᚐNotifierConfig(ctx context.Context, sel ast.SelectionSet, v *v1alpha1.NotifierConfig) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._NotifierConfig(ctx, sel, v)
 }
 
-func (ec *executionContext) unmarshalONotifierConfigInput2ᚖgithubᚗcomᚋpluralshᚋtraceᚑshieldᚋgraphᚋmodelᚐNotifierConfigInput(ctx context.Context, v interface{}) (*model.NotifierConfigInput, error) {
+func (ec *executionContext) unmarshalONotifierConfigInput2ᚖgithubᚗcomᚋpluralshᚋtraceᚑshieldᚑcontrollerᚋapiᚋobservabilityᚋv1alpha1ᚐNotifierConfig(ctx context.Context, v interface{}) (*v1alpha1.NotifierConfig, error) {
 	if v == nil {
 		return nil, nil
 	}
@@ -31577,7 +31451,7 @@ func (ec *executionContext) marshalONotifierHeaderAuth2ᚖgithubᚗcomᚋplurals
 	return ec._NotifierHeaderAuth(ctx, sel, v)
 }
 
-func (ec *executionContext) unmarshalONotifierHeaderAuthInput2ᚖgithubᚗcomᚋpluralshᚋtraceᚑshieldᚋgraphᚋmodelᚐNotifierHeaderAuthInput(ctx context.Context, v interface{}) (*model.NotifierHeaderAuthInput, error) {
+func (ec *executionContext) unmarshalONotifierHeaderAuthInput2ᚖgithubᚗcomᚋpluralshᚋtraceᚑshieldᚑcontrollerᚋapiᚋobservabilityᚋv1alpha1ᚐNotifierHeaderAuth(ctx context.Context, v interface{}) (*v1alpha1.NotifierHeaderAuth, error) {
 	if v == nil {
 		return nil, nil
 	}
@@ -31592,7 +31466,7 @@ func (ec *executionContext) marshalONotifierTLSClientConfig2ᚖgithubᚗcomᚋpl
 	return ec._NotifierTLSClientConfig(ctx, sel, v)
 }
 
-func (ec *executionContext) unmarshalONotifierTLSClientConfigInput2ᚖgithubᚗcomᚋpluralshᚋtraceᚑshieldᚋgraphᚋmodelᚐNotifierTLSClientConfigInput(ctx context.Context, v interface{}) (*model.NotifierTLSClientConfigInput, error) {
+func (ec *executionContext) unmarshalONotifierTLSClientConfigInput2ᚖgithubᚗcomᚋpluralshᚋtraceᚑshieldᚑcontrollerᚋapiᚋobservabilityᚋv1alpha1ᚐNotifierTLSClientConfig(ctx context.Context, v interface{}) (*v1alpha1.NotifierTLSClientConfig, error) {
 	if v == nil {
 		return nil, nil
 	}
@@ -31732,7 +31606,7 @@ func (ec *executionContext) marshalOPolicyMatch2ᚖgithubᚗcomᚋpluralshᚋtra
 	return ec._PolicyMatch(ctx, sel, v)
 }
 
-func (ec *executionContext) unmarshalOPolicyMatchInput2ᚖgithubᚗcomᚋpluralshᚋtraceᚑshieldᚋgraphᚋmodelᚐPolicyMatchInput(ctx context.Context, v interface{}) (*model.PolicyMatchInput, error) {
+func (ec *executionContext) unmarshalOPolicyMatchInput2ᚖgithubᚗcomᚋpluralshᚋtraceᚑshieldᚑcontrollerᚋapiᚋobservabilityᚋv1alpha1ᚐPolicyMatch(ctx context.Context, v interface{}) (*v1alpha1.PolicyMatch, error) {
 	if v == nil {
 		return nil, nil
 	}
@@ -31740,16 +31614,16 @@ func (ec *executionContext) unmarshalOPolicyMatchInput2ᚖgithubᚗcomᚋplurals
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) unmarshalORelabelAction2ᚖgithubᚗcomᚋpluralshᚋtraceᚑshieldᚋgraphᚋmodelᚐRelabelAction(ctx context.Context, v interface{}) (*model.RelabelAction, error) {
+func (ec *executionContext) unmarshalORelabelAction2ᚖgithubᚗcomᚋpluralshᚋtraceᚑshieldᚑcontrollerᚋapiᚋobservabilityᚋv1alpha1ᚐRelabelAction(ctx context.Context, v interface{}) (*v1alpha1.RelabelAction, error) {
 	if v == nil {
 		return nil, nil
 	}
-	var res = new(model.RelabelAction)
+	var res = new(v1alpha1.RelabelAction)
 	err := res.UnmarshalGQL(v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalORelabelAction2ᚖgithubᚗcomᚋpluralshᚋtraceᚑshieldᚋgraphᚋmodelᚐRelabelAction(ctx context.Context, sel ast.SelectionSet, v *model.RelabelAction) graphql.Marshaler {
+func (ec *executionContext) marshalORelabelAction2ᚖgithubᚗcomᚋpluralshᚋtraceᚑshieldᚑcontrollerᚋapiᚋobservabilityᚋv1alpha1ᚐRelabelAction(ctx context.Context, sel ast.SelectionSet, v *v1alpha1.RelabelAction) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
@@ -31803,54 +31677,7 @@ func (ec *executionContext) marshalORelabelConfig2ᚕgithubᚗcomᚋpluralshᚋt
 	return ret
 }
 
-func (ec *executionContext) marshalORelabelConfig2ᚕᚖgithubᚗcomᚋpluralshᚋtraceᚑshieldᚑcontrollerᚋapiᚋobservabilityᚋv1alpha1ᚐRelabelConfigᚄ(ctx context.Context, sel ast.SelectionSet, v []*v1alpha1.RelabelConfig) graphql.Marshaler {
-	if v == nil {
-		return graphql.Null
-	}
-	ret := make(graphql.Array, len(v))
-	var wg sync.WaitGroup
-	isLen1 := len(v) == 1
-	if !isLen1 {
-		wg.Add(len(v))
-	}
-	for i := range v {
-		i := i
-		fc := &graphql.FieldContext{
-			Index:  &i,
-			Result: &v[i],
-		}
-		ctx := graphql.WithFieldContext(ctx, fc)
-		f := func(i int) {
-			defer func() {
-				if r := recover(); r != nil {
-					ec.Error(ctx, ec.Recover(ctx, r))
-					ret = nil
-				}
-			}()
-			if !isLen1 {
-				defer wg.Done()
-			}
-			ret[i] = ec.marshalNRelabelConfig2ᚖgithubᚗcomᚋpluralshᚋtraceᚑshieldᚑcontrollerᚋapiᚋobservabilityᚋv1alpha1ᚐRelabelConfig(ctx, sel, v[i])
-		}
-		if isLen1 {
-			f(i)
-		} else {
-			go f(i)
-		}
-
-	}
-	wg.Wait()
-
-	for _, e := range ret {
-		if e == graphql.Null {
-			return graphql.Null
-		}
-	}
-
-	return ret
-}
-
-func (ec *executionContext) unmarshalORelabelConfigInput2ᚕᚖgithubᚗcomᚋpluralshᚋtraceᚑshieldᚋgraphᚋmodelᚐRelabelConfigInputᚄ(ctx context.Context, v interface{}) ([]*model.RelabelConfigInput, error) {
+func (ec *executionContext) unmarshalORelabelConfigInput2ᚕgithubᚗcomᚋpluralshᚋtraceᚑshieldᚑcontrollerᚋapiᚋobservabilityᚋv1alpha1ᚐRelabelConfigᚄ(ctx context.Context, v interface{}) ([]v1alpha1.RelabelConfig, error) {
 	if v == nil {
 		return nil, nil
 	}
@@ -31859,10 +31686,10 @@ func (ec *executionContext) unmarshalORelabelConfigInput2ᚕᚖgithubᚗcomᚋpl
 		vSlice = graphql.CoerceList(v)
 	}
 	var err error
-	res := make([]*model.RelabelConfigInput, len(vSlice))
+	res := make([]v1alpha1.RelabelConfig, len(vSlice))
 	for i := range vSlice {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
-		res[i], err = ec.unmarshalNRelabelConfigInput2ᚖgithubᚗcomᚋpluralshᚋtraceᚑshieldᚋgraphᚋmodelᚐRelabelConfigInput(ctx, vSlice[i])
+		res[i], err = ec.unmarshalNRelabelConfigInput2githubᚗcomᚋpluralshᚋtraceᚑshieldᚑcontrollerᚋapiᚋobservabilityᚋv1alpha1ᚐRelabelConfig(ctx, vSlice[i])
 		if err != nil {
 			return nil, err
 		}
@@ -31877,7 +31704,7 @@ func (ec *executionContext) marshalORulerAlertManagerConfig2ᚖgithubᚗcomᚋpl
 	return ec._RulerAlertManagerConfig(ctx, sel, v)
 }
 
-func (ec *executionContext) unmarshalORulerAlertManagerConfigInput2ᚖgithubᚗcomᚋpluralshᚋtraceᚑshieldᚋgraphᚋmodelᚐRulerAlertManagerConfigInput(ctx context.Context, v interface{}) (*model.RulerAlertManagerConfigInput, error) {
+func (ec *executionContext) unmarshalORulerAlertManagerConfigInput2ᚖgithubᚗcomᚋpluralshᚋtraceᚑshieldᚑcontrollerᚋapiᚋobservabilityᚋv1alpha1ᚐRulerAlertManagerConfig(ctx context.Context, v interface{}) (*v1alpha1.RulerAlertManagerConfig, error) {
 	if v == nil {
 		return nil, nil
 	}
@@ -31892,7 +31719,7 @@ func (ec *executionContext) marshalOShardstreamsConfig2ᚖgithubᚗcomᚋplurals
 	return ec._ShardstreamsConfig(ctx, sel, v)
 }
 
-func (ec *executionContext) unmarshalOShardstreamsConfigInput2ᚖgithubᚗcomᚋpluralshᚋtraceᚑshieldᚋgraphᚋmodelᚐShardstreamsConfigInput(ctx context.Context, v interface{}) (*model.ShardstreamsConfigInput, error) {
+func (ec *executionContext) unmarshalOShardstreamsConfigInput2ᚖgithubᚗcomᚋpluralshᚋtraceᚑshieldᚑcontrollerᚋapiᚋobservabilityᚋv1alpha1ᚐShardstreamsConfig(ctx context.Context, v interface{}) (*v1alpha1.ShardstreamsConfig, error) {
 	if v == nil {
 		return nil, nil
 	}
@@ -31947,7 +31774,7 @@ func (ec *executionContext) marshalOStreamRetention2ᚕgithubᚗcomᚋpluralsh�
 	return ret
 }
 
-func (ec *executionContext) unmarshalOStreamRetentionInput2ᚕᚖgithubᚗcomᚋpluralshᚋtraceᚑshieldᚋgraphᚋmodelᚐStreamRetentionInputᚄ(ctx context.Context, v interface{}) ([]*model.StreamRetentionInput, error) {
+func (ec *executionContext) unmarshalOStreamRetentionInput2ᚕgithubᚗcomᚋpluralshᚋtraceᚑshieldᚑcontrollerᚋapiᚋobservabilityᚋv1alpha1ᚐStreamRetentionᚄ(ctx context.Context, v interface{}) ([]v1alpha1.StreamRetention, error) {
 	if v == nil {
 		return nil, nil
 	}
@@ -31956,25 +31783,15 @@ func (ec *executionContext) unmarshalOStreamRetentionInput2ᚕᚖgithubᚗcomᚋ
 		vSlice = graphql.CoerceList(v)
 	}
 	var err error
-	res := make([]*model.StreamRetentionInput, len(vSlice))
+	res := make([]v1alpha1.StreamRetention, len(vSlice))
 	for i := range vSlice {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
-		res[i], err = ec.unmarshalNStreamRetentionInput2ᚖgithubᚗcomᚋpluralshᚋtraceᚑshieldᚋgraphᚋmodelᚐStreamRetentionInput(ctx, vSlice[i])
+		res[i], err = ec.unmarshalNStreamRetentionInput2githubᚗcomᚋpluralshᚋtraceᚑshieldᚑcontrollerᚋapiᚋobservabilityᚋv1alpha1ᚐStreamRetention(ctx, vSlice[i])
 		if err != nil {
 			return nil, err
 		}
 	}
 	return res, nil
-}
-
-func (ec *executionContext) unmarshalOString2string(ctx context.Context, v interface{}) (string, error) {
-	res, err := graphql.UnmarshalString(v)
-	return res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) marshalOString2string(ctx context.Context, sel ast.SelectionSet, v string) graphql.Marshaler {
-	res := graphql.MarshalString(v)
-	return res
 }
 
 func (ec *executionContext) unmarshalOString2ᚕstringᚄ(ctx context.Context, v interface{}) ([]string, error) {
@@ -32004,76 +31821,6 @@ func (ec *executionContext) marshalOString2ᚕstringᚄ(ctx context.Context, sel
 	ret := make(graphql.Array, len(v))
 	for i := range v {
 		ret[i] = ec.marshalNString2string(ctx, sel, v[i])
-	}
-
-	for _, e := range ret {
-		if e == graphql.Null {
-			return graphql.Null
-		}
-	}
-
-	return ret
-}
-
-func (ec *executionContext) unmarshalOString2ᚕᚖstring(ctx context.Context, v interface{}) ([]*string, error) {
-	if v == nil {
-		return nil, nil
-	}
-	var vSlice []interface{}
-	if v != nil {
-		vSlice = graphql.CoerceList(v)
-	}
-	var err error
-	res := make([]*string, len(vSlice))
-	for i := range vSlice {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
-		res[i], err = ec.unmarshalOString2ᚖstring(ctx, vSlice[i])
-		if err != nil {
-			return nil, err
-		}
-	}
-	return res, nil
-}
-
-func (ec *executionContext) marshalOString2ᚕᚖstring(ctx context.Context, sel ast.SelectionSet, v []*string) graphql.Marshaler {
-	if v == nil {
-		return graphql.Null
-	}
-	ret := make(graphql.Array, len(v))
-	for i := range v {
-		ret[i] = ec.marshalOString2ᚖstring(ctx, sel, v[i])
-	}
-
-	return ret
-}
-
-func (ec *executionContext) unmarshalOString2ᚕᚖstringᚄ(ctx context.Context, v interface{}) ([]*string, error) {
-	if v == nil {
-		return nil, nil
-	}
-	var vSlice []interface{}
-	if v != nil {
-		vSlice = graphql.CoerceList(v)
-	}
-	var err error
-	res := make([]*string, len(vSlice))
-	for i := range vSlice {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
-		res[i], err = ec.unmarshalNString2ᚖstring(ctx, vSlice[i])
-		if err != nil {
-			return nil, err
-		}
-	}
-	return res, nil
-}
-
-func (ec *executionContext) marshalOString2ᚕᚖstringᚄ(ctx context.Context, sel ast.SelectionSet, v []*string) graphql.Marshaler {
-	if v == nil {
-		return graphql.Null
-	}
-	ret := make(graphql.Array, len(v))
-	for i := range v {
-		ret[i] = ec.marshalNString2ᚖstring(ctx, sel, v[i])
 	}
 
 	for _, e := range ret {

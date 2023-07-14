@@ -2,13 +2,10 @@
 run:
 	go run server.go -zap-devel -zap-log-level 2
 
-generate:
-	go run github.com/99designs/gqlgen generate
+generate: go-generate generate-typescript-client
 
-generate-clients: generate-go-client generate-typescript-client
-
-generate-go-client:
-	go run github.com/Yamashou/gqlgenc
+go-generate:
+	go generate ./...
 
 generate-typescript-client:
 	cd frontend && yarn graphql-codegen

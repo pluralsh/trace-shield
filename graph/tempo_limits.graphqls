@@ -54,7 +54,7 @@ enum MatchType {
 }
 
 type MatchPolicyAttribute {
-  key: String
+  key: String!
   value: Map
 }
 
@@ -113,7 +113,7 @@ input PolicyMatchInput {
 }
 
 input MatchPolicyAttributeInput {
-  key: String
+  key: String!
   value: Map
 }
 

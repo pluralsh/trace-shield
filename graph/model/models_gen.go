@@ -3,13 +3,9 @@
 package model
 
 import (
-	"fmt"
-	"io"
-	"strconv"
 	"time"
 
 	"github.com/pluralsh/trace-shield-controller/api/observability/v1alpha1"
-	"k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
 type AcceptOAuth2ConsentRequestSession struct {
@@ -17,24 +13,6 @@ type AcceptOAuth2ConsentRequestSession struct {
 	AccessToken map[string]interface{} `json:"accessToken,omitempty"`
 	// IDToken sets session data for the OpenID Connect ID token. Keep in mind that the session'id payloads are readable by anyone that has access to the ID Challenge. Use with care!
 	IDToken map[string]interface{} `json:"idToken,omitempty"`
-}
-
-type BlockedQueryInput struct {
-	Pattern *string            `json:"pattern,omitempty"`
-	Regex   *bool              `json:"regex,omitempty"`
-	Hash    *uint64            `json:"hash,omitempty"`
-	Types   []BlockedQueryType `json:"types,omitempty"`
-}
-
-type DimensionMappingsInput struct {
-	Name        *string  `json:"name,omitempty"`
-	SourceLabel []string `json:"sourceLabel,omitempty"`
-	Join        *string  `json:"join,omitempty"`
-}
-
-type FilterPolicyInput struct {
-	Include *PolicyMatchInput `json:"include,omitempty"`
-	Exclude *PolicyMatchInput `json:"exclude,omitempty"`
 }
 
 // Representation a group of users.
@@ -66,11 +44,6 @@ type LoginBindingsInput struct {
 	Groups []*GroupInput `json:"groups,omitempty"`
 }
 
-type MatchPolicyAttributeInput struct {
-	Key   *string                `json:"key,omitempty"`
-	Value map[string]interface{} `json:"value,omitempty"`
-}
-
 // The first and last name of a user.
 type Name struct {
 	// The user's first name.
@@ -84,33 +57,6 @@ type NameInput struct {
 	First *string `json:"first,omitempty"`
 	// The user's last name.
 	Last *string `json:"last,omitempty"`
-}
-
-type NotifierBasicAuthInput struct {
-	Username *string `json:"username,omitempty"`
-	Password *string `json:"password,omitempty"`
-}
-
-type NotifierConfigInput struct {
-	BasicAuth  *NotifierBasicAuthInput       `json:"basicAuth,omitempty"`
-	HeaderAuth *NotifierHeaderAuthInput      `json:"headerAuth,omitempty"`
-	TLS        *NotifierTLSClientConfigInput `json:"tls,omitempty"`
-}
-
-type NotifierHeaderAuthInput struct {
-	Type            *string `json:"type,omitempty"`
-	Credentials     *string `json:"credentials,omitempty"`
-	CredentialsFile *string `json:"credentialsFile,omitempty"`
-}
-
-type NotifierTLSClientConfigInput struct {
-	CertPath           *string `json:"certPath,omitempty"`
-	KeyPath            *string `json:"keyPath,omitempty"`
-	CaPath             *string `json:"caPath,omitempty"`
-	ServerName         *string `json:"serverName,omitempty"`
-	InsecureSkipVerify *bool   `json:"insecureSkipVerify,omitempty"`
-	CipherSuites       *string `json:"cipherSuites,omitempty"`
-	MinVersion         *string `json:"minVersion,omitempty"`
 }
 
 // Representation of the information about an OAuth2 Client sourced from Hydra.
@@ -364,44 +310,6 @@ type Organization struct {
 	Admins []*User `json:"admins,omitempty"`
 }
 
-type PolicyMatchInput struct {
-	MatchType  *v1alpha1.MatchType          `json:"matchType,omitempty"`
-	Attributes []*MatchPolicyAttributeInput `json:"attributes,omitempty"`
-}
-
-type RelabelConfigInput struct {
-	SourceLabels []*string      `json:"sourceLabels,omitempty"`
-	Separator    *string        `json:"separator,omitempty"`
-	Regex        *string        `json:"regex,omitempty"`
-	Modulus      *uint64        `json:"modulus,omitempty"`
-	TargetLabel  *string        `json:"targetLabel,omitempty"`
-	Replacement  *string        `json:"replacement,omitempty"`
-	Action       *RelabelAction `json:"action,omitempty"`
-}
-
-type RulerAlertManagerConfigInput struct {
-	AlertmanagerURL             string                `json:"alertmanagerURL"`
-	AlertmanagerDiscovery       *bool                 `json:"alertmanagerDiscovery,omitempty"`
-	AlertmanagerRefreshInterval *v1.Duration          `json:"alertmanagerRefreshInterval,omitempty"`
-	AlertmanangerEnableV2api    *bool                 `json:"alertmanangerEnableV2API,omitempty"`
-	AlertRelabelConfigs         []*RelabelConfigInput `json:"alertRelabelConfigs,omitempty"`
-	NotificationQueueCapacity   *int64                `json:"notificationQueueCapacity,omitempty"`
-	NotificationTimeout         *v1.Duration          `json:"notificationTimeout,omitempty"`
-	Notifier                    *NotifierConfigInput  `json:"notifier,omitempty"`
-}
-
-type ShardstreamsConfigInput struct {
-	Enabled        *bool   `json:"enabled,omitempty"`
-	LoggingEnabled *bool   `json:"loggingEnabled,omitempty"`
-	DesiredRate    *uint64 `json:"desiredRate,omitempty"`
-}
-
-type StreamRetentionInput struct {
-	Period   *v1.Duration `json:"period,omitempty"`
-	Priority *int64       `json:"priority,omitempty"`
-	Selector *string      `json:"selector,omitempty"`
-}
-
 // Representation of the information about a user sourced from Kratos.
 type User struct {
 	// The unique ID of the user.
@@ -422,128 +330,4 @@ type UserInput struct {
 	ID *string `json:"id,omitempty"`
 	// The user's email address.
 	Email *string `json:"email,omitempty"`
-}
-
-type BlockedQueryType string
-
-const (
-	BlockedQueryTypeMetric  BlockedQueryType = "metric"
-	BlockedQueryTypeFilter  BlockedQueryType = "filter"
-	BlockedQueryTypeLimited BlockedQueryType = "limited"
-)
-
-var AllBlockedQueryType = []BlockedQueryType{
-	BlockedQueryTypeMetric,
-	BlockedQueryTypeFilter,
-	BlockedQueryTypeLimited,
-}
-
-func (e BlockedQueryType) IsValid() bool {
-	switch e {
-	case BlockedQueryTypeMetric, BlockedQueryTypeFilter, BlockedQueryTypeLimited:
-		return true
-	}
-	return false
-}
-
-func (e BlockedQueryType) String() string {
-	return string(e)
-}
-
-func (e *BlockedQueryType) UnmarshalGQL(v interface{}) error {
-	str, ok := v.(string)
-	if !ok {
-		return fmt.Errorf("enums must be strings")
-	}
-
-	*e = BlockedQueryType(str)
-	if !e.IsValid() {
-		return fmt.Errorf("%s is not a valid BlockedQueryType", str)
-	}
-	return nil
-}
-
-func (e BlockedQueryType) MarshalGQL(w io.Writer) {
-	fmt.Fprint(w, strconv.Quote(e.String()))
-}
-
-type RelabelAction string
-
-const (
-	RelabelActionReplace    RelabelAction = "replace"
-	RelabelActionReplace0   RelabelAction = "Replace"
-	RelabelActionKeep       RelabelAction = "keep"
-	RelabelActionKeep0      RelabelAction = "Keep"
-	RelabelActionDrop       RelabelAction = "drop"
-	RelabelActionDrop0      RelabelAction = "Drop"
-	RelabelActionHashmod    RelabelAction = "hashmod"
-	RelabelActionHashMod    RelabelAction = "HashMod"
-	RelabelActionLabelmap   RelabelAction = "labelmap"
-	RelabelActionLabelMap   RelabelAction = "LabelMap"
-	RelabelActionLabeldrop  RelabelAction = "labeldrop"
-	RelabelActionLabelDrop  RelabelAction = "LabelDrop"
-	RelabelActionLabelkeep  RelabelAction = "labelkeep"
-	RelabelActionLabelKeep  RelabelAction = "LabelKeep"
-	RelabelActionLowercase  RelabelAction = "lowercase"
-	RelabelActionLowercase0 RelabelAction = "Lowercase"
-	RelabelActionUppercase  RelabelAction = "uppercase"
-	RelabelActionUppercase0 RelabelAction = "Uppercase"
-	RelabelActionKeepequal  RelabelAction = "keepequal"
-	RelabelActionKeepEqual  RelabelAction = "KeepEqual"
-	RelabelActionDropequal  RelabelAction = "dropequal"
-	RelabelActionDropEqual  RelabelAction = "DropEqual"
-)
-
-var AllRelabelAction = []RelabelAction{
-	RelabelActionReplace,
-	RelabelActionReplace0,
-	RelabelActionKeep,
-	RelabelActionKeep0,
-	RelabelActionDrop,
-	RelabelActionDrop0,
-	RelabelActionHashmod,
-	RelabelActionHashMod,
-	RelabelActionLabelmap,
-	RelabelActionLabelMap,
-	RelabelActionLabeldrop,
-	RelabelActionLabelDrop,
-	RelabelActionLabelkeep,
-	RelabelActionLabelKeep,
-	RelabelActionLowercase,
-	RelabelActionLowercase0,
-	RelabelActionUppercase,
-	RelabelActionUppercase0,
-	RelabelActionKeepequal,
-	RelabelActionKeepEqual,
-	RelabelActionDropequal,
-	RelabelActionDropEqual,
-}
-
-func (e RelabelAction) IsValid() bool {
-	switch e {
-	case RelabelActionReplace, RelabelActionReplace0, RelabelActionKeep, RelabelActionKeep0, RelabelActionDrop, RelabelActionDrop0, RelabelActionHashmod, RelabelActionHashMod, RelabelActionLabelmap, RelabelActionLabelMap, RelabelActionLabeldrop, RelabelActionLabelDrop, RelabelActionLabelkeep, RelabelActionLabelKeep, RelabelActionLowercase, RelabelActionLowercase0, RelabelActionUppercase, RelabelActionUppercase0, RelabelActionKeepequal, RelabelActionKeepEqual, RelabelActionDropequal, RelabelActionDropEqual:
-		return true
-	}
-	return false
-}
-
-func (e RelabelAction) String() string {
-	return string(e)
-}
-
-func (e *RelabelAction) UnmarshalGQL(v interface{}) error {
-	str, ok := v.(string)
-	if !ok {
-		return fmt.Errorf("enums must be strings")
-	}
-
-	*e = RelabelAction(str)
-	if !e.IsValid() {
-		return fmt.Errorf("%s is not a valid RelabelAction", str)
-	}
-	return nil
-}
-
-func (e RelabelAction) MarshalGQL(w io.Writer) {
-	fmt.Fprint(w, strconv.Quote(e.String()))
 }

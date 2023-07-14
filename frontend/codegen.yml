@@ -24,7 +24,10 @@ config:
     FloatMap: Map<string, number>
     Time: string
     Duration: string
-    ForwardingRuleMap: Map<string, ForwardingRule>
+    BoolMap: Map<string, boolean>
+    LabelName: string
+    StringMap: Map<string, string>
+    UInt: number
     # Yaml: unknown
 # hooks:
 #   afterAllFileWrite:

@@ -1,6 +1,8 @@
 scalar UInt
+scalar LabelName
+
 type RelabelConfig {
-  sourceLabels: [String]
+  sourceLabels: [LabelName!]
   separator: String
   regex: String
   modulus: UInt
@@ -8,6 +10,7 @@ type RelabelConfig {
   replacement: String
   action: RelabelAction
 }
+
 enum RelabelAction {
   replace
   Replace
@@ -32,8 +35,9 @@ enum RelabelAction {
   dropequal
   DropEqual
 }
+
 input RelabelConfigInput {
-  sourceLabels: [String]
+  sourceLabels: [LabelName!]
   separator: String
   regex: String
   modulus: UInt

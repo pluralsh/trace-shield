@@ -82,6 +82,49 @@ models:
     model:
       - github.com/pluralsh/trace-shield/graph/custom.UInt64
       - github.com/pluralsh/trace-shield/graph/custom.UInt32
+  Map:
+    model:
+      - github.com/99designs/gqlgen/graphql.Map
+      - github.com/pluralsh/trace-shield-controller/api/observability/v1alpha1.WrappedMap
+  RelabelConfigInput:
+    model:
+      - github.com/pluralsh/trace-shield-controller/api/observability/v1alpha1.RelabelConfig
+  BlockedQueryInput:
+    model:
+      - github.com/pluralsh/trace-shield-controller/api/observability/v1alpha1.BlockedQuery
+  FilterPolicyInput:
+    model:
+      - github.com/pluralsh/trace-shield-controller/api/observability/v1alpha1.FilterPolicy
+  PolicyMatchInput:
+    model:
+      - github.com/pluralsh/trace-shield-controller/api/observability/v1alpha1.PolicyMatch
+  RulerAlertManagerConfigInput:
+    model:
+      - github.com/pluralsh/trace-shield-controller/api/observability/v1alpha1.RulerAlertManagerConfig
+  NotifierConfigInput:
+    model:
+      - github.com/pluralsh/trace-shield-controller/api/observability/v1alpha1.NotifierConfig
+  NotifierTLSClientConfigInput:
+    model:
+      - github.com/pluralsh/trace-shield-controller/api/observability/v1alpha1.NotifierTLSClientConfig
+  NotifierHeaderAuthInput:
+    model:
+      - github.com/pluralsh/trace-shield-controller/api/observability/v1alpha1.NotifierHeaderAuth
+  NotifierBasicAuthInput:
+    model:
+      - github.com/pluralsh/trace-shield-controller/api/observability/v1alpha1.NotifierBasicAuth
+  StreamRetentionInput:
+    model:
+      - github.com/pluralsh/trace-shield-controller/api/observability/v1alpha1.StreamRetention
+  DimensionMappingsInput:
+    model:
+      - github.com/pluralsh/trace-shield-controller/api/observability/v1alpha1.DimensionMappings
+  ShardstreamsConfigInput:
+    model:
+      - github.com/pluralsh/trace-shield-controller/api/observability/v1alpha1.ShardstreamsConfig
+  MatchPolicyAttributeInput:
+    model:
+      - github.com/pluralsh/trace-shield-controller/api/observability/v1alpha1.MatchPolicyAttribute
   User:
     fields:
       groups:

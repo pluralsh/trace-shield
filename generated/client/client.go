@@ -8,18 +8,20 @@ import (
 	"time"
 
 	"github.com/Yamashou/gqlgenc/clientv2"
+	"github.com/pluralsh/trace-shield-controller/api/observability/v1alpha1"
+	"github.com/pluralsh/trace-shield/graph/model"
 	"k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
 type TraceShieldGraphQLClient interface {
 	ListGroups(ctx context.Context, interceptors ...clientv2.RequestInterceptor) (*ListGroups, error)
-	UpdateGroup(ctx context.Context, name string, members []*UserInput, interceptors ...clientv2.RequestInterceptor) (*UpdateGroup, error)
+	UpdateGroup(ctx context.Context, name string, members []*model.UserInput, interceptors ...clientv2.RequestInterceptor) (*UpdateGroup, error)
 	DeleteGroup(ctx context.Context, name string, interceptors ...clientv2.RequestInterceptor) (*DeleteGroup, error)
 	ListOAuth2Clients(ctx context.Context, interceptors ...clientv2.RequestInterceptor) (*ListOAuth2Clients, error)
 	GetOAuth2Client(ctx context.Context, clientID string, interceptors ...clientv2.RequestInterceptor) (*GetOAuth2Client, error)
 	DeleteOAuth2Client(ctx context.Context, clientID string, interceptors ...clientv2.RequestInterceptor) (*DeleteOAuth2Client, error)
-	UpdateOAuth2Client(ctx context.Context, allowedCorsOrigins []string, audience []string, authorizationCodeGrantAccessTokenLifespan *string, authorizationCodeGrantIDTokenLifespan *string, authorizationCodeGrantRefreshTokenLifespan *string, backChannelLogoutSessionRequired *bool, backChannelLogoutURI *string, clientCredentialsGrantAccessTokenLifespan *string, clientID string, clientName *string, clientSecret *string, clientSecretExpiresAt *int64, clientURI *string, contacts []string, frontchannelLogoutSessionRequired *bool, frontchannelLogoutURI *string, grantTypes []string, implicitGrantAccessTokenLifespan *string, implicitGrantIDTokenLifespan *string, jwks map[string]interface{}, jwksURI *string, jwtBearerGrantAccessTokenLifespan *string, logoURI *string, metadata map[string]interface{}, policyURI *string, postLogoutRedirectUris []string, redirectUris []string, responseTypes []string, scope *string, sectorIdentifierURI *string, subjectType *string, tokenEndpointAuthMethod *string, tokenEndpointAuthSigningAlgorithm *string, tosURI *string, userinfoSignedResponseAlgorithm *string, loginBindings *LoginBindingsInput, interceptors ...clientv2.RequestInterceptor) (*UpdateOAuth2Client, error)
-	CreateOAuth2Client(ctx context.Context, allowedCorsOrigins []string, audience []string, authorizationCodeGrantAccessTokenLifespan *string, authorizationCodeGrantIDTokenLifespan *string, authorizationCodeGrantRefreshTokenLifespan *string, backChannelLogoutSessionRequired *bool, backChannelLogoutURI *string, clientCredentialsGrantAccessTokenLifespan *string, clientName *string, clientSecret *string, clientSecretExpiresAt *int64, clientURI *string, contacts []string, frontchannelLogoutSessionRequired *bool, frontchannelLogoutURI *string, grantTypes []string, implicitGrantAccessTokenLifespan *string, implicitGrantIDTokenLifespan *string, jwks map[string]interface{}, jwksURI *string, jwtBearerGrantAccessTokenLifespan *string, logoURI *string, metadata map[string]interface{}, policyURI *string, postLogoutRedirectUris []string, redirectUris []string, responseTypes []string, scope *string, sectorIdentifierURI *string, subjectType *string, tokenEndpointAuthMethod *string, tokenEndpointAuthSigningAlgorithm *string, tosURI *string, userinfoSignedResponseAlgorithm *string, loginBindings *LoginBindingsInput, interceptors ...clientv2.RequestInterceptor) (*CreateOAuth2Client, error)
+	UpdateOAuth2Client(ctx context.Context, allowedCorsOrigins []string, audience []string, authorizationCodeGrantAccessTokenLifespan *string, authorizationCodeGrantIDTokenLifespan *string, authorizationCodeGrantRefreshTokenLifespan *string, backChannelLogoutSessionRequired *bool, backChannelLogoutURI *string, clientCredentialsGrantAccessTokenLifespan *string, clientID string, clientName *string, clientSecret *string, clientSecretExpiresAt *int64, clientURI *string, contacts []string, frontchannelLogoutSessionRequired *bool, frontchannelLogoutURI *string, grantTypes []string, implicitGrantAccessTokenLifespan *string, implicitGrantIDTokenLifespan *string, jwks map[string]interface{}, jwksURI *string, jwtBearerGrantAccessTokenLifespan *string, logoURI *string, metadata map[string]interface{}, policyURI *string, postLogoutRedirectUris []string, redirectUris []string, responseTypes []string, scope *string, sectorIdentifierURI *string, subjectType *string, tokenEndpointAuthMethod *string, tokenEndpointAuthSigningAlgorithm *string, tosURI *string, userinfoSignedResponseAlgorithm *string, loginBindings *model.LoginBindingsInput, interceptors ...clientv2.RequestInterceptor) (*UpdateOAuth2Client, error)
+	CreateOAuth2Client(ctx context.Context, allowedCorsOrigins []string, audience []string, authorizationCodeGrantAccessTokenLifespan *string, authorizationCodeGrantIDTokenLifespan *string, authorizationCodeGrantRefreshTokenLifespan *string, backChannelLogoutSessionRequired *bool, backChannelLogoutURI *string, clientCredentialsGrantAccessTokenLifespan *string, clientName *string, clientSecret *string, clientSecretExpiresAt *int64, clientURI *string, contacts []string, frontchannelLogoutSessionRequired *bool, frontchannelLogoutURI *string, grantTypes []string, implicitGrantAccessTokenLifespan *string, implicitGrantIDTokenLifespan *string, jwks map[string]interface{}, jwksURI *string, jwtBearerGrantAccessTokenLifespan *string, logoURI *string, metadata map[string]interface{}, policyURI *string, postLogoutRedirectUris []string, redirectUris []string, responseTypes []string, scope *string, sectorIdentifierURI *string, subjectType *string, tokenEndpointAuthMethod *string, tokenEndpointAuthSigningAlgorithm *string, tosURI *string, userinfoSignedResponseAlgorithm *string, loginBindings *model.LoginBindingsInput, interceptors ...clientv2.RequestInterceptor) (*CreateOAuth2Client, error)
 	GetOAuth2ConsentRequest(ctx context.Context, challenge string, interceptors ...clientv2.RequestInterceptor) (*GetOAuth2ConsentRequest, error)
 	AcceptOAuth2ConsentRequest(ctx context.Context, challenge string, grantScope []string, remember *bool, rememberFor *int64, interceptors ...clientv2.RequestInterceptor) (*AcceptOAuth2ConsentRequest, error)
 	RejectOAuth2ConsentRequest(ctx context.Context, challenge string, interceptors ...clientv2.RequestInterceptor) (*RejectOAuth2ConsentRequest, error)
@@ -28,12 +30,12 @@ type TraceShieldGraphQLClient interface {
 	RejectOAuth2LoginRequest(ctx context.Context, challenge string, interceptors ...clientv2.RequestInterceptor) (*RejectOAuth2LoginRequest, error)
 	ListObservabilityTenants(ctx context.Context, interceptors ...clientv2.RequestInterceptor) (*ListObservabilityTenants, error)
 	GetObservabilityTenant(ctx context.Context, id string, interceptors ...clientv2.RequestInterceptor) (*GetObservabilityTenant, error)
-	CreateObservabilityTenant(ctx context.Context, id string, name *string, admins *ObservabilityTenantPermissionBindingsInput, metricsReaders *ObservabilityTenantPermissionBindingsInput, metricsWriters *ObservabilityTenantPermissionBindingsInput, metricsRulesReaders *ObservabilityTenantPermissionBindingsInput, metricsRulesWriters *ObservabilityTenantPermissionBindingsInput, metricsRulesDeleters *ObservabilityTenantPermissionBindingsInput, metricsAlertsReaders *ObservabilityTenantPermissionBindingsInput, metricsAlertsWriters *ObservabilityTenantPermissionBindingsInput, logsReaders *ObservabilityTenantPermissionBindingsInput, logsWriters *ObservabilityTenantPermissionBindingsInput, logsRulesReaders *ObservabilityTenantPermissionBindingsInput, logsRulesWriters *ObservabilityTenantPermissionBindingsInput, logsRulesDeleters *ObservabilityTenantPermissionBindingsInput, tracesReaders *ObservabilityTenantPermissionBindingsInput, tracesWriters *ObservabilityTenantPermissionBindingsInput, limits *ObservabilityTenantLimitsInput, interceptors ...clientv2.RequestInterceptor) (*CreateObservabilityTenant, error)
-	UpdateObservabilityTenant(ctx context.Context, id string, name *string, admins *ObservabilityTenantPermissionBindingsInput, metricsReaders *ObservabilityTenantPermissionBindingsInput, metricsWriters *ObservabilityTenantPermissionBindingsInput, metricsRulesReaders *ObservabilityTenantPermissionBindingsInput, metricsRulesWriters *ObservabilityTenantPermissionBindingsInput, metricsRulesDeleters *ObservabilityTenantPermissionBindingsInput, metricsAlertsReaders *ObservabilityTenantPermissionBindingsInput, metricsAlertsWriters *ObservabilityTenantPermissionBindingsInput, logsReaders *ObservabilityTenantPermissionBindingsInput, logsWriters *ObservabilityTenantPermissionBindingsInput, logsRulesReaders *ObservabilityTenantPermissionBindingsInput, logsRulesWriters *ObservabilityTenantPermissionBindingsInput, logsRulesDeleters *ObservabilityTenantPermissionBindingsInput, tracesReaders *ObservabilityTenantPermissionBindingsInput, tracesWriters *ObservabilityTenantPermissionBindingsInput, limits *ObservabilityTenantLimitsInput, interceptors ...clientv2.RequestInterceptor) (*UpdateObservabilityTenant, error)
+	CreateObservabilityTenant(ctx context.Context, id string, name *string, admins *model.ObservabilityTenantPermissionBindingsInput, metricsReaders *model.ObservabilityTenantPermissionBindingsInput, metricsWriters *model.ObservabilityTenantPermissionBindingsInput, metricsRulesReaders *model.ObservabilityTenantPermissionBindingsInput, metricsRulesWriters *model.ObservabilityTenantPermissionBindingsInput, metricsRulesDeleters *model.ObservabilityTenantPermissionBindingsInput, metricsAlertsReaders *model.ObservabilityTenantPermissionBindingsInput, metricsAlertsWriters *model.ObservabilityTenantPermissionBindingsInput, logsReaders *model.ObservabilityTenantPermissionBindingsInput, logsWriters *model.ObservabilityTenantPermissionBindingsInput, logsRulesReaders *model.ObservabilityTenantPermissionBindingsInput, logsRulesWriters *model.ObservabilityTenantPermissionBindingsInput, logsRulesDeleters *model.ObservabilityTenantPermissionBindingsInput, tracesReaders *model.ObservabilityTenantPermissionBindingsInput, tracesWriters *model.ObservabilityTenantPermissionBindingsInput, limits *model.ObservabilityTenantLimitsInput, interceptors ...clientv2.RequestInterceptor) (*CreateObservabilityTenant, error)
+	UpdateObservabilityTenant(ctx context.Context, id string, name *string, admins *model.ObservabilityTenantPermissionBindingsInput, metricsReaders *model.ObservabilityTenantPermissionBindingsInput, metricsWriters *model.ObservabilityTenantPermissionBindingsInput, metricsRulesReaders *model.ObservabilityTenantPermissionBindingsInput, metricsRulesWriters *model.ObservabilityTenantPermissionBindingsInput, metricsRulesDeleters *model.ObservabilityTenantPermissionBindingsInput, metricsAlertsReaders *model.ObservabilityTenantPermissionBindingsInput, metricsAlertsWriters *model.ObservabilityTenantPermissionBindingsInput, logsReaders *model.ObservabilityTenantPermissionBindingsInput, logsWriters *model.ObservabilityTenantPermissionBindingsInput, logsRulesReaders *model.ObservabilityTenantPermissionBindingsInput, logsRulesWriters *model.ObservabilityTenantPermissionBindingsInput, logsRulesDeleters *model.ObservabilityTenantPermissionBindingsInput, tracesReaders *model.ObservabilityTenantPermissionBindingsInput, tracesWriters *model.ObservabilityTenantPermissionBindingsInput, limits *model.ObservabilityTenantLimitsInput, interceptors ...clientv2.RequestInterceptor) (*UpdateObservabilityTenant, error)
 	DeleteObservabilityTenant(ctx context.Context, id string, interceptors ...clientv2.RequestInterceptor) (*DeleteObservabilityTenant, error)
 	ListUsers(ctx context.Context, interceptors ...clientv2.RequestInterceptor) (*ListUsers, error)
 	GetUser(ctx context.Context, id string, interceptors ...clientv2.RequestInterceptor) (*GetUser, error)
-	CreateUser(ctx context.Context, email string, name *NameInput, interceptors ...clientv2.RequestInterceptor) (*CreateUser, error)
+	CreateUser(ctx context.Context, email string, name *model.NameInput, interceptors ...clientv2.RequestInterceptor) (*CreateUser, error)
 	DeleteUser(ctx context.Context, id string, interceptors ...clientv2.RequestInterceptor) (*DeleteUser, error)
 }
 
@@ -46,33 +48,33 @@ func NewClient(cli *http.Client, baseURL string, options *clientv2.Options, inte
 }
 
 type Query struct {
-	ListUsers                []*User                "json:\"listUsers\" graphql:\"listUsers\""
-	GetUser                  User                   "json:\"getUser\" graphql:\"getUser\""
-	ListGroups               []*Group               "json:\"listGroups,omitempty\" graphql:\"listGroups\""
-	ListOAuth2Clients        []*OAuth2Client        "json:\"listOAuth2Clients\" graphql:\"listOAuth2Clients\""
-	GetOAuth2Client          *OAuth2Client          "json:\"getOAuth2Client,omitempty\" graphql:\"getOAuth2Client\""
-	Oauth2ConsentRequest     *OAuth2ConsentRequest  "json:\"oauth2ConsentRequest,omitempty\" graphql:\"oauth2ConsentRequest\""
-	Oauth2LoginRequest       *OAuth2LoginRequest    "json:\"oauth2LoginRequest,omitempty\" graphql:\"oauth2LoginRequest\""
-	ListObservabilityTenants []*ObservabilityTenant "json:\"listObservabilityTenants\" graphql:\"listObservabilityTenants\""
-	GetObservabilityTenant   ObservabilityTenant    "json:\"getObservabilityTenant\" graphql:\"getObservabilityTenant\""
-	Organization             Organization           "json:\"organization\" graphql:\"organization\""
+	ListUsers                []*model.User                "json:\"listUsers\" graphql:\"listUsers\""
+	GetUser                  model.User                   "json:\"getUser\" graphql:\"getUser\""
+	ListGroups               []*model.Group               "json:\"listGroups,omitempty\" graphql:\"listGroups\""
+	ListOAuth2Clients        []*model.OAuth2Client        "json:\"listOAuth2Clients\" graphql:\"listOAuth2Clients\""
+	GetOAuth2Client          *model.OAuth2Client          "json:\"getOAuth2Client,omitempty\" graphql:\"getOAuth2Client\""
+	Oauth2ConsentRequest     *model.OAuth2ConsentRequest  "json:\"oauth2ConsentRequest,omitempty\" graphql:\"oauth2ConsentRequest\""
+	Oauth2LoginRequest       *model.OAuth2LoginRequest    "json:\"oauth2LoginRequest,omitempty\" graphql:\"oauth2LoginRequest\""
+	ListObservabilityTenants []*model.ObservabilityTenant "json:\"listObservabilityTenants\" graphql:\"listObservabilityTenants\""
+	GetObservabilityTenant   model.ObservabilityTenant    "json:\"getObservabilityTenant\" graphql:\"getObservabilityTenant\""
+	Organization             model.Organization           "json:\"organization\" graphql:\"organization\""
 }
 type Mutation struct {
-	CreateUser                 User                "json:\"createUser\" graphql:\"createUser\""
-	DeleteUser                 User                "json:\"deleteUser\" graphql:\"deleteUser\""
-	Group                      Group               "json:\"group\" graphql:\"group\""
-	DeleteGroup                Group               "json:\"deleteGroup\" graphql:\"deleteGroup\""
-	CreateOAuth2Client         OAuth2Client        "json:\"createOAuth2Client\" graphql:\"createOAuth2Client\""
-	UpdateOAuth2Client         OAuth2Client        "json:\"updateOAuth2Client\" graphql:\"updateOAuth2Client\""
-	DeleteOAuth2Client         OAuth2Client        "json:\"deleteOAuth2Client\" graphql:\"deleteOAuth2Client\""
-	AcceptOAuth2ConsentRequest OAuth2RedirectTo    "json:\"acceptOAuth2ConsentRequest\" graphql:\"acceptOAuth2ConsentRequest\""
-	RejectOAuth2ConsentRequest OAuth2RedirectTo    "json:\"rejectOAuth2ConsentRequest\" graphql:\"rejectOAuth2ConsentRequest\""
-	AcceptOAuth2LoginRequest   OAuth2RedirectTo    "json:\"acceptOAuth2LoginRequest\" graphql:\"acceptOAuth2LoginRequest\""
-	RejectOAuth2LoginRequest   OAuth2RedirectTo    "json:\"rejectOAuth2LoginRequest\" graphql:\"rejectOAuth2LoginRequest\""
-	CreateObservabilityTenant  ObservabilityTenant "json:\"createObservabilityTenant\" graphql:\"createObservabilityTenant\""
-	UpdateObservabilityTenant  ObservabilityTenant "json:\"updateObservabilityTenant\" graphql:\"updateObservabilityTenant\""
-	DeleteObservabilityTenant  ObservabilityTenant "json:\"deleteObservabilityTenant\" graphql:\"deleteObservabilityTenant\""
-	Organization               Organization        "json:\"organization\" graphql:\"organization\""
+	CreateUser                 model.User                "json:\"createUser\" graphql:\"createUser\""
+	DeleteUser                 model.User                "json:\"deleteUser\" graphql:\"deleteUser\""
+	Group                      model.Group               "json:\"group\" graphql:\"group\""
+	DeleteGroup                model.Group               "json:\"deleteGroup\" graphql:\"deleteGroup\""
+	CreateOAuth2Client         model.OAuth2Client        "json:\"createOAuth2Client\" graphql:\"createOAuth2Client\""
+	UpdateOAuth2Client         model.OAuth2Client        "json:\"updateOAuth2Client\" graphql:\"updateOAuth2Client\""
+	DeleteOAuth2Client         model.OAuth2Client        "json:\"deleteOAuth2Client\" graphql:\"deleteOAuth2Client\""
+	AcceptOAuth2ConsentRequest model.OAuth2RedirectTo    "json:\"acceptOAuth2ConsentRequest\" graphql:\"acceptOAuth2ConsentRequest\""
+	RejectOAuth2ConsentRequest model.OAuth2RedirectTo    "json:\"rejectOAuth2ConsentRequest\" graphql:\"rejectOAuth2ConsentRequest\""
+	AcceptOAuth2LoginRequest   model.OAuth2RedirectTo    "json:\"acceptOAuth2LoginRequest\" graphql:\"acceptOAuth2LoginRequest\""
+	RejectOAuth2LoginRequest   model.OAuth2RedirectTo    "json:\"rejectOAuth2LoginRequest\" graphql:\"rejectOAuth2LoginRequest\""
+	CreateObservabilityTenant  model.ObservabilityTenant "json:\"createObservabilityTenant\" graphql:\"createObservabilityTenant\""
+	UpdateObservabilityTenant  model.ObservabilityTenant "json:\"updateObservabilityTenant\" graphql:\"updateObservabilityTenant\""
+	DeleteObservabilityTenant  model.ObservabilityTenant "json:\"deleteObservabilityTenant\" graphql:\"deleteObservabilityTenant\""
+	Organization               model.Organization        "json:\"organization\" graphql:\"organization\""
 }
 type GroupFragment struct {
 	Name    string                  "json:\"name\" graphql:\"name\""
@@ -899,7 +901,7 @@ type MimirLimitsFragment struct {
 	MaxGlobalMetadataPerMetric                    *int64                   "json:\"maxGlobalMetadataPerMetric,omitempty\" graphql:\"maxGlobalMetadataPerMetric\""
 	MaxGlobalExemplarsPerUser                     *int64                   "json:\"maxGlobalExemplarsPerUser,omitempty\" graphql:\"maxGlobalExemplarsPerUser\""
 	NativeHistogramsIngestionEnabled              *bool                    "json:\"nativeHistogramsIngestionEnabled,omitempty\" graphql:\"nativeHistogramsIngestionEnabled\""
-	ActiveSeriesCustomTrackersConfig              *string                  "json:\"activeSeriesCustomTrackersConfig,omitempty\" graphql:\"activeSeriesCustomTrackersConfig\""
+	ActiveSeriesCustomTrackersConfig              map[string]string        "json:\"activeSeriesCustomTrackersConfig,omitempty\" graphql:\"activeSeriesCustomTrackersConfig\""
 	OutOfOrderTimeWindow                          *v1.Duration             "json:\"outOfOrderTimeWindow,omitempty\" graphql:\"outOfOrderTimeWindow\""
 	OutOfOrderBlocksExternalLabelEnabled          *bool                    "json:\"outOfOrderBlocksExternalLabelEnabled,omitempty\" graphql:\"outOfOrderBlocksExternalLabelEnabled\""
 	SeparateMetricsGroupLabel                     *string                  "json:\"separateMetricsGroupLabel,omitempty\" graphql:\"separateMetricsGroupLabel\""
@@ -1103,7 +1105,7 @@ func (t *MimirLimitsFragment) GetNativeHistogramsIngestionEnabled() *bool {
 	}
 	return t.NativeHistogramsIngestionEnabled
 }
-func (t *MimirLimitsFragment) GetActiveSeriesCustomTrackersConfig() *string {
+func (t *MimirLimitsFragment) GetActiveSeriesCustomTrackersConfig() map[string]string {
 	if t == nil {
 		t = &MimirLimitsFragment{}
 	}
@@ -1453,16 +1455,16 @@ func (t *MimirLimitsFragment) GetAlertmanagerMaxAlertsSizeBytes() *int64 {
 }
 
 type RelabelConfigFragment struct {
-	SourceLabels []*string      "json:\"sourceLabels,omitempty\" graphql:\"sourceLabels\""
-	Separator    *string        "json:\"separator,omitempty\" graphql:\"separator\""
-	Regex        *string        "json:\"regex,omitempty\" graphql:\"regex\""
-	Modulus      *string        "json:\"modulus,omitempty\" graphql:\"modulus\""
-	TargetLabel  *string        "json:\"targetLabel,omitempty\" graphql:\"targetLabel\""
-	Replacement  *string        "json:\"replacement,omitempty\" graphql:\"replacement\""
-	Action       *RelabelAction "json:\"action,omitempty\" graphql:\"action\""
+	SourceLabels []v1alpha1.LabelName    "json:\"sourceLabels,omitempty\" graphql:\"sourceLabels\""
+	Separator    *string                 "json:\"separator,omitempty\" graphql:\"separator\""
+	Regex        *string                 "json:\"regex,omitempty\" graphql:\"regex\""
+	Modulus      *uint64                 "json:\"modulus,omitempty\" graphql:\"modulus\""
+	TargetLabel  *string                 "json:\"targetLabel,omitempty\" graphql:\"targetLabel\""
+	Replacement  *string                 "json:\"replacement,omitempty\" graphql:\"replacement\""
+	Action       *v1alpha1.RelabelAction "json:\"action,omitempty\" graphql:\"action\""
 }
 
-func (t *RelabelConfigFragment) GetSourceLabels() []*string {
+func (t *RelabelConfigFragment) GetSourceLabels() []v1alpha1.LabelName {
 	if t == nil {
 		t = &RelabelConfigFragment{}
 	}
@@ -1480,7 +1482,7 @@ func (t *RelabelConfigFragment) GetRegex() *string {
 	}
 	return t.Regex
 }
-func (t *RelabelConfigFragment) GetModulus() *string {
+func (t *RelabelConfigFragment) GetModulus() *uint64 {
 	if t == nil {
 		t = &RelabelConfigFragment{}
 	}
@@ -1498,7 +1500,7 @@ func (t *RelabelConfigFragment) GetReplacement() *string {
 	}
 	return t.Replacement
 }
-func (t *RelabelConfigFragment) GetAction() *RelabelAction {
+func (t *RelabelConfigFragment) GetAction() *v1alpha1.RelabelAction {
 	if t == nil {
 		t = &RelabelConfigFragment{}
 	}
@@ -1516,14 +1518,14 @@ type LokiLimitsFragment struct {
 	RejectOldSamplesMaxAge               *v1.Duration                          "json:\"rejectOldSamplesMaxAge,omitempty\" graphql:\"rejectOldSamplesMaxAge\""
 	CreationGracePeriod                  *v1.Duration                          "json:\"creationGracePeriod,omitempty\" graphql:\"creationGracePeriod\""
 	EnforceMetricName                    *bool                                 "json:\"enforceMetricName,omitempty\" graphql:\"enforceMetricName\""
-	MaxLineSize                          *string                               "json:\"maxLineSize,omitempty\" graphql:\"maxLineSize\""
+	MaxLineSize                          *uint64                               "json:\"maxLineSize,omitempty\" graphql:\"maxLineSize\""
 	MaxLineSizeTruncate                  *bool                                 "json:\"maxLineSizeTruncate,omitempty\" graphql:\"maxLineSizeTruncate\""
 	IncrementDuplicateTimestamp          *bool                                 "json:\"incrementDuplicateTimestamp,omitempty\" graphql:\"incrementDuplicateTimestamp\""
 	MaxLocalStreamsPerUser               *int64                                "json:\"maxLocalStreamsPerUser,omitempty\" graphql:\"maxLocalStreamsPerUser\""
 	MaxGlobalStreamsPerUser              *int64                                "json:\"maxGlobalStreamsPerUser,omitempty\" graphql:\"maxGlobalStreamsPerUser\""
 	UnorderedWrites                      *bool                                 "json:\"unorderedWrites,omitempty\" graphql:\"unorderedWrites\""
-	PerStreamRateLimit                   *string                               "json:\"perStreamRateLimit,omitempty\" graphql:\"perStreamRateLimit\""
-	PerStreamRateLimitBurst              *string                               "json:\"perStreamRateLimitBurst,omitempty\" graphql:\"perStreamRateLimitBurst\""
+	PerStreamRateLimit                   *uint64                               "json:\"perStreamRateLimit,omitempty\" graphql:\"perStreamRateLimit\""
+	PerStreamRateLimitBurst              *uint64                               "json:\"perStreamRateLimitBurst,omitempty\" graphql:\"perStreamRateLimitBurst\""
 	MaxChunksPerQuery                    *int64                                "json:\"maxChunksPerQuery,omitempty\" graphql:\"maxChunksPerQuery\""
 	MaxQuerySeries                       *int64                                "json:\"maxQuerySeries,omitempty\" graphql:\"maxQuerySeries\""
 	MaxQueryLookback                     *v1.Duration                          "json:\"maxQueryLookback,omitempty\" graphql:\"maxQueryLookback\""
@@ -1531,7 +1533,7 @@ type LokiLimitsFragment struct {
 	MaxQueryRange                        *v1.Duration                          "json:\"maxQueryRange,omitempty\" graphql:\"maxQueryRange\""
 	MaxQueryParallelism                  *int64                                "json:\"maxQueryParallelism,omitempty\" graphql:\"maxQueryParallelism\""
 	TsdbMaxQueryParallelism              *int64                                "json:\"tsdbMaxQueryParallelism,omitempty\" graphql:\"tsdbMaxQueryParallelism\""
-	TsdbMaxBytesPerShard                 *string                               "json:\"tsdbMaxBytesPerShard,omitempty\" graphql:\"tsdbMaxBytesPerShard\""
+	TsdbMaxBytesPerShard                 *uint64                               "json:\"tsdbMaxBytesPerShard,omitempty\" graphql:\"tsdbMaxBytesPerShard\""
 	CardinalityLimit                     *int64                                "json:\"cardinalityLimit,omitempty\" graphql:\"cardinalityLimit\""
 	MaxStreamsMatchersPerQuery           *int64                                "json:\"maxStreamsMatchersPerQuery,omitempty\" graphql:\"maxStreamsMatchersPerQuery\""
 	MaxConcurrentTailRequests            *int64                                "json:\"maxConcurrentTailRequests,omitempty\" graphql:\"maxConcurrentTailRequests\""
@@ -1543,8 +1545,8 @@ type LokiLimitsFragment struct {
 	QueryTimeout                         *v1.Duration                          "json:\"queryTimeout,omitempty\" graphql:\"queryTimeout\""
 	QuerySplitDuration                   *v1.Duration                          "json:\"querySplitDuration,omitempty\" graphql:\"querySplitDuration\""
 	MinShardingLookback                  *v1.Duration                          "json:\"minShardingLookback,omitempty\" graphql:\"minShardingLookback\""
-	MaxQueryBytesRead                    *string                               "json:\"maxQueryBytesRead,omitempty\" graphql:\"maxQueryBytesRead\""
-	MaxQuerierBytesRead                  *string                               "json:\"maxQuerierBytesRead,omitempty\" graphql:\"maxQuerierBytesRead\""
+	MaxQueryBytesRead                    *uint64                               "json:\"maxQueryBytesRead,omitempty\" graphql:\"maxQueryBytesRead\""
+	MaxQuerierBytesRead                  *uint64                               "json:\"maxQuerierBytesRead,omitempty\" graphql:\"maxQuerierBytesRead\""
 	VolumeEnabled                        *bool                                 "json:\"volumeEnabled,omitempty\" graphql:\"volumeEnabled\""
 	VolumeMaxSeries                      *int64                                "json:\"volumeMaxSeries,omitempty\" graphql:\"volumeMaxSeries\""
 	RulerEvaluationDelay                 *v1.Duration                          "json:\"rulerEvaluationDelay,omitempty\" graphql:\"rulerEvaluationDelay\""
@@ -1625,7 +1627,7 @@ func (t *LokiLimitsFragment) GetEnforceMetricName() *bool {
 	}
 	return t.EnforceMetricName
 }
-func (t *LokiLimitsFragment) GetMaxLineSize() *string {
+func (t *LokiLimitsFragment) GetMaxLineSize() *uint64 {
 	if t == nil {
 		t = &LokiLimitsFragment{}
 	}
@@ -1661,13 +1663,13 @@ func (t *LokiLimitsFragment) GetUnorderedWrites() *bool {
 	}
 	return t.UnorderedWrites
 }
-func (t *LokiLimitsFragment) GetPerStreamRateLimit() *string {
+func (t *LokiLimitsFragment) GetPerStreamRateLimit() *uint64 {
 	if t == nil {
 		t = &LokiLimitsFragment{}
 	}
 	return t.PerStreamRateLimit
 }
-func (t *LokiLimitsFragment) GetPerStreamRateLimitBurst() *string {
+func (t *LokiLimitsFragment) GetPerStreamRateLimitBurst() *uint64 {
 	if t == nil {
 		t = &LokiLimitsFragment{}
 	}
@@ -1715,7 +1717,7 @@ func (t *LokiLimitsFragment) GetTsdbMaxQueryParallelism() *int64 {
 	}
 	return t.TsdbMaxQueryParallelism
 }
-func (t *LokiLimitsFragment) GetTsdbMaxBytesPerShard() *string {
+func (t *LokiLimitsFragment) GetTsdbMaxBytesPerShard() *uint64 {
 	if t == nil {
 		t = &LokiLimitsFragment{}
 	}
@@ -1787,13 +1789,13 @@ func (t *LokiLimitsFragment) GetMinShardingLookback() *v1.Duration {
 	}
 	return t.MinShardingLookback
 }
-func (t *LokiLimitsFragment) GetMaxQueryBytesRead() *string {
+func (t *LokiLimitsFragment) GetMaxQueryBytesRead() *uint64 {
 	if t == nil {
 		t = &LokiLimitsFragment{}
 	}
 	return t.MaxQueryBytesRead
 }
-func (t *LokiLimitsFragment) GetMaxQuerierBytesRead() *string {
+func (t *LokiLimitsFragment) GetMaxQuerierBytesRead() *uint64 {
 	if t == nil {
 		t = &LokiLimitsFragment{}
 	}
@@ -2002,7 +2004,7 @@ type TempoLimitsFragment struct {
 	Forwarders                                                     []string                     "json:\"forwarders,omitempty\" graphql:\"forwarders\""
 	MetricsGeneratorRingSize                                       *int64                       "json:\"metricsGeneratorRingSize,omitempty\" graphql:\"metricsGeneratorRingSize\""
 	MetricsGeneratorProcessors                                     []string                     "json:\"metricsGeneratorProcessors,omitempty\" graphql:\"metricsGeneratorProcessors\""
-	MetricsGeneratorMaxActiveSeries                                *string                      "json:\"metricsGeneratorMaxActiveSeries,omitempty\" graphql:\"metricsGeneratorMaxActiveSeries\""
+	MetricsGeneratorMaxActiveSeries                                *uint64                      "json:\"metricsGeneratorMaxActiveSeries,omitempty\" graphql:\"metricsGeneratorMaxActiveSeries\""
 	MetricsGeneratorCollectionInterval                             *v1.Duration                 "json:\"metricsGeneratorCollectionInterval,omitempty\" graphql:\"metricsGeneratorCollectionInterval\""
 	MetricsGeneratorDisableCollection                              *bool                        "json:\"metricsGeneratorDisableCollection,omitempty\" graphql:\"metricsGeneratorDisableCollection\""
 	MetricsGeneratorForwarderQueueSize                             *int64                       "json:\"metricsGeneratorForwarderQueueSize,omitempty\" graphql:\"metricsGeneratorForwarderQueueSize\""
@@ -2013,13 +2015,13 @@ type TempoLimitsFragment struct {
 	MetricsGeneratorProcessorServiceGraphsEnableClientServerPrefix *bool                        "json:\"metricsGeneratorProcessorServiceGraphsEnableClientServerPrefix,omitempty\" graphql:\"metricsGeneratorProcessorServiceGraphsEnableClientServerPrefix\""
 	MetricsGeneratorProcessorSpanMetricsHistogramBuckets           []*float64                   "json:\"metricsGeneratorProcessorSpanMetricsHistogramBuckets,omitempty\" graphql:\"metricsGeneratorProcessorSpanMetricsHistogramBuckets\""
 	MetricsGeneratorProcessorSpanMetricsDimensions                 []string                     "json:\"metricsGeneratorProcessorSpanMetricsDimensions,omitempty\" graphql:\"metricsGeneratorProcessorSpanMetricsDimensions\""
-	MetricsGeneratorProcessorSpanMetricsIntrinsicDimensions        *string                      "json:\"metricsGeneratorProcessorSpanMetricsIntrinsicDimensions,omitempty\" graphql:\"metricsGeneratorProcessorSpanMetricsIntrinsicDimensions\""
+	MetricsGeneratorProcessorSpanMetricsIntrinsicDimensions        map[string]bool              "json:\"metricsGeneratorProcessorSpanMetricsIntrinsicDimensions,omitempty\" graphql:\"metricsGeneratorProcessorSpanMetricsIntrinsicDimensions\""
 	MetricsGeneratorProcessorSpanMetricsFilterPolicies             []*FilterPolicyFragment      "json:\"metricsGeneratorProcessorSpanMetricsFilterPolicies,omitempty\" graphql:\"metricsGeneratorProcessorSpanMetricsFilterPolicies\""
 	MetricsGeneratorProcessorSpanMetricsDimensionMappings          []*DimensionMappingsFragment "json:\"metricsGeneratorProcessorSpanMetricsDimensionMappings,omitempty\" graphql:\"metricsGeneratorProcessorSpanMetricsDimensionMappings\""
 	MetricsGeneratorProcessorSpanMetricsEnableTargetInfo           *bool                        "json:\"metricsGeneratorProcessorSpanMetricsEnableTargetInfo,omitempty\" graphql:\"metricsGeneratorProcessorSpanMetricsEnableTargetInfo\""
-	MetricsGeneratorProcessorLocalBlocksMaxLiveTraces              *string                      "json:\"metricsGeneratorProcessorLocalBlocksMaxLiveTraces,omitempty\" graphql:\"metricsGeneratorProcessorLocalBlocksMaxLiveTraces\""
+	MetricsGeneratorProcessorLocalBlocksMaxLiveTraces              *uint64                      "json:\"metricsGeneratorProcessorLocalBlocksMaxLiveTraces,omitempty\" graphql:\"metricsGeneratorProcessorLocalBlocksMaxLiveTraces\""
 	MetricsGeneratorProcessorLocalBlocksMaxBlockDuration           *v1.Duration                 "json:\"metricsGeneratorProcessorLocalBlocksMaxBlockDuration,omitempty\" graphql:\"metricsGeneratorProcessorLocalBlocksMaxBlockDuration\""
-	MetricsGeneratorProcessorLocalBlocksMaxBlockBytes              *string                      "json:\"metricsGeneratorProcessorLocalBlocksMaxBlockBytes,omitempty\" graphql:\"metricsGeneratorProcessorLocalBlocksMaxBlockBytes\""
+	MetricsGeneratorProcessorLocalBlocksMaxBlockBytes              *uint64                      "json:\"metricsGeneratorProcessorLocalBlocksMaxBlockBytes,omitempty\" graphql:\"metricsGeneratorProcessorLocalBlocksMaxBlockBytes\""
 	MetricsGeneratorProcessorLocalBlocksFlushCheckPeriod           *v1.Duration                 "json:\"metricsGeneratorProcessorLocalBlocksFlushCheckPeriod,omitempty\" graphql:\"metricsGeneratorProcessorLocalBlocksFlushCheckPeriod\""
 	MetricsGeneratorProcessorLocalBlocksTraceIdlePeriod            *v1.Duration                 "json:\"metricsGeneratorProcessorLocalBlocksTraceIdlePeriod,omitempty\" graphql:\"metricsGeneratorProcessorLocalBlocksTraceIdlePeriod\""
 	MetricsGeneratorProcessorLocalBlocksCompleteBlockTimeout       *v1.Duration                 "json:\"metricsGeneratorProcessorLocalBlocksCompleteBlockTimeout,omitempty\" graphql:\"metricsGeneratorProcessorLocalBlocksCompleteBlockTimeout\""
@@ -2078,7 +2080,7 @@ func (t *TempoLimitsFragment) GetMetricsGeneratorProcessors() []string {
 	}
 	return t.MetricsGeneratorProcessors
 }
-func (t *TempoLimitsFragment) GetMetricsGeneratorMaxActiveSeries() *string {
+func (t *TempoLimitsFragment) GetMetricsGeneratorMaxActiveSeries() *uint64 {
 	if t == nil {
 		t = &TempoLimitsFragment{}
 	}
@@ -2144,7 +2146,7 @@ func (t *TempoLimitsFragment) GetMetricsGeneratorProcessorSpanMetricsDimensions(
 	}
 	return t.MetricsGeneratorProcessorSpanMetricsDimensions
 }
-func (t *TempoLimitsFragment) GetMetricsGeneratorProcessorSpanMetricsIntrinsicDimensions() *string {
+func (t *TempoLimitsFragment) GetMetricsGeneratorProcessorSpanMetricsIntrinsicDimensions() map[string]bool {
 	if t == nil {
 		t = &TempoLimitsFragment{}
 	}
@@ -2168,7 +2170,7 @@ func (t *TempoLimitsFragment) GetMetricsGeneratorProcessorSpanMetricsEnableTarge
 	}
 	return t.MetricsGeneratorProcessorSpanMetricsEnableTargetInfo
 }
-func (t *TempoLimitsFragment) GetMetricsGeneratorProcessorLocalBlocksMaxLiveTraces() *string {
+func (t *TempoLimitsFragment) GetMetricsGeneratorProcessorLocalBlocksMaxLiveTraces() *uint64 {
 	if t == nil {
 		t = &TempoLimitsFragment{}
 	}
@@ -2180,7 +2182,7 @@ func (t *TempoLimitsFragment) GetMetricsGeneratorProcessorLocalBlocksMaxBlockDur
 	}
 	return t.MetricsGeneratorProcessorLocalBlocksMaxBlockDuration
 }
-func (t *TempoLimitsFragment) GetMetricsGeneratorProcessorLocalBlocksMaxBlockBytes() *string {
+func (t *TempoLimitsFragment) GetMetricsGeneratorProcessorLocalBlocksMaxBlockBytes() *uint64 {
 	if t == nil {
 		t = &TempoLimitsFragment{}
 	}
@@ -2254,11 +2256,11 @@ func (t *FilterPolicyFragment) GetExclude() *PolicyMatchFragment {
 }
 
 type PolicyMatchFragment struct {
-	MatchType  *MatchType                        "json:\"matchType,omitempty\" graphql:\"matchType\""
+	MatchType  *v1alpha1.MatchType               "json:\"matchType,omitempty\" graphql:\"matchType\""
 	Attributes []*PolicyMatchFragment_Attributes "json:\"attributes,omitempty\" graphql:\"attributes\""
 }
 
-func (t *PolicyMatchFragment) GetMatchType() *MatchType {
+func (t *PolicyMatchFragment) GetMatchType() *v1alpha1.MatchType {
 	if t == nil {
 		t = &PolicyMatchFragment{}
 	}
@@ -3787,7 +3789,7 @@ func (t *ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Lo
 type ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_ShardStreams struct {
 	Enabled        *bool   "json:\"enabled,omitempty\" graphql:\"enabled\""
 	LoggingEnabled *bool   "json:\"loggingEnabled,omitempty\" graphql:\"loggingEnabled\""
-	DesiredRate    *string "json:\"desiredRate,omitempty\" graphql:\"desiredRate\""
+	DesiredRate    *uint64 "json:\"desiredRate,omitempty\" graphql:\"desiredRate\""
 }
 
 func (t *ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_ShardStreams) GetEnabled() *bool {
@@ -3802,7 +3804,7 @@ func (t *ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Lo
 	}
 	return t.LoggingEnabled
 }
-func (t *ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_ShardStreams) GetDesiredRate() *string {
+func (t *ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_ShardStreams) GetDesiredRate() *uint64 {
 	if t == nil {
 		t = &ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_ShardStreams{}
 	}
@@ -3810,10 +3812,10 @@ func (t *ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Lo
 }
 
 type ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_BlockedQueries struct {
-	Pattern *string            "json:\"pattern,omitempty\" graphql:\"pattern\""
-	Regex   *bool              "json:\"regex,omitempty\" graphql:\"regex\""
-	Hash    *string            "json:\"hash,omitempty\" graphql:\"hash\""
-	Types   []BlockedQueryType "json:\"types,omitempty\" graphql:\"types\""
+	Pattern *string                     "json:\"pattern,omitempty\" graphql:\"pattern\""
+	Regex   *bool                       "json:\"regex,omitempty\" graphql:\"regex\""
+	Hash    *uint64                     "json:\"hash,omitempty\" graphql:\"hash\""
+	Types   []v1alpha1.BlockedQueryType "json:\"types,omitempty\" graphql:\"types\""
 }
 
 func (t *ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_BlockedQueries) GetPattern() *string {
@@ -3828,13 +3830,13 @@ func (t *ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Lo
 	}
 	return t.Regex
 }
-func (t *ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_BlockedQueries) GetHash() *string {
+func (t *ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_BlockedQueries) GetHash() *uint64 {
 	if t == nil {
 		t = &ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_BlockedQueries{}
 	}
 	return t.Hash
 }
-func (t *ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_BlockedQueries) GetTypes() []BlockedQueryType {
+func (t *ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_BlockedQueries) GetTypes() []v1alpha1.BlockedQueryType {
 	if t == nil {
 		t = &ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_BlockedQueries{}
 	}
@@ -3842,11 +3844,11 @@ func (t *ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Lo
 }
 
 type ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Tempo_TempoLimitsFragment_MetricsGeneratorProcessorSpanMetricsFilterPolicies_FilterPolicyFragment_Include_PolicyMatchFragment_Attributes struct {
-	Key   *string                "json:\"key,omitempty\" graphql:\"key\""
+	Key   string                 "json:\"key\" graphql:\"key\""
 	Value map[string]interface{} "json:\"value,omitempty\" graphql:\"value\""
 }
 
-func (t *ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Tempo_TempoLimitsFragment_MetricsGeneratorProcessorSpanMetricsFilterPolicies_FilterPolicyFragment_Include_PolicyMatchFragment_Attributes) GetKey() *string {
+func (t *ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Tempo_TempoLimitsFragment_MetricsGeneratorProcessorSpanMetricsFilterPolicies_FilterPolicyFragment_Include_PolicyMatchFragment_Attributes) GetKey() string {
 	if t == nil {
 		t = &ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Tempo_TempoLimitsFragment_MetricsGeneratorProcessorSpanMetricsFilterPolicies_FilterPolicyFragment_Include_PolicyMatchFragment_Attributes{}
 	}
@@ -3860,11 +3862,11 @@ func (t *ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Te
 }
 
 type ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Tempo_TempoLimitsFragment_MetricsGeneratorProcessorSpanMetricsFilterPolicies_FilterPolicyFragment_Exclude_PolicyMatchFragment_Attributes struct {
-	Key   *string                "json:\"key,omitempty\" graphql:\"key\""
+	Key   string                 "json:\"key\" graphql:\"key\""
 	Value map[string]interface{} "json:\"value,omitempty\" graphql:\"value\""
 }
 
-func (t *ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Tempo_TempoLimitsFragment_MetricsGeneratorProcessorSpanMetricsFilterPolicies_FilterPolicyFragment_Exclude_PolicyMatchFragment_Attributes) GetKey() *string {
+func (t *ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Tempo_TempoLimitsFragment_MetricsGeneratorProcessorSpanMetricsFilterPolicies_FilterPolicyFragment_Exclude_PolicyMatchFragment_Attributes) GetKey() string {
 	if t == nil {
 		t = &ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Tempo_TempoLimitsFragment_MetricsGeneratorProcessorSpanMetricsFilterPolicies_FilterPolicyFragment_Exclude_PolicyMatchFragment_Attributes{}
 	}
@@ -4084,7 +4086,7 @@ func (t *ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_StreamRetenti
 type ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_ShardStreams struct {
 	Enabled        *bool   "json:\"enabled,omitempty\" graphql:\"enabled\""
 	LoggingEnabled *bool   "json:\"loggingEnabled,omitempty\" graphql:\"loggingEnabled\""
-	DesiredRate    *string "json:\"desiredRate,omitempty\" graphql:\"desiredRate\""
+	DesiredRate    *uint64 "json:\"desiredRate,omitempty\" graphql:\"desiredRate\""
 }
 
 func (t *ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_ShardStreams) GetEnabled() *bool {
@@ -4099,7 +4101,7 @@ func (t *ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_ShardStreams)
 	}
 	return t.LoggingEnabled
 }
-func (t *ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_ShardStreams) GetDesiredRate() *string {
+func (t *ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_ShardStreams) GetDesiredRate() *uint64 {
 	if t == nil {
 		t = &ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_ShardStreams{}
 	}
@@ -4107,10 +4109,10 @@ func (t *ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_ShardStreams)
 }
 
 type ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_BlockedQueries struct {
-	Pattern *string            "json:\"pattern,omitempty\" graphql:\"pattern\""
-	Regex   *bool              "json:\"regex,omitempty\" graphql:\"regex\""
-	Hash    *string            "json:\"hash,omitempty\" graphql:\"hash\""
-	Types   []BlockedQueryType "json:\"types,omitempty\" graphql:\"types\""
+	Pattern *string                     "json:\"pattern,omitempty\" graphql:\"pattern\""
+	Regex   *bool                       "json:\"regex,omitempty\" graphql:\"regex\""
+	Hash    *uint64                     "json:\"hash,omitempty\" graphql:\"hash\""
+	Types   []v1alpha1.BlockedQueryType "json:\"types,omitempty\" graphql:\"types\""
 }
 
 func (t *ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_BlockedQueries) GetPattern() *string {
@@ -4125,13 +4127,13 @@ func (t *ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_BlockedQuerie
 	}
 	return t.Regex
 }
-func (t *ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_BlockedQueries) GetHash() *string {
+func (t *ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_BlockedQueries) GetHash() *uint64 {
 	if t == nil {
 		t = &ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_BlockedQueries{}
 	}
 	return t.Hash
 }
-func (t *ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_BlockedQueries) GetTypes() []BlockedQueryType {
+func (t *ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_BlockedQueries) GetTypes() []v1alpha1.BlockedQueryType {
 	if t == nil {
 		t = &ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_BlockedQueries{}
 	}
@@ -4139,11 +4141,11 @@ func (t *ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_BlockedQuerie
 }
 
 type ObservabilityTenantLimitsFragment_Tempo_TempoLimitsFragment_MetricsGeneratorProcessorSpanMetricsFilterPolicies_FilterPolicyFragment_Include_PolicyMatchFragment_Attributes struct {
-	Key   *string                "json:\"key,omitempty\" graphql:\"key\""
+	Key   string                 "json:\"key\" graphql:\"key\""
 	Value map[string]interface{} "json:\"value,omitempty\" graphql:\"value\""
 }
 
-func (t *ObservabilityTenantLimitsFragment_Tempo_TempoLimitsFragment_MetricsGeneratorProcessorSpanMetricsFilterPolicies_FilterPolicyFragment_Include_PolicyMatchFragment_Attributes) GetKey() *string {
+func (t *ObservabilityTenantLimitsFragment_Tempo_TempoLimitsFragment_MetricsGeneratorProcessorSpanMetricsFilterPolicies_FilterPolicyFragment_Include_PolicyMatchFragment_Attributes) GetKey() string {
 	if t == nil {
 		t = &ObservabilityTenantLimitsFragment_Tempo_TempoLimitsFragment_MetricsGeneratorProcessorSpanMetricsFilterPolicies_FilterPolicyFragment_Include_PolicyMatchFragment_Attributes{}
 	}
@@ -4157,11 +4159,11 @@ func (t *ObservabilityTenantLimitsFragment_Tempo_TempoLimitsFragment_MetricsGene
 }
 
 type ObservabilityTenantLimitsFragment_Tempo_TempoLimitsFragment_MetricsGeneratorProcessorSpanMetricsFilterPolicies_FilterPolicyFragment_Exclude_PolicyMatchFragment_Attributes struct {
-	Key   *string                "json:\"key,omitempty\" graphql:\"key\""
+	Key   string                 "json:\"key\" graphql:\"key\""
 	Value map[string]interface{} "json:\"value,omitempty\" graphql:\"value\""
 }
 
-func (t *ObservabilityTenantLimitsFragment_Tempo_TempoLimitsFragment_MetricsGeneratorProcessorSpanMetricsFilterPolicies_FilterPolicyFragment_Exclude_PolicyMatchFragment_Attributes) GetKey() *string {
+func (t *ObservabilityTenantLimitsFragment_Tempo_TempoLimitsFragment_MetricsGeneratorProcessorSpanMetricsFilterPolicies_FilterPolicyFragment_Exclude_PolicyMatchFragment_Attributes) GetKey() string {
 	if t == nil {
 		t = &ObservabilityTenantLimitsFragment_Tempo_TempoLimitsFragment_MetricsGeneratorProcessorSpanMetricsFilterPolicies_FilterPolicyFragment_Exclude_PolicyMatchFragment_Attributes{}
 	}
@@ -4298,7 +4300,7 @@ func (t *LokiLimitsFragment_StreamRetention) GetSelector() *string {
 type LokiLimitsFragment_ShardStreams struct {
 	Enabled        *bool   "json:\"enabled,omitempty\" graphql:\"enabled\""
 	LoggingEnabled *bool   "json:\"loggingEnabled,omitempty\" graphql:\"loggingEnabled\""
-	DesiredRate    *string "json:\"desiredRate,omitempty\" graphql:\"desiredRate\""
+	DesiredRate    *uint64 "json:\"desiredRate,omitempty\" graphql:\"desiredRate\""
 }
 
 func (t *LokiLimitsFragment_ShardStreams) GetEnabled() *bool {
@@ -4313,7 +4315,7 @@ func (t *LokiLimitsFragment_ShardStreams) GetLoggingEnabled() *bool {
 	}
 	return t.LoggingEnabled
 }
-func (t *LokiLimitsFragment_ShardStreams) GetDesiredRate() *string {
+func (t *LokiLimitsFragment_ShardStreams) GetDesiredRate() *uint64 {
 	if t == nil {
 		t = &LokiLimitsFragment_ShardStreams{}
 	}
@@ -4321,10 +4323,10 @@ func (t *LokiLimitsFragment_ShardStreams) GetDesiredRate() *string {
 }
 
 type LokiLimitsFragment_BlockedQueries struct {
-	Pattern *string            "json:\"pattern,omitempty\" graphql:\"pattern\""
-	Regex   *bool              "json:\"regex,omitempty\" graphql:\"regex\""
-	Hash    *string            "json:\"hash,omitempty\" graphql:\"hash\""
-	Types   []BlockedQueryType "json:\"types,omitempty\" graphql:\"types\""
+	Pattern *string                     "json:\"pattern,omitempty\" graphql:\"pattern\""
+	Regex   *bool                       "json:\"regex,omitempty\" graphql:\"regex\""
+	Hash    *uint64                     "json:\"hash,omitempty\" graphql:\"hash\""
+	Types   []v1alpha1.BlockedQueryType "json:\"types,omitempty\" graphql:\"types\""
 }
 
 func (t *LokiLimitsFragment_BlockedQueries) GetPattern() *string {
@@ -4339,13 +4341,13 @@ func (t *LokiLimitsFragment_BlockedQueries) GetRegex() *bool {
 	}
 	return t.Regex
 }
-func (t *LokiLimitsFragment_BlockedQueries) GetHash() *string {
+func (t *LokiLimitsFragment_BlockedQueries) GetHash() *uint64 {
 	if t == nil {
 		t = &LokiLimitsFragment_BlockedQueries{}
 	}
 	return t.Hash
 }
-func (t *LokiLimitsFragment_BlockedQueries) GetTypes() []BlockedQueryType {
+func (t *LokiLimitsFragment_BlockedQueries) GetTypes() []v1alpha1.BlockedQueryType {
 	if t == nil {
 		t = &LokiLimitsFragment_BlockedQueries{}
 	}
@@ -4545,11 +4547,11 @@ func (t *NotifierConfigFragment_TLS) GetMinVersion() *string {
 }
 
 type TempoLimitsFragment_MetricsGeneratorProcessorSpanMetricsFilterPolicies_FilterPolicyFragment_Include_PolicyMatchFragment_Attributes struct {
-	Key   *string                "json:\"key,omitempty\" graphql:\"key\""
+	Key   string                 "json:\"key\" graphql:\"key\""
 	Value map[string]interface{} "json:\"value,omitempty\" graphql:\"value\""
 }
 
-func (t *TempoLimitsFragment_MetricsGeneratorProcessorSpanMetricsFilterPolicies_FilterPolicyFragment_Include_PolicyMatchFragment_Attributes) GetKey() *string {
+func (t *TempoLimitsFragment_MetricsGeneratorProcessorSpanMetricsFilterPolicies_FilterPolicyFragment_Include_PolicyMatchFragment_Attributes) GetKey() string {
 	if t == nil {
 		t = &TempoLimitsFragment_MetricsGeneratorProcessorSpanMetricsFilterPolicies_FilterPolicyFragment_Include_PolicyMatchFragment_Attributes{}
 	}
@@ -4563,11 +4565,11 @@ func (t *TempoLimitsFragment_MetricsGeneratorProcessorSpanMetricsFilterPolicies_
 }
 
 type TempoLimitsFragment_MetricsGeneratorProcessorSpanMetricsFilterPolicies_FilterPolicyFragment_Exclude_PolicyMatchFragment_Attributes struct {
-	Key   *string                "json:\"key,omitempty\" graphql:\"key\""
+	Key   string                 "json:\"key\" graphql:\"key\""
 	Value map[string]interface{} "json:\"value,omitempty\" graphql:\"value\""
 }
 
-func (t *TempoLimitsFragment_MetricsGeneratorProcessorSpanMetricsFilterPolicies_FilterPolicyFragment_Exclude_PolicyMatchFragment_Attributes) GetKey() *string {
+func (t *TempoLimitsFragment_MetricsGeneratorProcessorSpanMetricsFilterPolicies_FilterPolicyFragment_Exclude_PolicyMatchFragment_Attributes) GetKey() string {
 	if t == nil {
 		t = &TempoLimitsFragment_MetricsGeneratorProcessorSpanMetricsFilterPolicies_FilterPolicyFragment_Exclude_PolicyMatchFragment_Attributes{}
 	}
@@ -4581,11 +4583,11 @@ func (t *TempoLimitsFragment_MetricsGeneratorProcessorSpanMetricsFilterPolicies_
 }
 
 type FilterPolicyFragment_Include_PolicyMatchFragment_Attributes struct {
-	Key   *string                "json:\"key,omitempty\" graphql:\"key\""
+	Key   string                 "json:\"key\" graphql:\"key\""
 	Value map[string]interface{} "json:\"value,omitempty\" graphql:\"value\""
 }
 
-func (t *FilterPolicyFragment_Include_PolicyMatchFragment_Attributes) GetKey() *string {
+func (t *FilterPolicyFragment_Include_PolicyMatchFragment_Attributes) GetKey() string {
 	if t == nil {
 		t = &FilterPolicyFragment_Include_PolicyMatchFragment_Attributes{}
 	}
@@ -4599,11 +4601,11 @@ func (t *FilterPolicyFragment_Include_PolicyMatchFragment_Attributes) GetValue()
 }
 
 type FilterPolicyFragment_Exclude_PolicyMatchFragment_Attributes struct {
-	Key   *string                "json:\"key,omitempty\" graphql:\"key\""
+	Key   string                 "json:\"key\" graphql:\"key\""
 	Value map[string]interface{} "json:\"value,omitempty\" graphql:\"value\""
 }
 
-func (t *FilterPolicyFragment_Exclude_PolicyMatchFragment_Attributes) GetKey() *string {
+func (t *FilterPolicyFragment_Exclude_PolicyMatchFragment_Attributes) GetKey() string {
 	if t == nil {
 		t = &FilterPolicyFragment_Exclude_PolicyMatchFragment_Attributes{}
 	}
@@ -4617,11 +4619,11 @@ func (t *FilterPolicyFragment_Exclude_PolicyMatchFragment_Attributes) GetValue()
 }
 
 type PolicyMatchFragment_Attributes struct {
-	Key   *string                "json:\"key,omitempty\" graphql:\"key\""
+	Key   string                 "json:\"key\" graphql:\"key\""
 	Value map[string]interface{} "json:\"value,omitempty\" graphql:\"value\""
 }
 
-func (t *PolicyMatchFragment_Attributes) GetKey() *string {
+func (t *PolicyMatchFragment_Attributes) GetKey() string {
 	if t == nil {
 		t = &PolicyMatchFragment_Attributes{}
 	}
@@ -6340,7 +6342,7 @@ func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFr
 type ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_ShardStreams struct {
 	Enabled        *bool   "json:\"enabled,omitempty\" graphql:\"enabled\""
 	LoggingEnabled *bool   "json:\"loggingEnabled,omitempty\" graphql:\"loggingEnabled\""
-	DesiredRate    *string "json:\"desiredRate,omitempty\" graphql:\"desiredRate\""
+	DesiredRate    *uint64 "json:\"desiredRate,omitempty\" graphql:\"desiredRate\""
 }
 
 func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_ShardStreams) GetEnabled() *bool {
@@ -6355,7 +6357,7 @@ func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFr
 	}
 	return t.LoggingEnabled
 }
-func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_ShardStreams) GetDesiredRate() *string {
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_ShardStreams) GetDesiredRate() *uint64 {
 	if t == nil {
 		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_ShardStreams{}
 	}
@@ -6363,10 +6365,10 @@ func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFr
 }
 
 type ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_BlockedQueries struct {
-	Pattern *string            "json:\"pattern,omitempty\" graphql:\"pattern\""
-	Regex   *bool              "json:\"regex,omitempty\" graphql:\"regex\""
-	Hash    *string            "json:\"hash,omitempty\" graphql:\"hash\""
-	Types   []BlockedQueryType "json:\"types,omitempty\" graphql:\"types\""
+	Pattern *string                     "json:\"pattern,omitempty\" graphql:\"pattern\""
+	Regex   *bool                       "json:\"regex,omitempty\" graphql:\"regex\""
+	Hash    *uint64                     "json:\"hash,omitempty\" graphql:\"hash\""
+	Types   []v1alpha1.BlockedQueryType "json:\"types,omitempty\" graphql:\"types\""
 }
 
 func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_BlockedQueries) GetPattern() *string {
@@ -6381,13 +6383,13 @@ func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFr
 	}
 	return t.Regex
 }
-func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_BlockedQueries) GetHash() *string {
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_BlockedQueries) GetHash() *uint64 {
 	if t == nil {
 		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_BlockedQueries{}
 	}
 	return t.Hash
 }
-func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_BlockedQueries) GetTypes() []BlockedQueryType {
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_BlockedQueries) GetTypes() []v1alpha1.BlockedQueryType {
 	if t == nil {
 		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_BlockedQueries{}
 	}
@@ -6395,11 +6397,11 @@ func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFr
 }
 
 type ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Tempo_TempoLimitsFragment_MetricsGeneratorProcessorSpanMetricsFilterPolicies_FilterPolicyFragment_Include_PolicyMatchFragment_Attributes struct {
-	Key   *string                "json:\"key,omitempty\" graphql:\"key\""
+	Key   string                 "json:\"key\" graphql:\"key\""
 	Value map[string]interface{} "json:\"value,omitempty\" graphql:\"value\""
 }
 
-func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Tempo_TempoLimitsFragment_MetricsGeneratorProcessorSpanMetricsFilterPolicies_FilterPolicyFragment_Include_PolicyMatchFragment_Attributes) GetKey() *string {
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Tempo_TempoLimitsFragment_MetricsGeneratorProcessorSpanMetricsFilterPolicies_FilterPolicyFragment_Include_PolicyMatchFragment_Attributes) GetKey() string {
 	if t == nil {
 		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Tempo_TempoLimitsFragment_MetricsGeneratorProcessorSpanMetricsFilterPolicies_FilterPolicyFragment_Include_PolicyMatchFragment_Attributes{}
 	}
@@ -6413,11 +6415,11 @@ func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFr
 }
 
 type ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Tempo_TempoLimitsFragment_MetricsGeneratorProcessorSpanMetricsFilterPolicies_FilterPolicyFragment_Exclude_PolicyMatchFragment_Attributes struct {
-	Key   *string                "json:\"key,omitempty\" graphql:\"key\""
+	Key   string                 "json:\"key\" graphql:\"key\""
 	Value map[string]interface{} "json:\"value,omitempty\" graphql:\"value\""
 }
 
-func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Tempo_TempoLimitsFragment_MetricsGeneratorProcessorSpanMetricsFilterPolicies_FilterPolicyFragment_Exclude_PolicyMatchFragment_Attributes) GetKey() *string {
+func (t *ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Tempo_TempoLimitsFragment_MetricsGeneratorProcessorSpanMetricsFilterPolicies_FilterPolicyFragment_Exclude_PolicyMatchFragment_Attributes) GetKey() string {
 	if t == nil {
 		t = &ListObservabilityTenants_ListObservabilityTenants_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Tempo_TempoLimitsFragment_MetricsGeneratorProcessorSpanMetricsFilterPolicies_FilterPolicyFragment_Exclude_PolicyMatchFragment_Attributes{}
 	}
@@ -7799,7 +7801,7 @@ func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragme
 type GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_ShardStreams struct {
 	Enabled        *bool   "json:\"enabled,omitempty\" graphql:\"enabled\""
 	LoggingEnabled *bool   "json:\"loggingEnabled,omitempty\" graphql:\"loggingEnabled\""
-	DesiredRate    *string "json:\"desiredRate,omitempty\" graphql:\"desiredRate\""
+	DesiredRate    *uint64 "json:\"desiredRate,omitempty\" graphql:\"desiredRate\""
 }
 
 func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_ShardStreams) GetEnabled() *bool {
@@ -7814,7 +7816,7 @@ func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragme
 	}
 	return t.LoggingEnabled
 }
-func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_ShardStreams) GetDesiredRate() *string {
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_ShardStreams) GetDesiredRate() *uint64 {
 	if t == nil {
 		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_ShardStreams{}
 	}
@@ -7822,10 +7824,10 @@ func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragme
 }
 
 type GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_BlockedQueries struct {
-	Pattern *string            "json:\"pattern,omitempty\" graphql:\"pattern\""
-	Regex   *bool              "json:\"regex,omitempty\" graphql:\"regex\""
-	Hash    *string            "json:\"hash,omitempty\" graphql:\"hash\""
-	Types   []BlockedQueryType "json:\"types,omitempty\" graphql:\"types\""
+	Pattern *string                     "json:\"pattern,omitempty\" graphql:\"pattern\""
+	Regex   *bool                       "json:\"regex,omitempty\" graphql:\"regex\""
+	Hash    *uint64                     "json:\"hash,omitempty\" graphql:\"hash\""
+	Types   []v1alpha1.BlockedQueryType "json:\"types,omitempty\" graphql:\"types\""
 }
 
 func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_BlockedQueries) GetPattern() *string {
@@ -7840,13 +7842,13 @@ func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragme
 	}
 	return t.Regex
 }
-func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_BlockedQueries) GetHash() *string {
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_BlockedQueries) GetHash() *uint64 {
 	if t == nil {
 		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_BlockedQueries{}
 	}
 	return t.Hash
 }
-func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_BlockedQueries) GetTypes() []BlockedQueryType {
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_BlockedQueries) GetTypes() []v1alpha1.BlockedQueryType {
 	if t == nil {
 		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_BlockedQueries{}
 	}
@@ -7854,11 +7856,11 @@ func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragme
 }
 
 type GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Tempo_TempoLimitsFragment_MetricsGeneratorProcessorSpanMetricsFilterPolicies_FilterPolicyFragment_Include_PolicyMatchFragment_Attributes struct {
-	Key   *string                "json:\"key,omitempty\" graphql:\"key\""
+	Key   string                 "json:\"key\" graphql:\"key\""
 	Value map[string]interface{} "json:\"value,omitempty\" graphql:\"value\""
 }
 
-func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Tempo_TempoLimitsFragment_MetricsGeneratorProcessorSpanMetricsFilterPolicies_FilterPolicyFragment_Include_PolicyMatchFragment_Attributes) GetKey() *string {
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Tempo_TempoLimitsFragment_MetricsGeneratorProcessorSpanMetricsFilterPolicies_FilterPolicyFragment_Include_PolicyMatchFragment_Attributes) GetKey() string {
 	if t == nil {
 		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Tempo_TempoLimitsFragment_MetricsGeneratorProcessorSpanMetricsFilterPolicies_FilterPolicyFragment_Include_PolicyMatchFragment_Attributes{}
 	}
@@ -7872,11 +7874,11 @@ func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragme
 }
 
 type GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Tempo_TempoLimitsFragment_MetricsGeneratorProcessorSpanMetricsFilterPolicies_FilterPolicyFragment_Exclude_PolicyMatchFragment_Attributes struct {
-	Key   *string                "json:\"key,omitempty\" graphql:\"key\""
+	Key   string                 "json:\"key\" graphql:\"key\""
 	Value map[string]interface{} "json:\"value,omitempty\" graphql:\"value\""
 }
 
-func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Tempo_TempoLimitsFragment_MetricsGeneratorProcessorSpanMetricsFilterPolicies_FilterPolicyFragment_Exclude_PolicyMatchFragment_Attributes) GetKey() *string {
+func (t *GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Tempo_TempoLimitsFragment_MetricsGeneratorProcessorSpanMetricsFilterPolicies_FilterPolicyFragment_Exclude_PolicyMatchFragment_Attributes) GetKey() string {
 	if t == nil {
 		t = &GetObservabilityTenant_GetObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Tempo_TempoLimitsFragment_MetricsGeneratorProcessorSpanMetricsFilterPolicies_FilterPolicyFragment_Exclude_PolicyMatchFragment_Attributes{}
 	}
@@ -9258,7 +9260,7 @@ func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenant
 type CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_ShardStreams struct {
 	Enabled        *bool   "json:\"enabled,omitempty\" graphql:\"enabled\""
 	LoggingEnabled *bool   "json:\"loggingEnabled,omitempty\" graphql:\"loggingEnabled\""
-	DesiredRate    *string "json:\"desiredRate,omitempty\" graphql:\"desiredRate\""
+	DesiredRate    *uint64 "json:\"desiredRate,omitempty\" graphql:\"desiredRate\""
 }
 
 func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_ShardStreams) GetEnabled() *bool {
@@ -9273,7 +9275,7 @@ func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenant
 	}
 	return t.LoggingEnabled
 }
-func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_ShardStreams) GetDesiredRate() *string {
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_ShardStreams) GetDesiredRate() *uint64 {
 	if t == nil {
 		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_ShardStreams{}
 	}
@@ -9281,10 +9283,10 @@ func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenant
 }
 
 type CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_BlockedQueries struct {
-	Pattern *string            "json:\"pattern,omitempty\" graphql:\"pattern\""
-	Regex   *bool              "json:\"regex,omitempty\" graphql:\"regex\""
-	Hash    *string            "json:\"hash,omitempty\" graphql:\"hash\""
-	Types   []BlockedQueryType "json:\"types,omitempty\" graphql:\"types\""
+	Pattern *string                     "json:\"pattern,omitempty\" graphql:\"pattern\""
+	Regex   *bool                       "json:\"regex,omitempty\" graphql:\"regex\""
+	Hash    *uint64                     "json:\"hash,omitempty\" graphql:\"hash\""
+	Types   []v1alpha1.BlockedQueryType "json:\"types,omitempty\" graphql:\"types\""
 }
 
 func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_BlockedQueries) GetPattern() *string {
@@ -9299,13 +9301,13 @@ func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenant
 	}
 	return t.Regex
 }
-func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_BlockedQueries) GetHash() *string {
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_BlockedQueries) GetHash() *uint64 {
 	if t == nil {
 		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_BlockedQueries{}
 	}
 	return t.Hash
 }
-func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_BlockedQueries) GetTypes() []BlockedQueryType {
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_BlockedQueries) GetTypes() []v1alpha1.BlockedQueryType {
 	if t == nil {
 		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_BlockedQueries{}
 	}
@@ -9313,11 +9315,11 @@ func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenant
 }
 
 type CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Tempo_TempoLimitsFragment_MetricsGeneratorProcessorSpanMetricsFilterPolicies_FilterPolicyFragment_Include_PolicyMatchFragment_Attributes struct {
-	Key   *string                "json:\"key,omitempty\" graphql:\"key\""
+	Key   string                 "json:\"key\" graphql:\"key\""
 	Value map[string]interface{} "json:\"value,omitempty\" graphql:\"value\""
 }
 
-func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Tempo_TempoLimitsFragment_MetricsGeneratorProcessorSpanMetricsFilterPolicies_FilterPolicyFragment_Include_PolicyMatchFragment_Attributes) GetKey() *string {
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Tempo_TempoLimitsFragment_MetricsGeneratorProcessorSpanMetricsFilterPolicies_FilterPolicyFragment_Include_PolicyMatchFragment_Attributes) GetKey() string {
 	if t == nil {
 		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Tempo_TempoLimitsFragment_MetricsGeneratorProcessorSpanMetricsFilterPolicies_FilterPolicyFragment_Include_PolicyMatchFragment_Attributes{}
 	}
@@ -9331,11 +9333,11 @@ func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenant
 }
 
 type CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Tempo_TempoLimitsFragment_MetricsGeneratorProcessorSpanMetricsFilterPolicies_FilterPolicyFragment_Exclude_PolicyMatchFragment_Attributes struct {
-	Key   *string                "json:\"key,omitempty\" graphql:\"key\""
+	Key   string                 "json:\"key\" graphql:\"key\""
 	Value map[string]interface{} "json:\"value,omitempty\" graphql:\"value\""
 }
 
-func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Tempo_TempoLimitsFragment_MetricsGeneratorProcessorSpanMetricsFilterPolicies_FilterPolicyFragment_Exclude_PolicyMatchFragment_Attributes) GetKey() *string {
+func (t *CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Tempo_TempoLimitsFragment_MetricsGeneratorProcessorSpanMetricsFilterPolicies_FilterPolicyFragment_Exclude_PolicyMatchFragment_Attributes) GetKey() string {
 	if t == nil {
 		t = &CreateObservabilityTenant_CreateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Tempo_TempoLimitsFragment_MetricsGeneratorProcessorSpanMetricsFilterPolicies_FilterPolicyFragment_Exclude_PolicyMatchFragment_Attributes{}
 	}
@@ -10717,7 +10719,7 @@ func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenant
 type UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_ShardStreams struct {
 	Enabled        *bool   "json:\"enabled,omitempty\" graphql:\"enabled\""
 	LoggingEnabled *bool   "json:\"loggingEnabled,omitempty\" graphql:\"loggingEnabled\""
-	DesiredRate    *string "json:\"desiredRate,omitempty\" graphql:\"desiredRate\""
+	DesiredRate    *uint64 "json:\"desiredRate,omitempty\" graphql:\"desiredRate\""
 }
 
 func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_ShardStreams) GetEnabled() *bool {
@@ -10732,7 +10734,7 @@ func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenant
 	}
 	return t.LoggingEnabled
 }
-func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_ShardStreams) GetDesiredRate() *string {
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_ShardStreams) GetDesiredRate() *uint64 {
 	if t == nil {
 		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_ShardStreams{}
 	}
@@ -10740,10 +10742,10 @@ func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenant
 }
 
 type UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_BlockedQueries struct {
-	Pattern *string            "json:\"pattern,omitempty\" graphql:\"pattern\""
-	Regex   *bool              "json:\"regex,omitempty\" graphql:\"regex\""
-	Hash    *string            "json:\"hash,omitempty\" graphql:\"hash\""
-	Types   []BlockedQueryType "json:\"types,omitempty\" graphql:\"types\""
+	Pattern *string                     "json:\"pattern,omitempty\" graphql:\"pattern\""
+	Regex   *bool                       "json:\"regex,omitempty\" graphql:\"regex\""
+	Hash    *uint64                     "json:\"hash,omitempty\" graphql:\"hash\""
+	Types   []v1alpha1.BlockedQueryType "json:\"types,omitempty\" graphql:\"types\""
 }
 
 func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_BlockedQueries) GetPattern() *string {
@@ -10758,13 +10760,13 @@ func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenant
 	}
 	return t.Regex
 }
-func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_BlockedQueries) GetHash() *string {
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_BlockedQueries) GetHash() *uint64 {
 	if t == nil {
 		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_BlockedQueries{}
 	}
 	return t.Hash
 }
-func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_BlockedQueries) GetTypes() []BlockedQueryType {
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_BlockedQueries) GetTypes() []v1alpha1.BlockedQueryType {
 	if t == nil {
 		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Loki_LokiLimitsFragment_BlockedQueries{}
 	}
@@ -10772,11 +10774,11 @@ func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenant
 }
 
 type UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Tempo_TempoLimitsFragment_MetricsGeneratorProcessorSpanMetricsFilterPolicies_FilterPolicyFragment_Include_PolicyMatchFragment_Attributes struct {
-	Key   *string                "json:\"key,omitempty\" graphql:\"key\""
+	Key   string                 "json:\"key\" graphql:\"key\""
 	Value map[string]interface{} "json:\"value,omitempty\" graphql:\"value\""
 }
 
-func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Tempo_TempoLimitsFragment_MetricsGeneratorProcessorSpanMetricsFilterPolicies_FilterPolicyFragment_Include_PolicyMatchFragment_Attributes) GetKey() *string {
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Tempo_TempoLimitsFragment_MetricsGeneratorProcessorSpanMetricsFilterPolicies_FilterPolicyFragment_Include_PolicyMatchFragment_Attributes) GetKey() string {
 	if t == nil {
 		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Tempo_TempoLimitsFragment_MetricsGeneratorProcessorSpanMetricsFilterPolicies_FilterPolicyFragment_Include_PolicyMatchFragment_Attributes{}
 	}
@@ -10790,11 +10792,11 @@ func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenant
 }
 
 type UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Tempo_TempoLimitsFragment_MetricsGeneratorProcessorSpanMetricsFilterPolicies_FilterPolicyFragment_Exclude_PolicyMatchFragment_Attributes struct {
-	Key   *string                "json:\"key,omitempty\" graphql:\"key\""
+	Key   string                 "json:\"key\" graphql:\"key\""
 	Value map[string]interface{} "json:\"value,omitempty\" graphql:\"value\""
 }
 
-func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Tempo_TempoLimitsFragment_MetricsGeneratorProcessorSpanMetricsFilterPolicies_FilterPolicyFragment_Exclude_PolicyMatchFragment_Attributes) GetKey() *string {
+func (t *UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Tempo_TempoLimitsFragment_MetricsGeneratorProcessorSpanMetricsFilterPolicies_FilterPolicyFragment_Exclude_PolicyMatchFragment_Attributes) GetKey() string {
 	if t == nil {
 		t = &UpdateObservabilityTenant_UpdateObservabilityTenant_ObservabilityTenantFragment_Limits_ObservabilityTenantLimitsFragment_Tempo_TempoLimitsFragment_MetricsGeneratorProcessorSpanMetricsFilterPolicies_FilterPolicyFragment_Exclude_PolicyMatchFragment_Attributes{}
 	}
@@ -11224,7 +11226,7 @@ fragment UserFragmentNoGroups on User {
 }
 `
 
-func (c *Client) UpdateGroup(ctx context.Context, name string, members []*UserInput, interceptors ...clientv2.RequestInterceptor) (*UpdateGroup, error) {
+func (c *Client) UpdateGroup(ctx context.Context, name string, members []*model.UserInput, interceptors ...clientv2.RequestInterceptor) (*UpdateGroup, error) {
 	vars := map[string]interface{}{
 		"name":    name,
 		"members": members,
@@ -11467,7 +11469,7 @@ fragment OAuth2ClientFragment on OAuth2Client {
 }
 `
 
-func (c *Client) UpdateOAuth2Client(ctx context.Context, allowedCorsOrigins []string, audience []string, authorizationCodeGrantAccessTokenLifespan *string, authorizationCodeGrantIDTokenLifespan *string, authorizationCodeGrantRefreshTokenLifespan *string, backChannelLogoutSessionRequired *bool, backChannelLogoutURI *string, clientCredentialsGrantAccessTokenLifespan *string, clientID string, clientName *string, clientSecret *string, clientSecretExpiresAt *int64, clientURI *string, contacts []string, frontchannelLogoutSessionRequired *bool, frontchannelLogoutURI *string, grantTypes []string, implicitGrantAccessTokenLifespan *string, implicitGrantIDTokenLifespan *string, jwks map[string]interface{}, jwksURI *string, jwtBearerGrantAccessTokenLifespan *string, logoURI *string, metadata map[string]interface{}, policyURI *string, postLogoutRedirectUris []string, redirectUris []string, responseTypes []string, scope *string, sectorIdentifierURI *string, subjectType *string, tokenEndpointAuthMethod *string, tokenEndpointAuthSigningAlgorithm *string, tosURI *string, userinfoSignedResponseAlgorithm *string, loginBindings *LoginBindingsInput, interceptors ...clientv2.RequestInterceptor) (*UpdateOAuth2Client, error) {
+func (c *Client) UpdateOAuth2Client(ctx context.Context, allowedCorsOrigins []string, audience []string, authorizationCodeGrantAccessTokenLifespan *string, authorizationCodeGrantIDTokenLifespan *string, authorizationCodeGrantRefreshTokenLifespan *string, backChannelLogoutSessionRequired *bool, backChannelLogoutURI *string, clientCredentialsGrantAccessTokenLifespan *string, clientID string, clientName *string, clientSecret *string, clientSecretExpiresAt *int64, clientURI *string, contacts []string, frontchannelLogoutSessionRequired *bool, frontchannelLogoutURI *string, grantTypes []string, implicitGrantAccessTokenLifespan *string, implicitGrantIDTokenLifespan *string, jwks map[string]interface{}, jwksURI *string, jwtBearerGrantAccessTokenLifespan *string, logoURI *string, metadata map[string]interface{}, policyURI *string, postLogoutRedirectUris []string, redirectUris []string, responseTypes []string, scope *string, sectorIdentifierURI *string, subjectType *string, tokenEndpointAuthMethod *string, tokenEndpointAuthSigningAlgorithm *string, tosURI *string, userinfoSignedResponseAlgorithm *string, loginBindings *model.LoginBindingsInput, interceptors ...clientv2.RequestInterceptor) (*UpdateOAuth2Client, error) {
 	vars := map[string]interface{}{
 		"allowedCorsOrigins": allowedCorsOrigins,
 		"audience":           audience,
@@ -11570,7 +11572,7 @@ fragment OAuth2ClientFragment on OAuth2Client {
 }
 `
 
-func (c *Client) CreateOAuth2Client(ctx context.Context, allowedCorsOrigins []string, audience []string, authorizationCodeGrantAccessTokenLifespan *string, authorizationCodeGrantIDTokenLifespan *string, authorizationCodeGrantRefreshTokenLifespan *string, backChannelLogoutSessionRequired *bool, backChannelLogoutURI *string, clientCredentialsGrantAccessTokenLifespan *string, clientName *string, clientSecret *string, clientSecretExpiresAt *int64, clientURI *string, contacts []string, frontchannelLogoutSessionRequired *bool, frontchannelLogoutURI *string, grantTypes []string, implicitGrantAccessTokenLifespan *string, implicitGrantIDTokenLifespan *string, jwks map[string]interface{}, jwksURI *string, jwtBearerGrantAccessTokenLifespan *string, logoURI *string, metadata map[string]interface{}, policyURI *string, postLogoutRedirectUris []string, redirectUris []string, responseTypes []string, scope *string, sectorIdentifierURI *string, subjectType *string, tokenEndpointAuthMethod *string, tokenEndpointAuthSigningAlgorithm *string, tosURI *string, userinfoSignedResponseAlgorithm *string, loginBindings *LoginBindingsInput, interceptors ...clientv2.RequestInterceptor) (*CreateOAuth2Client, error) {
+func (c *Client) CreateOAuth2Client(ctx context.Context, allowedCorsOrigins []string, audience []string, authorizationCodeGrantAccessTokenLifespan *string, authorizationCodeGrantIDTokenLifespan *string, authorizationCodeGrantRefreshTokenLifespan *string, backChannelLogoutSessionRequired *bool, backChannelLogoutURI *string, clientCredentialsGrantAccessTokenLifespan *string, clientName *string, clientSecret *string, clientSecretExpiresAt *int64, clientURI *string, contacts []string, frontchannelLogoutSessionRequired *bool, frontchannelLogoutURI *string, grantTypes []string, implicitGrantAccessTokenLifespan *string, implicitGrantIDTokenLifespan *string, jwks map[string]interface{}, jwksURI *string, jwtBearerGrantAccessTokenLifespan *string, logoURI *string, metadata map[string]interface{}, policyURI *string, postLogoutRedirectUris []string, redirectUris []string, responseTypes []string, scope *string, sectorIdentifierURI *string, subjectType *string, tokenEndpointAuthMethod *string, tokenEndpointAuthSigningAlgorithm *string, tosURI *string, userinfoSignedResponseAlgorithm *string, loginBindings *model.LoginBindingsInput, interceptors ...clientv2.RequestInterceptor) (*CreateOAuth2Client, error) {
 	vars := map[string]interface{}{
 		"allowedCorsOrigins": allowedCorsOrigins,
 		"audience":           audience,
@@ -13052,7 +13054,7 @@ fragment DimensionMappingsFragment on DimensionMappings {
 }
 `
 
-func (c *Client) CreateObservabilityTenant(ctx context.Context, id string, name *string, admins *ObservabilityTenantPermissionBindingsInput, metricsReaders *ObservabilityTenantPermissionBindingsInput, metricsWriters *ObservabilityTenantPermissionBindingsInput, metricsRulesReaders *ObservabilityTenantPermissionBindingsInput, metricsRulesWriters *ObservabilityTenantPermissionBindingsInput, metricsRulesDeleters *ObservabilityTenantPermissionBindingsInput, metricsAlertsReaders *ObservabilityTenantPermissionBindingsInput, metricsAlertsWriters *ObservabilityTenantPermissionBindingsInput, logsReaders *ObservabilityTenantPermissionBindingsInput, logsWriters *ObservabilityTenantPermissionBindingsInput, logsRulesReaders *ObservabilityTenantPermissionBindingsInput, logsRulesWriters *ObservabilityTenantPermissionBindingsInput, logsRulesDeleters *ObservabilityTenantPermissionBindingsInput, tracesReaders *ObservabilityTenantPermissionBindingsInput, tracesWriters *ObservabilityTenantPermissionBindingsInput, limits *ObservabilityTenantLimitsInput, interceptors ...clientv2.RequestInterceptor) (*CreateObservabilityTenant, error) {
+func (c *Client) CreateObservabilityTenant(ctx context.Context, id string, name *string, admins *model.ObservabilityTenantPermissionBindingsInput, metricsReaders *model.ObservabilityTenantPermissionBindingsInput, metricsWriters *model.ObservabilityTenantPermissionBindingsInput, metricsRulesReaders *model.ObservabilityTenantPermissionBindingsInput, metricsRulesWriters *model.ObservabilityTenantPermissionBindingsInput, metricsRulesDeleters *model.ObservabilityTenantPermissionBindingsInput, metricsAlertsReaders *model.ObservabilityTenantPermissionBindingsInput, metricsAlertsWriters *model.ObservabilityTenantPermissionBindingsInput, logsReaders *model.ObservabilityTenantPermissionBindingsInput, logsWriters *model.ObservabilityTenantPermissionBindingsInput, logsRulesReaders *model.ObservabilityTenantPermissionBindingsInput, logsRulesWriters *model.ObservabilityTenantPermissionBindingsInput, logsRulesDeleters *model.ObservabilityTenantPermissionBindingsInput, tracesReaders *model.ObservabilityTenantPermissionBindingsInput, tracesWriters *model.ObservabilityTenantPermissionBindingsInput, limits *model.ObservabilityTenantLimitsInput, interceptors ...clientv2.RequestInterceptor) (*CreateObservabilityTenant, error) {
 	vars := map[string]interface{}{
 		"id":                   id,
 		"name":                 name,
@@ -13488,7 +13490,7 @@ fragment DimensionMappingsFragment on DimensionMappings {
 }
 `
 
-func (c *Client) UpdateObservabilityTenant(ctx context.Context, id string, name *string, admins *ObservabilityTenantPermissionBindingsInput, metricsReaders *ObservabilityTenantPermissionBindingsInput, metricsWriters *ObservabilityTenantPermissionBindingsInput, metricsRulesReaders *ObservabilityTenantPermissionBindingsInput, metricsRulesWriters *ObservabilityTenantPermissionBindingsInput, metricsRulesDeleters *ObservabilityTenantPermissionBindingsInput, metricsAlertsReaders *ObservabilityTenantPermissionBindingsInput, metricsAlertsWriters *ObservabilityTenantPermissionBindingsInput, logsReaders *ObservabilityTenantPermissionBindingsInput, logsWriters *ObservabilityTenantPermissionBindingsInput, logsRulesReaders *ObservabilityTenantPermissionBindingsInput, logsRulesWriters *ObservabilityTenantPermissionBindingsInput, logsRulesDeleters *ObservabilityTenantPermissionBindingsInput, tracesReaders *ObservabilityTenantPermissionBindingsInput, tracesWriters *ObservabilityTenantPermissionBindingsInput, limits *ObservabilityTenantLimitsInput, interceptors ...clientv2.RequestInterceptor) (*UpdateObservabilityTenant, error) {
+func (c *Client) UpdateObservabilityTenant(ctx context.Context, id string, name *string, admins *model.ObservabilityTenantPermissionBindingsInput, metricsReaders *model.ObservabilityTenantPermissionBindingsInput, metricsWriters *model.ObservabilityTenantPermissionBindingsInput, metricsRulesReaders *model.ObservabilityTenantPermissionBindingsInput, metricsRulesWriters *model.ObservabilityTenantPermissionBindingsInput, metricsRulesDeleters *model.ObservabilityTenantPermissionBindingsInput, metricsAlertsReaders *model.ObservabilityTenantPermissionBindingsInput, metricsAlertsWriters *model.ObservabilityTenantPermissionBindingsInput, logsReaders *model.ObservabilityTenantPermissionBindingsInput, logsWriters *model.ObservabilityTenantPermissionBindingsInput, logsRulesReaders *model.ObservabilityTenantPermissionBindingsInput, logsRulesWriters *model.ObservabilityTenantPermissionBindingsInput, logsRulesDeleters *model.ObservabilityTenantPermissionBindingsInput, tracesReaders *model.ObservabilityTenantPermissionBindingsInput, tracesWriters *model.ObservabilityTenantPermissionBindingsInput, limits *model.ObservabilityTenantLimitsInput, interceptors ...clientv2.RequestInterceptor) (*UpdateObservabilityTenant, error) {
 	vars := map[string]interface{}{
 		"id":                   id,
 		"name":                 name,
@@ -13616,7 +13618,7 @@ fragment UserFragment on User {
 }
 `
 
-func (c *Client) CreateUser(ctx context.Context, email string, name *NameInput, interceptors ...clientv2.RequestInterceptor) (*CreateUser, error) {
+func (c *Client) CreateUser(ctx context.Context, email string, name *model.NameInput, interceptors ...clientv2.RequestInterceptor) (*CreateUser, error) {
 	vars := map[string]interface{}{
 		"email": email,
 		"name":  name,
