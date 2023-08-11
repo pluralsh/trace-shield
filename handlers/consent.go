@@ -27,7 +27,7 @@ type ConsentRequest struct {
 	GrantScope []string      `json:"grant_scope"`
 }
 
-func (h *Handler) Consent(w http.ResponseWriter, r *http.Request) {
+func Consent(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	clients := common.GetContext(ctx)
 

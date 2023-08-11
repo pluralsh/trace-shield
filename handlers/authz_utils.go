@@ -16,7 +16,7 @@ import (
 )
 
 // Get all the ObservabilityTenants has permissions for based on direct bindings and group memberships
-func (h *Handler) getUserTenants(ctx context.Context, subject string) ([]string, error) {
+func getUserTenants(ctx context.Context, subject string) ([]string, error) {
 	clients := common.GetContext(ctx)
 	log := clients.Log.WithName("getUserTenants").WithValues("Subject", subject)
 
@@ -30,14 +30,14 @@ func (h *Handler) getUserTenants(ctx context.Context, subject string) ([]string,
 	}
 
 	// get all the groups a user is a member of
-	groups, err := h.getUserGroups(ctx, subject)
+	groups, err := getUserGroups(ctx, subject)
 	if err != nil {
 		log.Error(err, "Failed to get user groups")
 		return []string{}, err
 	}
 
 	// get all the tenants a user has permissions for
-	tenants, err := h.getUserDirectTenants(ctx, subject)
+	tenants, err := getUserDirectTenants(ctx, subject)
 	if err != nil {
 		log.Error(err, "Failed to get user direct tenants")
 		return []string{}, err
@@ -45,7 +45,7 @@ func (h *Handler) getUserTenants(ctx context.Context, subject string) ([]string,
 
 	// get all the tenants a user has permissions for via group membership
 	for _, group := range groups {
-		groupTenants, err := h.getGroupTenants(ctx, group)
+		groupTenants, err := getGroupTenants(ctx, group)
 		if err != nil {
 			return []string{}, err
 		}
@@ -53,12 +53,12 @@ func (h *Handler) getUserTenants(ctx context.Context, subject string) ([]string,
 	}
 
 	// get all the tenants a user has permissions for via organization admin permissions
-	orgs, err := h.isOrgAdmin(ctx, subject)
+	orgs, err := isOrgAdmin(ctx, subject)
 	if err != nil {
 		return []string{}, err
 	}
 	for _, org := range orgs {
-		orgTenants, err := h.getOrgTenants(ctx, org)
+		orgTenants, err := getOrgTenants(ctx, org)
 		if err != nil {
 			return []string{}, err
 		}
@@ -69,7 +69,7 @@ func (h *Handler) getUserTenants(ctx context.Context, subject string) ([]string,
 }
 
 // Check in which organizations a user is an admin
-func (h *Handler) isOrgAdmin(ctx context.Context, subject string) ([]string, error) {
+func isOrgAdmin(ctx context.Context, subject string) ([]string, error) {
 	clients := common.GetContext(ctx)
 	log := clients.Log.WithName("isOrgAdmin").WithValues("Subject", subject)
 
@@ -107,7 +107,7 @@ func (h *Handler) isOrgAdmin(ctx context.Context, subject string) ([]string, err
 }
 
 // Get all the ObservabilityTenants that belong to an organization
-func (h *Handler) getOrgTenants(ctx context.Context, org string) ([]string, error) {
+func getOrgTenants(ctx context.Context, org string) ([]string, error) {
 	clients := common.GetContext(ctx)
 	log := clients.Log.WithName("getOrgTenants").WithValues("Organization", org)
 
@@ -144,7 +144,7 @@ func (h *Handler) getOrgTenants(ctx context.Context, org string) ([]string, erro
 }
 
 // Get the groups a user is a member of
-func (h *Handler) getUserGroups(ctx context.Context, subject string) ([]string, error) {
+func getUserGroups(ctx context.Context, subject string) ([]string, error) {
 	clients := common.GetContext(ctx)
 
 	log := clients.Log.WithName("getUserGroups").WithValues("Subject", subject)
@@ -183,7 +183,7 @@ func (h *Handler) getUserGroups(ctx context.Context, subject string) ([]string, 
 }
 
 // Get the ObservabilityTenants a user has permissions for
-func (h *Handler) getUserDirectTenants(ctx context.Context, subject string) ([]string, error) {
+func getUserDirectTenants(ctx context.Context, subject string) ([]string, error) {
 	clients := common.GetContext(ctx)
 
 	log := clients.Log.WithName("getUserDirectTenants").WithValues("Subject", subject)
@@ -221,7 +221,7 @@ func (h *Handler) getUserDirectTenants(ctx context.Context, subject string) ([]s
 }
 
 // Get the ObservabilityTenants a group has permissions for
-func (h *Handler) getGroupTenants(ctx context.Context, group string) ([]string, error) {
+func getGroupTenants(ctx context.Context, group string) ([]string, error) {
 	clients := common.GetContext(ctx)
 
 	log := clients.Log.WithName("getGroupTenants").WithValues("Group", group)

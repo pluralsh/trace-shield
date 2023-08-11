@@ -38,7 +38,7 @@ func (b *BootstrapRequest) Render(w http.ResponseWriter, r *http.Request) error 
 	return nil
 }
 
-func (h *Handler) BootstrapAdmin(w http.ResponseWriter, r *http.Request) {
+func BootstrapAdmin(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	clients := common.GetContext(ctx)
 
@@ -91,9 +91,9 @@ func (h *Handler) BootstrapAdmin(w http.ResponseWriter, r *http.Request) {
 	}
 
 	render.Status(r, http.StatusOK) // TODO: we should probably do error checking above so we can return a 400 if something goes wrong
-	render.Render(w, r, h.BootstrapUser(data))
+	render.Render(w, r, bootstrapUser(data))
 }
 
-func (h *Handler) BootstrapUser(b *BootstrapRequest) *BootstrapRequest {
+func bootstrapUser(b *BootstrapRequest) *BootstrapRequest {
 	return b
 }

@@ -11,7 +11,7 @@ import (
 	"go.opentelemetry.io/otel/codes"
 )
 
-func (d *Directive) CheckPermissions(ctx context.Context, obj interface{}, next graphql.Resolver) (interface{}, error) {
+func CheckPermissions(ctx context.Context, obj interface{}, next graphql.Resolver) (interface{}, error) {
 	clients := common.GetContext(ctx)
 	log := clients.Log.WithName("CheckPermissions")
 

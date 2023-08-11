@@ -89,16 +89,6 @@ func main() {
 		panic(err)
 	}
 
-	// clientWrapper := &clients.ClientWrapper{
-	// 	ControllerClient:   controllerClient,
-	// 	KratosAdminClient:  kratosAdminClient,
-	// 	KratosPublicClient: kratosPublicClient,
-	// 	KetoClient:         ketoClient,
-	// 	HydraClient:        hydraAdminClient,
-	// 	Tracer:             tracer,
-	// 	Log:                ctrl.Log.WithName("clients"),
-	// }
-
 	clientCtx := &common.ClientContext{
 		ControllerClient:   controllerClient,
 		KratosAdminClient:  kratosAdminClient,
@@ -110,18 +100,12 @@ func main() {
 		// Log:                ctrl.Log.WithName("clients"),
 	}
 
-	resolver := &resolvers.Resolver{}
-
-	directives := &directives.Directive{}
-
-	handlers := &handlers.Handler{}
-
-	if err := serve(ctx, resolver, directives, handlers, clientCtx); err != nil {
+	if err := serve(ctx, clientCtx); err != nil {
 		setupLog.Error(err, "failed to serve")
 	}
 }
 
-func serve(ctx context.Context, resolver *resolvers.Resolver, directives *directives.Directive, handlers *handlers.Handler, clientCtx *common.ClientContext) (err error) {
+func serve(ctx context.Context, clientCtx *common.ClientContext) (err error) {
 	port := os.Getenv("PORT")
 	if port == "" {
 		port = defaultPort
@@ -140,12 +124,14 @@ func serve(ctx context.Context, resolver *resolvers.Resolver, directives *direct
 	// adds our middleware with clients to the router
 	router.Use(common.CreateContext(clientCtx))
 
-	gqlConfig := generated.Config{Resolvers: resolver}
-
-	gqlConfig.Directives.IsAuthenticated = directives.IsAuthenticated
-
-	//TODO: change all create and delete mutations so that name and namespace are used directly rather than the wrapped in the input
-	gqlConfig.Directives.CheckPermissions = directives.CheckPermissions
+	gqlConfig := generated.Config{
+		Resolvers: &resolvers.Resolver{},
+		Directives: generated.DirectiveRoot{
+			IsAuthenticated: directives.IsAuthenticated,
+			//TODO: change all create and delete mutations so that name and namespace are used directly rather than the wrapped in the input
+			CheckPermissions: directives.CheckPermissions,
+		},
+	}
 
 	gqlSrv := gqlHandler.NewDefaultServer(generated.NewExecutableSchema(gqlConfig))
 	gqlSrv.Use(otelgqlgen.Middleware())

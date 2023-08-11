@@ -12,7 +12,7 @@ import (
 	"go.opentelemetry.io/otel/codes"
 )
 
-func (d *Directive) IsAuthenticated(ctx context.Context, obj interface{}, next graphql.Resolver) (interface{}, error) {
+func IsAuthenticated(ctx context.Context, obj interface{}, next graphql.Resolver) (interface{}, error) {
 	clients := common.GetContext(ctx)
 
 	log := clients.Log.WithName("IsAuthenticated")

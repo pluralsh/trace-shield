@@ -25,7 +25,7 @@ type PolicyRequest struct {
 	relation            consts.ObservabilityTenantRelation
 }
 
-func (h *Handler) ObservabilityTenantPolicyCheck(w http.ResponseWriter, r *http.Request) {
+func ObservabilityTenantPolicyCheck(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	clients := common.GetContext(ctx)
 
@@ -144,14 +144,14 @@ func (h *Handler) ObservabilityTenantPolicyCheck(w http.ResponseWriter, r *http.
 			log.Info("Subject is an admin and has access to all tenants", "subject", p.Subject, "tenants", tenants, "permission", p.permission)
 		} else {
 			// get all the groups a user is a member of
-			groups, err := h.getUserGroups(ctx, p.Subject)
+			groups, err := getUserGroups(ctx, p.Subject)
 			if err != nil {
 				log.Error(err, "Failed to get user groups")
 			}
 
 			// get all the tenants a user has permissions for via group membership
 			for _, group := range groups {
-				groupTenants, err := h.getGroupPolicyTenants(ctx, p, group)
+				groupTenants, err := getGroupPolicyTenants(ctx, p, group)
 				if err != nil {
 					log.Error(err, "Failed to get group tenants", "group", group)
 				}
@@ -161,7 +161,7 @@ func (h *Handler) ObservabilityTenantPolicyCheck(w http.ResponseWriter, r *http.
 
 	}
 	// get all the tenants a client has permissions for
-	clientTenants, err := h.getDirectTenants(ctx, p)
+	clientTenants, err := getDirectTenants(ctx, p)
 	if err != nil {
 		log.Error(err, "Failed to get client tenants")
 	}
@@ -237,7 +237,7 @@ func (p *PolicyRequest) GetRelationTuple(tenantId string) *rts.RelationTuple {
 }
 
 // Get the ObservabilityTenants a user has permissions for
-func (h *Handler) getDirectTenants(ctx context.Context, p *PolicyRequest) ([]string, error) {
+func getDirectTenants(ctx context.Context, p *PolicyRequest) ([]string, error) {
 	clients := common.GetContext(ctx)
 	log := clients.Log.WithName("getDirectTenants")
 
@@ -275,7 +275,7 @@ func (h *Handler) getDirectTenants(ctx context.Context, p *PolicyRequest) ([]str
 }
 
 // Get the ObservabilityTenants a group has permissions for
-func (h *Handler) getGroupPolicyTenants(ctx context.Context, p *PolicyRequest, group string) ([]string, error) {
+func getGroupPolicyTenants(ctx context.Context, p *PolicyRequest, group string) ([]string, error) {
 	clients := common.GetContext(ctx)
 	log := clients.Log.WithName("getGroupPolicyTenants")
 
