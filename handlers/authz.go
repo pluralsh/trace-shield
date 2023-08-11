@@ -10,6 +10,7 @@ import (
 	rts "github.com/ory/keto/proto/ory/keto/relation_tuples/v1alpha2"
 	px "github.com/ory/x/pointerx"
 	"github.com/pluralsh/trace-shield/consts"
+	"github.com/pluralsh/trace-shield/graph/common"
 	"github.com/pluralsh/trace-shield/utils"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/codes"
@@ -25,11 +26,12 @@ type PolicyRequest struct {
 }
 
 func (h *Handler) ObservabilityTenantPolicyCheck(w http.ResponseWriter, r *http.Request) {
-	log := h.Log.WithName("ObservabilityTenantPolicyCheck")
-
 	ctx := r.Context()
+	clients := common.GetContext(ctx)
 
-	ctx, span := h.C.Tracer.Start(ctx, "ObservabilityTenantPolicyCheck")
+	log := clients.Log.WithName("ObservabilityTenantPolicyCheck")
+
+	ctx, span := clients.Tracer.Start(ctx, "ObservabilityTenantPolicyCheck")
 	defer span.End()
 
 	p := &PolicyRequest{}
@@ -85,7 +87,7 @@ func (h *Handler) ObservabilityTenantPolicyCheck(w http.ResponseWriter, r *http.
 
 		log.Info("Checking if subject has access to tenant", "subject", p.Subject, "tenant", tenantHeader, "permission", p.permission)
 
-		hasAccess, err := h.C.KetoClient.Check(ctx, p.GetRelationTuple(tenantHeader))
+		hasAccess, err := clients.KetoClient.Check(ctx, p.GetRelationTuple(tenantHeader))
 		if err != nil {
 			log.Error(err, "Failed to check if subject has access to the tenant", "subject", p.Subject, "tenant", tenantHeader, "permission", p.permission)
 			span.RecordError(err)
@@ -121,7 +123,7 @@ func (h *Handler) ObservabilityTenantPolicyCheck(w http.ResponseWriter, r *http.
 			),
 		}
 
-		isOrgAdmin, err := h.C.KetoClient.Check(ctx, orgAdminTuple)
+		isOrgAdmin, err := clients.KetoClient.Check(ctx, orgAdminTuple)
 		if err != nil {
 			span.RecordError(err)
 			span.SetStatus(codes.Error, err.Error())
@@ -129,7 +131,7 @@ func (h *Handler) ObservabilityTenantPolicyCheck(w http.ResponseWriter, r *http.
 		}
 
 		if isOrgAdmin {
-			gottenTenants, err := h.C.ControllerClient.ObservabilityV1alpha1().Tenants().List(ctx, metav1.ListOptions{})
+			gottenTenants, err := clients.ControllerClient.ObservabilityV1alpha1().Tenants().List(ctx, metav1.ListOptions{})
 			if err != nil {
 				span.RecordError(err)
 				span.SetStatus(codes.Error, err.Error())
@@ -236,9 +238,10 @@ func (p *PolicyRequest) GetRelationTuple(tenantId string) *rts.RelationTuple {
 
 // Get the ObservabilityTenants a user has permissions for
 func (h *Handler) getDirectTenants(ctx context.Context, p *PolicyRequest) ([]string, error) {
-	log := h.Log.WithName("getDirectTenants")
+	clients := common.GetContext(ctx)
+	log := clients.Log.WithName("getDirectTenants")
 
-	ctx, span := h.C.Tracer.Start(ctx, "getDirectTenants")
+	ctx, span := clients.Tracer.Start(ctx, "getDirectTenants")
 	defer span.End()
 
 	if span.IsRecording() {
@@ -252,7 +255,7 @@ func (h *Handler) getDirectTenants(ctx context.Context, p *PolicyRequest) ([]str
 	}
 
 	query := p.GetRelationQuery()
-	respTuples, err := h.C.KetoClient.QueryAllTuples(ctx, query, 100)
+	respTuples, err := clients.KetoClient.QueryAllTuples(ctx, query, 100)
 	if err != nil {
 		log.Error(err, "Failed to query tuples")
 		span.RecordError(err)
@@ -273,9 +276,10 @@ func (h *Handler) getDirectTenants(ctx context.Context, p *PolicyRequest) ([]str
 
 // Get the ObservabilityTenants a group has permissions for
 func (h *Handler) getGroupPolicyTenants(ctx context.Context, p *PolicyRequest, group string) ([]string, error) {
-	log := h.Log.WithName("getGroupPolicyTenants")
+	clients := common.GetContext(ctx)
+	log := clients.Log.WithName("getGroupPolicyTenants")
 
-	ctx, span := h.C.Tracer.Start(ctx, "getGroupPolicyTenants")
+	ctx, span := clients.Tracer.Start(ctx, "getGroupPolicyTenants")
 	defer span.End()
 
 	if span.IsRecording() {
@@ -294,7 +298,7 @@ func (h *Handler) getGroupPolicyTenants(ctx context.Context, p *PolicyRequest, g
 		Relation:  px.Ptr(p.relation.String()),
 		Subject:   rts.NewSubjectSet(consts.GroupNamespace.String(), group, consts.GroupRelationMembers.String()),
 	}
-	respTuples, err := h.C.KetoClient.QueryAllTuples(ctx, &query, 100)
+	respTuples, err := clients.KetoClient.QueryAllTuples(ctx, &query, 100)
 	if err != nil {
 		log.Error(err, "Failed to query tuples")
 		span.RecordError(err)

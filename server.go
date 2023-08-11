@@ -14,7 +14,7 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/rs/cors"
 
-	"github.com/pluralsh/trace-shield/clients"
+	"github.com/pluralsh/trace-shield/graph/common"
 	"github.com/pluralsh/trace-shield/graph/directives"
 	"github.com/pluralsh/trace-shield/graph/generated"
 	"github.com/pluralsh/trace-shield/graph/resolvers"
@@ -58,67 +58,70 @@ func main() {
 
 	initTracer(ctx)
 
-	kratosAdminClient, err := clients.NewKratosAdminClient()
+	kratosAdminClient, err := common.NewKratosAdminClient()
 	if err != nil {
 		setupLog.Error(err, "An admin address for kratos must be configured")
 		panic(err)
 	}
 
-	kratosPublicClient, err := clients.NewKratosPublicClient()
+	kratosPublicClient, err := common.NewKratosPublicClient()
 	if err != nil {
 		setupLog.Error(err, "An admin address for kratos must be configured")
 		panic(err)
 	}
 
-	conndetails := clients.NewKetoConnectionDetailsFromEnv()
-	ketoClient, err := clients.NewKetoGrpcClient(context.Background(), conndetails)
+	conndetails := common.NewKetoConnectionDetailsFromEnv()
+	ketoClient, err := common.NewKetoGrpcClient(ctx, conndetails)
 	if err != nil {
 		setupLog.Error(err, "Failed to setup Keto gRPC client")
 		panic(err)
 	}
 
-	hydraAdminClient, err := clients.NewHydraAdminClient()
+	hydraAdminClient, err := common.NewHydraAdminClient()
 	if err != nil {
 		setupLog.Error(err, "An admin address for hydra must be configured")
 		panic(err)
 	}
 
-	controllerClient, err := clients.NewControllerClient()
+	controllerClient, err := common.NewControllerClient()
 	if err != nil {
 		setupLog.Error(err, "Failed to setup controller client")
 		panic(err)
 	}
 
-	clientWrapper := &clients.ClientWrapper{
+	// clientWrapper := &clients.ClientWrapper{
+	// 	ControllerClient:   controllerClient,
+	// 	KratosAdminClient:  kratosAdminClient,
+	// 	KratosPublicClient: kratosPublicClient,
+	// 	KetoClient:         ketoClient,
+	// 	HydraClient:        hydraAdminClient,
+	// 	Tracer:             tracer,
+	// 	Log:                ctrl.Log.WithName("clients"),
+	// }
+
+	clientCtx := &common.ClientContext{
 		ControllerClient:   controllerClient,
 		KratosAdminClient:  kratosAdminClient,
 		KratosPublicClient: kratosPublicClient,
 		KetoClient:         ketoClient,
 		HydraClient:        hydraAdminClient,
 		Tracer:             tracer,
-		Log:                ctrl.Log.WithName("clients"),
+		Log:                ctrl.Log,
+		// Log:                ctrl.Log.WithName("clients"),
 	}
 
-	resolver := &resolvers.Resolver{
-		C: clientWrapper,
-	}
+	resolver := &resolvers.Resolver{}
 
-	directives := &directives.Directive{
-		C: clientWrapper,
-	}
+	directives := &directives.Directive{}
 
-	handlers := &handlers.Handler{
-		C:           clientWrapper,
-		Propagators: otel.GetTextMapPropagator(),
-		Log:         ctrl.Log.WithName("handlers"),
-	}
+	handlers := &handlers.Handler{}
 
-	if err := serve(ctx, resolver, directives, handlers); err != nil {
+	if err := serve(ctx, resolver, directives, handlers, clientCtx); err != nil {
 		setupLog.Error(err, "failed to serve")
 	}
 }
 
-func serve(ctx context.Context, resolver *resolvers.Resolver, directives *directives.Directive, handlers *handlers.Handler) (err error) {
+func serve(ctx context.Context, resolver *resolvers.Resolver, directives *directives.Directive, handlers *handlers.Handler, clientCtx *common.ClientContext) (err error) {
 	port := os.Getenv("PORT")
 	if port == "" {
 		port = defaultPort
@@ -133,6 +136,9 @@ func serve(ctx context.Context, resolver *resolvers.Resolver, directives *direct
 		AllowCredentials: true,
 		Debug:            false,
 	}).Handler)
+
+	// adds our middleware with clients to the router
+	router.Use(common.CreateContext(clientCtx))
 
 	gqlConfig := generated.Config{Resolvers: resolver}
 

@@ -6,6 +6,7 @@ import (
 
 	"github.com/go-chi/render"
 	"github.com/pluralsh/trace-shield/consts"
+	"github.com/pluralsh/trace-shield/graph/common"
 	"github.com/pluralsh/trace-shield/utils"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/codes"
@@ -16,9 +17,10 @@ import (
 
 // Get all the ObservabilityTenants has permissions for based on direct bindings and group memberships
 func (h *Handler) getUserTenants(ctx context.Context, subject string) ([]string, error) {
-	log := h.Log.WithName("getUserTenants").WithValues("Subject", subject)
+	clients := common.GetContext(ctx)
+	log := clients.Log.WithName("getUserTenants").WithValues("Subject", subject)
 
-	ctx, span := h.C.Tracer.Start(ctx, "getUserTenants")
+	ctx, span := clients.Tracer.Start(ctx, "getUserTenants")
 	defer span.End()
 
 	if span.IsRecording() {
@@ -68,9 +70,10 @@ func (h *Handler) getUserTenants(ctx context.Context, subject string) ([]string,
 
 // Check in which organizations a user is an admin
 func (h *Handler) isOrgAdmin(ctx context.Context, subject string) ([]string, error) {
-	log := h.Log.WithName("isOrgAdmin").WithValues("Subject", subject)
+	clients := common.GetContext(ctx)
+	log := clients.Log.WithName("isOrgAdmin").WithValues("Subject", subject)
 
-	ctx, span := h.C.Tracer.Start(ctx, "isOrgAdmin")
+	ctx, span := clients.Tracer.Start(ctx, "isOrgAdmin")
 	defer span.End()
 
 	if span.IsRecording() {
@@ -84,7 +87,7 @@ func (h *Handler) isOrgAdmin(ctx context.Context, subject string) ([]string, err
 		Relation:  px.Ptr(consts.OrganizationRelationAdmins.String()),
 		Subject:   rts.NewSubjectSet(consts.UserNamespace.String(), subject, ""),
 	}
-	respTuples, err := h.C.KetoClient.QueryAllTuples(ctx, &query, 100)
+	respTuples, err := clients.KetoClient.QueryAllTuples(ctx, &query, 100)
 	if err != nil {
 		log.Error(err, "Failed to query tuples")
 		span.RecordError(err)
@@ -105,9 +108,10 @@ func (h *Handler) isOrgAdmin(ctx context.Context, subject string) ([]string, err
 
 // Get all the ObservabilityTenants that belong to an organization
 func (h *Handler) getOrgTenants(ctx context.Context, org string) ([]string, error) {
-	log := h.Log.WithName("getOrgTenants").WithValues("Organization", org)
+	clients := common.GetContext(ctx)
+	log := clients.Log.WithName("getOrgTenants").WithValues("Organization", org)
 
-	ctx, span := h.C.Tracer.Start(ctx, "getOrgTenants")
+	ctx, span := clients.Tracer.Start(ctx, "getOrgTenants")
 	defer span.End()
 
 	if span.IsRecording() {
@@ -120,7 +124,7 @@ func (h *Handler) getOrgTenants(ctx context.Context, org string) ([]string, erro
 		Namespace: px.Ptr(consts.ObservabilityTenantNamespace.String()),
 		Subject:   rts.NewSubjectSet(consts.OrganizationNamespace.String(), org, ""),
 	}
-	respTuples, err := h.C.KetoClient.QueryAllTuples(ctx, &query, 100)
+	respTuples, err := clients.KetoClient.QueryAllTuples(ctx, &query, 100)
 	if err != nil {
 		log.Error(err, "Failed to query tuples")
 		span.RecordError(err)
@@ -141,9 +145,11 @@ func (h *Handler) getOrgTenants(ctx context.Context, org string) ([]string, erro
 
 // Get the groups a user is a member of
 func (h *Handler) getUserGroups(ctx context.Context, subject string) ([]string, error) {
-	log := h.Log.WithName("getUserGroups").WithValues("Subject", subject)
+	clients := common.GetContext(ctx)
 
-	ctx, span := h.C.Tracer.Start(ctx, "getUserGroups")
+	log := clients.Log.WithName("getUserGroups").WithValues("Subject", subject)
+
+	ctx, span := clients.Tracer.Start(ctx, "getUserGroups")
 	defer span.End()
 
 	if span.IsRecording() {
@@ -157,7 +163,7 @@ func (h *Handler) getUserGroups(ctx context.Context, subject string) ([]string, 
 		Relation:  px.Ptr(consts.GroupRelationMembers.String()),
 		Subject:   rts.NewSubjectSet(consts.UserNamespace.String(), subject, ""),
 	}
-	respTuples, err := h.C.KetoClient.QueryAllTuples(ctx, &query, 100)
+	respTuples, err := clients.KetoClient.QueryAllTuples(ctx, &query, 100)
 	if err != nil {
 		log.Error(err, "Failed to query tuples")
 		span.RecordError(err)
@@ -178,9 +184,11 @@ func (h *Handler) getUserGroups(ctx context.Context, subject string) ([]string, 
 
 // Get the ObservabilityTenants a user has permissions for
 func (h *Handler) getUserDirectTenants(ctx context.Context, subject string) ([]string, error) {
-	log := h.Log.WithName("getUserDirectTenants").WithValues("Subject", subject)
+	clients := common.GetContext(ctx)
 
-	ctx, span := h.C.Tracer.Start(ctx, "getUserDirectTenants")
+	log := clients.Log.WithName("getUserDirectTenants").WithValues("Subject", subject)
+
+	ctx, span := clients.Tracer.Start(ctx, "getUserDirectTenants")
 	defer span.End()
 
 	if span.IsRecording() {
@@ -193,7 +201,7 @@ func (h *Handler) getUserDirectTenants(ctx context.Context, subject string) ([]s
 		Namespace: px.Ptr(consts.ObservabilityTenantNamespace.String()),
 		Subject:   rts.NewSubjectSet(consts.UserNamespace.String(), subject, ""),
 	}
-	respTuples, err := h.C.KetoClient.QueryAllTuples(ctx, &query, 100)
+	respTuples, err := clients.KetoClient.QueryAllTuples(ctx, &query, 100)
 	if err != nil {
 		log.Error(err, "Failed to query tuples")
 		span.RecordError(err)
@@ -214,9 +222,11 @@ func (h *Handler) getUserDirectTenants(ctx context.Context, subject string) ([]s
 
 // Get the ObservabilityTenants a group has permissions for
 func (h *Handler) getGroupTenants(ctx context.Context, group string) ([]string, error) {
-	log := h.Log.WithName("getGroupTenants").WithValues("Group", group)
+	clients := common.GetContext(ctx)
 
-	ctx, span := h.C.Tracer.Start(ctx, "getGroupTenants")
+	log := clients.Log.WithName("getGroupTenants").WithValues("Group", group)
+
+	ctx, span := clients.Tracer.Start(ctx, "getGroupTenants")
 	defer span.End()
 
 	if span.IsRecording() {
@@ -229,7 +239,7 @@ func (h *Handler) getGroupTenants(ctx context.Context, group string) ([]string, 
 		Namespace: px.Ptr(consts.ObservabilityTenantNamespace.String()),
 		Subject:   rts.NewSubjectSet(consts.GroupNamespace.String(), group, consts.GroupRelationMembers.String()),
 	}
-	respTuples, err := h.C.KetoClient.QueryAllTuples(ctx, &query, 100)
+	respTuples, err := clients.KetoClient.QueryAllTuples(ctx, &query, 100)
 	if err != nil {
 		log.Error(err, "Failed to query tuples")
 		span.RecordError(err)

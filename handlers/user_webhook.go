@@ -5,6 +5,8 @@ import (
 	"net/http"
 
 	"github.com/go-chi/render"
+	"github.com/pluralsh/trace-shield/graph/common"
+	"github.com/pluralsh/trace-shield/graph/model"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/codes"
 )
@@ -37,12 +39,13 @@ func (b *BootstrapRequest) Render(w http.ResponseWriter, r *http.Request) error 
 }
 
 func (h *Handler) BootstrapAdmin(w http.ResponseWriter, r *http.Request) {
-	log := h.Log.WithName("BootstrapAdmin")
+	ctx := r.Context()
+	clients := common.GetContext(ctx)
+
+	log := clients.Log.WithName("BootstrapAdmin")
 	log.Info("Bootstrapping first user as admin")
 
-	ctx := r.Context()
-
-	ctx, span := h.C.Tracer.Start(ctx, "getGroupPolicyTenants")
+	ctx, span := clients.Tracer.Start(ctx, "getGroupPolicyTenants")
 	defer span.End()
 
 	data := &BootstrapRequest{}
@@ -68,7 +71,9 @@ func (h *Handler) BootstrapAdmin(w http.ResponseWriter, r *http.Request) {
 		)
 	}
 
-	currentAdmins, err := h.C.GetOrganizationAdmins(ctx)
+	org := model.NewOrganization()
+
+	currentAdmins, err := org.ExpandOrgAdminRelation(ctx)
 	if err != nil {
 		log.Error(err, "failed to get current admins")
 		render.Render(w, r, ErrFailedToGetAdmins(err))
@@ -77,7 +82,7 @@ func (h *Handler) BootstrapAdmin(w http.ResponseWriter, r *http.Request) {
 
 	if len(currentAdmins) == 0 {
 		log.Info("No current admins, adding initial user as admin", "user", data.UserID)
-		err = h.C.AddAdminToOrganization(ctx, data.UserID)
+		err = clients.KetoClient.CreateTuple(ctx, org.GetAdminTuple(data.UserID))
 		if err != nil {
 			log.Error(err, "failed to add bootstrap user")
 			render.Render(w, r, ErrFailedToSetInitialAdmin(err))
