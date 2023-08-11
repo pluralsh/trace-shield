@@ -8,6 +8,7 @@ import (
 	px "github.com/ory/x/pointerx"
 	"github.com/pluralsh/trace-shield/consts"
 	"github.com/pluralsh/trace-shield/graph/common"
+	"github.com/pluralsh/trace-shield/utils"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/codes"
 )
@@ -54,6 +55,29 @@ func (g *Group) GetOrganizationTuple() *rts.RelationTuple {
 	}
 }
 
+// function that will return the relation query for the group on an organization
+func (g *Group) GetOrganizationQuery() *rts.RelationQuery {
+	return &rts.RelationQuery{
+		Namespace: px.Ptr(consts.GroupNamespace.String()),
+		Object:    px.Ptr(g.Name),
+		Relation:  px.Ptr(consts.ObjectRelationOrganizations.String()),
+		Subject: rts.NewSubjectSet(
+			consts.OrganizationNamespace.String(),
+			consts.MainOrganizationName,
+			"",
+		),
+	}
+}
+
+// function that will return the subject set for the members of the group
+func (g *Group) GetMembersSubjectSet() *rts.Subject {
+	return rts.NewSubjectSet(
+		consts.GroupNamespace.String(),
+		g.Name,
+		consts.GroupRelationMembers.String(),
+	)
+}
+
 // function that checks if a group exists in keto
 func (g *Group) ExistsInKeto(ctx context.Context) (bool, error) {
 	clients := common.GetContext(ctx)
@@ -68,18 +92,7 @@ func (g *Group) ExistsInKeto(ctx context.Context) (bool, error) {
 		)
 	}
 
-	query := rts.RelationQuery{
-		Namespace: px.Ptr(consts.GroupNamespace.String()),
-		Object:    px.Ptr(g.Name),
-		Relation:  px.Ptr(consts.ObjectRelationOrganizations.String()),
-		Subject: rts.NewSubjectSet(
-			consts.OrganizationNamespace.String(),
-			consts.MainOrganizationName,
-			"",
-		),
-	}
-
-	respTuples, err := clients.KetoClient.QueryAllTuples(ctx, &query, 100)
+	respTuples, err := clients.KetoClient.QueryAllTuples(ctx, g.GetOrganizationQuery(), 100)
 	if err != nil {
 		log.Error(err, "Failed to query tuples")
 		span.RecordError(err)
@@ -142,6 +155,110 @@ func (g *Group) DeleteInKeto(ctx context.Context) error {
 
 	log.Info("Success deleting group in keto")
 	return nil
+}
+
+// function that updates the members of a group in keto
+func (g *Group) UpdateMembers(ctx context.Context, members []*UserInput) error {
+	clients := common.GetContext(ctx)
+	log := clients.Log
+
+	ctx, span := clients.Tracer.Start(ctx, "UpdateGroupMembers")
+	defer span.End()
+
+	if span.IsRecording() {
+		span.SetAttributes(
+			attribute.String("group_id", g.Name),
+		)
+	}
+
+	toAdd, toRemove, err := g.GroupChangeset(ctx, members)
+	if err != nil {
+		log.Error(err, "Failed to get groupd members changeset")
+		return err
+	}
+
+	if len(toAdd) == 0 && len(toRemove) == 0 {
+		log.Info("No changes to group members")
+		return nil
+	}
+	return clients.KetoClient.TransactTuples(ctx, toAdd, toRemove)
+}
+
+// function that determines which users to add or remove as a member from a group
+func (g *Group) GroupChangeset(ctx context.Context, members []*UserInput) (toAdd []*rts.RelationTuple, toRemove []*rts.RelationTuple, err error) {
+	clients := common.GetContext(ctx)
+	log := clients.Log.WithName("GroupChangeset")
+
+	ctx, span := clients.Tracer.Start(ctx, "GroupChangeset")
+	defer span.End()
+
+	if span.IsRecording() {
+		span.SetAttributes(
+			attribute.String("group_id", g.Name),
+		)
+	}
+
+	currentMembers, err := g.ExpandGroupMembersRelation(ctx)
+	if err != nil {
+		log.Error(err, "Failed to get current members")
+		return nil, nil, fmt.Errorf("failed to get current members: %w", err)
+	}
+	if members != nil {
+		memberBindings, err := getUserIdsFromUserInputs(ctx, members)
+		if err != nil {
+			log.Error(err, "Failed to get user ids from user inputs")
+		}
+
+		for _, userId := range memberBindings {
+			if !UserIdInListOfUsers(currentMembers, userId) {
+				toAdd = append(toAdd, g.GetUserTuple(userId))
+			}
+		}
+
+		for _, user := range currentMembers {
+			if !utils.StringContains(memberBindings, user.ID) {
+				toRemove = append(toRemove, g.GetUserTuple(user.ID))
+			}
+		}
+	}
+	return toAdd, toRemove, nil
+}
+
+// function that expands the members relation for a group
+func (g *Group) ExpandGroupMembersRelation(ctx context.Context) (members []*User, err error) {
+	clients := common.GetContext(ctx)
+	log := clients.Log.WithName("ExpandGroupMembersRelation")
+
+	ctx, span := clients.Tracer.Start(ctx, "ExpandGroupMembersRelation")
+	defer span.End()
+
+	if span.IsRecording() {
+		span.SetAttributes(
+			attribute.String("group_id", g.Name),
+		)
+	}
+
+	respTuples, err := clients.KetoClient.Expand(ctx, g.GetMembersSubjectSet(), 100)
+	if err != nil {
+		log.Error(err, "Failed to query tuples")
+		span.RecordError(err)
+		span.SetStatus(codes.Error, err.Error())
+		return nil, err
+	}
+
+	log.Info("Success expanding group members relation", "relation", consts.GroupRelationMembers, "tuples", respTuples)
+
+	if respTuples != nil && respTuples.Children != nil {
+		for _, child := range respTuples.Children {
+
+			user, _, _ := processRelation(child)
+			switch {
+			case user != nil:
+				members = append(members, user)
+			}
+		}
+	}
+	return members, nil
 }
 
 // function that checks if a group is in a []*Group
