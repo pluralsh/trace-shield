@@ -1,11 +1,13 @@
 package common
 
 import (
+	"net/http"
+
 	controller "github.com/pluralsh/trace-shield-controller/generated/client/clientset/versioned"
 	ctrl "sigs.k8s.io/controller-runtime"
 )
 
-func NewControllerClient() (*controller.Clientset, error) {
+func NewControllerClient(httpClient *http.Client) (*controller.Clientset, error) {
 	kubeconfig := ctrl.GetConfigOrDie()
-	return controller.NewForConfig(kubeconfig)
+	return controller.NewForConfigAndClient(kubeconfig, httpClient)
 }

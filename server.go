@@ -58,13 +58,15 @@ func main() {
 
 	initTracer(ctx)
 
-	kratosAdminClient, err := common.NewKratosAdminClient()
+	httpClient := &http.Client{Transport: otelhttp.NewTransport(http.DefaultTransport)}
+
+	kratosAdminClient, err := common.NewKratosAdminClient(httpClient)
 	if err != nil {
 		setupLog.Error(err, "An admin address for kratos must be configured")
 		panic(err)
 	}
 
-	kratosPublicClient, err := common.NewKratosPublicClient()
+	kratosPublicClient, err := common.NewKratosPublicClient(httpClient)
 	if err != nil {
 		setupLog.Error(err, "An admin address for kratos must be configured")
 		panic(err)
@@ -77,13 +79,13 @@ func main() {
 		panic(err)
 	}
 
-	hydraAdminClient, err := common.NewHydraAdminClient()
+	hydraAdminClient, err := common.NewHydraAdminClient(httpClient)
 	if err != nil {
 		setupLog.Error(err, "An admin address for hydra must be configured")
 		panic(err)
 	}
 
-	controllerClient, err := common.NewControllerClient()
+	controllerClient, err := common.NewControllerClient(httpClient)
 	if err != nil {
 		setupLog.Error(err, "Failed to setup controller client")
 		panic(err)
